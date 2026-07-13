@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSMIC SURVIVORS — Arena</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --p1: #00f0ff;
+            --p2: #ff006a;
+            --link: #bf00ff;
+            --gold: #ffd700;
+            --bg-deep: #050010;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'Orbitron', monospace;
+            user-select: none;
+            position: relative;
+        }
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        /* ─── CURSOR MODES ─── */
+        body.playing-cursor { cursor: none; }
+        body.menu-cursor { cursor: default; }
+
+        canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
+
+        /* ─── OVERLAYS ─── */
+        .ov {
+            position: fixed; inset: 0; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: radial-gradient(ellipse at center, rgba(10,0,30,0.95) 0%, rgba(0,0,0,0.98) 100%);
+            transition: opacity 0.4s;
+        }
+        .ov.hidden { display: none; }
+        
+        .ov-scroll {
+            max-height: 100vh; overflow-y: auto; width: 100%;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 30px 20px 60px;
+            scrollbar-width: thin; scrollbar-color: rgba(191,0,255,0.3) transparent;
+        }
+
+        /* ─── HUD ─── */
+        #hud {
+            position: fixed; top: 0; left: 0; right: 0;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 12px 20px; z-index: 50; pointer-events: none;
+        }
+        #hud.hidden { display: none; }
+        .hud-p { display: flex; flex-direction: column; gap: 4px; min-width: 200px; }
+        .hud-p.right { align-items: flex-end; }
+        .hud-nm { font-size: 0.65rem; letter-spacing: 0.18em; font-weight: 700; }
+        .hud-bw { width: 180px; height: 7px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+        .hud-b { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+        .hp1 { background: linear-gradient(90deg,#00f0ff,#00a8ff); box-shadow: 0 0 8px rgba(0,240,255,0.4); }
+        .hp2 { background: linear-gradient(90deg,#ff006a,#ff4500); box-shadow: 0 0 8px rgba(255,0,106,0.4); }
+        .sh { background: linear-gradient(90deg,#bf00ff,#8000ff); box-shadow: 0 0 8px rgba(191,0,255,0.4); }
+        .xpb { background: linear-gradient(90deg,#ffd700,#ff8c00); box-shadow: 0 0 8px rgba(255,215,0,0.4); }
+        .hud-lv { font-family: 'Rajdhani', sans-serif; font-size: 0.65rem; color: #ffd700; opacity: 0.85; margin-top: 1px; }
+        
+        .hud-upgs { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; max-width: 200px; }
+        .hud-upgs.right { justify-content: flex-end; }
+        .hud-ui {
+            width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+            position: relative; cursor: default;
+        }
+        .hud-ui .uc {
+            position: absolute; top: -3px; right: -3px; font-family: 'Rajdhani', sans-serif;
+            font-size: 0.45rem; background: rgba(0,0,0,0.85); border-radius: 50%;
+            width: 12px; height: 12px; display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .hud-c { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .hud-sc { font-size: clamp(1.1rem, 2.5vw, 1.8rem); font-weight: 900; background: linear-gradient(135deg,#ffd700,#ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hud-wv { font-family: 'Rajdhani', sans-serif; font-size: 0.65rem; color: rgba(255,255,255,0.45); letter-spacing: 0.25em; }
+        .hud-tm { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: rgba(255,255,255,0.35); }
+        .hud-co { font-size: 0.7rem; font-weight: 700; color: #ff006a; text-shadow: 0 0 12px rgba(255,0,106,0.7); opacity: 0; transition: opacity 0.3s; }
+        .hud-co.active { opacity: 1; }
+        .hud-df { font-family: 'Rajdhani', sans-serif; font-size: 0.55rem; letter-spacing: 0.15em; }
+        .hud-df.easy { color: #44ff44; }
+        .hud-df.medium { color: #ffaa00; }
+        .hud-df.hard { color: #ff4444; }
+
+        .p1c { color: #00f0ff; text-shadow: 0 0 15px rgba(0,240,255,0.3); }
+        .p2c { color: #ff006a; text-shadow: 0 0 15px rgba(255,0,106,0.3); }
+
+        /* ─── Boss HP Bar ─── */
+        #bossBar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 50; pointer-events: none; text-align: center; width: min(80%, 500px); opacity: 0; transition: opacity 0.5s; }
+        #bossBar.active { opacity: 1; }
+        .bn { font-size: 0.65rem; color: #ff00ff; letter-spacing: 0.2em; margin-bottom: 4px; text-shadow: 0 0 15px rgba(255,0,255,0.5); }
+        .bhw { width: 100%; height: 10px; background: rgba(255,255,255,0.06); border-radius: 5px; overflow: hidden; border: 1px solid rgba(255,0,255,0.2); }
+        .bhb { height: 100%; background: linear-gradient(90deg,#ff00ff,#ff006a); border-radius: 5px; transition: width 0.2s; box-shadow: 0 0 15px rgba(255,0,255,0.4); }
+
+        /* ─── Wave Announcement ─── */
+        #waveAnn { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 60; pointer-events: none; text-align: center; opacity: 0; transition: opacity 0.5s; }
+        #waveAnn.show { opacity: 1; }
+        .wa-t { font-size: clamp(1.8rem, 5vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg,#ff006a,#bf00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .wa-s { font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; color: rgba(255,255,255,0.4); letter-spacing: 0.3em; margin-top: 0.3em; }
+
+        /* ─── BOSS REWARD (5s Pause overlay) ─── */
+        #bossRewardOv {
+            position: fixed; inset: 0; z-index: 95;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: radial-gradient(ellipse at center, rgba(50,0,80,0.92) 0%, rgba(0,0,0,0.96) 100%);
+            backdrop-filter: blur(8px);
+            opacity: 0; transition: opacity 0.6s; pointer-events: none;
+        }
+        #bossRewardOv.show { opacity: 1; pointer-events: auto; }
+
+        .br-title {
+            font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 900;
+            color: #ffd700; text-shadow: 0 0 50px rgba(255,215,0,0.4);
+            letter-spacing: 0.15em; margin-bottom: 6px;
+        }
+        .br-boss-name { font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; color: rgba(255,0,255,0.7); letter-spacing: 0.2em; margin-bottom: 24px; }
+        .br-players { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+        .br-player-box {
+            min-width: 230px; padding: 20px; border-radius: 14px;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);
+            text-align: center;
+        }
+        .br-pname { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; margin-bottom: 10px; }
+        .br-heal { font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; color: #44ff44; margin-bottom: 16px; letter-spacing: 0.1em; }
+        .br-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-bottom: 12px; }
+        .br-stat { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; text-align: left; color: rgba(255,255,255,0.4); }
+        .br-stat span { color: rgba(255,255,255,0.8); font-weight: 600; }
+        .br-new-title { font-size: 0.6rem; color: rgba(255,215,0,0.7); letter-spacing: 0.15em; margin-bottom: 6px; }
+        .br-new-list { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+        .br-upg-chip { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.04); }
+        .br-all-title { font-size: 0.6rem; color: rgba(255,255,255,0.3); letter-spacing: 0.15em; margin: 10px 0 6px; }
+        .br-all-list { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+        .br-all-chip { font-size: 0.55rem; padding: 3px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); font-family: 'Rajdhani', sans-serif; color: rgba(255,255,255,0.5); }
+        
+        .br-timer { font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 0.1em; }
+        .br-timer span { color: rgba(255,255,255,0.7); font-weight: 600; }
+
+        /* ─── TERMINAL HUD PAUSE MENU ─── */
+        #pauseOv {
+            position: fixed; inset: 0; z-index: 90;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(3, 0, 7, 0.88);
+            backdrop-filter: blur(12px);
+        }
+        #pauseOv.hidden { display: none; }
+
+        .pause-panel {
+            width: min(95%, 850px);
+            background: rgba(8, 4, 18, 0.75);
+            border: 1px solid rgba(191, 0, 255, 0.25);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7), inset 0 0 30px rgba(191,0,255,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 90vh;
+        }
+
+        .pause-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 10px;
+        }
+        .pause-title { font-family: 'Orbitron', monospace; font-size: 1.1rem; font-weight: 800; letter-spacing: 0.1em; color: #fff; }
+        .pause-meta-desc { font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.35); }
+
+        /* Split layout inside the pause HUD */
+        .pause-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 6px;
+            scrollbar-width: thin; scrollbar-color: rgba(191,0,255,0.3) transparent;
+        }
+        @media(max-width: 750px) {
+            .pause-grid { grid-template-columns: 1fr; }
+        }
+
+        .hud-sub-panel {
+            background: rgba(255,255,255,0.01);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .hud-sub-title {
+            font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700;
+            color: rgba(255,255,255,0.4); border-bottom: 1px solid rgba(255,255,255,0.04);
+            padding-bottom: 4px; margin-bottom: 4px;
+        }
+
+        /* Pilot Stats */
+        .pilot-stats-flex {
+            display: flex; gap: 10px;
+        }
+        .pilot-stat-col {
+            flex: 1; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px;
+        }
+        .stat-line {
+            display: flex; justify-content: space-between; font-family: 'Rajdhani', sans-serif; font-size: 0.75rem;
+            border-bottom: 1px dashed rgba(255,255,255,0.02); padding-bottom: 2px;
+        }
+        .stat-line .lbl { color: rgba(255,255,255,0.4); }
+        .stat-line .val { color: #fff; font-weight: 600; }
+
+        /* Drop Guide Mini Grid */
+        .drop-guide-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+        }
+        .mini-drop {
+            display: flex; gap: 8px; align-items: center; background: rgba(255,255,255,0.005);
+            border: 1px solid rgba(255,255,255,0.02); border-radius: 6px; padding: 6px;
+        }
+        .mini-drop-ico {
+            width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: bold; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08);
+        }
+        .mini-drop-info { display: flex; flex-direction: column; gap: 1px; }
+        .mini-drop-name { font-size: 0.6rem; font-weight: 700; }
+        .mini-drop-desc { font-family: 'Rajdhani', sans-serif; font-size: 0.65rem; color: rgba(255,255,255,0.35); }
+
+        /* Settings widgets */
+        .widgets-col {
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .widget-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.008); border: 1px solid rgba(255,255,255,0.02);
+            padding: 8px 12px; border-radius: 8px; font-family: 'Rajdhani', sans-serif;
+        }
+        .widget-lbl { font-size: 0.75rem; font-weight: 600; color: #fff; }
+        .widget-sub { font-size: 0.65rem; color: rgba(255,255,255,0.4); display: block; }
+        
+        .slider-ctrl { display: flex; align-items: center; gap: 8px; }
+        .slider-ctrl input[type="range"] {
+            outline: none; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px;
+            width: 80px; appearance: none; cursor: pointer; accent-color: var(--link);
+        }
+        .slider-val { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #fff; width: 30px; text-align: right; }
+        
+        .toggle-btn {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; font-family: 'Orbitron', monospace; font-size: 0.6rem; font-weight: bold;
+            padding: 4px 10px; border-radius: 5px; cursor: pointer; transition: all 0.2s;
+        }
+        .toggle-btn.on { background: rgba(0, 240, 255, 0.1); border-color: var(--p1); }
+        .toggle-btn.off { background: rgba(255, 0, 106, 0.1); border-color: var(--p2); }
+
+        .pause-footer {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding-top: 12px; display: flex; justify-content: flex-end; gap: 10px;
+        }
+
+        /* ─── Buttons ─── */
+        .btn {
+            font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700;
+            padding: 10px 24px; border: 1px solid rgba(0,240,255,0.4); border-radius: 50px;
+            background: linear-gradient(135deg,rgba(0,240,255,0.06),rgba(191,0,255,0.06));
+            color: #fff; cursor: pointer; letter-spacing: 0.1em; transition: all 0.2s;
+        }
+        .btn:hover { border-color: rgba(0,240,255,0.8); box-shadow: 0 0 20px rgba(0,240,255,0.18); }
+        .btn.sm { font-size: 0.6rem; padding: 6px 14px; border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.02); }
+        .btn.danger { border-color: rgba(255,0,106,0.4); background: linear-gradient(135deg,rgba(255,0,106,0.04),rgba(191,0,255,0.04)); }
+        .btn.danger:hover { border-color: rgba(255,0,106,0.8); box-shadow: 0 0 20px rgba(255,0,106,0.18); }
+
+        /* Game Over Specific */
+        .go-t { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; color: #ff006a; text-shadow: 0 0 50px rgba(255,0,106,0.4); letter-spacing: 0.15em; margin-bottom: 0.4em; }
+        .go-s { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; color: rgba(255,255,255,0.6); margin-bottom: 0.3em; letter-spacing: 0.08em; }
+        .go-s span { color: #ffd700; font-weight: 700; }
+        .go-nr { font-size: 0.9rem; color: #ffd700; text-shadow: 0 0 25px rgba(255,215,0,0.5); animation: pulse 1s ease infinite; margin: 0.5em 0 1em; letter-spacing: 0.2em; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.06)} }
+        .go-usum { margin: 1em 0; }
+        .go-ut { font-size: 0.6rem; color: rgba(255,255,255,0.3); letter-spacing: 0.2em; margin-bottom: 0.4em; }
+        .go-ul { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+        .go-uc { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); }
+
+        /* ─── LEVEL UP CARDS ─── */
+        .lu-card-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .lu-card {
+            width: 210px;
+            background: rgba(12, 6, 26, 0.92);
+            border: 1px solid rgba(191,0,255,0.18);
+            border-radius: 14px;
+            padding: 22px 18px;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            text-align: center;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.75), inset 0 0 20px rgba(191,0,255,0.02);
+            position: relative;
+            overflow: hidden;
+        }
+        .lu-card::before {
+            content: ''; position: absolute; top:0; left:0; right:0; height:3px;
+            background: rgba(255,255,255,0.2);
+        }
+        .lu-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0,240,255,0.6);
+            box-shadow: 0 15px 40px rgba(0,240,255,0.25);
+        }
+        .lu-card-icon {
+            font-size: 2.2rem;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.02);
+            transition: all 0.3s;
+        }
+        .lu-card:hover .lu-card-icon {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.06);
+        }
+        .lu-card-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.05em;
+        }
+        .lu-card-desc {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.45);
+            line-height: 1.4;
+        }
+        
+        /* Rarities */
+        .lu-card.common { border-color: rgba(255,255,255,0.1); }
+        .lu-card.common::before { background: rgba(255,255,255,0.2); }
+        
+        .lu-card.rare { border-color: rgba(0, 240, 255, 0.3); }
+        .lu-card.rare::before { background: var(--p1); }
+        .lu-card.rare .lu-card-name { color: var(--p1); }
+
+        .lu-card.epic { border-color: rgba(191, 0, 255, 0.4); }
+        .lu-card.epic::before { background: var(--link); }
+        .lu-card.epic .lu-card-name { color: #d844ff; }
+        
+        .lu-card.legendary {
+            border-color: rgba(255, 215, 0, 0.5);
+            animation: legendaryPulse 1.5s infinite alternate;
+        }
+        .lu-card.legendary::before { background: var(--gold); }
+        .lu-card.legendary .lu-card-name { color: var(--gold); }
+        @keyframes legendaryPulse {
+            0% { box-shadow: 0 10px 30px rgba(255, 215, 0, 0.1); }
+            100% { box-shadow: 0 10px 35px rgba(255, 215, 0, 0.3); border-color: rgba(255, 215, 0, 0.8); }
+        }
+    </style>
+</head>
+<body class="playing-cursor">
+<canvas id="gameCanvas"></canvas>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+    <div class="hud-p" id="p1Hud">
+        <div class="hud-nm p1c" id="p1NameLabel">◈ OYUNCU 1</div>
+        <div class="hud-bw"><div class="hud-b hp1" id="p1Hp"></div></div>
+        <div class="hud-bw"><div class="hud-b sh" id="p1Sh"></div></div>
+        <div class="hud-bw" style="height:4px"><div class="hud-b xpb" id="p1Xp"></div></div>
+        <div class="hud-lv" id="p1Lv">Lv.1</div>
+        <div class="hud-upgs" id="p1Upgs"></div>
+    </div>
+    <div class="hud-c">
+        <div class="hud-sc" id="hudSc">0</div>
+        <div class="hud-wv" id="hudWv">DALGA 1</div>
+        <div class="hud-tm" id="hudTm">00:00</div>
+        <div class="hud-co" id="hudCo">COMBO x1</div>
+        <div class="hud-df" id="hudDf">KOLAY</div>
+    </div>
+    <div class="hud-p right" id="p2Hud">
+        <div class="hud-nm p2c" id="p2NameLabel">OYUNCU 2 ◈</div>
+        <div class="hud-bw"><div class="hud-b hp2" id="p2Hp"></div></div>
+        <div class="hud-bw"><div class="hud-b sh" id="p2Sh"></div></div>
+        <div class="hud-bw" style="height:4px"><div class="hud-b xpb" id="p2Xp"></div></div>
+        <div class="hud-lv" id="p2Lv">Lv.1</div>
+        <div class="hud-upgs right" id="p2Upgs"></div>
+    </div>
+</div>
+
+<div id="bossBar"><div class="bn" id="bossNm">BOSS</div><div class="bhw"><div class="bhb" id="bossHp" style="width:100%"></div></div></div>
+<div id="waveAnn"><div class="wa-t" id="waT">DALGA 1</div><div class="wa-s" id="waS"></div></div>
+
+<!-- Boss Reward (5 sec pause) -->
+<div id="bossRewardOv">
+    <div class="br-title" id="brTitle">★ BOSS YENİLDİ! ★</div>
+    <div class="br-boss-name" id="brBossName"></div>
+    <div class="br-heal">♥ Takım Canı & Kalkanları Fullendi!</div>
+    <div class="br-players" id="brPlayers"></div>
+    <div class="br-timer">Savaş alanı dengeleniyor... <span id="brTimer">5</span></div>
+</div>
+
+<!-- ─── TERMINAL HUD PAUSE MENU ─── -->
+<div id="pauseOv" class="hidden">
+    <div class="pause-panel">
+        <div class="pause-header">
+            <div>
+                <div class="pause-title">COSMIC TERMINAL: DURDURULDU</div>
+                <div class="pause-meta-desc">Savaş simülasyonu geçici olarak donduruldu. Statları ve drop rehberini inceleyin.</div>
+            </div>
+            <button class="btn sm" id="resumeBtn">DEVAM ET (ESC)</button>
+        </div>
+
+        <!-- Split Grid Details -->
+        <div class="pause-grid">
+            <!-- Left Side: Dynamic Pilot Stats -->
+            <div class="hud-sub-panel">
+                <div class="hud-sub-title">📊 AKTİF PİLOT STATLARI</div>
+                <div class="pilot-stats-flex" id="pauseStatsGrid">
+                    <!-- JS ile dolacak -->
+                </div>
+            </div>
+
+            <!-- Right Side: Mini Guide & Controls -->
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <!-- Drops Guide -->
+                <div class="hud-sub-panel">
+                    <div class="hud-sub-title">🎁 DROP ÖĞELERİ VE ETKİLERİ</div>
+                    <div class="drop-guide-grid">
+                        <div class="mini-drop">
+                            <span class="mini-drop-ico" style="color:#ff4444; border-color:rgba(255,68,68,0.2)">♥</span>
+                            <div class="mini-drop-info">
+                                <span class="mini-drop-name" style="color:#ff4444">Can Paketi</span>
+                                <span class="mini-drop-desc">+35 HP iyileştirir</span>
+                            </div>
+                        </div>
+                        <div class="mini-drop">
+                            <span class="mini-drop-ico" style="color:#bf00ff; border-color:rgba(191,0,255,0.2)">◆</span>
+                            <div class="mini-drop-info">
+                                <span class="mini-drop-name" style="color:#bf00ff">Kalkan Full</span>
+                                <span class="mini-drop-desc">Maksimum kalkan</span>
+                            </div>
+                        </div>
+                        <div class="mini-drop">
+                            <span class="mini-drop-ico" style="color:#ffff00; border-color:rgba(255,255,0,0.2)">»</span>
+                            <div class="mini-drop-info">
+                                <span class="mini-drop-name" style="color:#ffff00">Hızlı Ateş</span>
+                                <span class="mini-drop-desc">8sn +%150 atış hızı</span>
+                            </div>
+                        </div>
+                        <div class="mini-drop">
+                            <span class="mini-drop-ico" style="color:#ff8800; border-color:rgba(255,136,0,0.2)">★</span>
+                            <div class="mini-drop-info">
+                                <span class="mini-drop-name" style="color:#ff8800">Çift Hasar</span>
+                                <span class="mini-drop-desc">8sn +%80 hasar</span>
+                            </div>
+                        </div>
+                        <div class="mini-drop">
+                            <span class="mini-drop-ico" style="color:#00ff88; border-color:rgba(0,255,136,0.2)">⋮</span>
+                            <div class="mini-drop-info">
+                                <span class="mini-drop-name" style="color:#00ff88">Üçlü Atış</span>
+                                <span class="mini-drop-desc">8sn 3 yönlü mermi</span>
+                            </div>
+                        </div>
+                        <div class="mini-drop">
+                            <span class="mini-drop-ico" style="color:#00ccff; border-color:rgba(0,204,255,0.2)">⚡</span>
+                            <div class="mini-drop-info">
+                                <span class="mini-drop-name" style="color:#00ccff">Moto-Hız</span>
+                                <span class="mini-drop-desc">8sn +%45 hareket hızı</span>
+                            </div>
+                        </div>
+                        <div class="mini-drop">
+                            <span class="mini-drop-ico" style="color:#ff0000; border-color:rgba(255,0,0,0.2)">●</span>
+                            <div class="mini-drop-info">
+                                <span class="mini-drop-name" style="color:#ff0000">Kozmik Bomba</span>
+                                <span class="mini-drop-desc">Düşmanları temizler</span>
+                            </div>
+                        </div>
+                        <div class="mini-drop">
+                            <span class="mini-drop-ico" style="color:#ffffff; border-color:rgba(255,255,255,0.2)">→</span>
+                            <div class="mini-drop-info">
+                                <span class="mini-drop-name" style="color:#ffffff">Delici Lazer</span>
+                                <span class="mini-drop-desc">8sn delici mermiler</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings / Widgets -->
+                <div class="hud-sub-panel">
+                    <div class="hud-sub-title">⚙️ AYARLAR</div>
+                    <div class="widgets-col">
+                        <div class="widget-row">
+                            <div>
+                                <span class="widget-lbl">Ses Efektleri</span>
+                                <span class="widget-sub">Mermi ve patlama ses seviyeleri</span>
+                            </div>
+                            <div class="slider-ctrl">
+                                <input type="range" id="sfxVolumeRange" min="0" max="100" value="50">
+                                <span class="slider-val" id="sfxVolumeVal">50%</span>
+                            </div>
+                        </div>
+                        <div class="widget-row">
+                            <div>
+                                <span class="widget-lbl">Tonlar & Müzik</span>
+                                <span class="widget-sub">Sentezleyici dalgaları</span>
+                            </div>
+                            <button class="toggle-btn on" id="synthSoundToggle">AÇIK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pause-footer">
+            <button class="btn danger" id="quitBtn">OYUNU BİTİR</button>
+            <button class="btn" id="restartGameBtn">YENİDEN BAŞLAT</button>
+            <button class="btn" id="resumeGameBtn">DEVAM ET</button>
+        </div>
+    </div>
+</div>
+
+<!-- Game Over -->
+<div class="ov hidden" id="gameOverOv">
+<div class="ov-scroll">
+    <div class="go-t">SİMÜLASYON SONLANDI</div>
+    <div class="go-s" style="color:var(--gold); font-size:1.6rem; font-weight:800; letter-spacing:0.1em; text-shadow:0 0 30px rgba(255,215,0,0.3)">SKOR: <span id="goSc">0</span></div>
+    <div class="go-nr hidden" id="goNr">🏆 YENİ YEREL REKOR! 🏆</div>
+    <div class="go-s">Ulaşılan Seviye: <span id="goWv" style="color:#fff;">1</span></div>
+    <div class="go-s">Yok Edilen Parazit: <span id="goKl" style="color:#fff;">0</span></div>
+    <div class="go-s">Hayatta Kalma Süresi: <span id="goTm" style="color:#fff;">00:00</span></div>
+    
+    <div class="go-usum" id="goUsum"></div>
+    <button class="btn" id="retryBtn">TEKRAR OYNA</button>
+    <div style="font-family:Rajdhani,sans-serif;font-size:0.85rem;color:rgba(255,215,0,0.6);margin-top:1em;letter-spacing:0.08em" id="goHs"></div>
+    <button class="btn sm" id="menuBtn">ANA MENÜ</button>
+</div>
+</div>
+
+<!-- ─── ROGUELIKE LEVEL UP CARD OVERLAY ─── -->
+<div id="levelUpOv" class="ov hidden">
+    <div class="ov-scroll">
+        <div class="level-up-header" style="text-align: center; margin-bottom: 24px;">
+            <div class="level-up-subtitle" id="luPlayerSubtitle">PİLOT 1 SEVİYE ATLADI!</div>
+            <div class="level-up-title" style="font-family: 'Orbitron', monospace; font-size: 2.2rem; font-weight: 900; color: #fff; letter-spacing: 0.1em; text-shadow: 0 0 25px rgba(255,255,255,0.2);">YETENEK GELİŞTİRME</div>
+            <div class="level-up-desc" style="font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-top: 4px;">Savaş geminiz için 3 prototip karttan birini seçin:</div>
+        </div>
+
+        <div class="lu-card-container" id="luCardsContainer">
+            <!-- JS ile dinamik eklenecek -->
+        </div>
+    </div>
+</div>
+
+<script src="leaderboard.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
