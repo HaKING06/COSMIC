@@ -349,7 +349,13 @@ class Player {
     shoot() {
         if (!this.alive) return;
         let nr = null, nd = Infinity;
-        for (const e of enemies) { if (!e.alive) continue; const d = dist(this, e); if (d < nd) { nd = d; nr = e; } }
+        for (const e of enemies) {
+            if (!e.alive) continue;
+            // Düşman ekran dışındaysa otomatik hedef alma dışı bırak
+            if (e.x < 0 || e.x > canvas.width || e.y < 0 || e.y > canvas.height) continue;
+            const d = dist(this, e);
+            if (d < nd) { nd = d; nr = e; }
+        }
         
         let sa = this.fac; if (nr && nd < 800) sa = ang(this, nr);
         const dmgB = this.tP.damage ? this.bd * 1.8 : this.bd;
@@ -717,6 +723,13 @@ class Enemy {
         return true;
     }
     takeDmg(d, cr) {
+        // Ekran dışındaki düşmanlar ve giriş aşamasındaki bosslar hasar almaz
+        if (this.isBoss) {
+            if (this.y < 80 || this.x < 0 || this.x > canvas.width || this.y > canvas.height) return;
+        } else {
+            if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) return;
+        }
+
         if (this.shHp > 0) {
             const ab = Math.min(this.shHp, d); this.shHp -= ab; d -= ab;
             spawnP(this.x, this.y, '#6666ff', 3, 60, 0.2, 2);
@@ -1313,7 +1326,10 @@ function updateBossReward(dt) {
 // ── Drop Eşyaları ──
 function spawnPickup(x, y) {
     const t = PTYPES[randInt(0, PTYPES.length - 1)];
-    pickups.push({ x, y, type: t, r: 12, life: 12, aA: rand(0, Math.PI * 2), color: PDATA[t].c });
+    const pad = 35; // Ekran kenarından minimum uzaklık
+    const clampedX = clamp(x, pad, canvas.width - pad);
+    const clampedY = clamp(y, pad, canvas.height - pad);
+    pickups.push({ x: clampedX, y: clampedY, type: t, r: 12, life: 12, aA: rand(0, Math.PI * 2), color: PDATA[t].c });
 }
 function applyPickup(pl, t) {
     sfx.pow(); const d = PDATA[t];
@@ -2165,6 +2181,58 @@ synthSoundToggle.addEventListener('click', () => {
         synthSoundToggle.className = 'toggle-btn off';
     }
 });
+
+const fullscreenToggle = document.getElementById('fullscreenToggle');
+if (fullscreenToggle) {
+    fullscreenToggle.addEventListener('click', () => {
+        const docEl = document.documentElement;
+        const fsEl = document.fullscreenElement || 
+                     document.mozFullScreenElement || 
+                     document.webkitFullscreenElement || 
+                     document.msFullscreenElement;
+
+        if (!fsEl) {
+            if (docEl.requestFullscreen) {
+                docEl.requestFullscreen();
+            } else if (docEl.mozRequestFullScreen) {
+                docEl.mozRequestFullScreen();
+            } else if (docEl.webkitRequestFullscreen) {
+                docEl.webkitRequestFullscreen();
+            } else if (docEl.msRequestFullscreen) {
+                docEl.msRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+    });
+
+    const updateFullscreenButtonState = () => {
+        const fsEl = document.fullscreenElement || 
+                     document.mozFullScreenElement || 
+                     document.webkitFullscreenElement || 
+                     document.msFullscreenElement;
+        if (fsEl) {
+            fullscreenToggle.textContent = 'AÇIK';
+            fullscreenToggle.className = 'toggle-btn on';
+        } else {
+            fullscreenToggle.textContent = 'KAPALI';
+            fullscreenToggle.className = 'toggle-btn off';
+        }
+    };
+
+    document.addEventListener('fullscreenchange', updateFullscreenButtonState);
+    document.addEventListener('mozfullscreenchange', updateFullscreenButtonState);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenButtonState);
+    document.addEventListener('msfullscreenchange', updateFullscreenButtonState);
+}
 
 // Oyun Bitti Kontrolleri
 document.getElementById('retryBtn').addEventListener('click', startGame);
