@@ -613,6 +613,116 @@
             text-transform: uppercase;
         }
         .wiki-coop-col strong { color: var(--link); }
+
+        /* Mobile Custom Styles (Portrait & Landscape) */
+        @media (max-width: 900px) {
+            .navbar {
+                height: 55px;
+                padding: 0 15px;
+            }
+            .nav-logo {
+                font-size: 1.1rem;
+            }
+            .nav-btn {
+                font-size: 0.6rem;
+                padding: 6px 12px;
+            }
+            .hero-viewport {
+                padding: 10px;
+                gap: 15px;
+                grid-template-columns: 1fr;
+            }
+            .card {
+                padding: 15px;
+                gap: 12px;
+            }
+            .card-title {
+                font-size: 0.75rem;
+                padding-bottom: 6px;
+            }
+            .mode-select {
+                padding: 8px 10px;
+                gap: 8px;
+            }
+            .mode-lbl {
+                font-size: 0.65rem;
+            }
+            .mode-sub {
+                font-size: 0.55rem;
+            }
+            .inp-gp label {
+                font-size: 0.55rem;
+            }
+            .inp-gp input {
+                padding: 8px 10px;
+                font-size: 0.7rem;
+            }
+            .ships-container {
+                gap: 10px;
+                padding-top: 10px;
+            }
+            .ship-card {
+                padding: 6px 8px;
+                gap: 8px;
+            }
+            .ship-icon {
+                width: 24px;
+                height: 24px;
+                font-size: 0.9rem;
+            }
+            .ship-name {
+                font-size: 0.65rem;
+            }
+            .ship-desc {
+                font-size: 0.55rem;
+            }
+            .diff-opt {
+                font-size: 0.65rem;
+                padding: 8px 4px;
+            }
+            .diff-desc-text {
+                font-size: 0.65rem;
+                padding: 6px 10px;
+            }
+            .play-card {
+                padding: 20px;
+            }
+            .play-btn {
+                font-size: 1.1rem;
+                padding: 12px 30px;
+            }
+            .play-hint {
+                font-size: 0.55rem;
+            }
+            .wiki-section {
+                padding: 40px 15px;
+            }
+            .wiki-title {
+                font-size: 1.6rem;
+            }
+            .wiki-subtitle {
+                font-size: 0.75rem;
+            }
+            .wiki-ships-grid, .wiki-enemy-grid, .wiki-upgs-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .wiki-ship-card, .wiki-enemy-card, .wiki-upg-card, .wiki-coop-card {
+                padding: 15px;
+            }
+        }
+
+        /* Mobile Landscape specific tweaks */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .hero-viewport {
+                grid-template-columns: 1.1fr 0.9fr;
+                align-items: start;
+            }
+            .launch-container {
+                position: sticky;
+                top: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1014,6 +1124,12 @@
     <!-- Load Leaderboard Module -->
     <script src="leaderboard.js"></script>
     <script>
+        // Mobile detection
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            document.body.classList.add('is-mobile');
+        }
+
         let currentMode = '1p';
         let currentDiff = 'easy';
         let activeScoreboardTab = 'global';

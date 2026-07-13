@@ -252,6 +252,70 @@
         .flash-screen.active {
             opacity: 1;
         }
+
+        /* Mobile Custom Styles (Portrait & Landscape) */
+        @media (max-width: 900px), (max-height: 600px) {
+            .dashboard {
+                grid-template-rows: auto 1fr auto;
+                padding: 10px;
+                gap: 10px;
+            }
+            .hdr {
+                padding: 0 15px;
+                min-height: 50px;
+                height: auto;
+            }
+            .hdr-title {
+                font-size: 0.9rem;
+            }
+            .hdr-status {
+                font-size: 0.65rem;
+            }
+            .hangar-grid {
+                gap: 10px;
+            }
+            .cockpit-card {
+                padding: 12px;
+                gap: 10px;
+            }
+            .pilot-name {
+                font-size: 0.8rem;
+            }
+            .ship-tag {
+                font-size: 0.6rem;
+                padding: 1px 6px;
+            }
+            .ship-preview-box {
+                height: 100px;
+            }
+            .ship-canvas {
+                width: 80px;
+                height: 80px;
+            }
+            .diagnostics-box {
+                padding: 8px;
+                font-size: 0.6rem;
+                gap: 4px;
+            }
+            .footer-console {
+                padding: 10px 15px;
+                grid-template-columns: 1fr auto;
+                gap: 10px;
+            }
+            .story-scroller {
+                height: 50px;
+                padding-right: 10px;
+            }
+            .story-text {
+                font-size: 0.75rem;
+            }
+            .countdown-number {
+                font-size: 1.6rem;
+            }
+            .countdown-label {
+                font-size: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body>

@@ -8,6 +8,13 @@ function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
 resize();
 addEventListener('resize', resize);
 
+// Mobile detection and variables
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+if (isMobile) {
+    document.body.classList.add('is-mobile');
+}
+const mobileJoystick = { x: 0, y: 0, active: false };
+
 // ── Oturum ve URL Parametreleri ──
 const params = new URLSearchParams(location.search);
 const MODE = params.get('mode') === '2p' ? '2p' : '1p';
@@ -291,8 +298,13 @@ class Player {
         
         let mx = 0, my = 0;
         if (this.id === 1) {
-            if (keys.KeyW) my -= 1; if (keys.KeyS) my += 1;
-            if (keys.KeyA) mx -= 1; if (keys.KeyD) mx += 1;
+            if (isMobile && mobileJoystick.active) {
+                mx = mobileJoystick.x;
+                my = mobileJoystick.y;
+            } else {
+                if (keys.KeyW) my -= 1; if (keys.KeyS) my += 1;
+                if (keys.KeyA) mx -= 1; if (keys.KeyD) mx += 1;
+            }
         } else {
             if (keys.ArrowUp) my -= 1; if (keys.ArrowDown) my += 1;
             if (keys.ArrowLeft) mx -= 1; if (keys.ArrowRight) mx += 1;
@@ -1136,6 +1148,7 @@ function triggerLevelUpChoice(info) {
     setCursorMode(true);
     setSoundMuffled(true);
     sfx.lvl();
+    document.body.classList.remove('playing-mode');
     
     const subt = document.getElementById('luPlayerSubtitle');
     subt.textContent = `◈ ${levelingPlayer.name.toUpperCase()} SEVİYE ATLADI (SEVİYE ${info.lv}) ◈`;
@@ -1195,6 +1208,7 @@ function triggerLevelUpChoice(info) {
             setSoundMuffled(false);
             gameState = 'playing';
             updateUpgDisplay();
+            document.body.classList.add('playing-mode');
         });
         
         container.appendChild(card);
@@ -1221,6 +1235,7 @@ function showBossReward(bossName) {
     gameState = 'bossReward';
     setCursorMode(true);
     setSoundMuffled(true);
+    document.body.classList.remove('playing-mode');
     
     const rewards = [];
     const alivePlayers = livePlayers();
@@ -1291,6 +1306,7 @@ function updateBossReward(dt) {
         setSoundMuffled(false);
         gameState = 'playing';
         setCursorMode(false);
+        document.body.classList.add('playing-mode');
     }
 }
 
@@ -1684,6 +1700,7 @@ function startGame() {
     const df = document.getElementById('hudDf'); df.textContent = DC.label; df.className = 'hud-df ' + DC.cls;
     eA();
     setSoundMuffled(false);
+    document.body.classList.add('playing-mode');
 }
 
 // ── Liderlik Tablosuna Kaydetme ──
@@ -1702,6 +1719,7 @@ function endGame() {
     document.getElementById('bossRewardOv').classList.remove('show');
     document.getElementById('levelUpOv').classList.add('hidden');
     document.getElementById('gameOverOv').classList.remove('hidden');
+    document.body.classList.remove('playing-mode');
     
     const fs = Math.floor(score);
     document.getElementById('goSc').textContent = fs.toLocaleString();
@@ -2107,6 +2125,7 @@ function resumeGame() {
     document.getElementById('pauseOv').classList.add('hidden');
     setSoundMuffled(false);
     setCursorMode(false);
+    document.body.classList.add('playing-mode');
 }
 
 function pauseGame() {
@@ -2115,6 +2134,7 @@ function pauseGame() {
     document.getElementById('pauseOv').classList.remove('hidden');
     setSoundMuffled(true);
     setCursorMode(true);
+    document.body.classList.remove('playing-mode');
 }
 
 document.getElementById('resumeBtn').addEventListener('click', resumeGame);
@@ -2210,6 +2230,134 @@ const PDATA = {
     bomb: { i: '●', n: 'BOMBA', c: '#ff0000' },
     piercing: { i: '→', n: 'DELİCİ', c: '#ffffff' }
 };
+
+// ── Mobile Joystick and Touch Handling ──
+if (isMobile) {
+    const joyContainer = document.getElementById('mobileJoystickContainer');
+    const joyOuter = document.getElementById('joystickOuter');
+    const joyKnob = document.getElementById('joystickKnob');
+    const pauseBtn = document.getElementById('mobilePauseBtn');
+
+    pauseBtn.addEventListener('touchstart', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (gameState === 'playing') {
+            pauseGame();
+        } else if (gameState === 'paused') {
+            resumeGame();
+        }
+    }, { passive: false });
+
+    // Standard click fallback just in case
+    pauseBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (gameState === 'playing') {
+            pauseGame();
+        } else if (gameState === 'paused') {
+            resumeGame();
+        }
+    });
+
+    let joyStartX = 0;
+    let joyStartY = 0;
+    const maxLimit = 50; // Max pixels knob can move from center
+    let joystickTouchId = null;
+
+    window.addEventListener('touchstart', e => {
+        if (gameState !== 'playing') return;
+        
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            // Allow triggering anywhere on the screen
+            if (joystickTouchId === null) {
+                if (e.target.closest('#mobilePauseBtn')) continue;
+
+                e.preventDefault(); // Prevent default touch actions like zooming/scrolling
+                joystickTouchId = touch.identifier;
+                mobileJoystick.active = true;
+                
+                // Position and show the joystick centered on the touch point
+                joyContainer.style.left = `${touch.clientX}px`;
+                joyContainer.style.top = `${touch.clientY}px`;
+                joyContainer.classList.add('visible');
+                
+                joyStartX = touch.clientX;
+                joyStartY = touch.clientY;
+                updateJoystickPosition(touch.clientX, touch.clientY);
+                break;
+            }
+        }
+    }, { passive: false });
+
+    window.addEventListener('touchmove', e => {
+        if (joystickTouchId === null) return;
+        
+        for (let i = 0; i < e.touches.length; i++) {
+            const touch = e.touches[i];
+            if (touch.identifier === joystickTouchId) {
+                e.preventDefault();
+                updateJoystickPosition(touch.clientX, touch.clientY);
+                break;
+            }
+        }
+    }, { passive: false });
+
+    window.addEventListener('touchend', e => {
+        if (joystickTouchId === null) return;
+        
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            if (touch.identifier === joystickTouchId) {
+                joystickTouchId = null;
+                mobileJoystick.active = false;
+                mobileJoystick.x = 0;
+                mobileJoystick.y = 0;
+                joyContainer.classList.remove('visible');
+                joyKnob.style.transform = 'translate(-50%, -50%)';
+                break;
+            }
+        }
+    });
+
+    window.addEventListener('touchcancel', e => {
+        if (joystickTouchId === null) return;
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            if (touch.identifier === joystickTouchId) {
+                joystickTouchId = null;
+                mobileJoystick.active = false;
+                mobileJoystick.x = 0;
+                mobileJoystick.y = 0;
+                joyContainer.classList.remove('visible');
+                joyKnob.style.transform = 'translate(-50%, -50%)';
+                break;
+            }
+        }
+    });
+
+    function updateJoystickPosition(clientX, clientY) {
+        let dx = clientX - joyStartX;
+        let dy = clientY - joyStartY;
+        const distance = Math.hypot(dx, dy);
+
+        if (distance > maxLimit) {
+            dx = (dx / distance) * maxLimit;
+            dy = (dy / distance) * maxLimit;
+        }
+
+        joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+        mobileJoystick.x = dx / maxLimit;
+        mobileJoystick.y = dy / maxLimit;
+    }
+
+    // Prevent default touch actions on the canvas to avoid zoom/scrolling issues
+    canvas.addEventListener('touchstart', e => {
+        if (gameState === 'playing') e.preventDefault();
+    }, { passive: false });
+    canvas.addEventListener('touchmove', e => {
+        if (gameState === 'playing') e.preventDefault();
+    }, { passive: false });
+}
 
 startGame();
 requestAnimationFrame(loop);
