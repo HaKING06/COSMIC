@@ -297,86 +297,281 @@
         .go-ul { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
         .go-uc { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); }
 
-        /* ─── LEVEL UP CARDS ─── */
-        .lu-card-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        /* ─── LEVEL UP CARDS & KEYBOARD SELECTION ─── */
+        #levelUpOv {
+            background: rgba(3, 1, 8, 0.94);
+            backdrop-filter: blur(16px);
+            transition: all 0.4s ease;
+        }
+        #levelUpOv.p1-active {
+            background: radial-gradient(circle at center, rgba(0, 240, 255, 0.08) 0%, rgba(2, 1, 8, 0.95) 75%);
+            --active-pilot-color: var(--p1);
+        }
+        #levelUpOv.p2-active {
+            background: radial-gradient(circle at center, rgba(255, 0, 106, 0.09) 0%, rgba(2, 1, 8, 0.95) 75%);
+            --active-pilot-color: var(--p2);
+        }
+
+        .lu-pilot-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 24px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--active-pilot-color, var(--p1));
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(255, 255, 255, 0.02);
+            margin-bottom: 12px;
+        }
+        .lu-pilot-icon { font-size: 1.1rem; }
+        .lu-pilot-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            color: var(--active-pilot-color, #fff);
+            text-shadow: 0 0 15px var(--active-pilot-color, #fff);
+        }
+        .lu-control-badge {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            letter-spacing: 0.05em;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .level-up-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(1.6rem, 3.5vw, 2.3rem);
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 0.12em;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.25);
+        }
+        .level-up-desc {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.55);
+            margin-top: 6px;
+        }
+
+        .lu-card-container {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 24px;
+            perspective: 1000px;
+        }
         .lu-card {
-            width: 210px;
-            background: rgba(12, 6, 26, 0.92);
-            border: 1px solid rgba(191,0,255,0.18);
-            border-radius: 14px;
-            padding: 22px 18px;
+            width: 245px;
+            min-height: 385px;
+            background: linear-gradient(170deg, rgba(16, 9, 32, 0.94), rgba(7, 3, 16, 0.98));
+            border: 1px solid rgba(191, 0, 255, 0.22);
+            border-radius: 18px;
+            padding: 24px 20px;
             cursor: pointer;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s, border-color 0.28s;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 12px;
             text-align: center;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.75), inset 0 0 20px rgba(191,0,255,0.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(191, 0, 255, 0.03);
             position: relative;
             overflow: hidden;
+            user-select: none;
         }
         .lu-card::before {
-            content: ''; position: absolute; top:0; left:0; right:0; height:3px;
-            background: rgba(255,255,255,0.2);
+            content: ''; position: absolute; top:0; left:0; right:0; height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
         }
         .lu-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(0,240,255,0.6);
-            box-shadow: 0 15px 40px rgba(0,240,255,0.25);
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--active-pilot-color, rgba(0, 240, 255, 0.7));
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(0, 240, 255, 0.2);
         }
+        .lu-card.holding {
+            transform: translateY(-10px) scale(1.04);
+            border-color: var(--active-pilot-color, #00f0ff) !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 40px var(--active-pilot-color, rgba(0, 240, 255, 0.5)) !important;
+            animation: cardHoldingPulse 0.8s infinite alternate ease-in-out;
+        }
+        @keyframes cardHoldingPulse {
+            0% { filter: brightness(1.05); }
+            100% { filter: brightness(1.25); }
+        }
+        .lu-card.selected-flash {
+            animation: selectFlash 0.4s ease-out forwards;
+        }
+        @keyframes selectFlash {
+            0% { transform: scale(1.08); filter: brightness(2.5) drop-shadow(0 0 40px #fff); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+
+        .lu-card-rarity-badge {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.04);
+            margin-bottom: 2px;
+        }
+
         .lu-card-icon {
-            font-size: 2.2rem;
-            width: 58px;
-            height: 58px;
+            font-size: 2.4rem;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 0 15px rgba(255,255,255,0.02);
-            transition: all 0.3s;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .lu-card:hover .lu-card-icon {
-            transform: scale(1.1);
-            background: rgba(255,255,255,0.06);
+        .lu-card:hover .lu-card-icon, .lu-card.holding .lu-card-icon {
+            transform: scale(1.12);
+            background: rgba(255, 255, 255, 0.08);
         }
         .lu-card-name {
             font-family: 'Orbitron', monospace;
-            font-size: 0.8rem;
-            font-weight: 700;
+            font-size: 0.88rem;
+            font-weight: 800;
             color: #fff;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
+            line-height: 1.3;
         }
         .lu-card-desc {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.45);
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.55);
             line-height: 1.4;
+            flex-grow: 1;
+        }
+
+        /* Keyboard Hold Hint Box */
+        .lu-key-hint-box {
+            width: 100%;
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 9px;
+        }
+        .lu-keycap-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0.45;
+            transition: all 0.22s ease;
+        }
+        .lu-card.holding .lu-keycap-row {
+            opacity: 1;
+            transform: scale(1.06);
+        }
+        .lu-keycap {
+            min-width: 42px;
+            height: 42px;
+            padding: 0 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.05rem;
+            font-weight: 900;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 9px;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            color: #fff;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .lu-card.holding .lu-keycap {
+            background: var(--active-pilot-color, #00f0ff);
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.6), 0 0 20px var(--active-pilot-color, #00f0ff);
+            transform: translateY(3px);
+        }
+        .lu-key-desc {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+        .lu-key-subtext {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.55);
+            transition: color 0.2s;
+        }
+        .lu-card.holding .lu-key-subtext {
+            color: #fff;
+            font-weight: 800;
+        }
+        .lu-hold-timer-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--active-pilot-color, #00f0ff);
+        }
+
+        .lu-hold-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .lu-hold-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--active-pilot-color, #00f0ff), #fff);
+            box-shadow: 0 0 14px var(--active-pilot-color, #00f0ff);
+            transition: width 0.04s linear;
         }
         
         /* Rarities */
-        .lu-card.common { border-color: rgba(255,255,255,0.1); }
-        .lu-card.common::before { background: rgba(255,255,255,0.2); }
+        .lu-card.common { border-color: rgba(255,255,255,0.12); }
+        .lu-card.common::before { background: rgba(255,255,255,0.25); }
+        .lu-card.common .lu-card-rarity-badge { color: rgba(255,255,255,0.6); }
         
-        .lu-card.rare { border-color: rgba(0, 240, 255, 0.3); }
+        .lu-card.rare { border-color: rgba(0, 240, 255, 0.35); }
         .lu-card.rare::before { background: var(--p1); }
         .lu-card.rare .lu-card-name { color: var(--p1); }
+        .lu-card.rare .lu-card-rarity-badge { color: var(--p1); border-color: rgba(0, 240, 255, 0.3); background: rgba(0, 240, 255, 0.08); }
 
-        .lu-card.epic { border-color: rgba(191, 0, 255, 0.4); }
+        .lu-card.epic { border-color: rgba(191, 0, 255, 0.45); }
         .lu-card.epic::before { background: var(--link); }
         .lu-card.epic .lu-card-name { color: #d844ff; }
+        .lu-card.epic .lu-card-rarity-badge { color: #d844ff; border-color: rgba(191, 0, 255, 0.4); background: rgba(191, 0, 255, 0.1); }
         
         .lu-card.legendary {
-            border-color: rgba(255, 215, 0, 0.5);
+            border-color: rgba(255, 215, 0, 0.55);
             animation: legendaryPulse 1.5s infinite alternate;
         }
         .lu-card.legendary::before { background: var(--gold); }
         .lu-card.legendary .lu-card-name { color: var(--gold); }
+        .lu-card.legendary .lu-card-rarity-badge { color: var(--gold); border-color: rgba(255, 215, 0, 0.4); background: rgba(255, 215, 0, 0.1); font-weight: 800; }
         @keyframes legendaryPulse {
-            0% { box-shadow: 0 10px 30px rgba(255, 215, 0, 0.1); }
-            100% { box-shadow: 0 10px 35px rgba(255, 215, 0, 0.3); border-color: rgba(255, 215, 0, 0.8); }
+            0% { box-shadow: 0 12px 35px rgba(255, 215, 0, 0.12); }
+            100% { box-shadow: 0 16px 45px rgba(255, 215, 0, 0.32); border-color: rgba(255, 215, 0, 0.9); }
         }
 
         /* --- MOBILE JOYSTICK & CONTROLS --- */
@@ -716,6 +911,13 @@
                             </div>
                             <button class="toggle-btn off" id="fullscreenToggle">KAPALI</button>
                         </div>
+                        <div class="widget-row">
+                            <div>
+                                <span class="widget-lbl">Yüksek Performans Modu (60 FPS)</span>
+                                <span class="widget-sub">Zayıf PC'ler için parçacık ve ızgarayı optimize eder</span>
+                            </div>
+                            <button class="toggle-btn off" id="perfModeToggle">KAPALI</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -750,9 +952,15 @@
 <div id="levelUpOv" class="ov hidden">
     <div class="ov-scroll">
         <div class="level-up-header" style="text-align: center; margin-bottom: 24px;">
-            <div class="level-up-subtitle" id="luPlayerSubtitle">PİLOT 1 SEVİYE ATLADI!</div>
-            <div class="level-up-title" style="font-family: 'Orbitron', monospace; font-size: 2.2rem; font-weight: 900; color: #fff; letter-spacing: 0.1em; text-shadow: 0 0 25px rgba(255,255,255,0.2);">YETENEK GELİŞTİRME</div>
-            <div class="level-up-desc" style="font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-top: 4px;">Savaş geminiz için 3 prototip karttan birini seçin:</div>
+            <div class="lu-pilot-banner" id="luPilotBanner">
+                <span class="lu-pilot-icon">🎮</span>
+                <span class="lu-pilot-name" id="luPlayerSubtitle">PİLOT 1 SEVİYE ATLADI!</span>
+                <span class="lu-control-badge" id="luControlBadge">KONTROL: WASD</span>
+            </div>
+            <div class="level-up-title">YETENEK PROTOKOLÜ</div>
+            <div class="level-up-desc" id="luInstructions">
+                Seçmek için tuşuna <strong style="color:#ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5);">3 saniye basılı tutun</strong> veya fareyle tıklayın:
+            </div>
         </div>
 
         <div class="lu-card-container" id="luCardsContainer">
