@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC SURVIVORS — Resmi Komuta Portalı</title>
-    <meta name="description" content="Gelişmiş kooperatif uzay arena hayatta kalma oyunu. Simülasyonu başlatın ve parazit filolarına karşı direnin!">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <title>COSMIC SURVIVORS</title>
+    <meta name="description"
+        content="Gelişmiş kooperatif uzay arena hayatta kalma oyunu. Simülasyonu başlatın ve parazit filolarına karşı direnin!">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --p1: #00f0ff;
@@ -19,9 +24,17 @@
             --border-neon-active: rgba(191, 0, 255, 0.4);
             --text-gray: #a69fba;
         }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             background: var(--bg-deep);
             font-family: 'Rajdhani', sans-serif;
@@ -37,14 +50,22 @@
             content: " ";
             display: block;
             position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
             z-index: 999;
             background-size: 100% 4px, 6px 100%;
             pointer-events: none;
         }
 
-        .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
 
         /* ─── NAVBAR ─── */
         .navbar {
@@ -59,6 +80,7 @@
             position: relative;
             z-index: 10;
         }
+
         .nav-logo {
             font-family: 'Orbitron', monospace;
             font-size: 1.5rem;
@@ -69,6 +91,7 @@
             -webkit-text-fill-color: transparent;
             text-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
         }
+
         .nav-btn {
             font-family: 'Orbitron', monospace;
             font-size: 0.75rem;
@@ -83,6 +106,7 @@
             letter-spacing: 0.05em;
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
         }
+
         .nav-btn:hover {
             background: var(--p1);
             color: #000;
@@ -100,6 +124,7 @@
             position: relative;
             z-index: 5;
         }
+
         @media(max-width: 1050px) {
             .hero-viewport {
                 grid-template-columns: 1fr;
@@ -113,7 +138,7 @@
             border: 1px solid var(--border-neon);
             border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 10px 35px rgba(0,0,0,0.65), inset 0 0 15px rgba(0,240,255,0.01);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.65), inset 0 0 15px rgba(0, 240, 255, 0.01);
             backdrop-filter: blur(15px);
             display: flex;
             flex-direction: column;
@@ -121,15 +146,23 @@
             position: relative;
             transition: all 0.3s;
         }
+
         .card:hover {
             border-color: var(--border-neon-active);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.75), inset 0 0 20px rgba(191,0,255,0.03);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.75), inset 0 0 20px rgba(191, 0, 255, 0.03);
         }
+
         .card::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
             background: linear-gradient(90deg, transparent, var(--p1), transparent);
             border-radius: 12px 12px 0 0;
         }
+
         .card-title {
             font-family: 'Orbitron', monospace;
             font-size: 0.85rem;
@@ -139,13 +172,14 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             padding-bottom: 8px;
             text-transform: uppercase;
         }
+
         .card-title span {
             color: var(--p1);
-            text-shadow: 0 0 8px rgba(0,240,255,0.3);
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
         }
 
         /* ─── SETUP FORM ─── */
@@ -154,9 +188,10 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
+
         .mode-select {
-            background: rgba(255,255,255,0.005);
-            border: 1px solid rgba(255,255,255,0.04);
+            background: rgba(255, 255, 255, 0.005);
+            border: 1px solid rgba(255, 255, 255, 0.04);
             border-radius: 8px;
             padding: 12px 16px;
             cursor: pointer;
@@ -165,18 +200,36 @@
             align-items: center;
             gap: 12px;
         }
+
         .mode-select:hover {
             border-color: rgba(0, 240, 255, 0.25);
             background: rgba(0, 240, 255, 0.015);
         }
+
         .mode-select.active {
             border-color: var(--p1);
             background: rgba(0, 240, 255, 0.04);
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
         }
-        .mode-meta { display: flex; flex-direction: column; }
-        .mode-lbl { font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700; color: #fff; letter-spacing: 0.05em; }
-        .mode-sub { font-size: 0.65rem; color: rgba(255,255,255,0.35); margin-top: 1px; }
+
+        .mode-meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mode-lbl {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.05em;
+        }
+
+        .mode-sub {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.35);
+            margin-top: 1px;
+        }
 
         .form-names {
             display: grid;
@@ -184,13 +237,29 @@
             gap: 12px;
             transition: all 0.3s;
         }
-        .form-names.dual { grid-template-columns: 1fr 1fr; }
-        .inp-gp { display: flex; flex-direction: column; gap: 4px; }
-        .inp-gp label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.05em; color: rgba(255,255,255,0.35); text-transform: uppercase; }
+
+        .form-names.dual {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .inp-gp {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .inp-gp label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.35);
+            text-transform: uppercase;
+        }
+
         .inp-gp input {
             font-family: 'Orbitron', monospace;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 6px;
             padding: 10px 12px;
             color: #fff;
@@ -199,6 +268,7 @@
             transition: all 0.3s;
             letter-spacing: 0.05em;
         }
+
         .inp-gp input:focus {
             border-color: var(--p1);
             box-shadow: 0 0 12px rgba(0, 240, 255, 0.12);
@@ -210,23 +280,38 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 14px;
-            border-top: 1px dashed rgba(255,255,255,0.06);
+            border-top: 1px dashed rgba(255, 255, 255, 0.06);
             padding-top: 14px;
         }
-        .ships-container.dual { grid-template-columns: 1fr 1fr; }
-        .ship-select-box { display: flex; flex-direction: column; gap: 8px; }
+
+        .ships-container.dual {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .ship-select-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
         .ship-select-title {
             font-family: 'Orbitron', monospace;
             font-size: 0.6rem;
             font-weight: 700;
             letter-spacing: 0.1em;
-            color: rgba(255,255,255,0.35);
+            color: rgba(255, 255, 255, 0.35);
             text-transform: uppercase;
         }
-        .ship-row { display: flex; flex-direction: column; gap: 6px; }
+
+        .ship-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
         .ship-card {
-            background: rgba(255,255,255,0.003);
-            border: 1px solid rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.003);
+            border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 6px;
             padding: 8px 10px;
             cursor: pointer;
@@ -235,25 +320,30 @@
             align-items: center;
             gap: 10px;
         }
+
         .ship-card:hover {
             border-color: rgba(0, 240, 255, 0.15);
             background: rgba(0, 240, 255, 0.005);
             transform: translateX(2px);
         }
+
         .ship-card.active {
             border-color: var(--p1);
             background: rgba(0, 240, 255, 0.03);
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.05);
         }
+
         .ship-select-box.p2-box .ship-card.active {
             border-color: var(--p2);
             background: rgba(255, 0, 106, 0.03);
             box-shadow: 0 0 10px rgba(255, 0, 106, 0.05);
         }
+
         .ship-select-box.p2-box .ship-card:hover {
             border-color: rgba(255, 0, 106, 0.15);
             background: rgba(255, 0, 106, 0.005);
         }
+
         .ship-icon {
             font-size: 1.1rem;
             display: flex;
@@ -262,19 +352,26 @@
             width: 28px;
             height: 28px;
             border-radius: 4px;
-            background: rgba(255,255,255,0.01);
-            border: 1px solid rgba(255,255,255,0.04);
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
-        .ship-meta { display: flex; flex-direction: column; flex: 1; }
+
+        .ship-meta {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
         .ship-name {
             font-family: 'Orbitron', monospace;
             font-size: 0.7rem;
             font-weight: 700;
             color: #fff;
         }
+
         .ship-desc {
             font-size: 0.6rem;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255, 255, 255, 0.4);
             margin-top: 1px;
             line-height: 1.25;
         }
@@ -285,26 +382,58 @@
             grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
         }
+
         .diff-opt {
-            font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700;
-            padding: 12px 6px; border-radius: 8px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 12px 6px;
+            border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.04);
             background: rgba(255, 255, 255, 0.003);
-            color: rgba(255, 255, 255, 0.35); cursor: pointer;
-            transition: all 0.25s; text-align: center;
+            color: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: center;
             letter-spacing: 0.05em;
         }
+
         .diff-opt:hover {
-            border-color: rgba(255,255,255,0.12);
+            border-color: rgba(255, 255, 255, 0.12);
             color: #fff;
         }
-        .diff-opt.active[data-diff="easy"] { border-color: #44ff44; color: #44ff44; background: rgba(68, 255, 68, 0.03); box-shadow: 0 0 10px rgba(68, 255, 68, 0.05); }
-        .diff-opt.active[data-diff="medium"] { border-color: #ffaa00; color: #ffaa00; background: rgba(255, 170, 0, 0.03); box-shadow: 0 0 10px rgba(255, 170, 0, 0.05); }
-        .diff-opt.active[data-diff="hard"] { border-color: #ff4444; color: #ff4444; background: rgba(255, 68, 68, 0.03); box-shadow: 0 0 10px rgba(255, 68, 68, 0.05); }
+
+        .diff-opt.active[data-diff="easy"] {
+            border-color: #44ff44;
+            color: #44ff44;
+            background: rgba(68, 255, 68, 0.03);
+            box-shadow: 0 0 10px rgba(68, 255, 68, 0.05);
+        }
+
+        .diff-opt.active[data-diff="medium"] {
+            border-color: #ffaa00;
+            color: #ffaa00;
+            background: rgba(255, 170, 0, 0.03);
+            box-shadow: 0 0 10px rgba(255, 170, 0, 0.05);
+        }
+
+        .diff-opt.active[data-diff="hard"] {
+            border-color: #ff4444;
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.03);
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.05);
+        }
+
         .diff-desc-text {
-            font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.4);
-            line-height: 1.35; background: rgba(255,255,255,0.005); border: 1px solid rgba(255,255,255,0.02);
-            border-radius: 6px; padding: 8px 12px; margin-top: -6px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.4);
+            line-height: 1.35;
+            background: rgba(255, 255, 255, 0.005);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-top: -6px;
         }
 
         /* ─── PLAY PANEL & LEADERBOARD (RIGHT SIDE) ─── */
@@ -313,6 +442,7 @@
             flex-direction: column;
             gap: 20px;
         }
+
         .play-card {
             align-items: center;
             justify-content: center;
@@ -320,81 +450,171 @@
             background: linear-gradient(135deg, rgba(8, 4, 18, 0.9) 0%, rgba(18, 5, 30, 0.9) 100%);
             border-color: rgba(191, 0, 255, 0.15);
         }
+
         .play-btn {
             font-family: 'Orbitron', monospace;
-            font-size: 1.3rem; font-weight: 900;
-            padding: 16px 50px; border: none; border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 900;
+            padding: 16px 50px;
+            border: none;
+            border-radius: 50px;
             background: linear-gradient(135deg, #bf00ff, #ff006a);
-            color: #fff; cursor: pointer; letter-spacing: 0.15em;
+            color: #fff;
+            cursor: pointer;
+            letter-spacing: 0.15em;
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 8px 25px rgba(191,0,255,0.3);
-            position: relative; outline: none;
+            box-shadow: 0 8px 25px rgba(191, 0, 255, 0.3);
+            position: relative;
+            outline: none;
             width: 100%;
             text-align: center;
         }
+
         .play-btn::before {
-            content: ''; position: absolute; inset: -2px; border-radius: 50px;
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50px;
             background: linear-gradient(135deg, #00f0ff, #bf00ff, #ff006a);
-            background-size: 300% 300%; animation: pulseBorder 4s infinite;
-            z-index: -1; filter: blur(4px); opacity: 0.5;
+            background-size: 300% 300%;
+            animation: pulseBorder 4s infinite;
+            z-index: -1;
+            filter: blur(4px);
+            opacity: 0.5;
         }
-        @keyframes pulseBorder { 0%,100% {background-position:0% 50%} 50% {background-position:100% 50%} }
+
+        @keyframes pulseBorder {
+
+            0%,
+            100% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+        }
+
         .play-btn:hover {
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 12px 35px rgba(191, 0, 255, 0.5);
         }
-        .play-btn:active { transform: translateY(-1px) scale(0.99); }
+
+        .play-btn:active {
+            transform: translateY(-1px) scale(0.99);
+        }
+
         .play-hint {
-            font-family: 'Space Mono', monospace; font-size: 0.6rem; color: rgba(255,255,255,0.25);
-            margin-top: 8px; letter-spacing: 0.1em;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.25);
+            margin-top: 8px;
+            letter-spacing: 0.1em;
         }
 
         .lb-tabs {
-            display: flex; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             padding-bottom: 8px;
         }
+
         .lb-tab-btn {
-            font-family: 'Orbitron', monospace; font-size: 0.65rem; font-weight: 700;
-            padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05);
-            background: rgba(255,255,255,0.005); color: rgba(255,255,255,0.35);
-            cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.005);
+            color: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.05em;
         }
+
         .lb-tab-btn.active {
-            background: rgba(191,0,255,0.1); border-color: var(--link); color: #fff;
-            box-shadow: 0 0 10px rgba(191,0,255,0.1);
+            background: rgba(191, 0, 255, 0.1);
+            border-color: var(--link);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(191, 0, 255, 0.1);
         }
 
         .lb-scroll {
-            max-height: 290px; overflow-y: auto;
-            scrollbar-width: thin; scrollbar-color: rgba(191,0,255,0.25) transparent;
+            max-height: 290px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(191, 0, 255, 0.25) transparent;
             padding-right: 4px;
         }
-        .lb-scroll::-webkit-scrollbar { width: 4px; }
-        .lb-scroll::-webkit-scrollbar-thumb { background: rgba(191, 0, 255, 0.25); border-radius: 2px; }
+
+        .lb-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .lb-scroll::-webkit-scrollbar-thumb {
+            background: rgba(191, 0, 255, 0.25);
+            border-radius: 2px;
+        }
 
         table {
-            width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: left;
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            text-align: left;
             font-family: 'Space Mono', monospace;
         }
-        th, td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); }
-        th {
-            font-family: 'Orbitron', monospace; font-size: 0.55rem;
-            color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.08em;
+
+        th,
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
         }
-        td { color: rgba(255,255,255,0.65); }
-        .rank-1 { color: var(--gold) !important; font-weight: bold; }
-        .rank-2 { color: #d0d0d8 !important; font-weight: bold; }
-        .rank-3 { color: #cd7f32 !important; font-weight: bold; }
-        .loading-text { text-align: center; color: rgba(255,255,255,0.3); padding: 30px; font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; }
+
+        th {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.55rem;
+            color: rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        td {
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .rank-1 {
+            color: var(--gold) !important;
+            font-weight: bold;
+        }
+
+        .rank-2 {
+            color: #d0d0d8 !important;
+            font-weight: bold;
+        }
+
+        .rank-3 {
+            color: #cd7f32 !important;
+            font-weight: bold;
+        }
+
+        .loading-text {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            padding: 30px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.8rem;
+        }
 
         /* ─── DETAILED WIKI SECTION (BELOW THE FOLD) ─── */
         .wiki-section {
             padding: 80px 40px;
             background: radial-gradient(ellipse at top, rgba(12, 4, 30, 0.4) 0%, rgba(3, 1, 9, 0.95) 70%, #000 100%);
-            border-top: 1px solid rgba(255,255,255,0.03);
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
             position: relative;
             z-index: 5;
         }
+
         .wiki-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -402,11 +622,13 @@
             flex-direction: column;
             gap: 60px;
         }
+
         .wiki-header {
             text-align: center;
             max-width: 700px;
             margin: 0 auto;
         }
+
         .wiki-title {
             font-family: 'Orbitron', monospace;
             font-size: 2.2rem;
@@ -417,6 +639,7 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 12px;
         }
+
         .wiki-subtitle {
             font-size: 0.9rem;
             color: var(--text-gray);
@@ -428,6 +651,7 @@
             flex-direction: column;
             gap: 24px;
         }
+
         .wiki-group-title {
             font-family: 'Orbitron', monospace;
             font-size: 1.1rem;
@@ -444,21 +668,24 @@
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 24px;
         }
+
         .wiki-ship-card {
-            background: rgba(255,255,255,0.015);
-            border: 1px solid rgba(255,255,255,0.04);
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.04);
             border-radius: 12px;
             padding: 24px;
             display: flex;
             flex-direction: column;
             gap: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
+
         .wiki-ship-hdr {
             display: flex;
             align-items: center;
             gap: 14px;
         }
+
         .wiki-ship-icon {
             font-size: 1.5rem;
             width: 44px;
@@ -467,29 +694,33 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
         }
+
         .wiki-ship-name {
             font-family: 'Orbitron', monospace;
             font-size: 0.95rem;
             font-weight: 800;
             color: #fff;
         }
+
         .wiki-ship-stat-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px 16px;
             font-size: 0.75rem;
             font-family: 'Space Mono', monospace;
-            border-top: 1px dashed rgba(255,255,255,0.06);
+            border-top: 1px dashed rgba(255, 255, 255, 0.06);
             padding-top: 12px;
         }
+
         .wiki-ship-stat {
             display: flex;
             justify-content: space-between;
             color: var(--text-gray);
         }
+
         .wiki-ship-stat span {
             color: #fff;
             font-weight: 600;
@@ -501,9 +732,10 @@
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 20px;
         }
+
         .wiki-enemy-card {
-            background: rgba(255,255,255,0.012);
-            border: 1px solid rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.012);
+            border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 8px;
             padding: 18px;
             display: flex;
@@ -511,11 +743,16 @@
             gap: 10px;
             position: relative;
         }
+
         .wiki-enemy-card::before {
             content: '';
             position: absolute;
-            left: 0; top: 15px; bottom: 15px; width: 2px;
+            left: 0;
+            top: 15px;
+            bottom: 15px;
+            width: 2px;
         }
+
         .wiki-enemy-hdr {
             display: flex;
             justify-content: space-between;
@@ -524,23 +761,31 @@
             font-size: 0.8rem;
             font-weight: 700;
         }
-        .wiki-enemy-name { color: #fff; }
+
+        .wiki-enemy-name {
+            color: #fff;
+        }
+
         .wiki-enemy-desc {
             font-size: 0.7rem;
             color: var(--text-gray);
             line-height: 1.4;
         }
+
         .wiki-enemy-stats {
             display: flex;
             justify-content: space-between;
             font-family: 'Space Mono', monospace;
             font-size: 0.65rem;
-            color: rgba(255,255,255,0.4);
-            border-top: 1px dashed rgba(255,255,255,0.04);
+            color: rgba(255, 255, 255, 0.4);
+            border-top: 1px dashed rgba(255, 255, 255, 0.04);
             padding-top: 8px;
             margin-top: auto;
         }
-        .wiki-enemy-stats span { color: rgba(255,255,255,0.7); }
+
+        .wiki-enemy-stats span {
+            color: rgba(255, 255, 255, 0.7);
+        }
 
         /* Upgrades Wiki */
         .wiki-upgs-grid {
@@ -548,9 +793,10 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
         }
+
         .wiki-upg-card {
-            background: rgba(255,255,255,0.01);
-            border: 1px solid rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 8px;
             padding: 16px;
             text-align: center;
@@ -559,6 +805,7 @@
             align-items: center;
             gap: 8px;
         }
+
         .wiki-upg-icon {
             font-size: 1.5rem;
             width: 40px;
@@ -567,16 +814,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(255,255,255,0.06);
-            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.02);
             margin-bottom: 4px;
         }
+
         .wiki-upg-name {
             font-family: 'Orbitron', monospace;
             font-size: 0.75rem;
             font-weight: 700;
             color: #fff;
         }
+
         .wiki-upg-desc {
             font-size: 0.7rem;
             color: var(--text-gray);
@@ -592,11 +841,16 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 40px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
         }
+
         @media(max-width: 800px) {
-            .wiki-coop-card { grid-template-columns: 1fr; gap: 20px; }
+            .wiki-coop-card {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
         }
+
         .wiki-coop-col {
             display: flex;
             flex-direction: column;
@@ -605,6 +859,7 @@
             font-size: 0.8rem;
             color: var(--text-gray);
         }
+
         .wiki-coop-col h4 {
             font-family: 'Orbitron', monospace;
             color: #fff;
@@ -612,7 +867,10 @@
             letter-spacing: 0.05em;
             text-transform: uppercase;
         }
-        .wiki-coop-col strong { color: var(--link); }
+
+        .wiki-coop-col strong {
+            color: var(--link);
+        }
 
         /* Mobile Custom Styles (Portrait & Landscape) */
         @media (max-width: 900px) {
@@ -620,94 +878,124 @@
                 height: 55px;
                 padding: 0 15px;
             }
+
             .nav-logo {
                 font-size: 1.1rem;
             }
+
             .nav-btn {
                 font-size: 0.6rem;
                 padding: 6px 12px;
             }
+
             .hero-viewport {
                 padding: 10px;
                 gap: 15px;
                 grid-template-columns: 1fr;
             }
+
             .card {
                 padding: 15px;
                 gap: 12px;
             }
+
             .card-title {
                 font-size: 0.75rem;
                 padding-bottom: 6px;
             }
+
             .mode-select {
                 padding: 8px 10px;
                 gap: 8px;
             }
+
             .mode-lbl {
                 font-size: 0.65rem;
             }
+
             .mode-sub {
                 font-size: 0.55rem;
             }
+
             .inp-gp label {
                 font-size: 0.55rem;
             }
+
             .inp-gp input {
                 padding: 8px 10px;
                 font-size: 0.7rem;
             }
+
             .ships-container {
                 gap: 10px;
                 padding-top: 10px;
             }
+
             .ship-card {
                 padding: 6px 8px;
                 gap: 8px;
             }
+
             .ship-icon {
                 width: 24px;
                 height: 24px;
                 font-size: 0.9rem;
             }
+
             .ship-name {
                 font-size: 0.65rem;
             }
+
             .ship-desc {
                 font-size: 0.55rem;
             }
+
             .diff-opt {
                 font-size: 0.65rem;
                 padding: 8px 4px;
             }
+
             .diff-desc-text {
                 font-size: 0.65rem;
                 padding: 6px 10px;
             }
+
             .play-card {
                 padding: 20px;
             }
+
             .play-btn {
                 font-size: 1.1rem;
                 padding: 12px 30px;
             }
+
             .play-hint {
                 font-size: 0.55rem;
             }
+
             .wiki-section {
                 padding: 40px 15px;
             }
+
             .wiki-title {
                 font-size: 1.6rem;
             }
+
             .wiki-subtitle {
                 font-size: 0.75rem;
             }
-            .wiki-ships-grid, .wiki-enemy-grid, .wiki-upgs-grid {
+
+            .wiki-ships-grid,
+            .wiki-enemy-grid,
+            .wiki-upgs-grid {
                 grid-template-columns: 1fr;
                 gap: 15px;
             }
-            .wiki-ship-card, .wiki-enemy-card, .wiki-upg-card, .wiki-coop-card {
+
+            .wiki-ship-card,
+            .wiki-enemy-card,
+            .wiki-upg-card,
+            .wiki-coop-card {
                 padding: 15px;
             }
         }
@@ -718,6 +1006,7 @@
                 grid-template-columns: 1.1fr 0.9fr;
                 align-items: start;
             }
+
             .launch-container {
                 position: sticky;
                 top: 15px;
@@ -725,13 +1014,15 @@
         }
     </style>
 </head>
+
 <body>
     <canvas class="bg-canvas" id="bgCanvas"></canvas>
 
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="nav-logo">COSMIC SURVIVORS</div>
-        <button class="nav-btn" onclick="document.getElementById('wikiSection').scrollIntoView({behavior: 'smooth'})">🔍 DETAYLI SİMÜLASYON KILAVUZU</button>
+        <button class="nav-btn" onclick="document.getElementById('wikiSection').scrollIntoView({behavior: 'smooth'})">🔍
+            DETAYLI SİMÜLASYON KILAVUZU</button>
     </nav>
 
     <!-- MAIN VIEWPORT LAYOUT -->
@@ -739,7 +1030,7 @@
         <!-- LEFT PANEL: SETUPS -->
         <div class="card">
             <div class="card-title"><span>◈</span> UZAY KOMUTA SİSTEMİ</div>
-            
+
             <!-- Mode Selection -->
             <div class="mode-row">
                 <div class="mode-select active" data-mode="1p">
@@ -787,14 +1078,16 @@
                             <div class="ship-icon" style="color:#ffaa00">🛡️</div>
                             <div class="ship-meta">
                                 <span class="ship-name">KRUVAZÖR (Dreadnought)</span>
-                                <span class="ship-desc">Çift namlulu ağır silahlar, yüksek can ve hasar emici gövde.</span>
+                                <span class="ship-desc">Çift namlulu ağır silahlar, yüksek can ve hasar emici
+                                    gövde.</span>
                             </div>
                         </div>
                         <div class="ship-card" data-ship="aegis">
                             <div class="ship-icon" style="color:var(--link)">🌀</div>
                             <div class="ship-meta">
                                 <span class="ship-name">DESTEK (Aegis)</span>
-                                <span class="ship-desc">Kalkan takviyesi, geniş enerji menzili, sinerjik kalkan şarjı.</span>
+                                <span class="ship-desc">Kalkan takviyesi, geniş enerji menzili, sinerjik kalkan
+                                    şarjı.</span>
                             </div>
                         </div>
                     </div>
@@ -815,14 +1108,16 @@
                             <div class="ship-icon" style="color:#ffaa00">🛡️</div>
                             <div class="ship-meta">
                                 <span class="ship-name">KRUVAZÖR (Dreadnought)</span>
-                                <span class="ship-desc">Çift namlulu ağır silahlar, yüksek can ve hasar emici gövde.</span>
+                                <span class="ship-desc">Çift namlulu ağır silahlar, yüksek can ve hasar emici
+                                    gövde.</span>
                             </div>
                         </div>
                         <div class="ship-card" data-ship="aegis">
                             <div class="ship-icon" style="color:var(--link)">🌀</div>
                             <div class="ship-meta">
                                 <span class="ship-name">DESTEK (Aegis)</span>
-                                <span class="ship-desc">Kalkan takviyesi, geniş enerji menzili, sinerjik kalkan şarjı.</span>
+                                <span class="ship-desc">Kalkan takviyesi, geniş enerji menzili, sinerjik kalkan
+                                    şarjı.</span>
                             </div>
                         </div>
                     </div>
@@ -830,7 +1125,8 @@
             </div>
 
             <!-- Difficulty options -->
-            <div style="display:flex; flex-direction:column; gap:10px; border-top:1px dashed rgba(255,255,255,0.06); padding-top:14px;">
+            <div
+                style="display:flex; flex-direction:column; gap:10px; border-top:1px dashed rgba(255,255,255,0.06); padding-top:14px;">
                 <div class="ship-select-title">ARENA ZORLUK DÜZEYİ</div>
                 <div class="diff-row">
                     <button class="diff-opt active" data-diff="easy">KOLAY</button>
@@ -838,7 +1134,8 @@
                     <button class="diff-opt" data-diff="hard">ZOR</button>
                 </div>
                 <div class="diff-desc-text" id="diffDescText">
-                    KOLAY: Düşmanların canı ve hızı %80 oranındadır. Simülasyona alışmak isteyen çaylak pilotlar için idealdir.
+                    KOLAY: Düşmanların canı ve hızı %80 oranındadır. Simülasyona alışmak isteyen çaylak pilotlar için
+                    idealdir.
                 </div>
             </div>
         </div>
@@ -854,7 +1151,7 @@
             <!-- Leaderboard Card -->
             <div class="card" style="flex: 1;">
                 <div class="card-title"><span>◈</span> SİMÜLASYON LİDERLİK TABLOSU</div>
-                
+
                 <div class="lb-tabs">
                     <button class="lb-tab-btn active" id="btnGlobalScore">KÜRESEL REKORLAR</button>
                     <button class="lb-tab-btn" id="btnLocalScore">YEREL REKORLAR</button>
@@ -873,7 +1170,9 @@
                             </tr>
                         </thead>
                         <tbody id="leaderboardBody">
-                            <tr><td colspan="6" class="loading-text">Veriler yükleniyor...</td></tr>
+                            <tr>
+                                <td colspan="6" class="loading-text">Veriler yükleniyor...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -888,7 +1187,8 @@
             <div class="wiki-header">
                 <h2 class="wiki-title">SİMÜLASYON BİLGİ BANKASI</h2>
                 <p class="wiki-subtitle">
-                    Kozmik arenadaki savaşa hazır olmak için gemi sınıflarının özelliklerini, karşı karşıya geleceğiniz düşman parazit türlerini ve savaş taktiklerini detaylı olarak öğrenin.
+                    Kozmik arenadaki savaşa hazır olmak için gemi sınıflarının özelliklerini, karşı karşıya geleceğiniz
+                    düşman parazit türlerini ve savaş taktiklerini detaylı olarak öğrenin.
                 </p>
             </div>
 
@@ -903,7 +1203,9 @@
                             <h4 class="wiki-ship-name">AVCI (Interceptor Class)</h4>
                         </div>
                         <p style="font-size:0.75rem; line-height: 1.4; color: var(--text-gray);">
-                            Yüksek hareket kabiliyeti ve doğrudan hasara odaklanan hızlı saldırı gemisidir. Zayıf zırh yapısına rağmen yüksek kritik hasar çarpanına sahiptir. Süratli manevralar ile düşmanın etrafından dolaşmak için mükemmeldir.
+                            Yüksek hareket kabiliyeti ve doğrudan hasara odaklanan hızlı saldırı gemisidir. Zayıf zırh
+                            yapısına rağmen yüksek kritik hasar çarpanına sahiptir. Süratli manevralar ile düşmanın
+                            etrafından dolaşmak için mükemmeldir.
                         </p>
                         <div class="wiki-ship-stat-grid">
                             <div class="wiki-ship-stat">Maks Can: <span>85 HP</span></div>
@@ -919,7 +1221,9 @@
                             <h4 class="wiki-ship-name">KRUVAZÖR (Dreadnought Class)</h4>
                         </div>
                         <p style="font-size:0.75rem; line-height: 1.4; color: var(--text-gray);">
-                            Ağır zırh plakaları ve çift namlulu ağır silahlar barındıran dayanıklı bir tank sınıfıdır. Aldığı hasarların %15'ini doğrudan zırhıyla absorbe eder. Savaşın tam ortasına girip düşman hatlarını yarmak için tasarlanmıştır.
+                            Ağır zırh plakaları ve çift namlulu ağır silahlar barındıran dayanıklı bir tank sınıfıdır.
+                            Aldığı hasarların %15'ini doğrudan zırhıyla absorbe eder. Savaşın tam ortasına girip düşman
+                            hatlarını yarmak için tasarlanmıştır.
                         </p>
                         <div class="wiki-ship-stat-grid">
                             <div class="wiki-ship-stat">Maks Can: <span>145 HP</span></div>
@@ -935,7 +1239,9 @@
                             <h4 class="wiki-ship-name">DESTEK (Aegis Class)</h4>
                         </div>
                         <p style="font-size:0.75rem; line-height: 1.4; color: var(--text-gray);">
-                            Sinerjik lazer bağını yönetmek ve kalkan enerjisi sağlamak için tasarlanmış taktiksel sınıftır. Kalkan rejenerasyonu %50 daha hızlıdır. 2P modunda lazer bağının menzilini neredeyse 2 katına çıkararak geniş alanı temizler.
+                            Sinerjik lazer bağını yönetmek ve kalkan enerjisi sağlamak için tasarlanmış taktiksel
+                            sınıftır. Kalkan rejenerasyonu %50 daha hızlıdır. 2P modunda lazer bağının menzilini
+                            neredeyse 2 katına çıkararak geniş alanı temizler.
                         </p>
                         <div class="wiki-ship-stat-grid">
                             <div class="wiki-ship-stat">Maks Can: <span>100 HP</span></div>
@@ -952,64 +1258,112 @@
                 <h3 class="wiki-group-title">Parazit Filosu Türleri (Düşmanlar)</h3>
                 <div class="wiki-enemy-grid">
                     <div class="wiki-enemy-card" style="border-color: #ff4444">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🛸 Drone</span><span style="color:#ff4444">Zayıf</span></div>
-                        <p class="wiki-enemy-desc">Temel saldırı birimidir. Kalabalık gruplar halinde doğrudan geminize çarpmaya çalışırlar.</p>
-                        <div class="wiki-enemy-stats">Can: <span>20 HP</span> Hasar: <span>8 DMG</span> Hız: <span>110</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🛸 Drone</span><span
+                                style="color:#ff4444">Zayıf</span></div>
+                        <p class="wiki-enemy-desc">Temel saldırı birimidir. Kalabalık gruplar halinde doğrudan geminize
+                            çarpmaya çalışırlar.</p>
+                        <div class="wiki-enemy-stats">Can: <span>20 HP</span> Hasar: <span>8 DMG</span> Hız:
+                            <span>110</span>
+                        </div>
                     </div>
                     <div class="wiki-enemy-card" style="border-color: #ff8800">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🛡️ Tank</span><span style="color:#ff8800">Ağır</span></div>
-                        <p class="wiki-enemy-desc">Yüksek cana sahip yavaş bir birimdir. Çarpışma hasarı oldukça yıkıcıdır, uzaktan yok edilmelidir.</p>
-                        <div class="wiki-enemy-stats">Can: <span>80 HP</span> Hasar: <span>18 DMG</span> Hız: <span>55</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🛡️ Tank</span><span
+                                style="color:#ff8800">Ağır</span></div>
+                        <p class="wiki-enemy-desc">Yüksek cana sahip yavaş bir birimdir. Çarpışma hasarı oldukça
+                            yıkıcıdır, uzaktan yok edilmelidir.</p>
+                        <div class="wiki-enemy-stats">Can: <span>80 HP</span> Hasar: <span>18 DMG</span> Hız:
+                            <span>55</span>
+                        </div>
                     </div>
                     <div class="wiki-enemy-card" style="border-color: #44ff44">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">⚡ Speeder</span><span style="color:#44ff44">Hızlı</span></div>
-                        <p class="wiki-enemy-desc">Düşük canı ancak aşırı hızı vardır. Bir anda geminizin yanına yaklaşıp kaçma şansınızı azaltır.</p>
-                        <div class="wiki-enemy-stats">Can: <span>12 HP</span> Hasar: <span>5 DMG</span> Hız: <span>230</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">⚡ Speeder</span><span
+                                style="color:#44ff44">Hızlı</span></div>
+                        <p class="wiki-enemy-desc">Düşük canı ancak aşırı hızı vardır. Bir anda geminizin yanına
+                            yaklaşıp kaçma şansınızı azaltır.</p>
+                        <div class="wiki-enemy-stats">Can: <span>12 HP</span> Hasar: <span>5 DMG</span> Hız:
+                            <span>230</span>
+                        </div>
                     </div>
                     <div class="wiki-enemy-card" style="border-color: #ffff00">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🔫 Shooter</span><span style="color:#ffff00">Menzilli</span></div>
-                        <p class="wiki-enemy-desc">Belli bir mesafede durup geminize doğru periyodik plazma topları fırlatır.</p>
-                        <div class="wiki-enemy-stats">Can: <span>35 HP</span> Hasar: <span>10 DMG</span> Hız: <span>75</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🔫 Shooter</span><span
+                                style="color:#ffff00">Menzilli</span></div>
+                        <p class="wiki-enemy-desc">Belli bir mesafede durup geminize doğru periyodik plazma topları
+                            fırlatır.</p>
+                        <div class="wiki-enemy-stats">Can: <span>35 HP</span> Hasar: <span>10 DMG</span> Hız:
+                            <span>75</span>
+                        </div>
                     </div>
                     <div class="wiki-enemy-card" style="border-color: #00ffcc">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🌀 Orbiter</span><span style="color:#00ffcc">Taktik</span></div>
-                        <p class="wiki-enemy-desc">Geminizin etrafında dairesel yörüngede dolanıp bir anda üzerinize hızlı hücum yapar.</p>
-                        <div class="wiki-enemy-stats">Can: <span>25 HP</span> Hasar: <span>10 DMG</span> Hız: <span>140</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🌀 Orbiter</span><span
+                                style="color:#00ffcc">Taktik</span></div>
+                        <p class="wiki-enemy-desc">Geminizin etrafında dairesel yörüngede dolanıp bir anda üzerinize
+                            hızlı hücum yapar.</p>
+                        <div class="wiki-enemy-stats">Can: <span>25 HP</span> Hasar: <span>10 DMG</span> Hız:
+                            <span>140</span>
+                        </div>
                     </div>
                     <div class="wiki-enemy-card" style="border-color: #ff66ff">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🧬 Splitter</span><span style="color:#ff66ff">Tehlikeli</span></div>
-                        <p class="wiki-enemy-desc">Yok edildiğinde bölünerek 3 adet hızlı Speeder canavarı ortaya çıkarır.</p>
-                        <div class="wiki-enemy-stats">Can: <span>45 HP</span> Hasar: <span>12 DMG</span> Hız: <span>90</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🧬 Splitter</span><span
+                                style="color:#ff66ff">Tehlikeli</span></div>
+                        <p class="wiki-enemy-desc">Yok edildiğinde bölünerek 3 adet hızlı Speeder canavarı ortaya
+                            çıkarır.</p>
+                        <div class="wiki-enemy-stats">Can: <span>45 HP</span> Hasar: <span>12 DMG</span> Hız:
+                            <span>90</span>
+                        </div>
                     </div>
                     <div class="wiki-enemy-card" style="border-color: #6666ff">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🛡️ Shielder</span><span style="color:#6666ff">Korumalı</span></div>
-                        <p class="wiki-enemy-desc">Ekstra mavi kalkan koruması vardır. Kalkan kırılana kadar hasarlara dayanıklıdır.</p>
-                        <div class="wiki-enemy-stats">Can: <span>60+30 HP</span> Hasar: <span>14 DMG</span> Hız: <span>65</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🛡️ Shielder</span><span
+                                style="color:#6666ff">Korumalı</span></div>
+                        <p class="wiki-enemy-desc">Ekstra mavi kalkan koruması vardır. Kalkan kırılana kadar hasarlara
+                            dayanıklıdır.</p>
+                        <div class="wiki-enemy-stats">Can: <span>60+30 HP</span> Hasar: <span>14 DMG</span> Hız:
+                            <span>65</span>
+                        </div>
                     </div>
                     <div class="wiki-enemy-card" style="border-color: #ff3300">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🎯 Sniper</span><span style="color:#ff3300">Ölümcül</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🎯 Sniper</span><span
+                                style="color:#ff3300">Ölümcül</span></div>
                         <p class="wiki-enemy-desc">Çok uzak mesafeden yüksek hasarlı ve hızlı lazer mermileri atar.</p>
-                        <div class="wiki-enemy-stats">Can: <span>28 HP</span> Hasar: <span>15 DMG</span> Hız: <span>50</span></div>
+                        <div class="wiki-enemy-stats">Can: <span>28 HP</span> Hasar: <span>15 DMG</span> Hız:
+                            <span>50</span>
+                        </div>
                     </div>
                     <div class="wiki-enemy-card" style="border-color: #ff5500">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">💥 Kamikaze</span><span style="color:#ff5500">Patlayıcı</span></div>
-                        <p class="wiki-enemy-desc">Gemilere hızlıca hücum eder. Çarpma anında veya öldüğünde geniş bir alanda infilak eder.</p>
-                        <div class="wiki-enemy-stats">Can: <span>18 HP</span> Hasar: <span>35 DMG</span> Hız: <span>200</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">💥 Kamikaze</span><span
+                                style="color:#ff5500">Patlayıcı</span></div>
+                        <p class="wiki-enemy-desc">Gemilere hızlıca hücum eder. Çarpma anında veya öldüğünde geniş bir
+                            alanda infilak eder.</p>
+                        <div class="wiki-enemy-stats">Can: <span>18 HP</span> Hasar: <span>35 DMG</span> Hız:
+                            <span>200</span>
+                        </div>
                     </div>
                     <div class="wiki-enemy-card" style="border-color: #bf00ff">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🔮 Void Phantom</span><span style="color:#bf00ff">Hayalet</span></div>
-                        <p class="wiki-enemy-desc">Periyodik olarak uzay boşluğundan geçerek bir anda geminize doğru teleport olur.</p>
-                        <div class="wiki-enemy-stats">Can: <span>40 HP</span> Hasar: <span>12 DMG</span> Hız: <span>100</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🔮 Void Phantom</span><span
+                                style="color:#bf00ff">Hayalet</span></div>
+                        <p class="wiki-enemy-desc">Periyodik olarak uzay boşluğundan geçerek bir anda geminize doğru
+                            teleport olur.</p>
+                        <div class="wiki-enemy-stats">Can: <span>40 HP</span> Hasar: <span>12 DMG</span> Hız:
+                            <span>100</span>
+                        </div>
                     </div>
                     <div class="wiki-enemy-card" style="border-color: #ff1744">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🩸 Kan Sifonu (Düşman Şifacısı)</span><span style="color:#ff1744; font-weight: bold;">TEHLİKE</span></div>
-                        <p class="wiki-enemy-desc"><strong style="color:#ff1744;">DİKKAT: Bu bir can paketi DEĞİLDİR!</strong> Diğer hasar almış düşmanları kırmızı kan sifonuyla iyileştiren tehlikeli bir düşmandır. Yaklaşmayın, gördüğünüz an yok edin!</p>
-                        <div class="wiki-enemy-stats">Can: <span>50 HP</span> Hasar: <span>6 DMG</span> Hız: <span>85</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">🩸 Kan Sifonu (Düşman
+                                Şifacısı)</span><span style="color:#ff1744; font-weight: bold;">TEHLİKE</span></div>
+                        <p class="wiki-enemy-desc"><strong style="color:#ff1744;">DİKKAT: Bu bir can paketi
+                                DEĞİLDİR!</strong> Diğer hasar almış düşmanları kırmızı kan sifonuyla iyileştiren
+                            tehlikeli bir düşmandır. Yaklaşmayın, gördüğünüz an yok edin!</p>
+                        <div class="wiki-enemy-stats">Can: <span>50 HP</span> Hasar: <span>6 DMG</span> Hız:
+                            <span>85</span>
+                        </div>
                     </div>
                     <div class="wiki-enemy-card" style="border-color: #00f0ff">
-                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">Sweeper Lazer</span><span style="color:#00f0ff">Alan Engel</span></div>
-                        <p class="wiki-enemy-desc">Kendinden çıkan uzun doğrusal lazeri döndürerek devasa bir engel alanı oluşturur.</p>
-                        <div class="wiki-enemy-stats">Can: <span>70 HP</span> Hasar: <span>16 DMG</span> Hız: <span>45</span></div>
+                        <div class="wiki-enemy-hdr"><span class="wiki-enemy-name">Sweeper Lazer</span><span
+                                style="color:#00f0ff">Alan Engel</span></div>
+                        <p class="wiki-enemy-desc">Kendinden çıkan uzun doğrusal lazeri döndürerek devasa bir engel
+                            alanı oluşturur.</p>
+                        <div class="wiki-enemy-stats">Can: <span>70 HP</span> Hasar: <span>16 DMG</span> Hız:
+                            <span>45</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1073,19 +1427,27 @@
                     <div class="wiki-coop-col">
                         <h4>🔗 LAZER BAĞ PROTOKOLÜ</h4>
                         <p>
-                            İki pilot yan yana geldiğinde gemiler arasında yüksek enerjili bir <strong>Sinerji Lazer Bağı</strong> kurulur. Bu bağ, aradaki tüm parazitleri saniyeler içinde eriterek hasar verir.
+                            İki pilot yan yana geldiğinde gemiler arasında yüksek enerjili bir <strong>Sinerji Lazer
+                                Bağı</strong> kurulur. Bu bağ, aradaki tüm parazitleri saniyeler içinde eriterek hasar
+                            verir.
                         </p>
                         <p>
-                            Pilotların birbirine olan mesafesi kısaldıkça, lazer bağı hasarı ve kalkan şarj hızları çarpanı <strong>maksimuma</strong> ulaşır. Birbirinizden ayrılmamak hayatta kalmanın altın kuralıdır!
+                            Pilotların birbirine olan mesafesi kısaldıkça, lazer bağı hasarı ve kalkan şarj hızları
+                            çarpanı <strong>maksimuma</strong> ulaşır. Birbirinizden ayrılmamak hayatta kalmanın altın
+                            kuralıdır!
                         </p>
                     </div>
                     <div class="wiki-coop-col">
                         <h4>⚡ BOSS AŞIRI YÜKLENME DETONASYONU</h4>
                         <p>
-                            Savaş alanında birden fazla boss olduğunda, lazer bağını bosslardan birinin gövdesine <strong>1.2 saniye</strong> boyunca kesintisiz temas ettirmek geminin reaktörünü aşırı yükler.
+                            Savaş alanında birden fazla boss olduğunda, lazer bağını bosslardan birinin gövdesine
+                            <strong>1.2 saniye</strong> boyunca kesintisiz temas ettirmek geminin reaktörünü aşırı
+                            yükler.
                         </p>
                         <p>
-                            Aşırı yükleme dolduğunda boss gövdesinde devasa bir <strong>elektromanyetik patlama</strong> gerçekleşir, bossa yüksek şok hasarı verir ve çevredeki minyonları temizleyen bir şok dalgası yayar.
+                            Aşırı yükleme dolduğunda boss gövdesinde devasa bir <strong>elektromanyetik patlama</strong>
+                            gerçekleşir, bossa yüksek şok hasarı verir ve çevredeki minyonları temizleyen bir şok
+                            dalgası yayar.
                         </p>
                     </div>
                 </div>
@@ -1098,22 +1460,35 @@
                     <div class="wiki-coop-col">
                         <h4>🛡️ DİRİLME VE CEZA PROTOKOLÜ (2P)</h4>
                         <p>
-                            Çift Pilot modunda, gemilerden biri patladığında diğer pilot hayatta kaldığı sürece belirli bir bekleme süresinden sonra <strong>Yeniden Doğuş</strong> gerçekleşir. Dirilme şartları seçilen zorluğa göre değişir:
+                            Çift Pilot modunda, gemilerden biri patladığında diğer pilot hayatta kaldığı sürece belirli
+                            bir bekleme süresinden sonra <strong>Yeniden Doğuş</strong> gerçekleşir. Dirilme şartları
+                            seçilen zorluğa göre değişir:
                         </p>
-                        <ul style="padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 0.75rem;">
-                            <li>🟢 <strong>KOLAY MOD</strong>: 5 saniye sonra can kaybı olmadan doğarsınız. Seviye veya yetenek kaybı <strong>yaşanmaz</strong>.</li>
-                            <li>🟡 <strong>ORTA MOD</strong>: 7 saniye sonra doğarsınız. Seviyeniz <strong>2 level düşer</strong> ve rastgele <strong>2 özelliğiniz kalıcı olarak silinir</strong>.</li>
-                            <li>🔴 <strong>ZOR MOD</strong>: 10 saniye sonra doğarsınız. Tüm özellikleriniz gider ve <strong>1. seviyeden (0 yetenekle)</strong> sıfırdan başlarsınız.</li>
+                        <ul
+                            style="padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 0.75rem;">
+                            <li>🟢 <strong>KOLAY MOD</strong>: 5 saniye sonra can kaybı olmadan doğarsınız. Seviye veya
+                                yetenek kaybı <strong>yaşanmaz</strong>.</li>
+                            <li>🟡 <strong>ORTA MOD</strong>: 7 saniye sonra doğarsınız. Seviyeniz <strong>2 level
+                                    düşer</strong> ve rastgele <strong>2 özelliğiniz kalıcı olarak silinir</strong>.
+                            </li>
+                            <li>🔴 <strong>ZOR MOD</strong>: 10 saniye sonra doğarsınız. Tüm özellikleriniz gider ve
+                                <strong>1. seviyeden (0 yetenekle)</strong> sıfırdan başlarsınız.
+                            </li>
                         </ul>
                     </div>
                     <div class="wiki-coop-col">
                         <h4>🌌 ÜSTÜN TEKNOLOJİK SEVİYE VE ÖDÜLLER</h4>
                         <p>
-                            Arenada parazitleri yendikçe ve seviye atladıkça kozmik reaktörünüz efsanevi kartlar sentezler:
+                            Arenada parazitleri yendikçe ve seviye atladıkça kozmik reaktörünüz efsanevi kartlar
+                            sentezler:
                         </p>
-                        <ul style="padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 0.75rem;">
-                            <li>🌟 <strong>Boss Avı Ödülleri</strong>: Bir bossu yok ettiğinizde düşen 2 yükseltmenin tamamı kesinlikle <strong>Efsanevi (+%150 güç)</strong> kalitededir.</li>
-                            <li>🧬 <strong>5. Seviye Aşama Sentezi</strong>: Her 5. seviye artışında (5, 10, 15, 20...) seviye atlama seçenekleriniz arasında en az bir adet <strong>net Efsanevi yetenek</strong> garanti olarak sunulur.</li>
+                        <ul
+                            style="padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 0.75rem;">
+                            <li>🌟 <strong>Boss Avı Ödülleri</strong>: Bir bossu yok ettiğinizde düşen 2 yükseltmenin
+                                tamamı kesinlikle <strong>Efsanevi (+%150 güç)</strong> kalitededir.</li>
+                            <li>🧬 <strong>5. Seviye Aşama Sentezi</strong>: Her 5. seviye artışında (5, 10, 15, 20...)
+                                seviye atlama seçenekleriniz arasında en az bir adet <strong>net Efsanevi
+                                    yetenek</strong> garanti olarak sunulur.</li>
                         </ul>
                     </div>
                 </div>
@@ -1152,7 +1527,7 @@
 
                 const form = document.getElementById('namesForm');
                 const p2Group = document.getElementById('p2InputGroup');
-                
+
                 const ships = document.getElementById('shipsForm');
                 const p2ShipGroup = document.getElementById('p2ShipGroup');
 
@@ -1244,9 +1619,9 @@
             body.innerHTML = '';
             list.forEach((item, index) => {
                 let rClass = '';
-                if(index === 0) rClass = 'rank-1';
-                else if(index === 1) rClass = 'rank-2';
-                else if(index === 2) rClass = 'rank-3';
+                if (index === 0) rClass = 'rank-1';
+                else if (index === 1) rClass = 'rank-2';
+                else if (index === 2) rClass = 'rank-3';
 
                 const diffLabels = { easy: 'Kolay', medium: 'Orta', hard: 'Zor' };
                 const modeLabel = item.mode === '2p' ? '2P' : '1P';
@@ -1342,4 +1717,5 @@
         requestAnimationFrame(drawBg);
     </script>
 </body>
+
 </html>

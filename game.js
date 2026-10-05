@@ -476,6 +476,7 @@ class Player {
         if (!perfMode) {
             ctx.save();
             ctx.shadowBlur = 15; ctx.shadowColor = this.c;
+            const gs = this.r * 3;
             const grd = ctx.createRadialGradient(this.x, this.y, this.r * 0.5, this.x, this.y, gs);
             grd.addColorStop(0, this.c + '25'); grd.addColorStop(1, this.c + '00');
             ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(this.x, this.y, gs, 0, Math.PI * 2); ctx.fill();
@@ -1157,6 +1158,7 @@ class Boss extends Enemy {
         }
         
         ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.aA * 0.2);
+        const fl = this.fl > 0;
         ctx.strokeStyle = fl ? '#fff' : this.color; 
         ctx.fillStyle = fl ? 'rgba(255,255,255,0.25)' : this.color + '20'; 
         ctx.lineWidth = 3;
@@ -1821,7 +1823,7 @@ function drawLink(ctx, coopState) {
         }
     }
     
-    const rad = hasAegis ? 280 : 150;
+    const rad = hasAegis() ? 280 : 150;
     if (d < rad) {
         const za = (1 - d / rad) * 0.15;
         const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
