@@ -1,152 +1,180 @@
 <div align="center">
 
-# 🌌 COSMIC SURVIVORS — v6.0 MEGAPONK EDITION
+<img src="assets/og-banner.png" alt="Cosmic Survivors — v7.0 Vampire Survivors Edition Banner" width="100%" />
 
-<img src="assets/og-banner.png" alt="Cosmic Survivors — Sektör 9 Cyberpunk Co-Op Roguelike Uzay Oyunu Banner" width="100%">
+<br />
 
-<br>
+# 🌌 COSMIC SURVIVORS
+### **v7.0 VAMPIRE SURVIVORS EDITION — 1P Space Bullet-Heaven & Mega Evolution Roguelike**
 
-[![HEMEN OYNA — CANLI DEMO](https://img.shields.io/badge/%F0%9F%9A%80_HEMEN_OYNA-cosmic.haking.tr-00f0ff?style=for-the-badge&labelColor=06020f)](https://cosmic.haking.tr/)
-[![FÜZYON AĞACI](https://img.shields.io/badge/%E2%9A%A1_F%C3%9CZYON_A%C4%9EACI-tree.html-bf00ff?style=for-the-badge&labelColor=06020f)](https://cosmic.haking.tr/tree.html)
-[![BUY ME A COFFEE](https://img.shields.io/badge/%E2%98%95_DESTEK_OL-buymeacoffee.com%2Fhaking-ffd700?style=for-the-badge&labelColor=06020f)](https://buymeacoffee.com/haking)
-[![İLETİŞİM](https://img.shields.io/badge/%E2%9C%89%EF%B8%8F_%C4%B0LET%C4%B0%C5%9E%C4%B0M-cosmic%40haking.tr-ff006a?style=for-the-badge&labelColor=06020f)](mailto:cosmic@haking.tr)
+[![Canlı Oyna](https://img.shields.io/badge/🎮_HEMEN_OYNA-cosmic.haking.tr-00f0ff?style=for-the-badge&logo=rocket&logoColor=03030a)](https://cosmic.haking.tr/)
+[![Füzyon & Evrim Ağacı](https://img.shields.io/badge/⚡_EVRİM_AĞACI-tree.html-ffcc00?style=for-the-badge)](https://cosmic.haking.tr/tree.html)
+[![Sektör 9 Arşivi](https://img.shields.io/badge/📖_SEKTÖR_9_ARŞİVİ-about.html-b537f2?style=for-the-badge)](https://cosmic.haking.tr/about.html)
+[![Sürüm](https://img.shields.io/badge/Sürüm-v7.0_Vampire_Survivors_Edition-ff2a85?style=for-the-badge)](#)
+[![Buy Me A Coffee](https://img.shields.io/badge/☕_DESTEK_OL-buymeacoffee.com%2Fhaking-ffcc00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=000000)](https://buymeacoffee.com/haking)
+[![Lisans: MIT](https://img.shields.io/badge/Lisans-MIT-00ff88?style=for-the-badge)](LICENSE)
 
-![Version](https://img.shields.io/badge/S%C3%BCr%C3%BCm-v6.0_Megaponk-bf00ff?style=flat-square&labelColor=0b0518)
-![Engine](https://img.shields.io/badge/Motor-HTML5_Canvas_2D-ff006a?style=flat-square&labelColor=0b0518)
-![JavaScript](https://img.shields.io/badge/Kod-Vanilla_JS_(ES6+)-ffd700?style=flat-square&labelColor=0b0518)
-![Audio](https://img.shields.io/badge/Ses-Web_Audio_API_Synth-00ff88?style=flat-square&labelColor=0b0518)
-![Players](https://img.shields.io/badge/Mod-1P_Solo_%26_2P_Yerel_Co--Op-00f0ff?style=flat-square&labelColor=0b0518)
-![License](https://img.shields.io/badge/Lisans-MIT-ffffff?style=flat-square&labelColor=0b0518)
+<p align="center">
+  <strong>Sıfır Bağımlılık • Saf HTML5 Canvas & Web Audio API • 5 Özgün Gemi • 3 Dinamik Harita • 4 Silah + 4 Alet Slotu • 6 Evrim & 3 Kozmik Süper Evrim • Elit Mini-Boss & Kozmik Sandık</strong>
+</p>
 
-**Sektör 9'daki kozmik parazit istilasına karşı 5-Slot Megaponk Perk & Füzyon mimarisine sahip, 1 veya 2 kişilik yüksek tempolu Cyberpunk Roguelike uzay hayatta kalma oyunu.**  
-*Sıfır harici kütüphane. Sıfır ses dosyası. Tamamen saf HTML5 Canvas ve prosedürel Web Audio API sentezleyicisi ile inşa edildi.*
+---
+
+### 🚀 **[⚡ CANLI SİMÜLASYONU BAŞLAT — https://cosmic.haking.tr/](https://cosmic.haking.tr/)**
+### ☕ **[💛 PROJEYİ DESTEKLE — https://buymeacoffee.com/haking](https://buymeacoffee.com/haking)**
+### 📩 **Resmi İletişim: [cosmic@haking.tr](mailto:cosmic@haking.tr)**
 
 </div>
 
 ---
 
-## 🧭 Çok Sayfalı Web Mimarisi (Multi-Page Web App)
+## 📖 Genel Bakış
 
-Cosmic Survivors v6.0, tüm sayfalarda ortak **Cyberpunk Glassmorphism Üst Navigasyon Çubuğu** ile birbirine bağlanan 4 ana modülden oluşur:
+**Cosmic Survivors (v7.0 Vampire Survivors Edition)**, herhangi bir harici oyun motoru, kütüphane veya ses/görsel dosyası kullanmadan; tamamen **Vanilla JavaScript (ES6+)**, **HTML5 Canvas 2D** ve **Prosedürel Web Audio API** ile sıfırdan inşa edilmiş tek oyunculu (**1P**) bir **Uzay Bullet-Heaven / Action Roguelike** oyunudur.
 
-| Sayfa | Modül Adı | Açıklama |
-| :--- | :--- | :--- |
-| **[`index.html`](index.html)** | **Ana Komuta** | 1P/2P mod seçimi, gemi hangarı, zorluk ayarları, bulut + yerel skor tablosu ve hızlı kılavuz. |
-| **[`game.html`](game.html)** | **Savaş Arenası** | 60 FPS HTML5 Canvas savaş motoru, 5-Slot Neon Perk & Füzyon Dock HUD'u, Boss savaşları ve ses sentezleyicisi. |
-| **[`tree.html`](tree.html)** | **Füzyon Ağacı (Laboratuvar)** | 9 temel perkü ve 6 Gizli Efsanevi Füzyonu neon SVG bağlantı hatlarıyla görselleştiren interaktif yetenek ağacı ve **Canlı 5-Slot Reaktör Simülatörü**. |
-| **[`about.html`](about.html)** | **Sektör 9 Arşivi & Künye** | Kozmik Parazit istilasının arka plan hikayesi (Lore), animasyonlu CAD Gemi Teknik Çizimleri, 12 Parazit + 5 Boss Ansiklopedisi (Bestiary), iletişim (`cosmic@haking.tr`) ve Buy Me a Coffee destek kartı. |
+Yıl **2384**. **Sektör 9**'da açılan hiper-uzay yarığından akan biyomekanik **Kozmik Parazit** sürülerine karşı 5 farklı yıldız gemisinden birini seçin, **3 farklı çevresel tehlike haritasında** hayatta kalın, **4 Silah Slotu** ve **4 Alet (Trinket) Slotu**nu stratejik olarak doldurun, **6 Evrimleşmiş Silah** ve **3 Kozmik Süper Evrim (Mega Fusion)** sentezleyerek karanlık uzayda mermi cehennemi yaratın!
 
 ---
 
-## ⚡ Megaponk 5-Slot Perk & Füzyon Sentez Sistemi
+## ✨ v7.0 Vampire Survivors Edition Yenilikleri
 
-Sonsuz ve dengesiz kart birikimi kaldırılarak yerine stratejik **5-Slot Reaktör ve Füzyon Evrim Mimarisi** kurulmuştur:
-
-- **5 Slot Sınırı (`MAX_PERK_SLOTS = 5`):** Bir pilot aynı anda en fazla **5 pasif perk/füzyon** taşıyabilir. 5 slot dolduğunda seviye atlama havuzunda yalnızca eldeki perklerin seviye yükseltmeleri veya hazır Füzyon sentezleri çıkar.
-- **Seviye Sınırı (`MAKS Lv. 5`):** Her temel perk en fazla **5. seviyeye** yükselebilir.
-- **Füzyon Sentezi (`2 Slot ➔ 1 Slot`):** Uyumlu iki perk **Seviye 5'e (Maks)** ulaştığında bir sonraki seviye atlamada **Füzyon Sentezi** teklif edilir. İki perk birleşerek **1 Efsanevi Füzyon Yeteneğine** dönüşür, **2 slot tek slota iner** ve pilota **+1 yeni boş slot** açılır!
-
-### 🌌 6 Gizli Efsanevi Füzyon Yeteneği
-
-| Füzyon Yeteneği | Sentez Formülü (Lv.5 + Lv.5) | Efsanevi Evrim Etkisi | Slot Kazancı |
-| :--- | :--- | :--- | :---: |
-| **🩸 Kan Hasadı** | `Vampir Lv.5` + `Hasar+ Lv.5` | Her mermi vuruşu kızıl plazma patlaması yayar (%35 alan hasarı) ve verilen hasarın **%10'unu doğrudan cana çevirir**. | `2 ➔ 1 Slot` *(+1 Boş Slot)* |
-| **🌪️ Gatling Fırtınası** | `Ateş Hızı+ Lv.5` + `Çoklu Atış Lv.5` | Mermiler hiper-hızla (`x2.15`) yağar ve isabet ettiği düşmanlar arasında otomatik olarak **3 kez seker (Ricochet)**. | `2 ➔ 1 Slot` *(+1 Boş Slot)* |
-| **💠 Aegis Rezonansı** | `Kalkan+ Lv.5` + `Hız+ Lv.5` | Hareket ettikçe kinetik enerjiyle kalkan hızla dolar; **kalkan kırıldığında tüm ekranı temizleyen EMP şok dalgası** patlar. | `2 ➔ 1 Slot` *(+1 Boş Slot)* |
-| **🌌 Kozmik Süpernova** | `Kritik+ Lv.5` + `Menzil+ Lv.5` | Kritik vuruşlar **%100 ihtimalle alansal kara delik (Black Hole)** açar ve çevredeki tüm parazitleri içine çekip ezer. | `2 ➔ 1 Slot` *(+1 Boş Slot)* |
-| **☀️ Titan Çekirdeği** | `Can+ Lv.5` + `Hasar+ Lv.5` | `+140 Maks HP` ve `%25 Zırh` sağlar; her 3 saniyede bir Maks Canın **%25'i kadar yakıcı termal şok dalgası** yayar. | `2 ➔ 1 Slot` *(+1 Boş Slot)* |
-| **🔱 Kuantum Yargıç** | `Can+ Lv.5` + `Çoklu Atış Lv.5` | Mermiler düşmanları delen kuantum mızrağına dönüşür; deldiği her hedefte **+%25 hasar kazanır** ve düşmanları yavaşlatır. | `2 ➔ 1 Slot` *(+1 Boş Slot)* |
-
-### 🧩 9 Temel Reaktör Perkü (Lv.1 ➔ Lv.5)
-
-| İkon | Perk Adı | Seviye Başına Etki | Lv.5 Maksimum Değer |
-| :---: | :--- | :--- | :--- |
-| ⚔ | **Hasar+** (`atkUp`) | `+%25` Mermi Hasarı | **+%205 Hasar (x3.05)** |
-| ⚡ | **Hız+** (`spdUp`) | `+%15` İtici Hızı | **+%101 Hız (x2.01)** |
-| 🔥 | **Ateş Hızı+** (`fireUp`) | `+%20` Atış Frekansı | **+%148 Ateş Hızı** |
-| ♥ | **Can+** (`hpUp`) | `+35` Maksimum Can | **+175 Maks HP** |
-| ◆ | **Kalkan+** (`shieldUp`) | `+30` Maksimum Kalkan | **+150 Maks SH** |
-| ◎ | **Menzil+** (`rangeUp`) | `+55` Çekim Alanı & `+%18` Menzil | **+275 Çekim / +%90 Menzil** |
-| ⋮ | **Çoklu Atış** (`multiUp`) | `+2` Ekstra Yan Mermi | **+10 Yan Mermi (11 Namlu)** |
-| 🩸 | **Vampir** (`vampUp`) | `+2.5` HP / İmha | **+12.5 HP / İmha** |
-| 💥 | **Kritik+** (`critUp`) | `+%10` Kritik Şans (`2.5x` Hasar) | **+%50 Kritik Şans** |
+- 🛡️ **Kritik Race Condition & Çoklu Kart Açığı Onarımı:** Seviye atlama ekranında 3 tuşa (`A + W + D`) aynı anda basarak veya aynı karede çoklu tıklama yaparak 3 kartı birden alma açığı (`isLevelingUp` senkron atomik kilidi, `pointer-events: none` zırhı ve çoklu tuş basılı tutma engelleyicisi ile) tamamen kapatıldı.
+- 🚀 **Saf 1P Odak & 5 Özgün Gemi Sınıfı:** 2P ekran kalabalığı kaldırılarak tüm motor performansı ve kamera odağı tek pilota (1P) adandı. Her biri benzersiz **Başlangıç Silahı**, **Pasif Gövde Bonusu** ve **Aktif Yeteneğe (`SPACE`)** sahip 5 gemi eklendi.
+- 🗺️ **3 Gerçek Sınırlı Harita & Çevresel Anomaliler:** Dönen hurda enkazları (**Sektör 9 Enkazı**), hızlandıran/yavaşlatan iyonize gaz bulutları (**Kuantum Nebulası**) ve merkeze çeken yerçekimi tekilliği ile patlayan lav asteroidleri (**Kara Delik Çevresi**).
+- ⚔️ **4 Silah + 4 Alet (Trinket) Slotu & Mega Evrim Sistemi:** Doğrudan ateş eden 6 aktif silah ve pasif çarpan sağlayan 6 alet (Mıknatıs, Soğutucu, İtici, Biyo-Reaktör, Kuantum Nişangah, Deflektör Matrisi).
+- ⚡ **6 Standart Evrim + 3 Kozmik Süper Evrim:** `Silah Lv.5 + Alet Lv.5` birleşimiyle **Evrimleşmiş Silah**; iki Evrimleşmiş Silahın birleşimiyle **Kozmik Süper Evrim** (Mega Fusion) ve **+1 Boş Silah Slotu**!
+- 🎲 **Reroll (2x) & Skip (1x) + Elit Mini-Boss & Kozmik Sandık:** Her oyunda 2 kez kart yenileme (**Reroll**) ve 1 kez XP telafili pas geçme (**Skip**) hakkı. Her 3 dalgada bir beliren **Elit Mini-Boss** ve %50 ihtimalle düşürdüğü altın **Kozmik Sandık (Loot Box)**.
+- 🖥️ **Minimalist HUD & Gelişmiş ESC Duraklatma Terminali:** Oyun ekranını kapatan alt bar kaldırıldı; sol üstte kompakt durum/slot göstergesi, sağ üstte dalga/harita telemetrisi ve `ESC` tuşuyla açılan **Canlı DPS & Evrim Rehberi Terminali** eklendi.
 
 ---
 
-## ☢️ Oyun Sonu (Endgame) Dengelemesi & Yeni Bosslar
+## 🛸 5 Özgün Yıldız Gemisi (Karakter Sınıfları)
 
-Dalga 30'da oyuncunun ölümsüzleştiği can/kalkan döngüsü matematiksel olarak kapatılmış ve gerçek bir oyun sonu (Endgame) meydan okuması tasarlanmıştır:
-
-1. **Kozmik Çürüme / Radyasyon (Dalga 25+):**
-   - Dalga 25'ten itibaren her yeni dalgada pasif can yenilenmesi, vampir biyo-onarımı ve kalkan dolum hızı **%4 zayıflar** (`HUD` üzerinde `☢ KOZMİK ÇÜRÜME` uyarısıyla gösterilir).
-   - Can çalma (Lifesteal) saniyelik maksimum canın `%18 * KozmikÇürüme` tavanıyla sınırlandırılmıştır ve hasar alındığında kalkan dolumu `1.8 sn` gecikmeye girer.
-2. **Elit Gerçek % Hasar (`True % Max HP Damage`):**
-   - Dalga 15+ altın halkalı Elit parazitler ve oyun sonu Boss mermileri, pilotun **Maksimum Canına oranla (%5 – %14)** doğrudan gövde hasarı verir.
-3. **2 Yeni Gelişmiş Oyun Sonu Bossu:**
-   - **⏳ CHRONOS WEAVER (Dalga 20):** Uzay-zamanı bükerek arenada **Ters Çekim Yarıkları** açar. Yarığa giren pilotların hareket vektörünü tersine çevirir ve dışarı iter.
-   - **🛡️ OBLIVION BEHEMOTH (Dalga 30):** Ön gövdesinde mermi geçirmeyen **200° dönen zırh plakaları** taşır. Önden gelen tüm mermileri sektirir; pilotlar hasar vermek için **arkasındaki açık reaktör çekirdeğine (%175 Zayıf Nokta Hasarı)** manevra yapmak zorundadır!
+| Gemi Sınıfı | Kod Adı | Başlangıç Silahı | Pasif Gövde Avantajı | Aktif Yetenek (`SPACE`) |
+| :--- | :--- | :--- | :--- | :--- |
+| **⚡ Avcı** | `Interceptor` | **Çift Lazer** (`dualLaser`) | **+%20 Hareket Hızı, +%15 Kritik Şansı** | **Warp Dash:** 1.2 sn dokunulmazlık taklası ve arkasında yakıcı lazer izi |
+| **🛡️ Kruvazör** | `Dreadnought` | **Ağır Plazma Topu** (`heavyPlasma`) | **+%30 Zırh Koruması, -%10 Hız** | **Mikro Füze Salvosu:** 3 sn boyunca 360° güdümsüz mikro füze yağmuru |
+| **💠 Aegis** | `Shield Guardian` | **Dönen Enerji Diski** (`energyDisc`) | **Otomatik Kalkan Patlaması** (8 sn'de bir şok halkası) | **EMP Şok Dalgası:** Tüm düşman mermilerini siler ve kalkana dönüştürür |
+| **👻 Gölge** | `Void Phantom` | **Kuantum Hançeri** (`quantumDagger`) | **10 sn'de bir 1.5 sn Görünmezlik + %65 Suikast Hasarı** | **Gölge Sıçraması:** İmleç yönüne ışınlanır ve 8'li kuantum hançeri fırlatır |
+| **☀️ Solar Flare** | `Sunstorm` | **Alev Hattı** (`flameLine`) | **Termal Radyasyon Aurası** (Yakındaki düşmanları sürekli yakar) | **Güneş Patlaması:** Ekran çapında korona patlaması ve ağır yanık etkisi |
 
 ---
 
-## 🚀 Gemi Sınıfları ve Aktif Yetenekler
+## 🗺️ 3 Gerçek Savaş Haritası & Çevresel Tehlikeler
 
-| Sınıf | Rol | Can / Kalkan | Hız | Özel Silah / Pasif | Aktif Yetenek (`SPACE` / `ENTER`) |
-| :--- | :--- | :---: | :---: | :--- | :--- |
-| **⚡ Avcı (Interceptor)** | Çevik Taarruz | `80 HP` / `40 SH` | `335` | **+%15 Kritik Şans**, yüksek mermi hızı | **Warp Dash (7sn):** 1.2sn dokunulmaz takla atar, arkasında yakıcı lazer hattı bırakır. |
-| **🛡️ Kruvazör (Dreadnought)** | Ağır Zırhlı Tank | `160 HP` / `80 SH` | `215` | **Çift Namlulu Plazma Topu** | **Mikro Füze Salvosu (11sn):** 3sn boyunca 360° her yöne mikro füze yağdırır. |
-| **🌀 Destek (Aegis)** | Sinerji & Kalkan | `100 HP` / `110 SH` | `270` | **+%75 Sinerji Menzili**, `1.5x` kalkan dolumu | **EMP Şok Dalgası (13sn):** Ekrandaki tüm düşman mermilerini silip kalkan enerjisine dönüştürür. |
+| Harita | Boyut | Çevresel Mekanik & Anomaliler | Özgün Parazit Filosu |
+| :--- | :---: | :--- | :--- |
+| **1. Sektör 9 Enkazı** *(Standart Arena)* | `3200 × 2200` | Dönen dev **Titanyum Hurda Enkazları**; mermileri ve gemiyi fiziksel olarak saptırır. | Dengeli Sürü, Okçu ve Sürü Kraliçesi |
+| **2. Kuantum Nebulası** *(Hız & Tehlike)* | `3400 × 2400` | **Mavi İyonize Bulutlar** gemiyi **+%45 hızlandırır**, **Mor Yoğun Gazlar** **-%35 yavaşlatır**. | Işınlanan **Hayalet (Phantom)** ve **Sıçrayıcı (Blinker)** parazitler |
+| **3. Kara Delik Çevresi** *(Zorlu Çekim)* | `3000 × 2200` | Merkezdeki **Tekillik (Singularity)** gemiyi ve düşmanları merkeze çeker; **Lav Asteroidleri** vurulunca şarapnel saçar. | Yüksek zırhlı **Titan**, **Bölünen (Splitter)** ve **Elit** parazitler |
 
 ---
 
-## 📂 Proje Dizin Yapısı
+## 🧬 Megabonk / Vampire Survivors Evrim & Süper Evrim Sistemi
+
+Bir pilot aynı anda en fazla **4 Silah Slotu** ve **4 Alet (Trinket) Slotu** taşıyabilir.
+
+### 1️⃣ Silahlar (4 Slot) & Aletler (4 Slot)
+
+| 🔫 Aktif Silahlar (Maks Lv.5) | 🧲 Pasif Aletler / Trinkets (Maks Lv.5) |
+| :--- | :--- |
+| **⚡ Çift Lazer (`dualLaser`):** Yüksek hızlı ikiz foton atışı | **🧲 Mıknatıs (`magnet`):** XP/Sandık çekim çapı (+%35/Lv) ve +%8 XP |
+| **💥 Ağır Plazma Topu (`heavyPlasma`):** Alan patlamalı plazma küresi | **❄️ Soğutucu (`coolant`):** Tüm silahlarda +%12/Lv Ateş Hızı (Cooldown azaltma) |
+| **💿 Dönen Enerji Diski (`energyDisc`):** Gemi etrafında dönen kesici diskler | **🚀 Kinetik İtici (`thruster`):** +%9/Lv Hareket Hızı ve +%8/Lv Zırh |
+| **🗡️ Kuantum Hançeri (`quantumDagger`):** En yakın hedefe güdümlü zırh delici hançer | **🧪 Biyo-Reaktör (`bioreactor`):** +%18/Lv Maks Can, +2.5 HP/sn Can Yenileme ve Can Çalma |
+| **🔥 Alev Hattı (`flameLine`):** Sürekli yanan plazma koridoru | **🎯 Kuantum Nişangah (`targetMatrix`):** +%9/Lv Kritik Şansı ve +%15/Lv Mermi Hasarı |
+| **🚀 Füze Sürüsü (`swarmMissiles`):** En yakın hedeflere kilitlenen güdümlü mikro füzeler | **🛡️ Deflektör Matrisi (`shieldMatrix`):** +35/Lv Maks Kalkan ve +%20 Kalkan Dolumu |
+
+---
+
+### 2️⃣ 6 Standart Evrim (Silah Lv.5 + Alet Lv.5)
+
+Bir silah ve eşleştiği alet **Seviye 5 (MAX)** olduğunda, seviye atlama ekranında veya **Kozmik Sandıkta** **EVRİM SENTEZİ** açılır:
+
+| Evrimleşmiş Silah | Sentez Formülü (Lv.5 + Lv.5) | Evrim Etkisi |
+| :--- | :---: | :--- |
+| **🌪️ Gatling Fırtınası** | `Çift Lazer Lv.5` + `Kriyo Soğutucu Lv.5` | Hiper-hızlı lazer yağmuru; mermiler düşmanlar arasında **3 kez seker (Ricochet)**. |
+| **🩸 Kan Hasadı** | `Ağır Plazma Topu Lv.5` + `Biyo-Reaktör Lv.5` | Kızıl plazma cehennemi; her vuruş alan patlaması yayar ve **hasarın %10'unu cana çevirir**. |
+| **💠 Aegis Rezonansı** | `Dönen Enerji Diski Lv.5` + `Kinetik İtici Lv.5` | 6 adet kesici rezonans diski; hareket ettikçe kalkan dolar, kalkan kırılınca **EMP patlar**. |
+| **🌌 Kozmik Süpernova** | `Kuantum Hançeri Lv.5` + `Mıknatıs Çekirdeği Lv.5` | Kritik hançer vuruşları düşmanları içine çekip ezen alansal **Kara Delik** açar. |
+| **☀️ Titan Koronası** | `Alev Hattı Lv.5` + `Deflektör Matrisi Lv.5` | Alev koridoru dev güneş halkasına dönüşür ve her 2.5 sn'de bir **Termal Nova** yayar. |
+| **🔱 Kuantum Yargıç** | `Füze Sürüsü Lv.5` + `Kuantum Nişangah Lv.5` | Füzeler düşmanları delip geçen kuantum mızraklarına dönüşür; her delmede **+%25 güçlenir**. |
+
+---
+
+### 3️⃣ 3 Kozmik Süper Evrim (Evrim + Evrim = Mega Fusion)
+
+İki uyumlu **Evrimleşmiş Silah** aynı anda envanterdeyken birleşerek tek bir **KOZMİK SÜPER EVRİM** oluşturur ve **1 Silah Slotunu Boşaltır (+1 Boş Slot)**:
+
+| Kozmik Süper Evrim | Mega Füzyon Formülü | Kozmik Yıkım Etkisi |
+| :--- | :---: | :--- |
+| **👑 CEHENNEM GATLİNG'İ** *(Inferno Gatling)* | `Kan Hasadı` + `Gatling Fırtınası` | Ekranı yırtan kızıl-altın mermi fırtınası: 4 kez seken patlayıcı plazma mermileri, yakıcı iz ve yüksek can çalma! |
+| **🌀 OLAY UFKU** *(Event Horizon)* | `Kozmik Süpernova` + `Aegis Rezonansı` | Gemi etrafında 6 kara delik diski döner; kritik vuruşlar tekillik açar ve periyodik EMP şok dalgaları yayar! |
+| **🔱 OMEGA HÜKMÜ** *(Omega Judgement)* | `Titan Koronası` + `Kuantum Yargıç` | Yörüngesel kıyamet protokolü: Dev plazma küreleri ve 7 hedefe sıçrayan kuantum yıldırımları tüm haritayı temizler! |
+
+---
+
+## 📦 Elit Mini-Boss, Kozmik Sandık & Reroll/Skip
+
+- **👑 Elit Mini-Boss (Her 3 Dalgada Bir):** Dalga 3, 6, 9, 12... başladığında altın zırhlı bir **Elit Parazit Komutanı** arenaya iner.
+- **📦 Kozmik Sandık (Loot Box):** Elit Mini-Boss yok edildiğinde **%50 ihtimalle** altın neon parıltılı **Kozmik Sandık** düşürür. Sandığı almak oyunu duraklatır ve hazır bir **Evrim/Süper Evrim** varsa anında sentezler, yoksa mevcut bir silah/aleti ücretsiz yükseltir!
+- **🎲 Reroll (2 Hak) & ⏭️ Skip (1 Hak):** Seviye atlama ekranında gelen 3 kartı beğenmezseniz **2 kez Zar Atabilir (Reroll)** veya **1 kez Pas Geçerek (Skip)** anında **+%35 XP telafisi** alabilirsiniz.
+
+---
+
+## 🗂️ Çok Sayfalı Mimari & Dosya Yapısı
 
 ```text
 COSMIC/
-├── index.html               # Ana Komuta: Gemi/Mod seçimi, Skor Tablosu ve Hızlı Kılavuz
-├── game.html                # Savaş Arenası: Cyberpunk HUD, 5-Slot Perk Dock ve Oyun Ekranı
-├── tree.html                # Füzyon Ağacı: İnteraktif 9 Perk + 6 Füzyon Laboratuvarı & Simülatör
-├── about.html               # Sektör 9 Arşivi: Lore, CAD Gemi Şemaları, Bestiary, İletişim & Destek
-├── intro.html               # Sinematik Sektör 9 Başlangıç Sekansı
-├── game.js                  # Çekirdek Oyun Motoru (Megaponk 5-Slot Füzyon, Endgame Bosslar, Ses)
-├── leaderboard.js           # Firebase Realtime DB + LocalStorage Hibrit Liderlik Tablosu
-├── manifest.webmanifest     # PWA Tam Ekran Web Uygulaması Manifestosu
-├── robots.txt               # Arama Motoru Tarama Kuralları
-├── sitemap.xml              # Çok Sayfalı XML Site Haritası (index, game, tree, about, intro)
-├── _headers                 # Cloudflare Pages Güvenlik ve Önbellek Başlıkları
-├── LICENSE                  # MIT Açık Kaynak Lisansı
-├── README.md                # Vitrin Dokümantasyonu
+├── index.html              # [ANA KOMUTA] 5 Gemi & 3 Harita Seçim Hangarı, Canlı Önizleme, Skor Tablosu
+├── game.html               # [SAVAŞ ARENASI] Minimalist HUD, ESC DPS Terminali, Evrim & Kozmik Sandık Modalları
+├── game.js                 # [OYUN MOTORU] v7.0 1P Vampire Survivors Motoru, 5 Gemi, 3 Harita, 4+4 Slot, Evrim/Süper Evrim
+├── tree.html               # [EVRİM AĞACI] 4 Katmanlı İnteraktif Silah, Alet, Evrim ve Süper Evrim Laboratuvarı
+├── about.html              # [SEKTÖR 9 ARŞİVİ] 3 Harita, 5 Gemi CAD Çizimi, Bestiary, İletişim & Destek
+├── manifest.json           # PWA Web App Manifest
+├── LICENSE                 # MIT Açık Kaynak Lisansı (Halit Güneş / HaKING)
+├── README.md               # v7.0 Vampire Survivors Edition Teknik Dokümantasyon
 └── assets/
-    ├── logo.svg             # Vektörel Cyberpunk Cosmic Survivors Logosu
-    ├── favicon.svg          # Vektörel Neon Uzay Gemisi Faviconu
-    ├── og-banner.svg        # 1200x630 Vektörel Sosyal Medya / GitHub Afişi
-    ├── og-banner.png        # 1200x630 Yüksek Çözünürlüklü Open Graph PNG Afişi
-    ├── icon-192.png         # PWA Mobil Uygulama İkonu (192x192)
-    └── icon-512.png         # PWA Mobil Uygulama İkonu (512x512)
+    ├── logo.svg            # Vektörel Cyberpunk Arma & Favicon
+    ├── og-banner.svg       # 1200x630 Vektörel v7.0 Tanıtım Afişi
+    └── og-banner.png       # 1200x630 Yüksek Çözünürlüklü Sosyal Medya (OG/Twitter) Banner
 ```
 
 ---
 
-## 🛠️ Yerel Kurulum ve Çalıştırma
+## 🛠️ Kurulum ve Yerel Çalıştırma
 
-Proje hiçbir derleme adımına (`npm build`, `webpack` vb.) ihtiyaç duymaz:
+Proje hiçbir derleme (build) adımı veya `node_modules` bağımlılığı gerektirmez:
 
 ```bash
 # 1. Depoyu klonlayın
-git clone https://github.com/HaKING06/COSMIC.git
+git clone https://github.com/haking/COSMIC.git
 cd COSMIC
 
-# 2. Yerel HTTP sunucusunu başlatın
+# 2. Yerel bir HTTP sunucusu başlatın (Python örneği)
 python -m http.server 8080
-```
 
-Tarayıcınızda **`http://localhost:8080`** adresini açarak tüm modülleri (`index.html`, `game.html`, `tree.html`, `about.html`) deneyimleyebilirsiniz.
+# 3. Tarayıcınızda açın
+# Ana Komuta & Gemi/Harita Seçimi : http://localhost:8080/index.html
+# Savaş Arenası                   : http://localhost:8080/game.html
+# Evrim & Süper Evrim Ağacı       : http://localhost:8080/tree.html
+# Sektör 9 Arşivi & Künye         : http://localhost:8080/about.html
+```
 
 ---
 
-## ☕ Destek, İletişim ve Lisans
+## 💖 Destek & İletişim
 
-- **Canlı Oyun:** [https://cosmic.haking.tr/](https://cosmic.haking.tr/)
-- **Geliştiriciye Destek Ol:** [https://buymeacoffee.com/haking](https://buymeacoffee.com/haking)
-- **Resmi İletişim:** [cosmic@haking.tr](mailto:cosmic@haking.tr)
-- **Geliştirici:** **Halit Güneş (HaKING)** — [GitHub (@HaKING06)](https://github.com/HaKING06)
-- **Lisans:** Bu proje **[MIT Lisansı](LICENSE)** altında açık kaynak olarak sunulmaktadır.
+**Cosmic Survivors**, açık kaynaklı ve bağımsız bir web oyun projesidir. Geliştirmeyi desteklemek ve yeni gemiler/haritalar eklenmesine katkıda bulunmak için:
+
+- ☕ **Buy Me a Coffee:** [**https://buymeacoffee.com/haking**](https://buymeacoffee.com/haking)
+- 🌐 **Canlı Web Oyunu:** [**https://cosmic.haking.tr/**](https://cosmic.haking.tr/)
+- 📩 **E-Posta:** [**cosmic@haking.tr**](mailto:cosmic@haking.tr)
+
+---
+
+## 📄 Lisans
+
+Bu proje **MIT Lisansı** altında lisanslanmıştır — detaylar için [LICENSE](LICENSE) dosyasına göz atabilirsiniz.
+
+**Telif Hakkı © 2026 Halit Güneş (HaKING). Tüm hakları saklıdır.**

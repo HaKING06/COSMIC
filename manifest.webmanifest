@@ -1,7 +1,7 @@
 {
-  "name": "Cosmic Survivors",
-  "short_name": "Cosmic",
-  "description": "Ücretsiz, web tabanlı 1-2 kişilik uzay roguelike arena hayatta kalma oyunu.",
+  "name": "Cosmic Survivors — v7.0 Vampire Survivors Edition",
+  "short_name": "Cosmic v7.0",
+  "description": "Ücretsiz, web tabanlı 1P Uzay Bullet-Heaven & Mega Evrim Roguelike hayatta kalma oyunu.",
   "id": "/",
   "start_url": "/?utm_source=pwa",
   "scope": "/",

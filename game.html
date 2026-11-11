@@ -2,888 +2,58 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Cosmic Survivors — Oyun Arenası | Sektör 9 Uzay Hayatta Kalma Simülasyonu</title>
-    <meta name="description" content="Cosmic Survivors: ücretsiz, web tabanlı uzay roguelike arena oyunu. Tek başına ya da 2 kişilik co-op oyna, aktif yeteneklerle parazit filolarını ve boss'ları yok et. İndirme yok!">
-    <meta name="keywords" content="Cosmic Survivors, uzay oyunu, web tabanlı roguelike, 2 kişilik uzay oyunu, html5 arena oyunu, vampire survivors benzeri uzay oyunu, ücretsiz tarayıcı oyunu, co-op uzay shooter, bullet heaven, roguelike, çok oyunculu uzay savaşı, cosmic haking">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cosmic Survivors v7.0 — Savaş Arenası | Vampire Survivors & Megabonk Uzay Roguelike</title>
+    <meta name="description" content="Cosmic Survivors v7.0 Savaş Arenası: 5 özgün uzay gemisi, 3 harita, 4 Silah + 4 Alet slotu, Süper Evrimler ve Mini-Boss Şans Sandıkları.">
+    <meta name="keywords" content="Cosmic Survivors, vampire survivors uzay oyunu, megabonk roguelike, html5 arena oyunu, uzay hayatta kalma">
     <meta name="author" content="Halit Güneş (HaKING)">
-    <meta name="robots" content="index, follow, max-image-preview:large">
-    <meta name="language" content="Turkish">
-    <link rel="canonical" href="https://cosmic.haking.tr/">
-
-    <!-- Tema / PWA -->
+    <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#00f0ff">
-    <meta name="color-scheme" content="dark">
-    <meta name="application-name" content="Cosmic Survivors">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Cosmic">
-    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="canonical" href="https://cosmic.haking.tr/game.html">
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="apple-touch-icon" href="assets/icon-192.png">
+    <link rel="manifest" href="manifest.webmanifest">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Cosmic Survivors">
-    <meta property="og:title" content="Cosmic Survivors — Ücretsiz 2 Kişilik Uzay Roguelike Arena Oyunu">
-    <meta property="og:description" content="Cosmic Survivors: ücretsiz, web tabanlı uzay roguelike arena oyunu. Tek başına ya da 2 kişilik co-op oyna, aktif yeteneklerle parazit filolarını ve boss'ları yok et. İndirme yok!">
-    <meta property="og:url" content="https://cosmic.haking.tr/">
     <meta property="og:locale" content="tr_TR">
+    <meta property="og:site_name" content="Cosmic Survivors">
+    <meta property="og:title" content="Cosmic Survivors v7.0 — Vampire Survivors Edition Savaş Arenası">
+    <meta property="og:description" content="5 özgün gemi, 3 harita, 4 Silah + 4 Alet slotu ve Kozmik Süper Evrimlerle parazit sürülerine karşı hayatta kal!">
+    <meta property="og:url" content="https://cosmic.haking.tr/game.html">
     <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png">
-    <meta property="og:image:secure_url" content="https://cosmic.haking.tr/assets/og-banner.png">
-    <meta property="og:image:type" content="image/png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Cosmic Survivors — neon uzay roguelike arena oyunu afişi">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Cosmic Survivors — Ücretsiz 2 Kişilik Uzay Roguelike">
-    <meta name="twitter:description" content="Cosmic Survivors: ücretsiz, web tabanlı uzay roguelike arena oyunu. Tek başına ya da 2 kişilik co-op oyna, aktif yeteneklerle parazit filolarını ve boss'ları yok et. İndirme yok!">
+    <meta name="twitter:title" content="Cosmic Survivors v7.0 — Savaş Arenası">
+    <meta name="twitter:description" content="5 gemi, 3 harita, Süper Evrimler ve Mini-Boss Şans Sandıkları.">
     <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png">
-    <meta name="twitter:image:alt" content="Cosmic Survivors — neon uzay roguelike arena oyunu afişi">
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "VideoGame",
-      "name": "Cosmic Survivors",
-      "url": "https://cosmic.haking.tr/",
-      "image": "https://cosmic.haking.tr/assets/og-banner.png",
-      "description": "Cosmic Survivors: ücretsiz, web tabanlı uzay roguelike arena oyunu. Tek başına ya da 2 kişilik co-op oyna, aktif yeteneklerle parazit filolarını ve boss'ları yok et. İndirme yok!",
-      "genre": ["Roguelike", "Arena Shooter", "Bullet Heaven"],
-      "gamePlatform": "Web Browser",
-      "applicationCategory": "Game",
-      "operatingSystem": "Any",
-      "inLanguage": "tr",
-      "playMode": ["SinglePlayer", "CoOp"],
-      "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
-      "author": { "@type": "Person", "name": "Halit Güneş", "alternateName": "HaKING" },
-      "license": "https://opensource.org/licenses/MIT",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" }
-    }
-    </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
+            --bg-dark: #030109;
             --p1: #00f0ff;
             --p2: #ff006a;
             --link: #bf00ff;
             --gold: #ffd700;
-            --bg-deep: #050010;
+            --green: #00ff88;
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            background: #000;
-            overflow: hidden;
-            font-family: 'Orbitron', monospace;
-            user-select: none;
-            position: relative;
+        html, body {
+            width: 100%; height: 100%; overflow: hidden;
+            background: #030007; font-family: 'Orbitron', monospace;
+            color: #fff; user-select: none;
         }
-        body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            z-index: 9999;
-            background-size: 100% 4px, 6px 100%;
-            pointer-events: none;
-        }
-
-        /* ─── CURSOR MODES ─── */
         body.playing-cursor { cursor: none; }
-        body.menu-cursor { cursor: default; }
-
         canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
 
-        /* ─── OVERLAYS ─── */
-        .ov {
-            position: fixed; inset: 0; z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: radial-gradient(ellipse at center, rgba(10,0,30,0.95) 0%, rgba(0,0,0,0.98) 100%);
-            transition: opacity 0.4s;
-        }
-        .ov.hidden { display: none; }
-        
-        .ov-scroll {
-            max-height: 100vh; overflow-y: auto; width: 100%;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 30px 20px 60px;
-            scrollbar-width: thin; scrollbar-color: rgba(191,0,255,0.3) transparent;
-        }
-
-        /* ─── HUD ─── */
-        #hud {
-            position: fixed; top: 0; left: 0; right: 0;
-            display: flex; justify-content: space-between; align-items: flex-start;
-            padding: 12px 20px; z-index: 50; pointer-events: none;
-        }
-        #hud.hidden { display: none; }
-        .hud-p { display: flex; flex-direction: column; gap: 4px; min-width: 200px; }
-        .hud-p.right { align-items: flex-end; }
-        .hud-nm { font-size: 0.65rem; letter-spacing: 0.18em; font-weight: 700; }
-        .hud-bw { width: 180px; height: 7px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
-        .hud-b { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
-        .hp1 { background: linear-gradient(90deg,#00f0ff,#00a8ff); box-shadow: 0 0 8px rgba(0,240,255,0.4); }
-        .hp2 { background: linear-gradient(90deg,#ff006a,#ff4500); box-shadow: 0 0 8px rgba(255,0,106,0.4); }
-        .sh { background: linear-gradient(90deg,#bf00ff,#8000ff); box-shadow: 0 0 8px rgba(191,0,255,0.4); }
-        .xpb { background: linear-gradient(90deg,#ffd700,#ff8c00); box-shadow: 0 0 8px rgba(255,215,0,0.4); }
-        .hud-lv { font-family: 'Rajdhani', sans-serif; font-size: 0.65rem; color: #ffd700; opacity: 0.85; margin-top: 1px; }
-        
-        .hud-upgs { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; max-width: 200px; }
-        .hud-upgs.right { justify-content: flex-end; }
-        .hud-ui {
-            width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center;
-            font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
-            position: relative; cursor: default;
-        }
-        .hud-ui .uc {
-            position: absolute; top: -3px; right: -3px; font-family: 'Rajdhani', sans-serif;
-            font-size: 0.45rem; background: rgba(0,0,0,0.85); border-radius: 50%;
-            width: 12px; height: 12px; display: flex; align-items: center; justify-content: center;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .hud-c { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-        .hud-sc { font-size: clamp(1.1rem, 2.5vw, 1.8rem); font-weight: 900; background: linear-gradient(135deg,#ffd700,#ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hud-wv { font-family: 'Rajdhani', sans-serif; font-size: 0.65rem; color: rgba(255,255,255,0.45); letter-spacing: 0.25em; }
-        .hud-tm { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: rgba(255,255,255,0.35); }
-        .hud-co { font-size: 0.7rem; font-weight: 700; color: #ff006a; text-shadow: 0 0 12px rgba(255,0,106,0.7); opacity: 0; transition: opacity 0.3s; }
-        .hud-co.active { opacity: 1; }
-        .hud-df { font-family: 'Rajdhani', sans-serif; font-size: 0.55rem; letter-spacing: 0.15em; }
-        .hud-df.easy { color: #44ff44; }
-        .hud-df.medium { color: #ffaa00; }
-        .hud-df.hard { color: #ff4444; }
-
-        .p1c { color: #00f0ff; text-shadow: 0 0 15px rgba(0,240,255,0.3); }
-        .p2c { color: #ff006a; text-shadow: 0 0 15px rgba(255,0,106,0.3); }
-
-        /* ─── Boss HP Bar ─── */
-        #bossBar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 50; pointer-events: none; text-align: center; width: min(80%, 500px); opacity: 0; transition: opacity 0.5s; }
-        #bossBar.active { opacity: 1; }
-        .bn { font-size: 0.65rem; color: #ff00ff; letter-spacing: 0.2em; margin-bottom: 4px; text-shadow: 0 0 15px rgba(255,0,255,0.5); }
-        .bhw { width: 100%; height: 10px; background: rgba(255,255,255,0.06); border-radius: 5px; overflow: hidden; border: 1px solid rgba(255,0,255,0.2); }
-        .bhb { height: 100%; background: linear-gradient(90deg,#ff00ff,#ff006a); border-radius: 5px; transition: width 0.2s; box-shadow: 0 0 15px rgba(255,0,255,0.4); }
-
-        /* ─── Wave Announcement ─── */
-        #waveAnn { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 60; pointer-events: none; text-align: center; opacity: 0; transition: opacity 0.5s; }
-        #waveAnn.show { opacity: 1; }
-        .wa-t { font-size: clamp(1.8rem, 5vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg,#ff006a,#bf00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .wa-s { font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; color: rgba(255,255,255,0.4); letter-spacing: 0.3em; margin-top: 0.3em; }
-
-        /* ─── BOSS REWARD (5s Pause overlay) ─── */
-        #bossRewardOv {
-            position: fixed; inset: 0; z-index: 95;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: radial-gradient(ellipse at center, rgba(50,0,80,0.92) 0%, rgba(0,0,0,0.96) 100%);
-            backdrop-filter: blur(8px);
-            opacity: 0; transition: opacity 0.6s; pointer-events: none;
-        }
-        #bossRewardOv.show { opacity: 1; pointer-events: auto; }
-
-        .br-title {
-            font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 900;
-            color: #ffd700; text-shadow: 0 0 50px rgba(255,215,0,0.4);
-            letter-spacing: 0.15em; margin-bottom: 6px;
-        }
-        .br-boss-name { font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; color: rgba(255,0,255,0.7); letter-spacing: 0.2em; margin-bottom: 24px; }
-        .br-players { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
-        .br-player-box {
-            min-width: 230px; padding: 20px; border-radius: 14px;
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);
-            text-align: center;
-        }
-        .br-pname { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; margin-bottom: 10px; }
-        .br-heal { font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; color: #44ff44; margin-bottom: 16px; letter-spacing: 0.1em; }
-        .br-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-bottom: 12px; }
-        .br-stat { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; text-align: left; color: rgba(255,255,255,0.4); }
-        .br-stat span { color: rgba(255,255,255,0.8); font-weight: 600; }
-        .br-new-title { font-size: 0.6rem; color: rgba(255,215,0,0.7); letter-spacing: 0.15em; margin-bottom: 6px; }
-        .br-new-list { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
-        .br-upg-chip { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.04); }
-        .br-all-title { font-size: 0.6rem; color: rgba(255,255,255,0.3); letter-spacing: 0.15em; margin: 10px 0 6px; }
-        .br-all-list { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
-        .br-all-chip { font-size: 0.55rem; padding: 3px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); font-family: 'Rajdhani', sans-serif; color: rgba(255,255,255,0.5); }
-        
-        .br-timer { font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 0.1em; }
-        .br-timer span { color: rgba(255,255,255,0.7); font-weight: 600; }
-
-        /* ─── TERMINAL HUD PAUSE MENU ─── */
-        #pauseOv {
-            position: fixed; inset: 0; z-index: 90;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(3, 0, 7, 0.88);
-            backdrop-filter: blur(12px);
-        }
-        #pauseOv.hidden { display: none; }
-
-        .pause-panel {
-            width: min(95%, 850px);
-            background: rgba(8, 4, 18, 0.75);
-            border: 1px solid rgba(191, 0, 255, 0.25);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.7), inset 0 0 30px rgba(191,0,255,0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            max-height: 90vh;
-        }
-
-        .pause-header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            padding-bottom: 10px;
-        }
-        .pause-title { font-family: 'Orbitron', monospace; font-size: 1.1rem; font-weight: 800; letter-spacing: 0.1em; color: #fff; }
-        .pause-meta-desc { font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.35); }
-
-        /* Split layout inside the pause HUD */
-        .pause-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            overflow-y: auto;
-            flex: 1;
-            padding-right: 6px;
-            scrollbar-width: thin; scrollbar-color: rgba(191,0,255,0.3) transparent;
-        }
-        @media(max-width: 750px) {
-            .pause-grid { grid-template-columns: 1fr; }
-        }
-
-        .hud-sub-panel {
-            background: rgba(255,255,255,0.01);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 10px;
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .hud-sub-title {
-            font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700;
-            color: rgba(255,255,255,0.4); border-bottom: 1px solid rgba(255,255,255,0.04);
-            padding-bottom: 4px; margin-bottom: 4px;
-        }
-
-        /* Pilot Stats */
-        .pilot-stats-flex {
-            display: flex; gap: 10px;
-        }
-        .pilot-stat-col {
-            flex: 1; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03);
-            border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px;
-        }
-        .stat-line {
-            display: flex; justify-content: space-between; font-family: 'Rajdhani', sans-serif; font-size: 0.75rem;
-            border-bottom: 1px dashed rgba(255,255,255,0.02); padding-bottom: 2px;
-        }
-        .stat-line .lbl { color: rgba(255,255,255,0.4); }
-        .stat-line .val { color: #fff; font-weight: 600; }
-
-        /* Drop Guide Mini Grid */
-        .drop-guide-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-        }
-        .mini-drop {
-            display: flex; gap: 8px; align-items: center; background: rgba(255,255,255,0.005);
-            border: 1px solid rgba(255,255,255,0.02); border-radius: 6px; padding: 6px;
-        }
-        .mini-drop-ico {
-            width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
-            font-size: 0.85rem; font-weight: bold; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08);
-        }
-        .mini-drop-info { display: flex; flex-direction: column; gap: 1px; }
-        .mini-drop-name { font-size: 0.6rem; font-weight: 700; }
-        .mini-drop-desc { font-family: 'Rajdhani', sans-serif; font-size: 0.65rem; color: rgba(255,255,255,0.35); }
-
-        /* Settings widgets */
-        .widgets-col {
-            display: flex; flex-direction: column; gap: 10px;
-        }
-        .widget-row {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.008); border: 1px solid rgba(255,255,255,0.02);
-            padding: 8px 12px; border-radius: 8px; font-family: 'Rajdhani', sans-serif;
-        }
-        .widget-lbl { font-size: 0.75rem; font-weight: 600; color: #fff; }
-        .widget-sub { font-size: 0.65rem; color: rgba(255,255,255,0.4); display: block; }
-        
-        .slider-ctrl { display: flex; align-items: center; gap: 8px; }
-        .slider-ctrl input[type="range"] {
-            outline: none; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px;
-            width: 80px; appearance: none; cursor: pointer; accent-color: var(--link);
-        }
-        .slider-val { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #fff; width: 30px; text-align: right; }
-        
-        .toggle-btn {
-            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-            color: #fff; font-family: 'Orbitron', monospace; font-size: 0.6rem; font-weight: bold;
-            padding: 4px 10px; border-radius: 5px; cursor: pointer; transition: all 0.2s;
-        }
-        .toggle-btn.on { background: rgba(0, 240, 255, 0.1); border-color: var(--p1); }
-        .toggle-btn.off { background: rgba(255, 0, 106, 0.1); border-color: var(--p2); }
-
-        .pause-footer {
-            border-top: 1px solid rgba(255,255,255,0.06);
-            padding-top: 12px; display: flex; justify-content: flex-end; gap: 10px;
-        }
-
-        /* ─── Buttons ─── */
-        .btn {
-            font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700;
-            padding: 10px 24px; border: 1px solid rgba(0,240,255,0.4); border-radius: 50px;
-            background: linear-gradient(135deg,rgba(0,240,255,0.06),rgba(191,0,255,0.06));
-            color: #fff; cursor: pointer; letter-spacing: 0.1em; transition: all 0.2s;
-        }
-        .btn:hover { border-color: rgba(0,240,255,0.8); box-shadow: 0 0 20px rgba(0,240,255,0.18); }
-        .btn.sm { font-size: 0.6rem; padding: 6px 14px; border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.02); }
-        .btn.danger { border-color: rgba(255,0,106,0.4); background: linear-gradient(135deg,rgba(255,0,106,0.04),rgba(191,0,255,0.04)); }
-        .btn.danger:hover { border-color: rgba(255,0,106,0.8); box-shadow: 0 0 20px rgba(255,0,106,0.18); }
-
-        /* Game Over Specific */
-        .go-t { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; color: #ff006a; text-shadow: 0 0 50px rgba(255,0,106,0.4); letter-spacing: 0.15em; margin-bottom: 0.4em; }
-        .go-s { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; color: rgba(255,255,255,0.6); margin-bottom: 0.3em; letter-spacing: 0.08em; }
-        .go-s span { color: #ffd700; font-weight: 700; }
-        .go-nr { font-size: 0.9rem; color: #ffd700; text-shadow: 0 0 25px rgba(255,215,0,0.5); animation: pulse 1s ease infinite; margin: 0.5em 0 1em; letter-spacing: 0.2em; }
-        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.06)} }
-        .go-usum { margin: 1em 0; }
-        .go-ut { font-size: 0.6rem; color: rgba(255,255,255,0.3); letter-spacing: 0.2em; margin-bottom: 0.4em; }
-        .go-ul { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
-        .go-uc { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); }
-
-        /* ─── LEVEL UP CARDS & KEYBOARD SELECTION ─── */
-        #levelUpOv {
-            background: rgba(3, 1, 8, 0.94);
-            backdrop-filter: blur(16px);
-            transition: all 0.4s ease;
-        }
-        #levelUpOv.p1-active {
-            background: radial-gradient(circle at center, rgba(0, 240, 255, 0.08) 0%, rgba(2, 1, 8, 0.95) 75%);
-            --active-pilot-color: var(--p1);
-        }
-        #levelUpOv.p2-active {
-            background: radial-gradient(circle at center, rgba(255, 0, 106, 0.09) 0%, rgba(2, 1, 8, 0.95) 75%);
-            --active-pilot-color: var(--p2);
-        }
-
-        .lu-pilot-banner {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 24px;
-            border-radius: 50px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--active-pilot-color, var(--p1));
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(255, 255, 255, 0.02);
-            margin-bottom: 12px;
-        }
-        .lu-pilot-icon { font-size: 1.1rem; }
-        .lu-pilot-name {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.95rem;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            color: var(--active-pilot-color, #fff);
-            text-shadow: 0 0 15px var(--active-pilot-color, #fff);
-        }
-        .lu-control-badge {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            letter-spacing: 0.05em;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .level-up-title {
-            font-family: 'Orbitron', monospace;
-            font-size: clamp(1.6rem, 3.5vw, 2.3rem);
-            font-weight: 900;
-            color: #fff;
-            letter-spacing: 0.12em;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.25);
-        }
-        .level-up-desc {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.95rem;
-            color: rgba(255, 255, 255, 0.55);
-            margin-top: 6px;
-        }
-
-        .lu-card-container {
-            display: flex;
-            gap: 24px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 24px;
-            perspective: 1000px;
-        }
-        .lu-card {
-            width: 245px;
-            min-height: 385px;
-            background: linear-gradient(170deg, rgba(16, 9, 32, 0.94), rgba(7, 3, 16, 0.98));
-            border: 1px solid rgba(191, 0, 255, 0.22);
-            border-radius: 18px;
-            padding: 24px 20px;
-            cursor: pointer;
-            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s, border-color 0.28s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            text-align: center;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(191, 0, 255, 0.03);
-            position: relative;
-            overflow: hidden;
-            user-select: none;
-        }
-        .lu-card::before {
-            content: ''; position: absolute; top:0; left:0; right:0; height: 3px;
-            background: rgba(255, 255, 255, 0.2);
-            transition: all 0.3s;
-        }
-        .lu-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--active-pilot-color, rgba(0, 240, 255, 0.7));
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(0, 240, 255, 0.2);
-        }
-        .lu-card.holding {
-            transform: translateY(-10px) scale(1.04);
-            border-color: var(--active-pilot-color, #00f0ff) !important;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 40px var(--active-pilot-color, rgba(0, 240, 255, 0.5)) !important;
-            animation: cardHoldingPulse 0.8s infinite alternate ease-in-out;
-        }
-        @keyframes cardHoldingPulse {
-            0% { filter: brightness(1.05); }
-            100% { filter: brightness(1.25); }
-        }
-        .lu-card.selected-flash {
-            animation: selectFlash 0.4s ease-out forwards;
-        }
-        @keyframes selectFlash {
-            0% { transform: scale(1.08); filter: brightness(2.5) drop-shadow(0 0 40px #fff); }
-            100% { transform: scale(1); filter: brightness(1); }
-        }
-
-        .lu-card-rarity-badge {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.62rem;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            padding: 3px 10px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            background: rgba(255, 255, 255, 0.04);
-            margin-bottom: 2px;
-        }
-
-        .lu-card-icon {
-            font-size: 2.4rem;
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .lu-card:hover .lu-card-icon, .lu-card.holding .lu-card-icon {
-            transform: scale(1.12);
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .lu-card-name {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.88rem;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: 0.06em;
-            line-height: 1.3;
-        }
-        .lu-card-desc {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.55);
-            line-height: 1.4;
-            flex-grow: 1;
-        }
-
-        /* Keyboard Hold Hint Box */
-        .lu-key-hint-box {
-            width: 100%;
-            margin-top: auto;
-            padding-top: 14px;
-            border-top: 1px solid rgba(255, 255, 255, 0.07);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 9px;
-        }
-        .lu-keycap-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            opacity: 0.45;
-            transition: all 0.22s ease;
-        }
-        .lu-card.holding .lu-keycap-row {
-            opacity: 1;
-            transform: scale(1.06);
-        }
-        .lu-keycap {
-            min-width: 42px;
-            height: 42px;
-            padding: 0 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Orbitron', monospace;
-            font-size: 1.05rem;
-            font-weight: 900;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 9px;
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.4);
-            color: #fff;
-            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .lu-card.holding .lu-keycap {
-            background: var(--active-pilot-color, #00f0ff);
-            color: #000;
-            border-color: #fff;
-            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.6), 0 0 20px var(--active-pilot-color, #00f0ff);
-            transform: translateY(3px);
-        }
-        .lu-key-desc {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
-        }
-        .lu-key-subtext {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            color: rgba(255, 255, 255, 0.55);
-            transition: color 0.2s;
-        }
-        .lu-card.holding .lu-key-subtext {
-            color: #fff;
-            font-weight: 800;
-        }
-        .lu-hold-timer-text {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--active-pilot-color, #00f0ff);
-        }
-
-        .lu-hold-track {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 5px;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .lu-hold-fill {
-            height: 100%;
-            width: 0%;
-            border-radius: 5px;
-            background: linear-gradient(90deg, var(--active-pilot-color, #00f0ff), #fff);
-            box-shadow: 0 0 14px var(--active-pilot-color, #00f0ff);
-            transition: width 0.04s linear;
-        }
-        
-        /* Rarities */
-        .lu-card.common { border-color: rgba(255,255,255,0.12); }
-        .lu-card.common::before { background: rgba(255,255,255,0.25); }
-        .lu-card.common .lu-card-rarity-badge { color: rgba(255,255,255,0.6); }
-        
-        .lu-card.rare { border-color: rgba(0, 240, 255, 0.35); }
-        .lu-card.rare::before { background: var(--p1); }
-        .lu-card.rare .lu-card-name { color: var(--p1); }
-        .lu-card.rare .lu-card-rarity-badge { color: var(--p1); border-color: rgba(0, 240, 255, 0.3); background: rgba(0, 240, 255, 0.08); }
-
-        .lu-card.epic { border-color: rgba(191, 0, 255, 0.45); }
-        .lu-card.epic::before { background: var(--link); }
-        .lu-card.epic .lu-card-name { color: #d844ff; }
-        .lu-card.epic .lu-card-rarity-badge { color: #d844ff; border-color: rgba(191, 0, 255, 0.4); background: rgba(191, 0, 255, 0.1); }
-        
-        .lu-card.legendary {
-            border-color: rgba(255, 215, 0, 0.55);
-            animation: legendaryPulse 1.5s infinite alternate;
-        }
-        .lu-card.legendary::before { background: var(--gold); }
-        .lu-card.legendary .lu-card-name { color: var(--gold); }
-        .lu-card.legendary .lu-card-rarity-badge { color: var(--gold); border-color: rgba(255, 215, 0, 0.4); background: rgba(255, 215, 0, 0.1); font-weight: 800; }
-        @keyframes legendaryPulse {
-            0% { box-shadow: 0 12px 35px rgba(255, 215, 0, 0.12); }
-            100% { box-shadow: 0 16px 45px rgba(255, 215, 0, 0.32); border-color: rgba(255, 215, 0, 0.9); }
-        }
-
-        /* --- MOBILE JOYSTICK & CONTROLS --- */
-        .mobile-only {
-            display: none;
-        }
-
-        /* --- MOBILE JOYSTICK & CONTROLS --- */
-        .mobile-only {
-            display: none !important;
-        }
-
-        #mobileJoystickContainer {
-            position: fixed;
-            width: 120px;
-            height: 120px;
-            z-index: 150;
-            user-select: none;
-            touch-action: none;
-            pointer-events: none;
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.7);
-            transition: opacity 0.12s cubic-bezier(0.4, 0, 0.2, 1), transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
-            display: none !important;
-        }
-
-        #joystickOuter {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: rgba(6, 3, 14, 0.4);
-            border: 2px solid rgba(0, 240, 255, 0.35);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        #joystickKnob {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00f0ff, #bf00ff);
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.6), 0 0 25px rgba(191, 0, 255, 0.4);
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
-
-        #mobilePauseBtn {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            width: 44px;
-            height: 44px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            background: rgba(6, 3, 14, 0.7);
-            color: #00f0ff;
-            font-size: 1.2rem;
-            z-index: 150;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
-            display: none !important;
-            align-items: center;
-            justify-content: center;
-            outline: none;
-            touch-action: none;
-        }
-
-        #mobilePauseBtn:active {
-            background: rgba(0, 240, 255, 0.1);
-            border-color: #00f0ff;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
-        }
-
-        /* Show controls ONLY on mobile/tablet layout sizes with coarse (touch) input pointer */
-        @media (max-width: 1024px) and (pointer: coarse) {
-            body.is-mobile.playing-mode #mobileJoystickContainer {
-                display: block !important;
-            }
-            body.is-mobile.playing-mode #mobileJoystickContainer.visible {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            body.is-mobile.playing-mode #mobilePauseBtn {
-                display: flex !important;
-            }
-            body.is-mobile .mobile-only {
-                display: block !important;
-            }
-        }
-
-        /* --- MOBILE LAYOUT & HUD SCALING --- */
-        @media (max-width: 768px) {
-            #hud {
-                padding: 6px 12px;
-            }
-            .hud-p {
-                min-width: 110px;
-                gap: 2px;
-            }
-            .hud-bw {
-                width: 100px;
-                height: 5px;
-            }
-            .hud-nm {
-                font-size: 0.55rem;
-                letter-spacing: 0.05em;
-            }
-            .hud-lv {
-                font-size: 0.55rem;
-            }
-            .hud-sc {
-                font-size: 1.1rem;
-            }
-            .hud-wv {
-                font-size: 0.55rem;
-                letter-spacing: 0.1em;
-            }
-            .hud-tm {
-                font-size: 0.5rem;
-            }
-            .hud-df {
-                font-size: 0.5rem;
-            }
-            #bossBar {
-                bottom: 15px;
-                width: 90%;
-            }
-            .wa-t {
-                font-size: 1.8rem;
-            }
-            .wa-s {
-                font-size: 0.7rem;
-                letter-spacing: 0.15em;
-            }
-            .pause-panel {
-                padding: 12px;
-                gap: 10px;
-            }
-            .pause-title {
-                font-size: 0.85rem;
-            }
-            .pause-meta-desc {
-                font-size: 0.6rem;
-            }
-            .stat-line {
-                font-size: 0.65rem;
-            }
-            .btn {
-                padding: 8px 16px;
-                font-size: 0.6rem;
-            }
-            .btn.sm {
-                padding: 4px 10px;
-                font-size: 0.55rem;
-            }
-        }
-
-        /* Portrait orientation special tweaks */
-        @media (max-width: 768px) and (orientation: portrait) {
-            #hud {
-                flex-direction: row;
-                justify-content: space-between;
-            }
-            .hud-c {
-                margin: 0 auto;
-            }
-        }
-    
-        /* ═══════════ v5.5 PRO — Cyberpunk HUD / Glass / Hologram ═══════════ */
-        .hud-p {
-            padding: 10px 12px; border-radius: 12px;
-            background: linear-gradient(145deg, rgba(10, 16, 40, 0.5), rgba(8, 4, 22, 0.55));
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            backdrop-filter: blur(12px) saturate(1.4);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-        }
-        .hud-p.right { border-color: rgba(255, 0, 106, 0.25); box-shadow: 0 0 20px rgba(255, 0, 106, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.06); }
-        .hud-c { padding: 6px 18px; border-radius: 12px; background: rgba(8, 4, 22, 0.35); backdrop-filter: blur(10px); border: 1px solid rgba(191, 0, 255, 0.18); }
-        .hud-bw { border: 1px solid rgba(255, 255, 255, 0.05); }
-
-        .hud-ab { margin-top: 6px; align-self: stretch; }
-        .hud-ab-lbl { font-family: 'Rajdhani', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; color: rgba(255, 255, 255, 0.5); text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; }
-        .hud-p.right .hud-ab-lbl { text-align: right; }
-        .hud-ab-track { height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); }
-        .hud-ab-fill { height: 100%; width: 0; border-radius: 3px; box-shadow: 0 0 8px currentColor; }
-        .hud-ab.ready .hud-ab-lbl { color: var(--ab, #fff); text-shadow: 0 0 10px var(--ab, #fff); animation: abPulse 0.9s ease-in-out infinite alternate; }
-        .hud-ab.ready .hud-ab-track { border-color: var(--ab, #fff); box-shadow: 0 0 10px var(--ab, #fff); }
-        @keyframes abPulse { from { opacity: 0.65; } to { opacity: 1; } }
-
-        .pause-panel { background: linear-gradient(145deg, rgba(10, 16, 40, 0.7), rgba(8, 4, 22, 0.8)); backdrop-filter: blur(20px) saturate(1.4); border-color: rgba(0, 240, 255, 0.28); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 240, 255, 0.08), inset 0 0 30px rgba(191, 0, 255, 0.05); }
-        .br-player-box { backdrop-filter: blur(14px); background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)); border-color: rgba(255, 215, 0, 0.18); }
-        .btn { backdrop-filter: blur(8px); }
-
-        /* Hologram seviye kartları */
-        .lu-card {
-            background: linear-gradient(170deg, rgba(10, 22, 46, 0.7), rgba(8, 4, 26, 0.82));
-            backdrop-filter: blur(16px) saturate(1.5);
-            border: 1px solid rgba(0, 240, 255, 0.35);
-        }
-        .lu-card::after {
-            content: ''; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; border-radius: inherit;
-            background:
-                repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.055) 0 1px, transparent 1px 3px),
-                linear-gradient(115deg, transparent 32%, rgba(255, 255, 255, 0.16) 48%, transparent 64%);
-            background-size: 100% 100%, 260% 100%;
-            animation: holoSweep 3.6s linear infinite;
-        }
-        @keyframes holoSweep { from { background-position: 0 0, 170% 0; } to { background-position: 0 0, -90% 0; } }
-        .lu-card-icon { animation: holoFloat 3s ease-in-out infinite; filter: drop-shadow(0 0 10px currentColor); }
-        @keyframes holoFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-        .lu-card.rare { box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 22px rgba(0, 240, 255, 0.14); }
-        .lu-card.epic { box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 26px rgba(191, 0, 255, 0.2); }
-
-        /* Mobil yetenek butonu */
-        #mobileAbilityBtn {
-            position: fixed; right: 22px; bottom: 30px; width: 80px; height: 80px; border-radius: 50%;
-            border: 2px solid var(--ab, #00f0ff); color: #fff; z-index: 150; display: none;
-            flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 0;
-            background: conic-gradient(var(--ab, #00f0ff) var(--pct, 0%), rgba(255, 255, 255, 0.08) 0);
-            font-family: 'Orbitron', monospace; touch-action: none; outline: none; cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        #mobileAbilityBtn::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: rgba(6, 3, 14, 0.9); }
-        #mobileAbilityBtn .mab-ico, #mobileAbilityBtn .mab-lbl { position: relative; z-index: 1; }
-        #mobileAbilityBtn .mab-ico { font-size: 1.5rem; color: var(--ab, #00f0ff); }
-        #mobileAbilityBtn .mab-lbl { font-size: 0.45rem; letter-spacing: 0.1em; opacity: 0.7; }
-        #mobileAbilityBtn.ready { box-shadow: 0 0 22px var(--ab, #00f0ff); animation: abBtnPulse 0.9s ease-in-out infinite alternate; }
-        #mobileAbilityBtn.ready .mab-lbl { opacity: 1; }
-        @keyframes abBtnPulse { from { transform: scale(1); } to { transform: scale(1.08); } }
-        @media (max-width: 1024px) and (pointer: coarse) {
-            body.is-mobile.playing-mode #mobileAbilityBtn { display: flex !important; }
-        }
-        @media (max-width: 768px) {
-            .hud-ab { margin-top: 3px; }
-            .hud-ab-lbl { font-size: 0.5rem; }
-            .hud-p { padding: 6px 8px; }
-        }
-        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
-
-        /* ═══════════ v6.0 MEGAPONK — Ortak Glassmorphism Navbar & 5-Slot Füzyon Dock ═══════════ */
+        /* ─── SHARED TOP GLASSMORPHISM NAVBAR ─── */
         .cosmic-navbar {
             position: fixed; top: 0; left: 50%; transform: translateX(-50%);
             z-index: 98; display: flex; align-items: center; gap: 6px;
             padding: 6px 14px; border-radius: 0 0 14px 14px;
-            background: linear-gradient(145deg, rgba(10, 16, 40, 0.78), rgba(6, 3, 18, 0.88));
+            background: linear-gradient(145deg, rgba(10, 16, 40, 0.8), rgba(6, 3, 18, 0.9));
             border: 1px solid rgba(0, 240, 255, 0.28); border-top: none;
             backdrop-filter: blur(16px) saturate(1.5);
             box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65), 0 0 18px rgba(0, 240, 255, 0.12);
@@ -891,7 +61,7 @@
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
         body.playing-mode .cosmic-navbar {
-            opacity: 0.42;
+            opacity: 0.35;
             transform: translateX(-50%) translateY(-2px) scale(0.92);
         }
         body.playing-mode .cosmic-navbar:hover {
@@ -899,8 +69,8 @@
             transform: translateX(-50%) translateY(0) scale(1);
         }
         .cosmic-navbar a {
-            font-family: 'Orbitron', monospace; font-size: 0.58rem; font-weight: 700;
-            letter-spacing: 0.12em; color: rgba(255, 255, 255, 0.65); text-decoration: none;
+            font-family: 'Orbitron', monospace; font-size: 0.56rem; font-weight: 700;
+            letter-spacing: 0.12em; color: rgba(255, 255, 255, 0.68); text-decoration: none;
             padding: 5px 10px; border-radius: 8px; border: 1px solid transparent;
             transition: all 0.22s ease; white-space: nowrap; cursor: pointer;
         }
@@ -913,105 +83,440 @@
             background: linear-gradient(135deg, rgba(0, 240, 255, 0.16), rgba(191, 0, 255, 0.14));
             box-shadow: 0 0 14px rgba(0, 240, 255, 0.22);
         }
-        #hud { top: 34px; }
-        .hud-rad {
-            display: none; font-family: 'Orbitron', monospace; font-size: 0.58rem; font-weight: 800;
-            color: #ff2a6d; background: rgba(255, 42, 109, 0.14);
-            border: 1px solid rgba(255, 42, 109, 0.55); border-radius: 6px;
-            padding: 2px 8px; margin-top: 2px; letter-spacing: 0.1em;
-            text-shadow: 0 0 10px rgba(255, 42, 109, 0.7);
-            animation: abPulse 0.8s ease-in-out infinite alternate;
-        }
 
-        /* 5-Slot Neon Perk & Füzyon Dock */
-        #perkDockWrap {
-            position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
-            z-index: 52; display: flex; gap: 18px; align-items: flex-end; justify-content: center;
-            pointer-events: none; max-width: 96vw;
+        /* ─── MINIMALIST V7.0 HUD (Top-Left Vital Bars + Top-Right Wave/Score) ─── */
+        #hud {
+            position: fixed; top: 14px; left: 16px; right: 16px;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            z-index: 50; pointer-events: none;
         }
-        .perk-dock {
-            display: flex; flex-direction: column; align-items: center; gap: 5px;
-            padding: 8px 12px; border-radius: 14px;
-            background: linear-gradient(160deg, rgba(8, 14, 34, 0.72), rgba(5, 2, 16, 0.82));
+        #hud.hidden { display: none; }
+
+        /* Top-Left: Pilot Vital & Loadout Strip */
+        .hud-left {
+            display: flex; flex-direction: column; gap: 5px;
+            padding: 12px 15px; border-radius: 14px;
+            background: linear-gradient(145deg, rgba(10, 16, 38, 0.62), rgba(6, 3, 18, 0.72));
             border: 1px solid rgba(0, 240, 255, 0.25);
             backdrop-filter: blur(14px) saturate(1.4);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 20px rgba(0, 240, 255, 0.08);
-            pointer-events: auto;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+            min-width: 235px;
         }
-        .perk-dock.p2-dock {
-            border-color: rgba(255, 0, 106, 0.28);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 20px rgba(255, 0, 106, 0.08);
+        .hud-top-row {
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
         }
-        .perk-dock-hdr {
-            width: 100%; display: flex; justify-content: space-between; align-items: center;
-            font-family: 'Orbitron', monospace; font-size: 0.54rem; letter-spacing: 0.14em;
-            color: rgba(255, 255, 255, 0.55); padding: 0 2px;
+        .hud-nm {
+            font-size: 0.68rem; letter-spacing: 0.14em; font-weight: 800;
+            color: #00f0ff; text-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
         }
-        .perk-dock-meta { color: #00f0ff; font-weight: 700; }
-        .perk-dock-meta.ready {
-            color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-            animation: abPulse 0.75s ease-in-out infinite alternate;
+        .hud-lv {
+            font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 700;
+            color: #ffd700; background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.35); padding: 1px 7px; border-radius: 6px;
         }
-        .perk-dock-slots { display: flex; gap: 7px; align-items: center; }
-        .perk-slot {
-            position: relative; width: 62px; height: 64px; border-radius: 10px;
-            background: rgba(255, 255, 255, 0.025);
-            border: 1px dashed rgba(255, 255, 255, 0.14);
+        .hud-bar-row {
+            display: flex; align-items: center; gap: 7px;
+        }
+        .hud-bar-lbl {
+            font-family: 'Space Mono', monospace; font-size: 0.52rem; width: 22px;
+            color: rgba(255, 255, 255, 0.6); font-weight: 700;
+        }
+        .hud-bw {
+            flex: 1; height: 7px; background: rgba(255, 255, 255, 0.07);
+            border-radius: 4px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .hud-b { height: 100%; border-radius: 4px; transition: width 0.22s ease; }
+        .hp1 { background: linear-gradient(90deg, #00f0ff, #00ff88); box-shadow: 0 0 8px rgba(0, 240, 255, 0.45); }
+        .sh { background: linear-gradient(90deg, #bf00ff, #00a8ff); box-shadow: 0 0 8px rgba(191, 0, 255, 0.45); }
+        .xpb { background: linear-gradient(90deg, #ffd700, #ff8800); box-shadow: 0 0 8px rgba(255, 215, 0, 0.45); }
+        .hud-bar-val {
+            font-family: 'Space Mono', monospace; font-size: 0.54rem; color: rgba(255, 255, 255, 0.78);
+            min-width: 48px; text-align: right;
+        }
+
+        /* Compact Mini Icons inside Top-Left HUD */
+        .hud-mini-slots {
+            display: flex; flex-direction: column; gap: 3px; margin-top: 3px;
+            padding-top: 5px; border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .hud-slot-line {
+            display: flex; align-items: center; gap: 4px;
+        }
+        .hud-slot-tag {
+            font-family: 'Space Mono', monospace; font-size: 0.48rem;
+            color: rgba(255, 255, 255, 0.45); width: 34px; letter-spacing: 0.04em;
+        }
+        .hud-upgs { display: flex; gap: 4px; flex-wrap: nowrap; }
+        .hud-ui {
+            width: 24px; height: 24px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.68rem; border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.04); position: relative;
+        }
+        .hud-ui.empty-slot {
+            border-style: dashed; border-color: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.18); font-size: 0.5rem;
+        }
+        .hud-ui.evolved {
+            border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+        }
+        .hud-ui.super-evolved {
+            border-color: #ff006a; box-shadow: 0 0 14px rgba(255, 0, 106, 0.65);
+        }
+        .hud-ui .uc {
+            position: absolute; bottom: -3px; right: -3px;
+            font-family: 'Space Mono', monospace; font-size: 0.44rem; font-weight: 700;
+            background: #050212; border-radius: 4px; padding: 0 3px;
+            border: 1px solid rgba(255, 255, 255, 0.25); color: #fff;
+        }
+
+        .hud-ab { margin-top: 4px; }
+        .hud-ab-lbl {
+            font-family: 'Rajdhani', sans-serif; font-size: 0.6rem; font-weight: 700;
+            letter-spacing: 0.1em; color: rgba(255, 255, 255, 0.55); margin-bottom: 2px;
+        }
+        .hud-ab-track {
+            height: 4px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden;
+        }
+        .hud-ab-fill { height: 100%; width: 0; border-radius: 3px; }
+        .hud-ab.ready .hud-ab-lbl {
+            color: var(--ab, #00f0ff); text-shadow: 0 0 8px var(--ab, #00f0ff);
+        }
+
+        /* Top-Right: Wave, Map, Score & Timer */
+        .hud-right {
+            text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+            padding: 10px 16px; border-radius: 14px;
+            background: linear-gradient(145deg, rgba(10, 16, 38, 0.58), rgba(6, 3, 18, 0.68));
+            border: 1px solid rgba(191, 0, 255, 0.24);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+        }
+        .hud-map-badge {
+            font-family: 'Space Mono', monospace; font-size: 0.54rem; font-weight: 700;
+            color: #00f0ff; letter-spacing: 0.12em; text-transform: uppercase;
+        }
+        .hud-sc {
+            font-size: clamp(1.15rem, 2.2vw, 1.65rem); font-weight: 900;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hud-wv-row {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .hud-wv {
+            font-family: 'Orbitron', monospace; font-size: 0.72rem; font-weight: 800;
+            color: #fff; letter-spacing: 0.15em;
+        }
+        .hud-tm {
+            font-family: 'Space Mono', monospace; font-size: 0.64rem; color: rgba(255, 255, 255, 0.55);
+        }
+        .hud-co {
+            font-size: 0.65rem; font-weight: 800; color: #ff006a;
+            text-shadow: 0 0 12px rgba(255, 0, 106, 0.7); opacity: 0; transition: opacity 0.25s;
+        }
+        .hud-co.active { opacity: 1; }
+        .hud-df { font-family: 'Rajdhani', sans-serif; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.14em; }
+        .hud-df.easy { color: #00ff88; }
+        .hud-df.medium { color: #ffaa00; }
+        .hud-df.hard { color: #ff2a6d; }
+        .hud-rad {
+            display: none; font-family: 'Orbitron', monospace; font-size: 0.54rem; font-weight: 800;
+            color: #ff2a6d; background: rgba(255, 42, 109, 0.14);
+            border: 1px solid rgba(255, 42, 109, 0.55); border-radius: 6px;
+            padding: 2px 7px; margin-top: 2px; letter-spacing: 0.08em;
+        }
+
+        /* ─── Boss HP Bar ─── */
+        #bossBar {
+            position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+            z-index: 50; pointer-events: none; text-align: center;
+            width: min(82%, 520px); opacity: 0; transition: opacity 0.4s;
+        }
+        #bossBar.active { opacity: 1; }
+        .bn { font-size: 0.68rem; color: #ff00ff; letter-spacing: 0.18em; margin-bottom: 4px; text-shadow: 0 0 15px rgba(255, 0, 255, 0.6); font-weight: 800; }
+        .bhw { width: 100%; height: 10px; background: rgba(255, 255, 255, 0.07); border-radius: 6px; overflow: hidden; border: 1px solid rgba(255, 0, 255, 0.3); }
+        .bhb { height: 100%; background: linear-gradient(90deg, #ff00ff, #ff006a, #ffd700); border-radius: 6px; transition: width 0.2s; }
+
+        /* ─── Wave Announcement ─── */
+        #waveAnn {
+            position: fixed; top: 44%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 60; pointer-events: none; text-align: center; opacity: 0; transition: opacity 0.45s;
+        }
+        #waveAnn.show { opacity: 1; }
+        .wa-t { font-size: clamp(1.8rem, 4.5vw, 3.2rem); font-weight: 900; background: linear-gradient(135deg, #00f0ff, #bf00ff, #ff006a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .wa-s { font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; color: rgba(255, 255, 255, 0.65); letter-spacing: 0.25em; margin-top: 4px; font-weight: 600; }
+
+        /* ─── COMMON OVERLAYS & BUTTONS ─── */
+        .ov {
+            position: fixed; inset: 0; z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 3px; padding: 4px; transition: all 0.25s ease; overflow: hidden;
+            background: radial-gradient(ellipse at center, rgba(14, 4, 34, 0.92) 0%, rgba(2, 0, 8, 0.97) 100%);
+            backdrop-filter: blur(14px);
         }
-        .perk-slot.empty .ps-idx {
-            position: absolute; top: 3px; left: 5px; font-family: 'Space Mono', monospace;
-            font-size: 0.48rem; color: rgba(255, 255, 255, 0.22);
+        .ov.hidden { display: none !important; }
+        .ov.locked { pointer-events: none !important; }
+        .ov-scroll {
+            display: flex; flex-direction: column; align-items: center;
+            max-height: 94vh; overflow-y: auto; padding: 20px; width: 100%; max-width: 980px;
         }
-        .perk-slot.empty .ps-empty-ico { font-size: 0.9rem; color: rgba(255, 255, 255, 0.15); }
-        .perk-slot.empty .ps-lbl { font-family: 'Rajdhani', sans-serif; font-size: 0.5rem; color: rgba(255, 255, 255, 0.22); letter-spacing: 0.08em; }
-        .perk-slot.filled {
-            border-style: solid; border-color: color-mix(in srgb, var(--sc, #00f0ff) 55%, transparent);
-            background: radial-gradient(circle at 50% 25%, color-mix(in srgb, var(--sc, #00f0ff) 18%, transparent), rgba(8, 4, 20, 0.85));
-            box-shadow: 0 0 12px color-mix(in srgb, var(--sc, #00f0ff) 20%, transparent);
+
+        .btn {
+            font-family: 'Orbitron', monospace; font-size: 0.78rem; font-weight: 700;
+            letter-spacing: 0.12em; padding: 11px 26px; border: 1.5px solid #00f0ff;
+            border-radius: 10px; background: rgba(0, 240, 255, 0.08); color: #00f0ff;
+            cursor: pointer; transition: all 0.25s ease; text-transform: uppercase;
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.15);
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
         }
-        .perk-slot.maxed {
-            border-color: #ffd700;
-            box-shadow: 0 0 16px rgba(255, 215, 0, 0.32), inset 0 0 10px rgba(255, 215, 0, 0.12);
+        .btn:hover:not(:disabled) {
+            background: rgba(0, 240, 255, 0.22); color: #fff;
+            box-shadow: 0 0 28px rgba(0, 240, 255, 0.45); transform: translateY(-2px);
         }
-        .perk-slot.fused {
-            border: 1.5px solid var(--sc, #ffd700);
-            background: radial-gradient(circle at 50% 20%, color-mix(in srgb, var(--sc, #ffd700) 35%, transparent), rgba(20, 6, 38, 0.92));
-            box-shadow: 0 0 22px color-mix(in srgb, var(--sc, #ffd700) 45%, transparent), inset 0 0 12px rgba(255, 215, 0, 0.22);
+        .btn:disabled {
+            opacity: 0.32; cursor: not-allowed; border-color: rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.4); box-shadow: none;
         }
-        .perk-slot .ps-ring {
-            position: absolute; inset: 2px; border-radius: 8px;
-            border: 1px dashed rgba(255, 215, 0, 0.65); pointer-events: none;
-            animation: spinRing 6s linear infinite;
+        .btn.sm { font-size: 0.66rem; padding: 8px 16px; }
+        .btn.danger { border-color: #ff006a; color: #ff006a; background: rgba(255, 0, 106, 0.08); }
+        .btn.danger:hover:not(:disabled) { background: rgba(255, 0, 106, 0.24); color: #fff; box-shadow: 0 0 24px rgba(255, 0, 106, 0.45); }
+        .btn.gold { border-color: #ffd700; color: #ffd700; background: rgba(255, 215, 0, 0.1); box-shadow: 0 0 22px rgba(255, 215, 0, 0.22); }
+        .btn.gold:hover:not(:disabled) { background: linear-gradient(135deg, #ffd700, #ff8800); color: #000; box-shadow: 0 0 32px rgba(255, 215, 0, 0.6); }
+
+        /* ─── ADVANCED ESC PAUSE TERMINAL ─── */
+        #pauseOv {
+            position: fixed; inset: 0; z-index: 95;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(3, 1, 10, 0.9); backdrop-filter: blur(16px);
         }
-        @keyframes spinRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .perk-slot .ps-ico { font-size: 1.05rem; line-height: 1; filter: drop-shadow(0 0 6px currentColor); }
-        .perk-slot .ps-lbl {
-            font-family: 'Rajdhani', sans-serif; font-size: 0.54rem; font-weight: 700;
-            color: rgba(255, 255, 255, 0.88); white-space: nowrap; overflow: hidden;
-            text-overflow: ellipsis; max-width: 56px; letter-spacing: 0.03em;
+        #pauseOv.hidden { display: none !important; }
+        .pause-panel {
+            width: min(95%, 940px); max-height: 92vh;
+            background: linear-gradient(150deg, rgba(10, 16, 40, 0.85), rgba(6, 3, 20, 0.94));
+            border: 1px solid rgba(0, 240, 255, 0.32); border-radius: 18px;
+            padding: 22px 26px; display: flex; flex-direction: column; gap: 16px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 240, 255, 0.1);
+            overflow-y: auto;
         }
-        .perk-slot .ps-pips { display: flex; gap: 2px; align-items: center; justify-content: center; }
-        .perk-slot .ps-pips i {
-            width: 7px; height: 4px; border-radius: 2px;
-            background: rgba(255, 255, 255, 0.14); display: inline-block;
+        .pause-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; flex-wrap: wrap; gap: 10px;
         }
-        .perk-slot .ps-pips i.on {
-            background: var(--sc, #00f0ff);
-            box-shadow: 0 0 6px var(--sc, #00f0ff);
+        .pause-title { font-size: 1.1rem; font-weight: 900; color: #00f0ff; letter-spacing: 0.1em; }
+        .pause-meta-desc { font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; color: rgba(255, 255, 255, 0.55); }
+
+        .pause-center-cta {
+            display: flex; justify-content: center; align-items: center;
+            padding: 12px 18px; border-radius: 14px;
+            background: linear-gradient(90deg, rgba(0, 240, 255, 0.08), rgba(191, 0, 255, 0.14), rgba(255, 215, 0, 0.1));
+            border: 1px solid rgba(255, 215, 0, 0.35);
+            justify-content: space-between; flex-wrap: wrap; gap: 12px;
         }
-        .perk-slot.maxed .ps-pips i.on { background: #ffd700; box-shadow: 0 0 6px #ffd700; }
-        .perk-slot .ps-pips.fused-badge {
-            font-family: 'Orbitron', monospace; font-size: 0.44rem; font-weight: 800;
-            color: #ffd700; letter-spacing: 0.06em; text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+
+        .pause-grid {
+            display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px;
         }
-        #bossBar { bottom: 108px; }
+        @media (max-width: 820px) { .pause-grid { grid-template-columns: 1fr; } }
+
+        .hud-sub-panel {
+            background: rgba(0, 0, 0, 0.42); border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;
+        }
+        .hud-sub-title {
+            font-size: 0.7rem; font-weight: 800; color: #ffd700; letter-spacing: 0.14em;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 6px;
+        }
+        .stat-line {
+            display: flex; justify-content: space-between; font-family: 'Rajdhani', sans-serif;
+            font-size: 0.82rem; padding: 3px 0; border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+        }
+        .stat-line .lbl { color: rgba(255, 255, 255, 0.55); }
+        .stat-line .val { color: #fff; font-weight: 700; font-family: 'Space Mono', monospace; font-size: 0.74rem; }
+
+        .pause-loadout-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+        }
+        .pause-slot-card {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px; padding: 8px 6px; text-align: center;
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+        }
+        .pause-slot-card.empty { border-style: dashed; opacity: 0.4; }
+        .pause-slot-card .psc-ico { font-size: 1.2rem; }
+        .pause-slot-card .psc-nm { font-size: 0.56rem; font-weight: 700; color: #fff; }
+        .pause-slot-card .psc-lv { font-family: 'Space Mono', monospace; font-size: 0.54rem; color: #ffd700; }
+
+        .widgets-col { display: flex; flex-direction: column; gap: 10px; }
+        .widget-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .widget-lbl { font-family: 'Rajdhani', sans-serif; font-size: 0.82rem; font-weight: 700; color: #fff; display: block; }
+        .widget-sub { font-family: 'Rajdhani', sans-serif; font-size: 0.68rem; color: rgba(255, 255, 255, 0.42); }
+        .slider-ctrl { display: flex; align-items: center; gap: 8px; }
+        .slider-ctrl input[type="range"] { accent-color: #00f0ff; width: 100px; cursor: pointer; }
+        .slider-val { font-family: 'Space Mono', monospace; font-size: 0.68rem; color: #00f0ff; min-width: 36px; }
+        .toggle-btn {
+            font-family: 'Orbitron', monospace; font-size: 0.62rem; font-weight: 700;
+            padding: 5px 12px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.6);
+        }
+        .toggle-btn.on { border-color: #00ff88; color: #00ff88; background: rgba(0, 255, 136, 0.12); }
+
+        .pause-footer {
+            display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;
+            border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;
+        }
+
+        /* ─── LEVEL UP MODAL (WITH REROLL & SKIP + ATOMIC LOCK) ─── */
+        .lu-pilot-banner {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 6px 18px; border-radius: 30px;
+            background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.4);
+            margin-bottom: 10px;
+        }
+        .lu-pilot-name { font-size: 0.72rem; font-weight: 800; color: #00f0ff; letter-spacing: 0.1em; }
+        .lu-control-badge {
+            font-family: 'Space Mono', monospace; font-size: 0.6rem; color: #ffd700;
+            background: rgba(255, 215, 0, 0.12); padding: 2px 8px; border-radius: 12px;
+        }
+        .level-up-title {
+            font-size: clamp(1.4rem, 3vw, 2.1rem); font-weight: 900; letter-spacing: 0.14em;
+            background: linear-gradient(90deg, #00f0ff, #ffffff, #ffd700);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .level-up-desc {
+            font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; color: rgba(255, 255, 255, 0.68); margin-top: 4px;
+        }
+
+        .lu-card-container {
+            display: flex; gap: 18px; justify-content: center; flex-wrap: wrap;
+            width: 100%; margin: 16px 0;
+        }
+        .lu-card {
+            width: 265px; min-height: 315px; border-radius: 16px; padding: 18px 16px;
+            background: linear-gradient(165deg, rgba(12, 20, 46, 0.85), rgba(6, 3, 22, 0.95));
+            border: 1.5px solid rgba(0, 240, 255, 0.35);
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+            text-align: center; cursor: pointer; position: relative; overflow: hidden;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75);
+        }
+        .lu-card:hover {
+            transform: translateY(-5px);
+            border-color: #00f0ff;
+            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 240, 255, 0.28);
+        }
+        .lu-card.epic { border-color: #bf00ff; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75), 0 0 22px rgba(191, 0, 255, 0.25); }
+        .lu-card.legendary { border-color: #ffd700; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75), 0 0 28px rgba(255, 215, 0, 0.35); }
+        .lu-card.super { border-color: #ff006a; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.8), 0 0 34px rgba(255, 0, 106, 0.5); }
+
+        .lu-card-rarity-badge {
+            font-family: 'Space Mono', monospace; font-size: 0.56rem; font-weight: 700;
+            letter-spacing: 0.08em; padding: 3px 9px; border-radius: 20px;
+            background: rgba(255, 255, 255, 0.07); color: #00f0ff;
+        }
+        .lu-card.legendary .lu-card-rarity-badge { color: #ffd700; background: rgba(255, 215, 0, 0.14); }
+        .lu-card.super .lu-card-rarity-badge { color: #ff006a; background: rgba(255, 0, 106, 0.18); }
+
+        .lu-card-icon {
+            width: 58px; height: 58px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.75rem; border: 1.5px solid currentColor;
+            background: rgba(0, 0, 0, 0.4); margin: 8px 0;
+        }
+        .lu-card-name { font-size: 0.86rem; font-weight: 800; color: #fff; letter-spacing: 0.06em; }
+        .lu-card-desc {
+            font-family: 'Rajdhani', sans-serif; font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.78); line-height: 1.38; margin: 6px 0;
+        }
+        .lu-key-hint-box {
+            width: 100%; background: rgba(0, 0, 0, 0.45); border-radius: 10px;
+            padding: 7px 10px; border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .lu-keycap-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 5px; }
+        .lu-keycap {
+            width: 26px; height: 26px; border-radius: 6px; border: 1px solid #00f0ff;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 700; color: #00f0ff;
+        }
+        .lu-key-subtext { font-family: 'Rajdhani', sans-serif; font-size: 0.62rem; color: rgba(255, 255, 255, 0.55); }
+        .lu-hold-timer-text { font-family: 'Space Mono', monospace; font-size: 0.56rem; color: #ffd700; }
+        .lu-hold-track { width: 100%; height: 5px; background: rgba(255, 255, 255, 0.08); border-radius: 3px; overflow: hidden; }
+        .lu-hold-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00f0ff, #ffd700); transition: width 0.05s linear; }
+
+        .lu-actions-bar {
+            display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 8px;
+        }
+
+        /* ─── LOOT BOX (COSMIC CHEST) & BOSS REWARD OVERLAYS ─── */
+        #lootBoxOv, #bossRewardOv {
+            position: fixed; inset: 0; z-index: 96;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: radial-gradient(ellipse at center, rgba(45, 22, 4, 0.92) 0%, rgba(2, 0, 8, 0.96) 100%);
+            backdrop-filter: blur(12px);
+            opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
+        }
+        #lootBoxOv.show, #bossRewardOv.show { opacity: 1; pointer-events: auto; }
+        .chest-box-card {
+            background: linear-gradient(155deg, rgba(36, 22, 6, 0.9), rgba(10, 4, 22, 0.96));
+            border: 2px solid #ffd700; border-radius: 20px; padding: 28px 34px;
+            text-align: center; max-width: 540px; width: 92%;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.35), inset 0 0 25px rgba(255, 215, 0, 0.12);
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+        }
+        .chest-icon-anim {
+            font-size: 3.4rem; filter: drop-shadow(0 0 20px #ffd700);
+            animation: chestBounce 0.8s ease-in-out infinite alternate;
+        }
+        @keyframes chestBounce { from { transform: translateY(0) scale(1); } to { transform: translateY(-8px) scale(1.08); } }
+
+        /* ─── GAME OVER ─── */
+        .go-t {
+            font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; color: #ff006a;
+            text-shadow: 0 0 30px rgba(255, 0, 106, 0.5); margin-bottom: 8px;
+        }
+        .go-s { font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; color: rgba(255, 255, 255, 0.7); margin: 3px 0; }
+        .go-nr { color: #ffd700; font-size: 0.95rem; font-weight: 800; margin: 8px 0; }
+        .go-usum { margin: 14px 0; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+        .go-ul { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+        .go-uc { font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; padding: 4px 10px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.04); }
+
+        /* ─── MOBILE CONTROLS ─── */
+        .mobile-only { display: none; }
+        #mobileJoystickContainer {
+            position: fixed; width: 120px; height: 120px; border-radius: 50%;
+            z-index: 140; pointer-events: none; opacity: 0;
+            transform: translate(-50%, -50%) scale(0.85); transition: opacity 0.2s, transform 0.2s;
+        }
+        #joystickOuter {
+            width: 100%; height: 100%; border-radius: 50%;
+            border: 2px solid rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.06);
+            position: relative;
+        }
+        #joystickKnob {
+            width: 46px; height: 46px; border-radius: 50%;
+            background: radial-gradient(circle, #00f0ff, #bf00ff);
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        #mobilePauseBtn {
+            position: fixed; top: 14px; right: 14px; width: 42px; height: 42px;
+            border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.4);
+            background: rgba(6, 3, 14, 0.8); color: #00f0ff; font-size: 1.1rem;
+            z-index: 150; display: none; align-items: center; justify-content: center;
+        }
+        #mobileAbilityBtn {
+            position: fixed; right: 22px; bottom: 28px; width: 78px; height: 78px; border-radius: 50%;
+            border: 2px solid var(--ab, #00f0ff); color: #fff; z-index: 150; display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(6, 3, 16, 0.88); font-family: 'Orbitron', monospace;
+        }
+        @media (max-width: 1024px) and (pointer: coarse) {
+            body.is-mobile.playing-mode #mobileJoystickContainer { display: block !important; }
+            body.is-mobile.playing-mode #mobileJoystickContainer.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            body.is-mobile.playing-mode #mobilePauseBtn { display: flex !important; }
+            body.is-mobile.playing-mode #mobileAbilityBtn { display: flex !important; }
+        }
         @media (max-width: 768px) {
-            .cosmic-navbar a { font-size: 0.48rem; padding: 4px 6px; letter-spacing: 0.06em; }
-            .perk-slot { width: 46px; height: 50px; }
-            .perk-slot .ps-lbl { font-size: 0.44rem; max-width: 42px; }
-            #bossBar { bottom: 88px; }
+            .hud-left { min-width: 170px; padding: 8px 10px; }
+            .hud-right { padding: 8px 10px; }
+            .lu-card { width: 100%; max-width: 310px; min-height: 250px; }
         }
     </style>
 </head>
@@ -1022,182 +527,131 @@
     <a href="tree.html">FÜZYON AĞACI</a>
     <a href="about.html">SİMÜLASYON HAKKINDA</a>
 </nav>
+
 <canvas id="gameCanvas"></canvas>
 
-<!-- Mobile UI Elements -->
+<!-- Mobile UI -->
 <div id="mobileJoystickContainer" class="mobile-only">
-    <div id="joystickOuter">
-        <div id="joystickKnob"></div>
-    </div>
+    <div id="joystickOuter"><div id="joystickKnob"></div></div>
 </div>
-<button id="mobilePauseBtn" class="mobile-only">⏸</button>
-<button id="mobileAbilityBtn" type="button" aria-label="Aktif yetenek"><span class="mab-ico">✦</span><span class="mab-lbl">YETENEK</span></button>
+<button id="mobilePauseBtn" class="mobile-only" type="button">⏸</button>
+<button id="mobileAbilityBtn" type="button" aria-label="Aktif yetenek"><span class="mab-ico">✦</span><span class="mab-lbl" style="font-size:0.45rem">YETENEK</span></button>
 
-<!-- HUD -->
+<!-- MINIMALIST V7.0 HUD (Top-Left + Top-Right only, No Bottom Clutter) -->
 <div id="hud" class="hidden">
-    <div class="hud-p" id="p1Hud">
-        <div class="hud-nm p1c" id="p1NameLabel">◈ OYUNCU 1</div>
-        <div class="hud-bw"><div class="hud-b hp1" id="p1Hp"></div></div>
-        <div class="hud-bw"><div class="hud-b sh" id="p1Sh"></div></div>
-        <div class="hud-bw" style="height:4px"><div class="hud-b xpb" id="p1Xp"></div></div>
-        <div class="hud-lv" id="p1Lv">Lv.1</div>
-        <div class="hud-upgs" id="p1Upgs"></div>
-        <div class="hud-ab" id="p1Ab"><div class="hud-ab-lbl" id="p1AbLbl">YETENEK</div><div class="hud-ab-track"><div class="hud-ab-fill" id="p1AbFill"></div></div></div>
+    <div class="hud-left" id="p1Hud">
+        <div class="hud-top-row">
+            <div class="hud-nm" id="p1NameLabel">◈ PİLOT</div>
+            <div class="hud-lv" id="p1Lv">Lv.1</div>
+        </div>
+        <div class="hud-bar-row">
+            <span class="hud-bar-lbl">HP</span>
+            <div class="hud-bw"><div class="hud-b hp1" id="p1Hp" style="width:100%"></div></div>
+            <span class="hud-bar-val" id="p1HpTxt">100/100</span>
+        </div>
+        <div class="hud-bar-row">
+            <span class="hud-bar-lbl">SH</span>
+            <div class="hud-bw"><div class="hud-b sh" id="p1Sh" style="width:100%"></div></div>
+            <span class="hud-bar-val" id="p1ShTxt">50/50</span>
+        </div>
+        <div class="hud-bar-row">
+            <span class="hud-bar-lbl">XP</span>
+            <div class="hud-bw" style="height:5px"><div class="hud-b xpb" id="p1Xp" style="width:0%"></div></div>
+            <span class="hud-bar-val" id="p1DpsTxt">0 DPS</span>
+        </div>
+        <div class="hud-mini-slots">
+            <div class="hud-slot-line">
+                <span class="hud-slot-tag">SİLAH</span>
+                <div class="hud-upgs" id="p1WeaponsHud"></div>
+            </div>
+            <div class="hud-slot-line">
+                <span class="hud-slot-tag">ALET</span>
+                <div class="hud-upgs" id="p1TrinketsHud"></div>
+            </div>
+        </div>
+        <div class="hud-ab" id="p1Ab">
+            <div class="hud-ab-lbl" id="p1AbLbl">YETENEK [SPACE]</div>
+            <div class="hud-ab-track"><div class="hud-ab-fill" id="p1AbFill"></div></div>
+        </div>
     </div>
-    <div class="hud-c">
-        <div class="hud-sc" id="hudSc">0</div>
-        <div class="hud-wv" id="hudWv">DALGA 1</div>
-        <div class="hud-tm" id="hudTm">00:00</div>
-        <div class="hud-co" id="hudCo">COMBO x1</div>
-        <div class="hud-df" id="hudDf">KOLAY</div>
-        <div class="hud-rad" id="hudRad">☢ KOZMİK ÇÜRÜME: -%0</div>
-    </div>
-    <div class="hud-p right" id="p2Hud">
-        <div class="hud-nm p2c" id="p2NameLabel">OYUNCU 2 ◈</div>
-        <div class="hud-bw"><div class="hud-b hp2" id="p2Hp"></div></div>
-        <div class="hud-bw"><div class="hud-b sh" id="p2Sh"></div></div>
-        <div class="hud-bw" style="height:4px"><div class="hud-b xpb" id="p2Xp"></div></div>
-        <div class="hud-lv" id="p2Lv">Lv.1</div>
-        <div class="hud-upgs right" id="p2Upgs"></div>
-        <div class="hud-ab" id="p2Ab"><div class="hud-ab-lbl" id="p2AbLbl">YETENEK</div><div class="hud-ab-track"><div class="hud-ab-fill" id="p2AbFill"></div></div></div>
-    </div>
-</div>
 
-<!-- 5-Slot Megaponk Perk & Füzyon Dock -->
-<div id="perkDockWrap">
-    <div class="perk-dock" id="p1PerkDock">
-        <div class="perk-dock-hdr">
-            <span>◈ PİLOT 1 REAKTÖR SLOTLARI (MAKS LV.5)</span>
-            <span class="perk-dock-meta" id="p1DockMeta">SLOT 0/5</span>
+    <div class="hud-right">
+        <div class="hud-map-badge" id="hudMapName">SEKTÖR 9 ENKAZI</div>
+        <div class="hud-sc" id="hudSc">0</div>
+        <div class="hud-wv-row">
+            <div class="hud-wv" id="hudWv">DALGA 1</div>
+            <div class="hud-tm" id="hudTm">00:00</div>
         </div>
-        <div class="perk-dock-slots" id="p1PerkDockSlots"></div>
-    </div>
-    <div class="perk-dock p2-dock" id="p2PerkDock" style="display:none;">
-        <div class="perk-dock-hdr">
-            <span>◈ PİLOT 2 REAKTÖR SLOTLARI (MAKS LV.5)</span>
-            <span class="perk-dock-meta" id="p2DockMeta">SLOT 0/5</span>
-        </div>
-        <div class="perk-dock-slots" id="p2PerkDockSlots"></div>
+        <div class="hud-co" id="hudCo">COMBO x1</div>
+        <div class="hud-df easy" id="hudDf">KOLAY</div>
+        <div class="hud-rad" id="hudRad">☢ KOZMİK ÇÜRÜME: -%0</div>
     </div>
 </div>
 
 <div id="bossBar"><div class="bn" id="bossNm">BOSS</div><div class="bhw"><div class="bhb" id="bossHp" style="width:100%"></div></div></div>
 <div id="waveAnn"><div class="wa-t" id="waT">DALGA 1</div><div class="wa-s" id="waS"></div></div>
 
-<!-- Boss Reward (5 sec pause) -->
-<div id="bossRewardOv">
-    <div class="br-title" id="brTitle">★ BOSS YENİLDİ! ★</div>
-    <div class="br-boss-name" id="brBossName"></div>
-    <div class="br-heal">♥ Takım Canı & Kalkanları Fullendi!</div>
-    <div class="br-players" id="brPlayers"></div>
-    <div class="br-timer">Savaş alanı dengeleniyor... <span id="brTimer">5</span></div>
+<!-- MINI-BOSS COSMIC LOOT CHEST OVERLAY -->
+<div id="lootBoxOv">
+    <div class="chest-box-card">
+        <div class="chest-icon-anim">🎁</div>
+        <div style="font-size:0.68rem;color:#ffd700;letter-spacing:0.2em;font-family:'Space Mono',monospace;">★ ELİT MİNİ-BOSS GANİMET SANDIĞI ★</div>
+        <div style="font-size:1.45rem;font-weight:900;color:#fff;" id="lootBoxTitle">KOZMİK ŞANS SANDIĞI AÇILDI!</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:0.95rem;color:rgba(255,255,255,0.82);line-height:1.45;" id="lootBoxDesc"></div>
+        <div id="lootBoxRewardChip" style="margin:8px 0;padding:10px 18px;border-radius:12px;border:1.5px solid #ffd700;background:rgba(255,215,0,0.12);font-weight:800;color:#ffd700;"></div>
+        <button class="btn gold" id="lootBoxClaimBtn" type="button">⚡ GANİMETİ KUŞAN & DEVAM ET [SPACE / TIKLA]</button>
+    </div>
 </div>
 
-<!-- ─── TERMINAL HUD PAUSE MENU ─── -->
+<!-- BOSS REWARD OVERLAY -->
+<div id="bossRewardOv">
+    <div class="chest-box-card" style="border-color:#bf00ff;box-shadow:0 0 50px rgba(191,0,255,0.4);">
+        <div class="chest-icon-anim">👑</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#ffd700;" id="brTitle">★ BOSS İMHA EDİLDİ! ★</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:0.95rem;color:#e09eff;" id="brBossName"></div>
+        <div id="brPlayers" style="width:100%;"></div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:rgba(255,255,255,0.55);">Otomatik kapanış: <span id="brTimer">4</span>sn</div>
+    </div>
+</div>
+
+<!-- ─── ADVANCED ESC PAUSE TERMINAL ─── -->
 <div id="pauseOv" class="hidden">
     <div class="pause-panel">
         <div class="pause-header">
             <div>
-                <div class="pause-title">COSMIC TERMINAL: DURDURULDU</div>
-                <div class="pause-meta-desc">Savaş simülasyonu geçici olarak donduruldu. Statları ve drop rehberini inceleyin.</div>
+                <div class="pause-title">◈ КОZMİK TERMİNAL // SİMÜLASYON DURAKLATILDI</div>
+                <div class="pause-meta-desc">4 Silah Slotu, 4 Alet (Trinket) Slotu, Anlık DPS telemetrisi ve sistem ayarları.</div>
             </div>
-            <button class="btn sm" id="resumeBtn">DEVAM ET (ESC)</button>
+            <button class="btn sm" id="resumeBtn" type="button">DEVAM ET (ESC)</button>
         </div>
 
-        <!-- Split Grid Details -->
+        <!-- Center CTA to Open Tree in New Tab -->
+        <div class="pause-center-cta">
+            <div>
+                <div style="font-size:0.78rem;font-weight:800;color:#ffd700;">🌌 EVRİM & SÜPER EVRİM TARİFLERİNİ İNCELE</div>
+                <div style="font-family:'Rajdhani',sans-serif;font-size:0.8rem;color:rgba(255,255,255,0.7);">Hangi Silah + Alet çiftinin hangi Evrimi ve Süper Evrimi açtığını interaktif şemada görün.</div>
+            </div>
+            <button class="btn gold sm" id="openTreeBtn" type="button" onclick="window.open('tree.html', '_blank')">
+                ⚡ [FÜZYON & REHBER AĞACINI AÇ]
+            </button>
+        </div>
+
         <div class="pause-grid">
-            <!-- Left Side: Dynamic Pilot Stats -->
+            <!-- Left: Weapons, Trinkets & Live DPS Stats -->
             <div class="hud-sub-panel">
-                <div class="hud-sub-title">📊 AKTİF PİLOT STATLARI</div>
-                <div class="pilot-stats-flex" id="pauseStatsGrid">
-                    <!-- JS ile dolacak -->
-                </div>
+                <div class="hud-sub-title">📊 SİLAH & ALET ENVANTERİ + ANLIK DPS TELEMETRİSİ</div>
+                <div id="pauseStatsGrid"></div>
             </div>
 
-            <!-- Right Side: Mini Guide & Controls -->
-            <div style="display: flex; flex-direction: column; gap: 14px;">
-                <!-- Drops Guide -->
+            <!-- Right: Settings & Controls -->
+            <div style="display:flex;flex-direction:column;gap:14px;">
                 <div class="hud-sub-panel">
-                    <div class="hud-sub-title">🎁 DROP ÖĞELERİ VE ETKİLERİ</div>
-                    <div class="drop-guide-grid">
-                        <div class="mini-drop">
-                            <span class="mini-drop-ico" style="color:#ff4444; border-color:rgba(255,68,68,0.2)">♥</span>
-                            <div class="mini-drop-info">
-                                <span class="mini-drop-name" style="color:#ff4444">Can Paketi</span>
-                                <span class="mini-drop-desc">+35 HP iyileştirir</span>
-                            </div>
-                        </div>
-                        <div class="mini-drop">
-                            <span class="mini-drop-ico" style="color:#bf00ff; border-color:rgba(191,0,255,0.2)">◆</span>
-                            <div class="mini-drop-info">
-                                <span class="mini-drop-name" style="color:#bf00ff">Kalkan Full</span>
-                                <span class="mini-drop-desc">Maksimum kalkan</span>
-                            </div>
-                        </div>
-                        <div class="mini-drop">
-                            <span class="mini-drop-ico" style="color:#ffff00; border-color:rgba(255,255,0,0.2)">»</span>
-                            <div class="mini-drop-info">
-                                <span class="mini-drop-name" style="color:#ffff00">Hızlı Ateş</span>
-                                <span class="mini-drop-desc">8sn +%150 atış hızı</span>
-                            </div>
-                        </div>
-                        <div class="mini-drop">
-                            <span class="mini-drop-ico" style="color:#ff8800; border-color:rgba(255,136,0,0.2)">★</span>
-                            <div class="mini-drop-info">
-                                <span class="mini-drop-name" style="color:#ff8800">Çift Hasar</span>
-                                <span class="mini-drop-desc">8sn +%80 hasar</span>
-                            </div>
-                        </div>
-                        <div class="mini-drop">
-                            <span class="mini-drop-ico" style="color:#00ff88; border-color:rgba(0,255,136,0.2)">⋮</span>
-                            <div class="mini-drop-info">
-                                <span class="mini-drop-name" style="color:#00ff88">Üçlü Atış</span>
-                                <span class="mini-drop-desc">8sn 3 yönlü mermi</span>
-                            </div>
-                        </div>
-                        <div class="mini-drop">
-                            <span class="mini-drop-ico" style="color:#00ccff; border-color:rgba(0,204,255,0.2)">⚡</span>
-                            <div class="mini-drop-info">
-                                <span class="mini-drop-name" style="color:#00ccff">Moto-Hız</span>
-                                <span class="mini-drop-desc">8sn +%45 hareket hızı</span>
-                            </div>
-                        </div>
-                        <div class="mini-drop">
-                            <span class="mini-drop-ico" style="color:#ff0000; border-color:rgba(255,0,0,0.2)">●</span>
-                            <div class="mini-drop-info">
-                                <span class="mini-drop-name" style="color:#ff0000">Kozmik Bomba</span>
-                                <span class="mini-drop-desc">Düşmanları temizler</span>
-                            </div>
-                        </div>
-                        <div class="mini-drop">
-                            <span class="mini-drop-ico" style="color:#ffffff; border-color:rgba(255,255,255,0.2)">→</span>
-                            <div class="mini-drop-info">
-                                <span class="mini-drop-name" style="color:#ffffff">Delici Lazer</span>
-                                <span class="mini-drop-desc">8sn delici mermiler</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Active Abilities -->
-                <div class="hud-sub-panel">
-                    <div class="hud-sub-title">✦ AKTİF YETENEKLER</div>
-                    <div class="drop-guide-grid" style="grid-template-columns: 1fr;">
-                        <div class="mini-drop"><span class="mini-drop-ico" style="color:#00f0ff">⚡</span><div class="mini-drop-info"><span class="mini-drop-name" style="color:#00f0ff">AVCI · Warp Dash</span><span class="mini-drop-desc">1.2sn dokunulmaz taklaya atılır, arkasında hasar veren lazer hattı bırakır</span></div></div>
-                        <div class="mini-drop"><span class="mini-drop-ico" style="color:#ffaa00">🛡</span><div class="mini-drop-info"><span class="mini-drop-name" style="color:#ffaa00">KRUVAZÖR · Mikro Füze Salvosu</span><span class="mini-drop-desc">3sn boyunca her yöne 360° füze yağdırır</span></div></div>
-                        <div class="mini-drop"><span class="mini-drop-ico" style="color:#bf00ff">🌀</span><div class="mini-drop-info"><span class="mini-drop-name" style="color:#bf00ff">DESTEK · EMP Şok Dalgası</span><span class="mini-drop-desc">Tüm düşman mermilerini siler, kalkan enerjisine çevirir</span></div></div>
-                    </div>
-                    <div class="mini-drop-desc" style="font-family:'Rajdhani',sans-serif; font-size:0.7rem; color:rgba(255,255,255,0.5)">Pilot 1: <b>SPACE</b> · Pilot 2: <b>ENTER</b> · Mobil: sağ alttaki yetenek butonu</div>
-                </div>
-
-                <!-- Settings / Widgets -->
-                <div class="hud-sub-panel">
-                    <div class="hud-sub-title">⚙️ AYARLAR</div>
+                    <div class="hud-sub-title">⚙️ SİSTEM & PERFORMANS AYARLARI</div>
                     <div class="widgets-col">
                         <div class="widget-row">
                             <div>
-                                <span class="widget-lbl">Ses Efektleri</span>
-                                <span class="widget-sub">Mermi ve patlama ses seviyeleri</span>
+                                <span class="widget-lbl">Ses Efektleri (SFX)</span>
+                                <span class="widget-sub">Silah ve patlama ses seviyesi</span>
                             </div>
                             <div class="slider-ctrl">
                                 <input type="range" id="sfxVolumeRange" min="0" max="100" value="50">
@@ -1206,72 +660,86 @@
                         </div>
                         <div class="widget-row">
                             <div>
-                                <span class="widget-lbl">Tonlar & Müzik</span>
-                                <span class="widget-sub">Sentezleyici dalgaları</span>
+                                <span class="widget-lbl">Sentezleyici Ses Motoru</span>
+                                <span class="widget-sub">Web Audio API prosedürel sesler</span>
                             </div>
-                            <button class="toggle-btn on" id="synthSoundToggle">AÇIK</button>
+                            <button class="toggle-btn on" id="synthSoundToggle" type="button">AÇIK</button>
                         </div>
                         <div class="widget-row">
                             <div>
-                                <span class="widget-lbl">Tam Ekran</span>
-                                <span class="widget-sub">Daha geniş görüş alanı</span>
+                                <span class="widget-lbl">Tam Ekran Modu</span>
+                                <span class="widget-sub">Maksimum arena görüş açısı</span>
                             </div>
-                            <button class="toggle-btn off" id="fullscreenToggle">KAPALI</button>
+                            <button class="toggle-btn off" id="fullscreenToggle" type="button">KAPALI</button>
                         </div>
                         <div class="widget-row">
                             <div>
                                 <span class="widget-lbl">Yüksek Performans Modu (60 FPS)</span>
-                                <span class="widget-sub">Zayıf PC'ler için parçacık ve ızgarayı optimize eder</span>
+                                <span class="widget-sub">Yoğun dalgalarda partikül optimizasyonu</span>
                             </div>
-                            <button class="toggle-btn off" id="perfModeToggle">KAPALI</button>
+                            <button class="toggle-btn off" id="perfModeToggle" type="button">KAPALI</button>
                         </div>
+                    </div>
+                </div>
+
+                <div class="hud-sub-panel">
+                    <div class="hud-sub-title">🎮 KONTROL PROTOKOLÜ (1P)</div>
+                    <div style="font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:rgba(255,255,255,0.75);line-height:1.55;">
+                        • <strong>Hareket:</strong> <code style="color:#00f0ff">W A S D</code> veya <code style="color:#00f0ff">YÖN TUŞLARI</code><br>
+                        • <strong>Aktif Gemi Yeteneği:</strong> <code style="color:#ffd700">SPACE</code> veya <code style="color:#ffd700">ENTER</code><br>
+                        • <strong>Seviye Kartı Seçimi:</strong> Fareyle Tıkla veya <code style="color:#00ff88">A / W / D</code> tuşlarından <strong>yalnızca birine</strong> basılı tut<br>
+                        • <strong>Zar At (Reroll) / Pas Geç (Skip):</strong> <code style="color:#bf00ff">R</code> / <code style="color:#ff006a">X</code> veya alt butonlar
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="pause-footer">
-            <button class="btn danger" id="quitBtn">OYUNU BİTİR</button>
-            <button class="btn" id="restartGameBtn">YENİDEN BAŞLAT</button>
-            <button class="btn" id="resumeGameBtn">DEVAM ET</button>
+            <button class="btn danger sm" id="quitBtn" type="button">ANA KOMUTAYA DÖN</button>
+            <button class="btn sm" id="restartGameBtn" type="button">YENİDEN BAŞLAT</button>
+            <button class="btn sm" id="resumeGameBtn" type="button">SAVAŞA DÖN</button>
         </div>
     </div>
 </div>
 
-<!-- Game Over -->
+<!-- GAME OVER OVERLAY -->
 <div class="ov hidden" id="gameOverOv">
-<div class="ov-scroll">
-    <div class="go-t">SİMÜLASYON SONLANDI</div>
-    <div class="go-s" style="color:var(--gold); font-size:1.6rem; font-weight:800; letter-spacing:0.1em; text-shadow:0 0 30px rgba(255,215,0,0.3)">SKOR: <span id="goSc">0</span></div>
-    <div class="go-nr hidden" id="goNr">🏆 YENİ YEREL REKOR! 🏆</div>
-    <div class="go-s">Ulaşılan Seviye: <span id="goWv" style="color:#fff;">1</span></div>
-    <div class="go-s">Yok Edilen Parazit: <span id="goKl" style="color:#fff;">0</span></div>
-    <div class="go-s">Hayatta Kalma Süresi: <span id="goTm" style="color:#fff;">00:00</span></div>
-    
-    <div class="go-usum" id="goUsum"></div>
-    <button class="btn" id="retryBtn">TEKRAR OYNA</button>
-    <div style="font-family:Rajdhani,sans-serif;font-size:0.85rem;color:rgba(255,215,0,0.6);margin-top:1em;letter-spacing:0.08em" id="goHs"></div>
-    <button class="btn sm" id="menuBtn">ANA MENÜ</button>
-</div>
+    <div class="ov-scroll">
+        <div class="go-t">SİMÜLASYON SONLANDI</div>
+        <div class="go-s" style="color:var(--gold);font-size:1.55rem;font-weight:800;">SKOR: <span id="goSc">0</span></div>
+        <div class="go-nr hidden" id="goNr">🏆 YENİ YEREL REKOR! 🏆</div>
+        <div class="go-s">Ulaşılan Dalga: <span id="goWv" style="color:#fff">1</span> · Harita: <span id="goMap" style="color:#00f0ff">Sektör 9</span></div>
+        <div class="go-s">İmha Edilen Parazit: <span id="goKl" style="color:#fff">0</span> · Süre: <span id="goTm" style="color:#fff">00:00</span></div>
+        <div class="go-usum" id="goUsum"></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:10px;">
+            <button class="btn" id="retryBtn" type="button">🔄 TEKRAR OYNA</button>
+            <button class="btn gold sm" type="button" onclick="window.open('tree.html','_blank')">⚡ FÜZYON AĞACI</button>
+            <button class="btn sm" id="menuBtn" type="button">🏠 ANA KOMUTA</button>
+        </div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:rgba(255,215,0,0.65);margin-top:12px;" id="goHs"></div>
+    </div>
 </div>
 
-<!-- ─── ROGUELIKE LEVEL UP CARD OVERLAY ─── -->
-<div id="levelUpOv" class="ov hidden">
+<!-- ─── ROGUELIKE LEVEL-UP MODAL (levelup-modal) WITH REROLL & SKIP ─── -->
+<div id="levelUpOv" class="ov levelup-modal hidden">
     <div class="ov-scroll">
-        <div class="level-up-header" style="text-align: center; margin-bottom: 24px;">
+        <div style="text-align:center;margin-bottom:10px;">
             <div class="lu-pilot-banner" id="luPilotBanner">
-                <span class="lu-pilot-icon">🎮</span>
-                <span class="lu-pilot-name" id="luPlayerSubtitle">PİLOT 1 SEVİYE ATLADI!</span>
-                <span class="lu-control-badge" id="luControlBadge">KONTROL: WASD</span>
+                <span>🛸</span>
+                <span class="lu-pilot-name" id="luPlayerSubtitle">PİLOT SEVİYE ATLADI!</span>
+                <span class="lu-control-badge" id="luControlBadge">TEK TUŞ VEYA TIKLAMA</span>
             </div>
-            <div class="level-up-title">YETENEK PROTOKOLÜ</div>
+            <div class="level-up-title">REAKTÖR SENTEZ PROTOKOLÜ</div>
             <div class="level-up-desc" id="luInstructions">
-                Seçmek için tuşuna <strong style="color:#ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5);">3 saniye basılı tutun</strong> veya fareyle tıklayın:
+                Bir yükseltme kartına <strong>tıklayın</strong> veya <strong style="color:#ffd700">A / W / D</strong> tuşlarından <strong>yalnızca birine</strong> basılı tutun:
             </div>
         </div>
 
-        <div class="lu-card-container" id="luCardsContainer">
-            <!-- JS ile dinamik eklenecek -->
+        <div class="lu-card-container" id="luCardsContainer"></div>
+
+        <div class="lu-actions-bar">
+            <button class="btn gold sm" id="luRerollBtn" type="button">🎲 ZAR AT / REROLL (<span id="luRerollCount">2</span>)</button>
+            <button class="btn danger sm" id="luSkipBtn" type="button">⏭️ PAS GEÇ / SKIP (<span id="luSkipCount">1</span>) [+XP & ONARIM]</button>
         </div>
     </div>
 </div>

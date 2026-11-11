@@ -1,1818 +1,1730 @@
-// ═══════════════════════════════════════════════════════
-//  COSMIC SURVIVORS v6.0 Megaponk Edition — Fusion & Endgame Engine
-// ═══════════════════════════════════════════════════════
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COSMIC SURVIVORS — v7.0 VAMPIRE SURVIVORS & MEGABONK EDITION
+// Saf 1P Odaklı Uzay Roguelike Motoru:
+// • Kritik 3-Tuş Hile Açığı Onarımı (Senkron isLevelingUp Atomik Kilidi)
+// • 5 Özgün Gemi (Interceptor, Dreadnought, Aegis, Void Phantom, Solar Flare)
+// • 3 Gerçek Harita (Sektör 9 Enkazı, Kuantum Nebulası, Kara Delik Çevresi)
+// • 4 Silah Slotu + 4 Alet (Trinket) Slotu · Standart Evrim & Kozmik Süper Evrim
+// • 2 Reroll (Zar At) + 1 Skip (Pas Geç) · 3 Dalgada Bir Elit Mini-Boss & Şans Sandığı
+// ═══════════════════════════════════════════════════════════════════════════
+
+const P1_NAME = sessionStorage.getItem('cosmic_p1') || 'Pilot 1';
+const DIFFKEY = sessionStorage.getItem('cosmic_diff') || 'easy';
+const SELECTED_SHIP = sessionStorage.getItem('cosmic_p1_ship') || 'interceptor';
+const SELECTED_MAP = sessionStorage.getItem('cosmic_map') || 'sector9';
+const MODE = '1p'; // v7.0: Saf 1P Odaklı Mimari
+
+const DIFF = {
+    easy:   { label: 'KOLAY', cls: 'easy',   ehm: 0.82, esm: 0.85, edm: 0.78, sdm: 1.15, ecm: 0.85, bhm: 0.80, bsr: 0.75, pdm: 1.20, sm: 1.0, pr: 2.8, sr: 4.5 },
+    medium: { label: 'ORTA',  cls: 'medium', ehm: 1.00, esm: 1.00, edm: 1.00, sdm: 1.00, ecm: 1.00, bhm: 1.00, bsr: 1.00, pdm: 1.00, sm: 1.5, pr: 1.8, sr: 3.2 },
+    hard:   { label: 'ZOR',   cls: 'hard',   ehm: 1.65, esm: 1.32, edm: 1.45, sdm: 0.78, ecm: 1.35, bhm: 1.55, bsr: 1.30, pdm: 0.88, sm: 2.5, pr: 1.0, sr: 2.0 }
+};
+const DC = DIFF[DIFFKEY] || DIFF.easy;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
 resize();
-addEventListener('resize', resize);
+window.addEventListener('resize', resize);
 
-// Mobile detection and variables
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-if (isMobile) {
-    document.body.classList.add('is-mobile');
-}
-const mobileJoystick = { x: 0, y: 0, active: false };
+// ── Ses Sentezleyici (Web Audio API) ──
+let actx = null;
+let sfxVol = 0.5;
+let synthSoundOn = true;
+let isSoundMuffled = false;
 
-// ── Oturum ve URL Parametreleri ──
-const params = new URLSearchParams(location.search);
-const MODE = params.get('mode') === '2p' ? '2p' : '1p';
-const DIFFKEY = ['easy', 'medium', 'hard'].includes(params.get('diff')) ? params.get('diff') : 'easy';
+function iA() { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); }
+function eA() { iA(); if (actx && actx.state === 'suspended') actx.resume(); }
 
-const P1_NAME = sessionStorage.getItem('cosmic_p1_name') || 'Kaptan 1';
-const P2_NAME = MODE === '2p' ? (sessionStorage.getItem('cosmic_p2_name') || 'Kaptan 2') : '';
-
-// HUD Oyuncu İsim Güncellemeleri
-document.getElementById('p1NameLabel').textContent = `◈ ${P1_NAME.toUpperCase()}`;
-if (MODE === '2p') {
-    document.getElementById('p2NameLabel').textContent = `${P2_NAME.toUpperCase()} ◈`;
-} else {
-    document.getElementById('p2Hud').style.display = 'none';
-}
-
-// ── Gelişmiş Ses ve Prosedürel Müzik Sentezleyici Engine ──
-let aC;
-let filterNode; // Lowpass filtre
-let sfxVolume = 0.4;
-let synthSoundActive = true;
-let musicInterval = null;
-let musicStep = 0;
-
-// Basit Synthwave Akor Dizilimi
-const bassNotes = [110, 110, 110, 110, 130, 130, 146, 146, 110, 110, 110, 110, 165, 165, 146, 146];
-const leadNotes = [220, 220, 330, 220, 261, 261, 293, 349, 220, 220, 330, 440, 329, 329, 293, 220];
-
-function eA() { 
-    if (!aC) {
-        aC = new (AudioContext || webkitAudioContext)();
-        
-        // Lowpass filtre oluştur ve çıkışa bağla
-        filterNode = aC.createBiquadFilter();
-        filterNode.type = 'lowpass';
-        filterNode.frequency.setValueAtTime(20000, aC.currentTime);
-        filterNode.connect(aC.destination);
-        
-        startProceduralMusic();
-    } 
-}
-
-function tone(f, d, t = 'square', v = 0.06) {
-    if (!synthSoundActive) return;
+function tone(f, d, t = 'sine', v = 0.08, det = 0) {
+    if (!actx || !synthSoundOn || sfxVol <= 0) return;
     try {
-        eA();
-        const o = aC.createOscillator(), g = aC.createGain();
-        o.type = t;
-        o.frequency.setValueAtTime(f, aC.currentTime);
-        o.frequency.exponentialRampToValueAtTime(Math.max(f * 0.2, 10), aC.currentTime + d);
-        g.gain.setValueAtTime(v * sfxVolume, aC.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001, aC.currentTime + d);
-        
-        // Ses filtresine yönlendir
-        o.connect(g); g.connect(filterNode);
-        o.start(); o.stop(aC.currentTime + d);
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = t; o.frequency.value = f; o.detune.value = det;
+        let finalVol = v * (sfxVol / 0.5);
+        if (isSoundMuffled) finalVol *= 0.2;
+        g.gain.setValueAtTime(Math.min(1, finalVol), actx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + d);
+        o.connect(g); g.connect(actx.destination);
+        o.start(); o.stop(actx.currentTime + d);
     } catch (e) {}
 }
 
-// Lowpass filtreyi yumuşak şekilde ayarla
-function setSoundMuffled(muffled) {
-    if (!aC || !filterNode) return;
-    const targetFreq = muffled ? 420 : 20000;
-    filterNode.frequency.exponentialRampToValueAtTime(targetFreq, aC.currentTime + 0.25);
-}
-
-// Oyun İçi Dinamik Müzik Döngüsü
-function startProceduralMusic() {
-    if (musicInterval) clearInterval(musicInterval);
-    const tempo = DIFFKEY === 'hard' ? 140 : DIFFKEY === 'medium' ? 180 : 220;
-    
-    musicInterval = setInterval(() => {
-        if ((gameState !== 'playing' && gameState !== 'levelChoice' && gameState !== 'bossReward') || !synthSoundActive) return;
-        
-        // Basline ritmi
-        const bassFreq = bassNotes[musicStep % bassNotes.length];
-        tone(bassFreq, 0.15, 'sawtooth', 0.05);
-        
-        // Rastgele melodi
-        if (musicStep % 4 === 0 && Math.random() < 0.8) {
-            const leadFreq = leadNotes[Math.floor(Math.random() * leadNotes.length)];
-            tone(leadFreq, 0.35, 'triangle', 0.03);
-        }
-        
-        // Davul
-        if (musicStep % 2 === 0) {
-            tone(50, 0.05, 'sine', 0.08);
-        } else {
-            tone(1000, 0.02, 'triangle', 0.015);
-        }
-        
-        musicStep++;
-    }, tempo);
-}
-
-let lastHitSfxTime = 0;
 const sfx = {
-    shoot() { tone(700 + rand(0, 300), 0.04, 'square', 0.015); },
-    hit() {
-        const now = performance.now();
-        if (now - lastHitSfxTime < 35) return;
-        lastHitSfxTime = now;
-        tone(150, 0.08, 'sawtooth', 0.035);
-    },
-    kill() { tone(480, 0.1, 'square', 0.04); tone(780, 0.06, 'sine', 0.025); },
-    pow() { tone(523, 0.06, 'sine', 0.05); setTimeout(() => tone(659, 0.06, 'sine', 0.05), 60); setTimeout(() => tone(784, 0.08, 'sine', 0.05), 120); },
-    exp() { tone(70, 0.3, 'sawtooth', 0.07); tone(30, 0.35, 'square', 0.05); },
-    dash() { tone(320, 0.35, 'sawtooth', 0.06); tone(960, 0.25, 'sine', 0.05); },
-    salvo() { tone(240, 0.07, 'square', 0.025); },
-    emp() { tone(120, 0.5, 'sawtooth', 0.08); tone(1200, 0.4, 'sine', 0.05); },
-    wave() { tone(392, 0.08, 'sine', 0.05); setTimeout(() => tone(587, 0.08, 'sine', 0.05), 90); setTimeout(() => tone(784, 0.15, 'sine', 0.05), 180); },
-    bWarn() { for (let i = 0; i < 4; i++) setTimeout(() => tone(130, 0.25, 'sawtooth', 0.07), i * 160); },
-    bKill() { tone(523, 0.1, 'sine', 0.08); setTimeout(() => tone(659, 0.1, 'sine', 0.08), 80); setTimeout(() => tone(784, 0.1, 'sine', 0.08), 160); setTimeout(() => tone(1047, 0.2, 'sine', 0.1), 240); },
-    lvl() { tone(880, 0.06, 'sine', 0.05); setTimeout(() => tone(1100, 0.1, 'sine', 0.05), 70); setTimeout(() => tone(1320, 0.15, 'sine', 0.05), 140); },
+    shoot: () => tone(860, 0.05, 'square', 0.03, Math.random() * 40 - 20),
+    hit:   () => tone(220, 0.07, 'sawtooth', 0.04),
+    exp:   () => { tone(85, 0.28, 'sawtooth', 0.08); tone(55, 0.36, 'triangle', 0.06); },
+    bKill: () => { for (let i = 0; i < 6; i++) setTimeout(() => tone(160 + i * 90, 0.25, 'sawtooth', 0.09), i * 65); },
+    pow:   () => { tone(523, 0.09, 'sine', 0.07); setTimeout(() => tone(659, 0.09, 'sine', 0.07), 60); setTimeout(() => tone(784, 0.14, 'sine', 0.08), 120); },
+    lvl:   () => { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 0.14, 'triangle', 0.08), i * 55)); },
+    dmg:   () => tone(105, 0.16, 'sawtooth', 0.09),
+    wave:  () => { tone(330, 0.18, 'triangle', 0.06); setTimeout(() => tone(440, 0.26, 'triangle', 0.07), 120); },
+    dash:  () => { tone(320, 0.07, 'sawtooth', 0.07); setTimeout(() => tone(940, 0.14, 'sine', 0.08), 35); },
+    salvo: () => tone(210, 0.07, 'sawtooth', 0.05, Math.random() * 80 - 40),
+    emp:   () => { tone(90, 0.42, 'sine', 0.11); tone(660, 0.26, 'triangle', 0.08); },
+    chest: () => { [440, 554, 659, 880, 1174].forEach((f, i) => setTimeout(() => tone(f, 0.18, 'sine', 0.09), i * 65)); }
 };
 
-// ── Matematiksel Yardımcılar ──
-const rand = (a, b) => Math.random() * (b - a) + a;
-const randInt = (a, b) => Math.floor(rand(a, b + 1));
-const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
-const ang = (a, b) => Math.atan2(b.y - a.y, b.x - a.x);
-const lerp = (a, b, t) => a + (b - a) * t;
-const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-const P1 = '#00f0ff', P1D = '#006880', P2 = '#ff006a', P2D = '#801035', LINK = '#bf00ff', GOLD = '#ffd700';
+function setCursorMode(show) {
+    if (show) document.body.classList.remove('playing-cursor');
+    else document.body.classList.add('playing-cursor');
+}
+function setSoundMuffled(m) { isSoundMuffled = m; }
 
-// ── Partikül Sistemi ──
+// ── 5 Özgün Gemi (Karakter) Tanımları ──
+const SHIPS = {
+    interceptor: {
+        id: 'interceptor',
+        name: 'Avcı (Interceptor)',
+        color: '#00f0ff',
+        starterWeapon: 'dualLaser',
+        hp: 100,
+        sh: 50,
+        sp: 295 * 1.20, // +%20 Hareket Hızı pasifi
+        crit: 0.20,     // +%15 Kritik pasifi (%5 baz + %15)
+        armor: 0.0,
+        passiveName: '+%20 Hareket Hızı & +%15 Kritik Şans',
+        abilityName: 'WARP DASH',
+        abilityCd: 7.0,
+        abilityColor: '#00f0ff',
+        abilityDesc: '1.2 sn dokunulmaz takla atar, arkasında yakıcı lazer hattı bırakır.'
+    },
+    dreadnought: {
+        id: 'dreadnought',
+        name: 'Kruvazör (Dreadnought)',
+        color: '#ffaa00',
+        starterWeapon: 'heavyPlasma',
+        hp: 175,
+        sh: 85,
+        sp: 265 * 0.90, // -%10 Hız
+        crit: 0.05,
+        armor: 0.30,    // +%30 Zırh pasifi
+        passiveName: '+%30 Zırh Koruması & -%10 Hareket Hızı',
+        abilityName: 'MİKRO FÜZE SALVOSU',
+        abilityCd: 10.5,
+        abilityColor: '#ffaa00',
+        abilityDesc: '3 sn boyunca 360° her yöne güdümsüz mikro füze salvosu ateşler.'
+    },
+    aegis: {
+        id: 'aegis',
+        name: 'Aegis (Kalkan Muhafızı)',
+        color: '#bf00ff',
+        starterWeapon: 'energyDisc',
+        hp: 115,
+        sh: 125,
+        sp: 270,
+        crit: 0.08,
+        armor: 0.12,
+        passiveName: 'Otomatik Kalkan Patlaması (6 sn\'de bir elektro-şok halkası)',
+        abilityName: 'EMP ŞOK DALGASI',
+        abilityCd: 12.0,
+        abilityColor: '#bf00ff',
+        abilityDesc: 'Ekrandaki tüm düşman mermilerini siler ve kalkan enerjisine dönüştürür.'
+    },
+    phantom: {
+        id: 'phantom',
+        name: 'Gölge (Void Phantom)',
+        color: '#ff006a',
+        starterWeapon: 'quantumDagger',
+        hp: 95,
+        sh: 55,
+        sp: 315,
+        crit: 0.22,
+        armor: 0.05,
+        passiveName: 'Her 10 sn\'de 1.5 sn Görünmezlik & Arkadan Vuruş Bonusu (+%60 Kritik)',
+        abilityName: 'GÖLGE SIÇRAMASI',
+        abilityCd: 8.0,
+        abilityColor: '#ff006a',
+        abilityDesc: 'Baktığı yöne kuantum sıçraması yapar, 1.5 sn görünmezlik ve suikast gücü açar.'
+    },
+    solarflare: {
+        id: 'solarflare',
+        name: 'Solar Flare (Güneş Fırtınası)',
+        color: '#ff6600',
+        starterWeapon: 'flameLine',
+        hp: 125,
+        sh: 70,
+        sp: 280,
+        crit: 0.12,
+        armor: 0.10,
+        passiveName: 'Yakındaki düşmanları sürekli yakan Güneş Radyasyon Aurası',
+        abilityName: 'GÜNEŞ PATLAMASI',
+        abilityCd: 9.5,
+        abilityColor: '#ff6600',
+        abilityDesc: 'Geniş çapta korona novası patlatarak tüm düşmanları ateşe verir.'
+    }
+};
+
+// ── 3 Gerçek Harita Tanımları ──
+const MAPS = {
+    sector9: {
+        id: 'sector9',
+        name: 'Sektör 9 Enkazı',
+        subtitle: 'Dönen Hurda Metaller & Dengeli Parazit Filosu',
+        bgTop: '#03010a',
+        bgBot: '#09041e',
+        gridColor: 'rgba(0, 240, 255, 0.05)',
+        borderColor: '#00f0ff',
+        scoreMult: 1.0,
+        enemyPool: ['drone', 'tank', 'speeder', 'shooter', 'orbiter', 'splitter', 'shielder', 'sniper']
+    },
+    nebula: {
+        id: 'nebula',
+        name: 'Kuantum Nebulası',
+        subtitle: 'Hızlandıran/Yavaşlatan Gaz Bulutları & Hayalet Parazitler',
+        bgTop: '#040112',
+        bgBot: '#160326',
+        gridColor: 'rgba(191, 0, 255, 0.06)',
+        borderColor: '#bf00ff',
+        scoreMult: 1.25,
+        enemyPool: ['speeder', 'phantom', 'shooter', 'sniper', 'sweeper', 'kamikaze', 'orbiter', 'splitter']
+    },
+    blackhole: {
+        id: 'blackhole',
+        name: 'Kara Delik Çevresi',
+        subtitle: 'Merkez Çekim Anomalisi, Lav Asteroidleri & Zırhlı Elitler',
+        bgTop: '#080106',
+        bgBot: '#1c050a',
+        gridColor: 'rgba(255, 85, 0, 0.06)',
+        borderColor: '#ff5500',
+        scoreMult: 1.5,
+        enemyPool: ['tank', 'shielder', 'healer', 'sweeper', 'kamikaze', 'sniper', 'phantom', 'splitter']
+    }
+};
+
+// ── Slot Limitleri: 4 Silah + 4 Alet (Trinket) ──
+const MAX_WEAPON_SLOTS = 4;
+const MAX_TRINKET_SLOTS = 4;
+const MAX_PERK_SLOTS = 8; // 4 Silah + 4 Alet toplamı
+const MAX_PERK_LEVEL = 5;
+
+// ── 6 Aktif Silah (Weapons - 4 Slot) ──
+const WEAPONS = {
+    dualLaser: {
+        id: 'dualLaser', kind: 'weapon', name: 'Çift Lazer', icon: '⚡', color: '#00f0ff',
+        pairTrinket: 'coolant', evoId: 'gatlingStorm',
+        desc: 'Paralel foton namlularından yüksek hızlı lazerler ateşler. (Lv+: Hasar ve namlu sayısı artar)'
+    },
+    heavyPlasma: {
+        id: 'heavyPlasma', kind: 'weapon', name: 'Ağır Plazma Topu', icon: '☄️', color: '#ff5500',
+        pairTrinket: 'bioreactor', evoId: 'bloodHarvest',
+        desc: 'Hedefe çarptığında alansal şok yaratan ağır plazma gülleleri fırlatır. (Lv+: Patlama çapı ve hasar)'
+    },
+    energyDisc: {
+        id: 'energyDisc', kind: 'weapon', name: 'Dönen Enerji Diski', icon: '💿', color: '#bf00ff',
+        pairTrinket: 'thruster', evoId: 'aegisResonance',
+        desc: 'Gemi yörüngesinde dönerek yaklaşan parazitleri biçen plazma testereleri. (Lv+: Disk sayısı 1→5)'
+    },
+    quantumDagger: {
+        id: 'quantumDagger', kind: 'weapon', name: 'Kuantum Hançeri', icon: '🗡️', color: '#ff006a',
+        pairTrinket: 'magnet', evoId: 'cosmicSupernova',
+        desc: 'En yüksek cana sahip tehditlere fırlatılan, yüksek kritik şanslı delici faz hançerleri.'
+    },
+    flameLine: {
+        id: 'flameLine', kind: 'weapon', name: 'Alev Hattı', icon: '🔥', color: '#ff8800',
+        pairTrinket: 'shieldMatrix', evoId: 'titanCore',
+        desc: 'Geminin önünde ve arkasında sürekli yanan termal plazma koridoru oluşturur.'
+    },
+    swarmMissiles: {
+        id: 'swarmMissiles', kind: 'weapon', name: 'Füze Sürüsü', icon: '🚀', color: '#00ff88',
+        pairTrinket: 'targetMatrix', evoId: 'quantumArbiter',
+        desc: 'En yakın hedeflere kilitlenen güdümlü mikro füze bataryası ateşler.'
+    }
+};
+
+// ── 6 Pasif Alet / Mıknatıs (Trinkets - 4 Slot) ──
+const TRINKETS = {
+    magnet: {
+        id: 'magnet', kind: 'trinket', name: 'Mıknatıs Çekirdeği', icon: '🧲', color: '#44ffaa',
+        pairWeapon: 'quantumDagger', evoId: 'cosmicSupernova',
+        desc: 'XP/Ganimet çekim çapını +%35 ve silah menzilini +%15 artırır.'
+    },
+    coolant: {
+        id: 'coolant', kind: 'trinket', name: 'Kriyo Soğutucu', icon: '❄️', color: '#00ccff',
+        pairWeapon: 'dualLaser', evoId: 'gatlingStorm',
+        desc: 'Tüm silahların ateşleme süresini ve aktif yetenek Cooldown süresini -%14 azaltır.'
+    },
+    thruster: {
+        id: 'thruster', kind: 'trinket', name: 'Kinetik İtici', icon: '🛡️', color: '#aa66ff',
+        pairWeapon: 'energyDisc', evoId: 'aegisResonance',
+        desc: 'Gemi hareket hızını +%12 ve zırh korumasını +%6 artırır.'
+    },
+    bioreactor: {
+        id: 'bioreactor', kind: 'trinket', name: 'Biyo-Reaktör', icon: '🩸', color: '#ff2255',
+        pairWeapon: 'heavyPlasma', evoId: 'bloodHarvest',
+        desc: 'Maksimum canı +30 HP artırır ve saniyede +2.5 HP pasif biyo-onarım sağlar.'
+    },
+    targetMatrix: {
+        id: 'targetMatrix', kind: 'trinket', name: 'Kuantum Nişangah', icon: '🎯', color: '#ffd700',
+        pairWeapon: 'swarmMissiles', evoId: 'quantumArbiter',
+        desc: 'Kritik vuruş şansını +%9 ve tüm silahların mermi hasarını +%15 artırır.'
+    },
+    shieldMatrix: {
+        id: 'shieldMatrix', kind: 'trinket', name: 'Deflektör Matrisi', icon: '◆', color: '#00f0ff',
+        pairWeapon: 'flameLine', evoId: 'titanCore',
+        desc: 'Maksimum kalkanı +35 SH ve kalkan dolum hızını +%20 artırır.'
+    }
+};
+
+// UPG birleşik referans tablosu (Geriye dönük uyumluluk dahil)
+const UPG = Object.assign({}, WEAPONS, TRINKETS);
+const WEAPON_KEYS = Object.keys(WEAPONS);
+const TRINKET_KEYS = Object.keys(TRINKETS);
+const UPG_KEYS = Object.keys(UPG);
+
+// ── 6 Standart Evrim (Silah Lv.5 + Alet Lv.5 = Evrimleşmiş Silah) ──
+const EVOLUTIONS = {
+    gatlingStorm: {
+        id: 'gatlingStorm', kind: 'evolution',
+        name: 'Gatling Fırtınası', icon: '🌪️', color: '#00ff88',
+        weaponReq: 'dualLaser', trinketReq: 'coolant',
+        req: ['dualLaser', 'coolant'],
+        formula: 'Çift Lazer Lv.5 + Kriyo Soğutucu Lv.5',
+        desc: 'Lazerler hiper-hızla yağar ve isabet ettiği düşmanlar arasında otomatik olarak 3 kez seker (Ricochet).'
+    },
+    bloodHarvest: {
+        id: 'bloodHarvest', kind: 'evolution',
+        name: 'Kan Hasadı', icon: '🩸', color: '#ff1744',
+        weaponReq: 'heavyPlasma', trinketReq: 'bioreactor',
+        req: ['heavyPlasma', 'bioreactor'],
+        formula: 'Ağır Plazma Topu Lv.5 + Biyo-Reaktör Lv.5',
+        desc: 'Her vuruş kızıl plazma patlaması yayar ve verilen hasarın %10\'unu doğrudan cana çevirir.'
+    },
+    aegisResonance: {
+        id: 'aegisResonance', kind: 'evolution',
+        name: 'Aegis Rezonansı', icon: '💠', color: '#00f0ff',
+        weaponReq: 'energyDisc', trinketReq: 'thruster',
+        req: ['energyDisc', 'thruster'],
+        formula: 'Dönen Enerji Diski Lv.5 + Kinetik İtici Lv.5',
+        desc: '6 adet dev kesici disk döner; hareket ettikçe kalkan hızla dolar, kalkan kırılınca tüm ekranı temizleyen EMP patlar.'
+    },
+    cosmicSupernova: {
+        id: 'cosmicSupernova', kind: 'evolution',
+        name: 'Kozmik Süpernova', icon: '🌌', color: '#bf00ff',
+        weaponReq: 'quantumDagger', trinketReq: 'magnet',
+        req: ['quantumDagger', 'magnet'],
+        formula: 'Kuantum Hançeri Lv.5 + Mıknatıs Çekirdeği Lv.5',
+        desc: 'Kritik hançer vuruşları alansal bir Kara Delik (Black Hole) açar ve çevredeki tüm parazitleri içine çekip ezer.'
+    },
+    titanCore: {
+        id: 'titanCore', kind: 'evolution',
+        name: 'Titan Koronası', icon: '☀️', color: '#ff8800',
+        weaponReq: 'flameLine', trinketReq: 'shieldMatrix',
+        req: ['flameLine', 'shieldMatrix'],
+        formula: 'Alev Hattı Lv.5 + Deflektör Matrisi Lv.5',
+        desc: 'Alev koridoru devasa güneş halkasına dönüşür ve her 2.5 saniyede bir ekran çapında yakıcı Termal Nova yayar.'
+    },
+    quantumArbiter: {
+        id: 'quantumArbiter', kind: 'evolution',
+        name: 'Kuantum Yargıç', icon: '🔱', color: '#ffd700',
+        weaponReq: 'swarmMissiles', trinketReq: 'targetMatrix',
+        req: ['swarmMissiles', 'targetMatrix'],
+        formula: 'Füze Sürüsü Lv.5 + Kuantum Nişangah Lv.5',
+        desc: 'Füzeler düşmanları delip geçen kuantum mızraklarına dönüşür; her delmede +%25 güçlenir ve hedefleri yavaşlatır.'
+    }
+};
+
+// ── 3 Kozmik Süper / Mega Evrim (2 Evrimleşmiş Silah Birleşir ➔ 1 Süper Evrim + 1 Boş Silah Slotu!) ──
+const SUPER_EVOLUTIONS = {
+    infernoGatling: {
+        id: 'infernoGatling', kind: 'superEvolution',
+        name: 'Cehennem Gatling\'i', icon: '🔥', color: '#ff0055',
+        evoReqs: ['bloodHarvest', 'gatlingStorm'],
+        req: ['bloodHarvest', 'gatlingStorm'],
+        formula: 'Kan Hasadı + Gatling Fırtınası (SÜPER EVRİM)',
+        desc: 'Seken kızıl cehennem mermileri yağdırır; her sekmede plazma patlaması yaratır ve pilotu sürekli iyileştirir! (+1 Silah Slotu Açar)'
+    },
+    eventHorizon: {
+        id: 'eventHorizon', kind: 'superEvolution',
+        name: 'Olay Ufku Tekilliği', icon: '🕳️', color: '#00f0ff',
+        evoReqs: ['cosmicSupernova', 'aegisResonance'],
+        req: ['cosmicSupernova', 'aegisResonance'],
+        formula: 'Kozmik Süpernova + Aegis Rezonansı (SÜPER EVRİM)',
+        desc: 'Yörüngede olay ufku testereleri dönerken her kritikte EMP şoklu çifte Kara Delik açar! (+1 Silah Slotu Açar)'
+    },
+    omegaJudgement: {
+        id: 'omegaJudgement', kind: 'superEvolution',
+        name: 'Omega Kıyamet Reaktörü', icon: '👑', color: '#ffd700',
+        evoReqs: ['titanCore', 'quantumArbiter'],
+        req: ['titanCore', 'quantumArbiter'],
+        formula: 'Titan Koronası + Kuantum Yargıç (SÜPER EVRİM)',
+        desc: 'Sürekli güneş koronası yayarken tüm ekrana delici termonükleer kuantum mızrakları yağdırır! (+1 Silah Slotu Açar)'
+    }
+};
+
+const FUSIONS = Object.assign({}, EVOLUTIONS, SUPER_EVOLUTIONS);
+
+// ── Kozmik Çürüme / Radyasyon (Dalga 25+ İyileşme/Kalkan Zayıflaması) ──
+function getCosmicDecay() {
+    if (wave < 25) return 1.0;
+    return Math.max(0.15, Math.pow(0.96, wave - 24));
+}
+
+// ── Yardımcı Matematik Fonksiyonları ──
+function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+function ang(a, b) { return Math.atan2(b.y - a.y, b.x - a.x); }
+function rand(a, b) { return a + Math.random() * (b - a); }
+function randInt(a, b) { return Math.floor(rand(a, b + 1)); }
+function lerp(a, b, t) { return a + (b - a) * t; }
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+// ── Oyun Durumu ve Kritik Kilit Değişkenleri ──
+let gameState = 'playing';
+let isLevelingUp = false; // KRİTİK 3-TUŞ AÇIĞI KİLİDİ (Senkron Atomik Bayrak)
+window.isLevelingUp = false;
+
+let score = 0, wave = 1, comboC = 0, comboTm = 0, comboM = 1, gameTime = 0, totalKills = 0;
+let shakeI = 0, screenFl = 0, screenFC = '#fff';
+let bossActive = null, slowT = 0, slowF = 1;
+let bossRewardActive = false, bossRewardTimer = 0;
+let waveSp = 0, waveEC = 10, waveTm = 0, waveDl = 1.2;
+let perfMode = false;
+
+// DPS Telemetrisi
+let dpsWindowDmg = 0;
+let currentDps = 0;
+let dpsTimer = 0;
+let totalDamageDealt = 0;
+
+const keys = {};
+let levelUpQueue = [];
+let levelUpActiveChoices = [];
+let levelingPlayer = null;
+
+// Harita Çevresel Dizileri
+const bullets = [];
+const eBullets = [];
+const enemies = [];
+const pickups = [];
 const particles = [];
+const floats = [];
+const dangerZones = [];
+const laserTrails = [];
+const blackHoles = [];
+const gravityRifts = [];
+const mapDebris = [];      // Harita 1: Dönen hurda metaller
+const gasClouds = [];      // Harita 2: Hızlandıran/yavaşlatan gaz bulutları
+const lavaAsteroids = [];  // Harita 3: Patlayan lav asteroidleri
+
+// ── Görsel Efekt & Partikül Sınıfı ──
 class Particle {
-    constructor(x, y, vx, vy, c, l, s, t = 'circle') {
+    constructor(x, y, vx, vy, c, l, s, type = 'dot') {
         this.x = x; this.y = y; this.vx = vx; this.vy = vy;
-        this.c = c; this.l = l; this.ml = l; this.s = s; this.t = t;
+        this.c = c; this.l = l; this.ml = l; this.s = s; this.type = type;
+        this.a = rand(0, Math.PI * 2);
     }
     update(dt) {
         this.x += this.vx * dt; this.y += this.vy * dt;
         this.vx *= 0.96; this.vy *= 0.96;
-        this.l -= dt; return this.l > 0;
+        this.l -= dt;
+        return this.l > 0;
     }
     draw(ctx) {
-        const a = clamp(this.l / this.ml, 0, 1);
-        ctx.globalAlpha = a * 0.85;
-        ctx.fillStyle = this.c;
-        if (this.t === 'circle') {
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.s * a, 0, Math.PI * 2); ctx.fill();
-        } else if (this.t === 'shard') {
-            ctx.save(); ctx.translate(this.x, this.y); ctx.rotate((this.ml - this.l) * 9 + this.s);
-            ctx.strokeStyle = this.c; ctx.lineWidth = 1.6;
-            ctx.beginPath(); ctx.moveTo(-this.s, 0); ctx.lineTo(this.s * 0.6, -this.s * 0.7); ctx.lineTo(this.s * 0.6, this.s * 0.7); ctx.closePath(); ctx.stroke();
-            ctx.restore();
-        } else if (this.t === 'shockwave') {
-            ctx.strokeStyle = this.c; ctx.lineWidth = 3 * a;
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.s * (1 - a) * 3, 0, Math.PI * 2); ctx.stroke();
+        const k = clamp(this.l / this.ml, 0, 1);
+        ctx.save();
+        ctx.globalAlpha = k;
+        if (this.type === 'shockwave') {
+            ctx.strokeStyle = this.c;
+            ctx.lineWidth = 3 * k + 1;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.s * (1 - k * 0.85), 0, Math.PI * 2);
+            ctx.stroke();
+        } else if (this.type === 'spark') {
+            ctx.strokeStyle = this.c;
+            ctx.lineWidth = this.s * k;
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x - this.vx * 0.035, this.y - this.vy * 0.035);
+            ctx.stroke();
         } else {
-            ctx.save(); ctx.translate(this.x, this.y);
-            ctx.rotate(Math.atan2(this.vy, this.vx));
-            ctx.fillRect(-this.s * 2, -this.s * 0.3, this.s * 4, this.s * 0.6);
-            ctx.restore();
+            ctx.fillStyle = this.c;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, Math.max(0.5, this.s * k), 0, Math.PI * 2);
+            ctx.fill();
         }
-        ctx.globalAlpha = 1;
+        ctx.restore();
     }
 }
-let perfMode = localStorage.getItem('cosmic_perf_mode') === 'true';
 
-function spawnP(x, y, c, n, sp = 150, li = 0.5, sz = 3, type = 'circle') {
-    const currentMax = perfMode ? 80 : 250;
-    if (particles.length >= currentMax) {
-        // Eski partikülleri temizle
-        particles.splice(0, Math.min(n, particles.length - currentMax + n));
-    }
-    const actualN = perfMode ? Math.max(1, Math.floor(n * 0.6)) : n;
-    for (let i = 0; i < actualN; i++) {
-        const a = rand(0, Math.PI * 2), s = rand(sp * 0.3, sp);
-        particles.push(new Particle(x, y, Math.cos(a) * s, Math.sin(a) * s, c, rand(li * 0.5, li), rand(sz * 0.5, sz), type));
+function spawnP(x, y, c, n = 6, sp = 120, l = 0.35, s = 2.5, type = 'dot') {
+    const cnt = perfMode ? Math.max(1, Math.floor(n * 0.4)) : n;
+    for (let i = 0; i < cnt; i++) {
+        const a = rand(0, Math.PI * 2), v = rand(sp * 0.25, sp);
+        particles.push(new Particle(x, y, Math.cos(a) * v, Math.sin(a) * v, c, rand(l * 0.6, l), s, type));
     }
 }
+
 function spawnExp(x, y, c, sc = 1) {
-    const clampedSc = Math.min(sc, perfMode ? 1.2 : 3.0);
-    spawnP(x, y, c, Math.floor((perfMode ? 12 : 20) * clampedSc), 220 * clampedSc, 0.7, 3.5 * clampedSc);
-    spawnP(x, y, '#fff', Math.floor((perfMode ? 4 : 8) * clampedSc), 130 * clampedSc, 0.3, 2);
-    particles.push(new Particle(x, y, 0, 0, c, 0.35, 35 * clampedSc, 'shockwave'));
+    spawnP(x, y, c, Math.floor(14 * sc), 220 * sc, 0.45, 3.2 * sc, 'spark');
+    particles.push(new Particle(x, y, 0, 0, c, 0.32, 42 * sc, 'shockwave'));
 }
 
-// Neon motor itki partikülleri (geminin hareket yönünün tersine)
-function spawnThrust(x, y, facing, color, power = 1) {
-    const max = perfMode ? 80 : 250;
-    if (particles.length >= max) return;
-    const back = facing + Math.PI, a = back + rand(-0.35, 0.35), sp = rand(60, 140) * power;
-    particles.push(new Particle(x + Math.cos(back) * 10, y + Math.sin(back) * 10, Math.cos(a) * sp, Math.sin(a) * sp,
-        Math.random() < 0.3 ? '#ffffff' : color, rand(0.18, 0.4), rand(1.6, 3.2) * power));
+function floatT(x, y, txt, c = '#fff', sz = 14) {
+    if (floats.length > 35) floats.shift();
+    floats.push({ x, y, txt, c, sz, vy: -42, l: 0.85, ml: 0.85 });
 }
 
-// Warp Dash lazer izi
-const laserTrails = [];
-let trailDmgT = 0;
-function updateLaserTrails(dt) {
-    for (let i = laserTrails.length - 1; i >= 0; i--) { laserTrails[i].l -= dt; if (laserTrails[i].l <= 0) laserTrails.splice(i, 1); }
-    trailDmgT -= dt;
-    if (trailDmgT > 0) return;
-    trailDmgT = 0.1;
-    if (laserTrails.length === 0) return;
-    for (const e of enemies) {
-        if (!e.alive) continue;
-        for (const t of laserTrails) {
-            const rr = e.r + 20;
-            if (Math.abs(t.x - e.x) < rr && Math.abs(t.y - e.y) < rr && dist(t, e) < rr) {
-                const owner = t.owner === 1 ? p1 : p2;
-                e.takeDmg(Math.max(8, owner.bd * 2.4 * t.l), false);
-                spawnP(e.x, e.y, t.c, 3, 160, 0.25, 2, 'spark');
-                break;
-            }
+function shake(v) { shakeI = Math.max(shakeI, v); }
+
+// ── Harita Çevre Kurulumu (3 Harita) ──
+function initMapEnvironment() {
+    mapDebris.length = 0;
+    gasClouds.length = 0;
+    lavaAsteroids.length = 0;
+
+    if (SELECTED_MAP === 'sector9') {
+        for (let i = 0; i < 6; i++) {
+            mapDebris.push({
+                x: rand(140, canvas.width - 140),
+                y: rand(120, canvas.height - 120),
+                r: rand(26, 40),
+                a: rand(0, Math.PI * 2),
+                va: rand(-0.8, 0.8) || 0.5,
+                vx: rand(-18, 18),
+                vy: rand(-18, 18),
+                sides: randInt(5, 7)
+            });
+        }
+    } else if (SELECTED_MAP === 'nebula') {
+        for (let i = 0; i < 6; i++) {
+            const isBoost = i % 2 === 0;
+            gasClouds.push({
+                x: rand(120, canvas.width - 120),
+                y: rand(120, canvas.height - 120),
+                r: rand(95, 135),
+                vx: rand(-22, 22),
+                vy: rand(-22, 22),
+                type: isBoost ? 'boost' : 'slow',
+                color: isBoost ? '#00f0ff' : '#bf00ff',
+                label: isBoost ? '⚡ İYON AKIMI (+%35 HIZ)' : '🌫️ STASİS SİSİ (-%30 HIZ)'
+            });
+        }
+    } else if (SELECTED_MAP === 'blackhole') {
+        for (let i = 0; i < 5; i++) {
+            spawnLavaAsteroid();
         }
     }
 }
-function drawLaserTrails(ctx) {
-    if (laserTrails.length < 2) return;
-    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
-    for (let i = 1; i < laserTrails.length; i++) {
-        const a = laserTrails[i - 1], b = laserTrails[i];
-        if (a.owner !== b.owner || Math.hypot(a.x - b.x, a.y - b.y) > 90) continue;
-        ctx.globalAlpha = 0.55 * b.l; ctx.strokeStyle = b.c; ctx.lineWidth = 12 * b.l + 2;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-        ctx.globalAlpha = 0.9 * b.l; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5 * b.l + 0.5;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-    }
-    ctx.restore();
+
+function spawnLavaAsteroid() {
+    const side = randInt(0, 3);
+    let x = rand(80, canvas.width - 80), y = rand(80, canvas.height - 80);
+    if (side === 0) y = 40;
+    else if (side === 1) y = canvas.height - 40;
+    else if (side === 2) x = 40;
+    else x = canvas.width - 40;
+    lavaAsteroids.push({
+        x, y,
+        vx: rand(-45, 45),
+        vy: rand(-45, 45),
+        r: rand(22, 32),
+        hp: 45 + wave * 8,
+        a: rand(0, Math.PI * 2)
+    });
 }
 
-// Düşmanlar için dinamik neon çekirdek, yörünge ışıkları ve hız izi
-function drawEnemyFx(ctx, e) {
-    if (!e.alive) return;
-    const t = performance.now() / 1000 + e.aA, pulse = 0.5 + 0.5 * Math.sin(t * 5);
-    ctx.save(); ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.3 + pulse * 0.35; ctx.fillStyle = e.color;
-    ctx.beginPath(); ctx.arc(e.x, e.y, e.r * 0.28, 0, Math.PI * 2); ctx.fill();
-    ctx.globalAlpha = 0.8; ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(e.x, e.y, e.r * 0.1, 0, Math.PI * 2); ctx.fill();
-    if (!perfMode) {
-        ctx.globalAlpha = 0.85; ctx.fillStyle = e.color;
-        for (let i = 0; i < 2; i++) {
-            const a = t * 2.2 + i * Math.PI;
-            ctx.beginPath(); ctx.arc(e.x + Math.cos(a) * (e.r + 4), e.y + Math.sin(a) * (e.r + 4), 1.8, 0, Math.PI * 2); ctx.fill();
-        }
-    }
-    if (Math.hypot(e.vx, e.vy) > 90) {
-        ctx.globalAlpha = 0.25; ctx.strokeStyle = e.color; ctx.lineWidth = e.r * 0.7; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x - e.vx * 0.07, e.y - e.vy * 0.07); ctx.stroke();
-    }
-    ctx.restore();
-}
-
-let shakeI = 0;
-function shake(i) { shakeI = Math.max(shakeI, i); }
-const floats = [];
-function floatT(x, y, t, c, s = 18) { floats.push({ x, y, t, c, s, l: 1.2, ml: 1.2, vy: -55 }); }
-
-// Arka plan Parallaks Yıldızlar ve Nebulalar
-const starLayers = [
-    { stars: [], speed: 0.1, size: 0.8, color: 'rgba(255,255,255,0.3)' },
-    { stars: [], speed: 0.3, size: 1.5, color: 'rgba(255,255,255,0.6)' },
-    { stars: [], speed: 0.7, size: 2.2, color: 'rgba(255,255,255,0.9)' }
-];
-for (const layer of starLayers) {
-    for (let i = 0; i < 60; i++) {
-        layer.stars.push({ x: rand(0, 2000), y: rand(0, 1500), tw: rand(1, 4) });
-    }
-}
-const nebulae = []; for (let i = 0; i < 6; i++) nebulae.push({ x: rand(0, 1920), y: rand(0, 1080), r: rand(180, 450), h: rand(180, 320), a: rand(0.02, 0.05) });
-
-// ── Zorluk Konfigürasyonu ──
-const DIFF = {
-    easy: { label: 'KOLAY', cls: 'easy', ehm: 0.75, esm: 0.75, edm: 0.65, wsr: 0.04, sd: 2.3, pc: 0.20, bhm: 0.7, bsr: 0.7, xm: 1.2, sm: 0.8, sr: 3.2, bwe: 5, mwe: 35 },
-    medium: { label: 'ORTA', cls: 'medium', ehm: 1.05, esm: 1.0, edm: 1.0, wsr: 0.08, sd: 1.4, pc: 0.12, bhm: 1.0, bsr: 1.0, xm: 1.0, sm: 1.0, sr: 2.4, bwe: 7, mwe: 55 },
-    hard: { label: 'ZOR', cls: 'hard', ehm: 1.85, esm: 1.45, edm: 1.85, wsr: 0.16, sd: 0.75, pc: 0.05, bhm: 1.9, bsr: 1.45, xm: 0.75, sm: 1.7, sr: 1.4, bwe: 9, mwe: 95 },
-};
-const DC = DIFF[DIFFKEY];
-
-// ── Yetenek Geliştirme Kartları ──
-const UPG = {
-    atkUp: { icon: '⚔', name: 'Hasar+', color: '#ff8800', desc: 'Mermi hasarı +15%' },
-    spdUp: { icon: '⚡', name: 'Hız+', color: '#00ccff', desc: 'Hareket hızı +10%' },
-    fireUp: { icon: '»', name: 'Ateş Hızı+', color: '#ffff00', desc: 'Ateş hızı +12%' },
-    hpUp: { icon: '♥', name: 'Can+', color: '#ff4444', desc: 'Maks can +20' },
-    shieldUp: { icon: '◆', name: 'Kalkan+', color: '#bf00ff', desc: 'Maks kalkan +15' },
-    rangeUp: { icon: '◎', name: 'Menzil+', color: '#44ff44', desc: 'Mermi menzili +15%' },
-    multiUp: { icon: '⋮', name: 'Çoklu Atış', color: '#00ff88', desc: 'Ek mermi namlusu' },
-    vampUp: { icon: '☽', name: 'Vampir', color: '#cc0044', desc: 'Öldürmede +3 can' },
-    critUp: { icon: '✶', name: 'Kritik+', color: '#ffffff', desc: '%10 kritik şansı' },
-};
-const UPG_KEYS = Object.keys(UPG);
-
-// ── Megaponk 5-Slot & Perk Füzyon (Evrim) Mimarisi ──
-const MAX_PERK_SLOTS = 5;
-const MAX_PERK_LEVEL = 5;
-
-const FUSIONS = {
-    bloodHarvest: {
-        id: 'bloodHarvest',
-        name: 'Kan Hasadı',
-        icon: '🩸',
-        color: '#ff1744',
-        req: ['vampUp', 'atkUp'],
-        formula: 'Vampir Lv.5 + Hasar+ Lv.5',
-        desc: 'Her vuruş plazma patlaması yayar, verilen hasarın %10\'unu cana çevirir (+%85 Hasar).'
-    },
-    gatlingStorm: {
-        id: 'gatlingStorm',
-        name: 'Gatling Fırtınası',
-        icon: '🌩️',
-        color: '#00ff88',
-        req: ['fireUp', 'multiUp'],
-        formula: 'Ateş Hızı+ Lv.5 + Çoklu Atış Lv.5',
-        desc: 'Mermiler aşırı hızla yağar (+%90 Ateş Hızı, +3 Namlu) ve düşmanlar arasında 3 kez seker.'
-    },
-    aegisResonance: {
-        id: 'aegisResonance',
-        name: 'Aegis Rezonansı',
-        icon: '💠',
-        color: '#00f0ff',
-        req: ['shieldUp', 'spdUp'],
-        formula: 'Kalkan+ Lv.5 + Hız+ Lv.5',
-        desc: 'Hareket ettikçe kalkan hızla dolar; kalkan kırılınca tüm ekranı temizleyen EMP patlar.'
-    },
-    cosmicSupernova: {
-        id: 'cosmicSupernova',
-        name: 'Kozmik Süpernova',
-        icon: '🕳️',
-        color: '#bf00ff',
-        req: ['critUp', 'rangeUp'],
-        formula: 'Kritik+ Lv.5 + Menzil+ Lv.5',
-        desc: 'Kritik vuruşlar %100 alansal kara delik açarak düşmanları içine çeker ve ezer.'
-    },
-    titanCore: {
-        id: 'titanCore',
-        name: 'Titan Çekirdeği',
-        icon: '☀️',
-        color: '#ff8800',
-        req: ['hpUp', 'atkUp'],
-        formula: 'Can+ Lv.5 + Hasar+ Lv.5',
-        desc: '+140 Maks Can, %25 Zırh Direnci ve her 3 saniyede bir Maks Canın %25\'i gücünde termal şok halkası.'
-    },
-    quantumArbiter: {
-        id: 'quantumArbiter',
-        name: 'Kuantum Yargıç',
-        icon: '🔱',
-        color: '#ffd700',
-        req: ['hpUp', 'multiUp'],
-        formula: 'Can+ Lv.5 + Çoklu Atış Lv.5',
-        desc: 'Mermiler delici kuantum mızraklarına dönüşür; deldiği her düşmana +%25 zincirleme hasar verir.'
-    }
-};
-const FUSION_KEYS = Object.keys(FUSIONS);
-
-// ── Dalga 25+ Kozmik Çürüme / Radyasyon Katsayısı ──
-function getCosmicDecay() {
-    if (wave < 25) return 1.0;
-    return Math.max(0.12, 1.0 - (wave - 24) * 0.04);
-}
-
-// ── Aktif Yetenekler (P1: SPACE / P2: ENTER / Mobil: dokunmatik buton) ──
-const ABILITY = {
-    interceptor: { name: 'WARP DASH', cd: 8, color: '#00f0ff' },
-    dreadnought: { name: 'MİKRO FÜZE SALVOSU', cd: 11, color: '#ffaa00' },
-    aegis: { name: 'EMP ŞOK DALGASI', cd: 12, color: '#bf00ff' }
-};
-
-// ── Global Oyun Durumu ──
-let gameState = 'playing';
-let score = 0, wave = 1, gameTime = 0, totalKills = 0;
-let comboC = 0, comboTm = 0, comboM = 1;
-let waveTm = 0, waveEC = 0, waveSp = 0, waveDl = 0;
-let linkDT = 0, screenFl = 0, screenFC = '#fff';
-let bossActive = null, slowT = 0, slowF = 1;
-let bossRewardTimer = 0, bossRewardActive = false;
-let beamOverloadTimer = 0;
-const bullets = [], eBullets = [], enemies = [], pickups = [], dangerZones = [], blackHoles = [], gravityRifts = [];
-
-// Seviye Atlama Kuyruğu ve Aktif Seçim Durumu
-let levelUpQueue = [];
-let levelingPlayer = null;
-let levelUpActiveChoices = [];
-
-// ── Oyuncu Sınıfı ──
+// ── Pilot (Player) Sınıfı ──
 class Player {
-    constructor(id, x, y, c, cd, name, shipClass) {
-        this.id = id; this.x = x; this.y = y; this.c = c; this.cd = cd;
-        this.name = name;
-        this.shipClass = shipClass || 'interceptor';
-        this.r = 14; this.vx = 0; this.vy = 0;
-        
-        // Gemi Sınıfına Göre Başlangıç Statları
-        if (this.shipClass === 'dreadnought') {
-            this.bmh = 145; this.bms = 45; this.bsp = 210; this.bbd = 14; this.bsr = 0.25; this.crit = 0.05;
-        } else if (this.shipClass === 'aegis') {
-            this.bmh = 100; this.bms = 60; this.bsp = 255; this.bbd = 9; this.bsr = 0.22; this.crit = 0.05;
-        } else { // interceptor
-            this.bmh = 85; this.bms = 30; this.bsp = 300; this.bbd = 10; this.bsr = 0.18; this.crit = 0.15;
-        }
-        
-        this.mh = this.bmh; this.hp = this.mh;
-        this.ms = this.bms; this.sh = 0;
-        this.sp = this.bsp;
-        this.sr = this.bsr;
-        this.bd = this.bbd;
-        this.bsp2 = 580; this.bs = 4; this.bbl = 1.2; this.bl = 1.2;
-        
-        this.alive = true; this.respT = 0; this.invT = 0;
-        this.fac = 0; this.trail = []; this.aA = rand(0, Math.PI * 2); this.gl = 0;
-        this.sT = 0; this.xp = 0; this.lv = 1; this.xpN = 50;
-        this.pU = {}; this.fusions = {}; this.slotOrder = []; this.tP = {};
-        this.extraS = 0; this.vamp = 0; this.magR = 80;
-        this.abMax = (ABILITY[this.shipClass] || ABILITY.interceptor).cd; this.abCd = 3;
-        this.dashT = 0; this.salvoT = 0; this.salvoTick = 0; this.salvoA = 0;
-        this.shieldHit = 0; this.abFlash = 0; this.trailTick = 0; this.lightT = rand(0, 6);
-        this.empNovaCd = 0; this.blackHoleCd = 0; this.titanPulseT = 3.0;
-        this.healBudget = 20; this.shRegenDelay = 0;
+    constructor(id, x, y, shipId) {
+        this.id = id;
+        this.shipClass = SHIPS[shipId] ? shipId : 'interceptor';
+        const cfg = SHIPS[this.shipClass];
+        this.name = P1_NAME;
+        this.c = cfg.color;
+        this.r = 16;
+        this.reset(x, y);
     }
+
     reset(x, y) {
-        this.x = x; this.y = y; this.vx = 0; this.vy = 0;
-        this.hp = this.mh; this.sh = 0; this.alive = true;
-        this.respT = 0; this.invT = 2.5; this.sT = 0; this.dashT = 0; this.salvoT = 0;
-        this.trail = [];
-        this.recalc();
+        const cfg = SHIPS[this.shipClass];
+        this.x = x; this.y = y;
+        this.vx = 0; this.vy = 0;
+        this.fac = -Math.PI / 2;
+        this.alive = true;
+
+        // 4 Silah + 4 Alet Envanteri
+        this.weapons = {};        // weaponKey -> level (1..5)
+        this.trinkets = {};       // trinketKey -> level (1..5)
+        this.evolutions = {};     // evoKey -> true
+        this.superEvolutions = {};// superKey -> true
+        this.pU = {};             // Birleşik görünüm (Geriye dönük uyumluluk)
+        this.fusions = {};        // Birleşik evrim görünümü
+        this.slotOrder = [];
+
+        // Başlangıç Silahı (Lv.1)
+        this.weapons[cfg.starterWeapon] = 1;
+        this.pU[cfg.starterWeapon] = 1;
+
+        // Reroll (2) & Skip (1) Hakları
+        this.rerollsLeft = 2;
+        this.skipsLeft = 1;
+
+        this.lv = 1;
+        this.xp = 0;
+        this.xpN = 80;
+
+        this.invT = 2.0;
+        this.dashT = 0;
+        this.salvoT = 0;
+        this.salvoTick = 0;
+        this.salvoA = 0;
+        this.abCd = 0;
+        this.abMax = cfg.abilityCd;
+        this.shieldHit = 0;
+        this.shRegenDelay = 0;
+        this.healBudget = 25;
+
+        // Gemiye özel pasif zamanlayıcılar
+        this.stealthCycleT = 10.0;
+        this.stealthT = 0;
+        this.aegisPulseT = 6.0;
+        this.solarTickT = 0.25;
+        this.titanPulseT = 2.5;
+        this.empNovaCd = 0;
+        this.blackHoleCd = 0;
+        this.discAngle = 0;
+
+        // Silah ateşleme sayaçları
+        this.wTimers = {
+            dualLaser: 0,
+            heavyPlasma: 0,
+            quantumDagger: 0,
+            flameLine: 0,
+            swarmMissiles: 0
+        };
+
+        this.recalcStats(true);
     }
+
+    usedWeaponSlots() {
+        return Object.keys(this.weapons).length +
+               Object.keys(this.evolutions).length +
+               Object.keys(this.superEvolutions).length;
+    }
+
+    usedTrinketSlots() {
+        return Object.keys(this.trinkets).length;
+    }
+
     usedSlots() {
-        return Object.keys(this.pU).length + Object.keys(this.fusions).length;
+        return this.usedWeaponSlots() + this.usedTrinketSlots();
     }
-    syncSlotOrder() {
-        const next = [];
-        for (const item of this.slotOrder) {
-            if (item.type === 'fusion' && this.fusions[item.key]) next.push(item);
-            else if (item.type === 'perk' && this.pU[item.key] > 0) next.push(item);
-        }
-        for (const fk of Object.keys(this.fusions)) {
-            if (!next.some(x => x.type === 'fusion' && x.key === fk)) next.push({ type: 'fusion', key: fk });
-        }
-        for (const pk of Object.keys(this.pU)) {
-            if (this.pU[pk] > 0 && !next.some(x => x.type === 'perk' && x.key === pk)) next.push({ type: 'perk', key: pk });
-        }
-        this.slotOrder = next.slice(0, MAX_PERK_SLOTS);
+
+    syncLegacyMaps() {
+        this.pU = Object.assign({}, this.weapons, this.trinkets);
+        this.fusions = Object.assign({}, this.evolutions, this.superEvolutions);
+        this.slotOrder = [];
+        for (const sk of Object.keys(this.superEvolutions)) this.slotOrder.push({ type: 'super', key: sk });
+        for (const ek of Object.keys(this.evolutions)) this.slotOrder.push({ type: 'fusion', key: ek });
+        for (const wk of Object.keys(this.weapons)) this.slotOrder.push({ type: 'weapon', key: wk });
+        for (const tk of Object.keys(this.trinkets)) this.slotOrder.push({ type: 'trinket', key: tk });
     }
-    getReadyFusions() {
+
+    recalcStats(fullHeal = false) {
+        const cfg = SHIPS[this.shipClass];
+        const bioLv = this.trinkets.bioreactor || 0;
+        const shLv = this.trinkets.shieldMatrix || 0;
+        const thrLv = this.trinkets.thruster || 0;
+        const coolLv = this.trinkets.coolant || 0;
+        const magLv = this.trinkets.magnet || 0;
+        const tgtLv = this.trinkets.targetMatrix || 0;
+
+        const oldMh = this.mh || cfg.hp;
+        const oldMs = this.ms || cfg.sh;
+
+        this.mh = cfg.hp + bioLv * 32 + (this.fusions.titanCore || this.superEvolutions.omegaJudgement ? 130 : 0);
+        this.ms = cfg.sh + shLv * 35 + (this.fusions.aegisResonance || this.superEvolutions.eventHorizon ? 85 : 0);
+
+        if (fullHeal) {
+            this.hp = this.mh;
+            this.sh = this.ms;
+        } else {
+            if (this.mh > oldMh) this.hp = Math.min(this.mh, (this.hp || oldMh) + (this.mh - oldMh));
+            if (this.ms > oldMs) this.sh = Math.min(this.ms, (this.sh || oldMs) + (this.ms - oldMs));
+        }
+
+        this.sp = cfg.sp * (1 + thrLv * 0.12) * (this.fusions.aegisResonance || this.superEvolutions.eventHorizon ? 1.22 : 1);
+        this.armor = Math.min(0.65, cfg.armor + thrLv * 0.06 + (this.fusions.titanCore || this.superEvolutions.omegaJudgement ? 0.20 : 0));
+        this.cdMult = Math.max(0.32, Math.pow(0.86, coolLv));
+        this.dmgMult = (1 + tgtLv * 0.16) * (this.fusions.bloodHarvest || this.superEvolutions.infernoGatling ? 1.35 : 1);
+        this.crit = Math.min(0.85, cfg.crit + tgtLv * 0.09 + (this.fusions.cosmicSupernova || this.superEvolutions.eventHorizon ? 0.18 : 0));
+        this.magR = 115 * (1 + magLv * 0.35) * (this.fusions.cosmicSupernova ? 1.25 : 1);
+        this.rangeMult = 1 + magLv * 0.15;
+        this.bioRegen = bioLv * 2.5;
+        this.abMax = cfg.abilityCd * this.cdMult;
+        this.bd = 18 * this.dmgMult;
+        this.sr = 0.22 * this.cdMult;
+
+        this.syncLegacyMaps();
+    }
+
+    getReadyEvolutions() {
         const list = [];
-        for (const fk of FUSION_KEYS) {
-            if (this.fusions[fk]) continue;
-            const f = FUSIONS[fk];
-            if ((this.pU[f.req[0]] || 0) >= MAX_PERK_LEVEL && (this.pU[f.req[1]] || 0) >= MAX_PERK_LEVEL) {
-                list.push(f);
+        for (const ek of Object.keys(EVOLUTIONS)) {
+            const ev = EVOLUTIONS[ek];
+            if (this.evolutions[ek] || this.superEvolutions.infernoGatling || this.superEvolutions.eventHorizon || this.superEvolutions.omegaJudgement) {
+                // Eğer bu evrim zaten yapıldıysa veya süper evrime dönüştüyse atla
+                if (this.evolutions[ek]) continue;
+                const usedInSuper = Object.keys(this.superEvolutions).some(sk => SUPER_EVOLUTIONS[sk].evoReqs.includes(ek));
+                if (usedInSuper) continue;
+            }
+            const wLv = this.weapons[ev.weaponReq] || 0;
+            const tLv = this.trinkets[ev.trinketReq] || 0;
+            if (wLv >= MAX_PERK_LEVEL && tLv >= MAX_PERK_LEVEL) {
+                list.push(ev);
             }
         }
         return list;
     }
-    getPairedPerks() {
-        const paired = new Set();
-        for (const fk of FUSION_KEYS) {
-            if (this.fusions[fk]) continue;
-            const [a, b] = FUSIONS[fk].req;
-            if ((this.pU[a] || 0) > 0 && (this.pU[b] || 0) > 0) {
-                paired.add(a); paired.add(b);
+
+    getReadySuperEvolutions() {
+        const list = [];
+        for (const sk of Object.keys(SUPER_EVOLUTIONS)) {
+            if (this.superEvolutions[sk]) continue;
+            const sev = SUPER_EVOLUTIONS[sk];
+            if (this.evolutions[sev.evoReqs[0]] && this.evolutions[sev.evoReqs[1]]) {
+                list.push(sev);
             }
         }
-        return paired;
+        return list;
     }
-    recalc() {
-        const c = k => Math.min(MAX_PERK_LEVEL, this.pU[k] || 0);
-        const f = k => !!this.fusions[k];
-        const atkBonus = c('atkUp') * 0.15 + (f('bloodHarvest') ? 0.85 : 0) + (f('titanCore') ? 0.85 : 0);
-        const spdBonus = c('spdUp') * 0.10 + (f('aegisResonance') ? 0.60 : 0);
-        const fireBonus = c('fireUp') * 0.12 + (f('gatlingStorm') ? 0.95 : 0);
-        const hpBonus = c('hpUp') * 20 + (f('titanCore') ? 140 : 0) + (f('quantumArbiter') ? 130 : 0);
-        const shBonus = c('shieldUp') * 15 + (f('aegisResonance') ? 90 : 0);
-        const rngBonus = c('rangeUp') * 0.15 + (f('cosmicSupernova') ? 0.85 : 0) + (f('quantumArbiter') ? 0.45 : 0);
 
-        this.bd = this.bbd * (1 + atkBonus);
-        this.sp = this.bsp * (1 + spdBonus);
-        this.sr = Math.max(0.055, this.bsr / (1 + fireBonus));
-        this.mh = this.bmh + hpBonus;
-        this.ms = this.bms + shBonus;
-        this.bl = this.bbl * (1 + rngBonus);
-        this.extraS = Math.floor(c('multiUp')) + (f('gatlingStorm') ? 3 : 0) + (f('quantumArbiter') ? 3 : 0);
-        this.vamp = c('vampUp') * 2.5 + (f('bloodHarvest') ? 6 : 0);
-        this.crit = Math.min(0.85, (this.shipClass === 'interceptor' ? 0.15 : 0.05) + c('critUp') * 0.10 + (f('cosmicSupernova') ? 0.55 : 0));
-        this.magR = 80 + c('spdUp') * 15 + (f('aegisResonance') ? 90 : 0);
-        this.hp = Math.min(this.hp, this.mh);
-        this.sh = Math.min(this.sh, this.ms);
-        this.syncSlotOrder();
+    // Geriye dönük uyumluluk: getReadyFusions hem Standart hem Süper Evrimleri döndürür
+    getReadyFusions() {
+        return [...this.getReadySuperEvolutions(), ...this.getReadyEvolutions()];
     }
+
     addUpg(k, lvAdd = 1) {
-        if (!this.pU[k] && this.usedSlots() >= MAX_PERK_SLOTS) return false;
-        this.pU[k] = Math.min(MAX_PERK_LEVEL, Math.floor((this.pU[k] || 0) + lvAdd));
-        this.recalc();
+        // Eski perk anahtarlarını yeni v7.0 silah/alet anahtarlarına eşle (Test & Geriye Dönük Uyumluluk)
+        const legacyMap = {
+            atkUp: 'heavyPlasma',
+            vampUp: 'bioreactor',
+            fireUp: 'dualLaser',
+            multiUp: 'coolant',
+            shieldUp: 'energyDisc',
+            spdUp: 'thruster',
+            critUp: 'quantumDagger',
+            rangeUp: 'magnet',
+            hpUp: 'flameLine'
+        };
+        const key = UPG[k] ? k : (legacyMap[k] || k);
+        const item = UPG[key];
+        if (!item) return false;
+
+        if (item.kind === 'weapon') {
+            if (this.evolutions[item.evoId]) return false;
+            const cur = this.weapons[key] || 0;
+            if (cur >= MAX_PERK_LEVEL) return false;
+            if (cur === 0 && this.usedWeaponSlots() >= MAX_WEAPON_SLOTS) return false;
+            this.weapons[key] = Math.min(MAX_PERK_LEVEL, cur + lvAdd);
+        } else {
+            const cur = this.trinkets[key] || 0;
+            if (cur >= MAX_PERK_LEVEL) return false;
+            if (cur === 0 && this.usedTrinketSlots() >= MAX_TRINKET_SLOTS) return false;
+            this.trinkets[key] = Math.min(MAX_PERK_LEVEL, cur + lvAdd);
+        }
+        this.recalcStats(false);
         return true;
     }
-    applyFusion(fk) {
-        const f = FUSIONS[fk];
-        if (!f || this.fusions[fk]) return false;
-        delete this.pU[f.req[0]];
-        delete this.pU[f.req[1]];
-        this.fusions[fk] = true;
-        this.recalc();
-        spawnExp(this.x, this.y, f.color, 2.2);
-        floatT(this.x, this.y - 42, '⚡ FÜZYON: ' + f.name.toUpperCase() + '!', f.color, 22);
-        shake(16); sfx.bKill();
+
+    applyFusion(fKey) {
+        if (SUPER_EVOLUTIONS[fKey]) {
+            const sev = SUPER_EVOLUTIONS[fKey];
+            delete this.evolutions[sev.evoReqs[0]];
+            delete this.evolutions[sev.evoReqs[1]];
+            this.superEvolutions[fKey] = true;
+            this.recalcStats(false);
+            floatT(this.x, this.y - 45, `👑 SÜPER EVRİM: ${sev.name.toUpperCase()}!`, sev.color, 20);
+            spawnExp(this.x, this.y, sev.color, 2.5);
+            sfx.bKill();
+            return true;
+        }
+        const ev = EVOLUTIONS[fKey];
+        if (!ev) return false;
+        delete this.weapons[ev.weaponReq];
+        // Alet (Trinket) korunur, silah Evrimleşmiş Silaha dönüşür
+        this.evolutions[fKey] = true;
+        this.recalcStats(false);
+        floatT(this.x, this.y - 42, `⚡ EVRİM: ${ev.name.toUpperCase()}!`, ev.color, 18);
+        spawnExp(this.x, this.y, ev.color, 1.9);
+        sfx.pow();
         return true;
     }
+
     healLeech(amount) {
         if (!this.alive || amount <= 0 || this.healBudget <= 0) return;
-        const decay = getCosmicDecay();
-        const actual = Math.min(this.healBudget, amount * decay);
-        if (actual > 0) {
-            this.hp = Math.min(this.mh, this.hp + actual);
-            this.healBudget -= actual;
-        }
+        const actual = Math.min(amount * getCosmicDecay(), this.healBudget);
+        if (actual <= 0) return;
+        this.healBudget -= actual;
+        this.hp = Math.min(this.mh, this.hp + actual);
     }
-    gainXP(a) {
+
+    gainXP(v) {
         if (!this.alive) return;
-        this.xp += a * DC.xm;
+        this.xp += v;
         while (this.xp >= this.xpN) {
-            this.xp -= this.xpN; this.lv++;
-            this.xpN = Math.floor(50 * Math.pow(1.3, this.lv - 1));
-            
-            // Kuyruğa seviye atlama olayını ekle
+            this.xp -= this.xpN;
+            this.lv++;
+            this.xpN = Math.floor(this.xpN * 1.24 + 25);
             levelUpQueue.push({ player: this, lv: this.lv });
         }
     }
-    update(dt, activeSynergy) {
-        if (!this.alive) { this.respT -= dt; return; }
-        this.aA += dt * 3; this.gl = (Math.sin(this.aA) + 1) * 0.5;
-        
-        let mx = 0, my = 0;
-        if (this.id === 1) {
-            if (isMobile && mobileJoystick.active) {
-                mx = mobileJoystick.x;
-                my = mobileJoystick.y;
-            } else {
-                if (keys.KeyW) my -= 1; if (keys.KeyS) my += 1;
-                if (keys.KeyA) mx -= 1; if (keys.KeyD) mx += 1;
-            }
-        } else {
-            if (keys.ArrowUp) my -= 1; if (keys.ArrowDown) my += 1;
-            if (keys.ArrowLeft) mx -= 1; if (keys.ArrowRight) mx += 1;
-        }
-        
-        const mag = Math.hypot(mx, my);
-        if (mag > 0) { mx /= mag; my /= mag; this.fac = Math.atan2(my, mx); }
-        
-        let spd = this.tP.speed ? this.sp * 1.45 : this.sp;
-        if (this.dashT > 0) { spd = this.sp * 3.4; mx = Math.cos(this.fac); my = Math.sin(this.fac); }
-        const lf = this.dashT > 0 ? 0.45 : 0.14;
-        this.vx = lerp(this.vx, mx * spd, lf); this.vy = lerp(this.vy, my * spd, lf);
-        this.x += this.vx * dt; this.y += this.vy * dt;
-        
-        this.x = clamp(this.x, 25, canvas.width - 25);
-        this.y = clamp(this.y, 25, canvas.height - 25);
-        
-        if (Math.hypot(this.vx, this.vy) > 25) this.trail.push({ x: this.x, y: this.y, a: 1 });
-        if (Math.hypot(this.vx, this.vy) > 40 && Math.random() < (perfMode ? 0.25 : 0.7)) spawnThrust(this.x, this.y, Math.atan2(this.vy, this.vx), this.c);
-        this.trail = this.trail.filter(t => { t.a -= dt * 3; return t.a > 0; });
-        
-        this.sT -= dt;
-        const rate = this.tP.rapidfire ? this.sr * 0.4 : this.sr;
-        if (this.sT <= 0) { this.sT = rate; this.shoot(); }
-        
-        if (this.invT > 0) this.invT -= dt;
-        this.tickAbility(dt);
-        for (const k in this.tP) { this.tP[k] -= dt; if (this.tP[k] <= 0) delete this.tP[k]; }
-        
-        // Can çalma bütçesi ve Füzyon zamanlayıcıları (Kozmik Çürüme dengeli)
-        const decay = getCosmicDecay();
-        const maxBudget = this.mh * 0.11 * decay;
-        this.healBudget = Math.min(maxBudget, this.healBudget + maxBudget * dt);
-        if (this.empNovaCd > 0) this.empNovaCd -= dt;
-        if (this.blackHoleCd > 0) this.blackHoleCd -= dt;
-        if (this.shRegenDelay > 0) this.shRegenDelay -= dt;
 
-        // Titan Çekirdeği Füzyonu: Her 3sn'de termal şok halkası
-        if (this.fusions.titanCore) {
-            this.titanPulseT -= dt;
-            if (this.titanPulseT <= 0) {
-                this.titanPulseT = 3.0;
-                const pulseDmg = this.mh * 0.25 + this.bd * 1.8;
-                particles.push(new Particle(this.x, this.y, 0, 0, '#ff8800', 0.45, 70, 'shockwave'));
-                for (const e of enemies) {
-                    if (e.alive && dist(this, e) < 210 + e.r) {
-                        e.takeDmg(pulseDmg, false);
-                        spawnP(e.x, e.y, '#ff8800', 3, 120, 0.25, 2.5);
-                    }
-                }
-            }
-        }
-
-        // Kalkan yenilenmesi (Dalga 25+ Kozmik Çürüme ve Aegis Rezonansı dahil)
-        if (this.sh < this.ms && this.shRegenDelay <= 0) {
-            let regenFactor = (activeSynergy ? 1.40 : 1.0) * decay;
-            if (this.shipClass === 'aegis') regenFactor *= 1.5;
-            let kineticBonus = 0;
-            if (this.fusions.aegisResonance && Math.hypot(this.vx, this.vy) > 45) {
-                kineticBonus = 14 * decay;
-            }
-            this.sh = Math.min(this.ms, this.sh + (DC.sr * regenFactor + kineticBonus) * dt);
-        }
-        
-        for (const pu of pickups) {
-            const d = dist(this, pu);
-            if (d < this.magR && d > 0) {
-                const a = ang(pu, this);
-                pu.x += Math.cos(a) * 250 * dt;
-                pu.y += Math.sin(a) * 250 * dt;
-            }
-        }
-    }
-    shoot() {
-        if (!this.alive) return;
-        let nr = null, nd = Infinity;
-        for (const e of enemies) {
-            if (!e.alive) continue;
-            // Düşman ekran dışındaysa otomatik hedef alma dışı bırak
-            if (e.x < 0 || e.x > canvas.width || e.y < 0 || e.y > canvas.height) continue;
-            const d = dist(this, e);
-            if (d < nd) { nd = d; nr = e; }
-        }
-        
-        let sa = this.fac; if (nr && nd < 800) sa = ang(this, nr);
-        const dmgB = this.tP.damage ? this.bd * 1.8 : this.bd;
-        const sz = this.tP.damage ? this.bs * 1.4 : this.bs;
-        const pi = !!this.tP.piercing; const li = this.bl;
-        
-        let shots = [{ a: sa }];
-        const ext = this.extraS + (this.tP.tripleshot ? 2 : 0);
-        for (let i = 1; i <= ext; i++) {
-            shots.push({ a: sa + i * 0.18 });
-            shots.push({ a: sa - i * 0.18 });
-        }
-        
-        for (const sh of shots) {
-            let dmg = dmgB, cr = false;
-            if (Math.random() < this.crit) { dmg *= 2.5; cr = true; }
-            
-            const bounces = this.fusions.gatlingStorm ? 3 : 0;
-            const pierceCount = this.fusions.quantumArbiter ? 4 : (pi ? 99 : 0);
-            const bCol = this.fusions.bloodHarvest ? '#ff1744' : this.fusions.gatlingStorm ? '#00ff88' : this.fusions.quantumArbiter ? '#ffd700' : this.c;
-
-            // Kruvazör Çift Namlulu Ateş Eder
-            if (this.shipClass === 'dreadnought') {
-                const dx1 = Math.cos(sh.a + Math.PI/2) * 5;
-                const dy1 = Math.sin(sh.a + Math.PI/2) * 5;
-                const dx2 = Math.cos(sh.a - Math.PI/2) * 5;
-                const dy2 = Math.sin(sh.a - Math.PI/2) * 5;
-                
-                bullets.push({
-                    x: this.x + Math.cos(sh.a) * 20 + dx1, y: this.y + Math.sin(sh.a) * 20 + dy1,
-                    vx: Math.cos(sh.a) * this.bsp2, vy: Math.sin(sh.a) * this.bsp2,
-                    damage: dmg * 0.65, size: sz, color: bCol, owner: this.id, life: li,
-                    piercing: pi || pierceCount > 0, pierceLeft: pierceCount, bounces, crit: cr, hitIds: null
-                });
-                bullets.push({
-                    x: this.x + Math.cos(sh.a) * 20 + dx2, y: this.y + Math.sin(sh.a) * 20 + dy2,
-                    vx: Math.cos(sh.a) * this.bsp2, vy: Math.sin(sh.a) * this.bsp2,
-                    damage: dmg * 0.65, size: sz, color: bCol, owner: this.id, life: li,
-                    piercing: pi || pierceCount > 0, pierceLeft: pierceCount, bounces, crit: cr, hitIds: null
-                });
-            } else {
-                bullets.push({
-                    x: this.x + Math.cos(sh.a) * 20, y: this.y + Math.sin(sh.a) * 20,
-                    vx: Math.cos(sh.a) * this.bsp2, vy: Math.sin(sh.a) * this.bsp2,
-                    damage: dmg, size: sz, color: bCol, owner: this.id, life: li,
-                    piercing: pi || pierceCount > 0, pierceLeft: pierceCount, bounces, crit: cr, hitIds: null
-                });
-            }
-        }
-        sfx.shoot();
-    }
-    activate() {
-        if (!this.alive || this.abCd > 0 || gameState !== 'playing') return;
-        const A = ABILITY[this.shipClass] || ABILITY.interceptor;
-        this.abCd = this.abMax; this.abFlash = 0.5;
-        floatT(this.x, this.y - 36, A.name + '!', A.color, 16);
-        if (this.shipClass === 'interceptor') {
-            this.dashT = 1.2; this.invT = Math.max(this.invT, 1.3); this.trailTick = 0;
-            spawnExp(this.x, this.y, this.c, 0.8); sfx.dash(); shake(6);
-        } else if (this.shipClass === 'dreadnought') {
-            this.salvoT = 3; this.salvoTick = 0; sfx.salvo(); shake(5);
-        } else {
-            const n = eBullets.length;
-            for (let i = 0; i < Math.min(n, 40); i++) spawnP(eBullets[i].x, eBullets[i].y, A.color, 2, 90, 0.3, 2);
-            eBullets.length = 0;
-            this.sh = Math.min(this.ms, this.sh + 10 + n * 2);
-            if (MODE === '2p') { const o = this.id === 1 ? p2 : p1; if (o && o.alive) o.sh = Math.min(o.ms, o.sh + n); }
-            particles.push(new Particle(this.x, this.y, 0, 0, A.color, 0.6, 260, 'shockwave'));
-            screenFl = 0.35; screenFC = A.color; sfx.emp(); shake(10);
-            if (n > 0) floatT(this.x, this.y - 54, '+' + Math.floor(10 + n * 2) + ' KALKAN', A.color, 13);
-        }
-    }
-    tickAbility(dt) {
-        if (this.abCd > 0) this.abCd -= dt;
-        if (this.abFlash > 0) this.abFlash -= dt;
-        if (this.shieldHit > 0) this.shieldHit -= dt;
-        if (this.dashT > 0) {
-            this.dashT -= dt; this.trailTick -= dt;
-            if (this.trailTick <= 0) { this.trailTick = 0.025; laserTrails.push({ x: this.x, y: this.y, l: 1, c: this.c, owner: this.id }); }
-            spawnThrust(this.x, this.y, this.fac, '#ffffff', 1.4);
-        }
-        if (this.salvoT > 0) {
-            this.salvoT -= dt; this.salvoTick -= dt;
-            if (this.salvoTick <= 0) { this.salvoTick = 0.12; this.fireSalvo(); }
-        }
-    }
-    fireSalvo() {
-        const n = 10; this.salvoA += 0.21;
-        const dmg = this.bd * 0.7 * (this.tP.damage ? 1.8 : 1);
-        for (let i = 0; i < n; i++) {
-            const a = this.salvoA + i * Math.PI * 2 / n;
-            bullets.push({ x: this.x + Math.cos(a) * 18, y: this.y + Math.sin(a) * 18, vx: Math.cos(a) * 430, vy: Math.sin(a) * 430,
-                damage: dmg, size: 3, color: '#ffaa00', owner: this.id, life: 1.1, piercing: false, crit: false });
-        }
-        sfx.salvo(); shake(1.5);
-    }
-    drawFx(ctx) {
-        const t = this.lightT + this.aA, blink = (Math.sin(t * 6) + 1) / 2, r = this.r;
-        ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.fac);
-        const L = this.shipClass === 'interceptor' ? [[-r * 0.6, -r * 0.9], [-r * 0.6, r * 0.9]]
-            : this.shipClass === 'dreadnought' ? [[-r * 0.8, -r * 0.8], [-r * 0.8, r * 0.8]]
-            : [[(r + 2) * 0.5, (r + 2) * 0.866], [(r + 2) * 0.5, -(r + 2) * 0.866]];
-        ctx.globalCompositeOperation = 'lighter';
-        for (let i = 0; i < 2; i++) {
-            const col = i === 0 ? '#ff2a6d' : '#2aff9d', on = i === 0 ? blink : 1 - blink;
-            ctx.fillStyle = col; ctx.globalAlpha = 0.15 + on * 0.25;
-            ctx.beginPath(); ctx.arc(L[i][0], L[i][1], 6, 0, Math.PI * 2); ctx.fill();
-            ctx.globalAlpha = 0.35 + on * 0.65;
-            ctx.beginPath(); ctx.arc(L[i][0], L[i][1], 2.2, 0, Math.PI * 2); ctx.fill();
-        }
-        ctx.globalAlpha = 0.5 + blink * 0.4; ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.arc(r * 0.35, 0, 2.4, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
-        ctx.save(); ctx.globalCompositeOperation = 'lighter';
-        if (this.shieldHit > 0) {
-            const k = 1 - this.shieldHit / 0.4;
-            ctx.strokeStyle = LINK; ctx.globalAlpha = (1 - k) * 0.9; ctx.lineWidth = 3 * (1 - k) + 1;
-            ctx.beginPath(); ctx.arc(this.x, this.y, r + 10 + k * 18, 0, Math.PI * 2); ctx.stroke();
-            ctx.strokeStyle = '#fff'; ctx.globalAlpha = (1 - k) * 0.5; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.arc(this.x, this.y, r + 10 + k * 8, 0, Math.PI * 2); ctx.stroke();
-        }
-        if (this.dashT > 0) {
-            ctx.strokeStyle = this.c; ctx.globalAlpha = 0.75; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.arc(this.x, this.y, r + 14 + Math.sin(t * 20) * 3, 0, Math.PI * 2); ctx.stroke();
-        }
-        if (this.salvoT > 0) {
-            ctx.strokeStyle = '#ffaa00'; ctx.globalAlpha = 0.8; ctx.lineWidth = 2; ctx.setLineDash([6, 8]); ctx.lineDashOffset = -t * 40;
-            ctx.beginPath(); ctx.arc(this.x, this.y, r + 16, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
-        }
-        if (this.abFlash > 0) {
-            const k = 1 - this.abFlash / 0.5, col = (ABILITY[this.shipClass] || ABILITY.interceptor).color;
-            ctx.strokeStyle = col; ctx.globalAlpha = (1 - k) * 0.9; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.arc(this.x, this.y, r + 6 + k * 40, 0, Math.PI * 2); ctx.stroke();
-        }
-        ctx.restore();
-    }
     takeDmg(d, truePct = 0) {
-        if (!this.alive || this.invT > 0) return;
-        this.shRegenDelay = this.fusions.aegisResonance ? 0.45 : 1.15;
-        
-        // Dreadnought %15, Titan Çekirdeği %25 zırh hasar azaltma alır
-        if (this.shipClass === 'dreadnought') d *= 0.85;
-        if (this.fusions.titanCore) d *= 0.75;
-        
-        // Dalga 25+ Kozmik Radyasyon ve Elit Gerçek Yüzdelik Hasar (Ölümsüzlük Kırıcı)
-        let bonusTrue = truePct > 0 ? this.mh * truePct : 0;
-        if (wave >= 25) {
-            bonusTrue += this.mh * Math.min(0.14, (wave - 24) * 0.006);
-        }
-        d += bonusTrue;
-        
+        if (!this.alive || this.invT > 0 || this.dashT > 0) return;
+        const decay = getCosmicDecay();
+        let dmg = d * DC.edm * (1 - this.armor);
+        const pctDmg = (truePct + (wave >= 25 ? (wave - 24) * 0.004 : 0)) * this.mh;
+        dmg += pctDmg;
+
+        this.shRegenDelay = 1.8 / Math.max(0.35, decay);
         if (this.sh > 0) {
-            const ab = Math.min(this.sh, d);
-            this.sh -= ab; d -= ab; this.shieldHit = 0.4;
-            spawnP(this.x, this.y, LINK, 5, 100, 0.3, 2);
-            if (this.sh <= 0.01) {
+            this.shieldHit = 0.35;
+            if (this.sh >= dmg) {
+                this.sh -= dmg;
+                sfx.dmg();
+                return;
+            } else {
+                dmg -= this.sh;
                 this.sh = 0;
-                spawnExp(this.x, this.y, LINK, 0.8);
-                floatT(this.x, this.y - 28, 'KALKAN KIRILDI', LINK, 13);
-                // Aegis Rezonansı Füzyonu: Kalkan kırıldığında tüm ekranı temizleyen EMP patlar
-                if (this.fusions.aegisResonance && this.empNovaCd <= 0) {
-                    this.empNovaCd = 6.0;
+                if ((this.evolutions.aegisResonance || this.superEvolutions.eventHorizon) && this.empNovaCd <= 0) {
+                    this.empNovaCd = 5.5;
                     eBullets.length = 0;
                     particles.push(new Particle(this.x, this.y, 0, 0, '#00f0ff', 0.65, 320, 'shockwave'));
-                    screenFl = 0.35; screenFC = '#00f0ff'; sfx.emp(); shake(14);
-                    floatT(this.x, this.y - 48, '💠 AEGIS EMP REZONANSI!', '#00f0ff', 18);
-                    const empDmg = 95 + wave * 5;
+                    floatT(this.x, this.y - 45, '💠 AEGIS EMP PATLAMASI!', '#00f0ff', 16);
+                    sfx.emp();
                     for (const e of enemies) {
-                        if (!e.alive) continue;
-                        if (!e.isBoss) e.takeDmg(empDmg, false, true);
-                        else e.takeDmg(empDmg * 0.6, false, true);
+                        if (e.alive) e.takeDmg(95 + wave * 6, false, true);
                     }
                 }
             }
         }
-        this.hp -= d; shake(4); spawnP(this.x, this.y, this.c, 8, 120, 0.4, 3);
-        if (this.hp <= 0) this.die();
+        this.hp -= dmg;
+        shake(5);
+        sfx.dmg();
+        spawnP(this.x, this.y, this.c, 7, 130, 0.35, 2.5);
+        if (this.hp <= 0) {
+            this.hp = 0;
+            this.alive = false;
+            spawnExp(this.x, this.y, this.c, 2.5);
+        }
     }
-    die() {
-        this.alive = false;
-        
-        if (DIFFKEY === 'easy') {
-            this.respT = 5;
-        } else if (DIFFKEY === 'medium') {
-            this.respT = 7;
-            this.lv = Math.max(1, this.lv - 2);
-            this.xp = 0;
-            this.xpN = Math.floor(50 * Math.pow(1.3, this.lv - 1));
-            
-            // Delete up to 2 random upgrades
-            let keys = Object.keys(this.pU).filter(k => this.pU[k] > 0);
-            for (let i = 0; i < 2; i++) {
-                if (keys.length > 0) {
-                    const idx = randInt(0, keys.length - 1);
-                    const k = keys[idx];
-                    delete this.pU[k];
-                    keys.splice(idx, 1);
-                }
-            }
-            this.recalc();
-            updateUpgDisplay();
-        } else { // 'hard'
-            this.respT = 10;
-            this.pU = {};
-            this.fusions = {};
-            this.slotOrder = [];
-            this.lv = 1;
-            this.xp = 0;
-            this.xpN = 50;
-            this.recalc();
-            updateUpgDisplay();
-        }
-        
-        spawnExp(this.x, this.y, this.c, 1.5); sfx.exp(); shake(12);
-        floatT(this.x, this.y - 20, `${this.name.toUpperCase()} DÜŞTÜ!`, this.c, 22);
-    }
-    draw(ctx) {
-        if (!this.alive) return;
-        for (const t of this.trail) {
-            ctx.globalAlpha = t.a * 0.25; ctx.fillStyle = this.c;
-            ctx.beginPath(); ctx.arc(t.x, t.y, this.r * t.a * 0.5, 0, Math.PI * 2); ctx.fill();
-        }
-        ctx.globalAlpha = 1;
-        if (this.invT > 0 && !(this.dashT > 0) && Math.floor(this.invT * 10) % 2 === 0) return;
-        
-        if (!perfMode) {
-            ctx.save();
-            ctx.shadowBlur = 15; ctx.shadowColor = this.c;
-            const gs = this.r * 3;
-            const grd = ctx.createRadialGradient(this.x, this.y, this.r * 0.5, this.x, this.y, gs);
-            grd.addColorStop(0, this.c + '25'); grd.addColorStop(1, this.c + '00');
-            ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(this.x, this.y, gs, 0, Math.PI * 2); ctx.fill();
-            ctx.restore();
-        }
-        
-        ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.fac);
-        
-        // ── Motor Egzoz Alevi ──
-        if (Math.hypot(this.vx, this.vy) > 12 && !perfMode) {
-            ctx.save();
-            ctx.shadowBlur = 12; ctx.shadowColor = this.c;
-            const flicker = Math.random() * 6 + 12;
-            if (this.shipClass === 'dreadnought') {
-                const grd = ctx.createLinearGradient(-this.r * 0.8, 0, -this.r * 0.8 - flicker, 0);
-                grd.addColorStop(0, '#fff'); grd.addColorStop(0.3, this.c); grd.addColorStop(1, 'transparent');
-                ctx.fillStyle = grd;
-                ctx.beginPath(); ctx.moveTo(-this.r * 0.8, -this.r * 0.55); ctx.lineTo(-this.r * 0.8 - flicker, -this.r * 0.4); ctx.lineTo(-this.r * 0.8, -this.r * 0.25); ctx.closePath(); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(-this.r * 0.8, this.r * 0.25); ctx.lineTo(-this.r * 0.8 - flicker, this.r * 0.4); ctx.lineTo(-this.r * 0.8, this.r * 0.55); ctx.closePath(); ctx.fill();
-            } else if (this.shipClass === 'interceptor') {
-                const grd = ctx.createLinearGradient(-this.r * 0.6, 0, -this.r * 0.6 - flicker * 1.2, 0);
-                grd.addColorStop(0, '#fff'); grd.addColorStop(0.2, this.c); grd.addColorStop(1, 'transparent');
-                ctx.fillStyle = grd;
-                ctx.beginPath(); ctx.moveTo(-this.r * 0.4, -this.r * 0.2); ctx.lineTo(-this.r * 0.6 - flicker * 1.2, 0); ctx.lineTo(-this.r * 0.4, this.r * 0.2); ctx.closePath(); ctx.fill();
-            } else {
-                const grd = ctx.createLinearGradient(-this.r, 0, -this.r - flicker * 0.9, 0);
-                grd.addColorStop(0, '#fff'); grd.addColorStop(0.3, this.c); grd.addColorStop(1, 'transparent');
-                ctx.fillStyle = grd;
-                ctx.beginPath(); ctx.moveTo(-this.r * 0.8, -this.r * 0.35); ctx.lineTo(-this.r - flicker * 0.9, 0); ctx.lineTo(-this.r * 0.8, this.r * 0.35); ctx.closePath(); ctx.fill();
-            }
-            ctx.restore();
-        }
-        
-        ctx.strokeStyle = this.c; ctx.fillStyle = this.cd; ctx.lineWidth = 2;
-        
-        // Gemi Sınıfına Göre Özgün Vektör Çizimi
+
+    activate() {
+        if (!this.alive || this.abCd > 0 || gameState !== 'playing') return;
+        const cfg = SHIPS[this.shipClass];
+        this.abCd = this.abMax;
+        floatT(this.x, this.y - 36, `${cfg.abilityName}!`, cfg.abilityColor, 16);
+
         if (this.shipClass === 'interceptor') {
-            // Avcı: Keskin kanatlar
-            ctx.beginPath();
-            ctx.moveTo(this.r + 6, 0);
-            ctx.lineTo(-this.r * 0.6, -this.r * 0.9);
-            ctx.lineTo(-this.r * 0.2, -this.r * 0.3);
-            ctx.lineTo(-this.r * 0.6, 0);
-            ctx.lineTo(-this.r * 0.2, this.r * 0.3);
-            ctx.lineTo(-this.r * 0.6, this.r * 0.9);
-            ctx.closePath();
-            ctx.fill(); ctx.stroke();
+            this.dashT = 1.2;
+            this.invT = 1.3;
+            spawnExp(this.x, this.y, '#00f0ff', 1.1);
+            sfx.dash();
         } else if (this.shipClass === 'dreadnought') {
-            // Kruvazör: Zırh plakaları
-            ctx.beginPath();
-            ctx.moveTo(this.r + 2, -this.r * 0.3);
-            ctx.lineTo(this.r + 2, this.r * 0.3);
-            ctx.lineTo(-this.r * 0.2, this.r * 0.8);
-            ctx.lineTo(-this.r * 0.8, this.r * 0.8);
-            ctx.lineTo(-this.r * 0.5, 0);
-            ctx.lineTo(-this.r * 0.8, -this.r * 0.8);
-            ctx.lineTo(-this.r * 0.2, -this.r * 0.8);
-            ctx.closePath();
-            ctx.fill(); ctx.stroke();
-            
-            // Namlu detayları
-            ctx.fillStyle = this.c;
-            ctx.fillRect(this.r * 0.2, -this.r * 0.55, 6, 2.5);
-            ctx.fillRect(this.r * 0.2, this.r * 0.45, 6, 2.5);
-        } else {
-            // Destek (Aegis): Hekzagonel gövde
-            ctx.beginPath();
-            for (let i = 0; i < 6; i++) {
-                const a = i * Math.PI / 3;
-                ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * (this.r + 2), Math.sin(a) * (this.r + 2));
+            this.salvoT = 3.0;
+            this.salvoTick = 0;
+            sfx.salvo();
+        } else if (this.shipClass === 'aegis') {
+            const n = eBullets.length;
+            eBullets.length = 0;
+            this.sh = Math.min(this.ms, this.sh + 20 + n * 2.5);
+            particles.push(new Particle(this.x, this.y, 0, 0, '#bf00ff', 0.6, 280, 'shockwave'));
+            sfx.emp();
+            shake(8);
+        } else if (this.shipClass === 'phantom') {
+            // Gölge Sıçraması (Shadow Blink) + 1.8sn Görünmezlik
+            const jumpDist = 185;
+            this.x = clamp(this.x + Math.cos(this.fac) * jumpDist, 45, canvas.width - 45);
+            this.y = clamp(this.y + Math.sin(this.fac) * jumpDist, 45, canvas.height - 45);
+            this.stealthT = 1.8;
+            this.invT = 1.8;
+            spawnExp(this.x, this.y, '#ff006a', 1.4);
+            for (const e of enemies) {
+                if (e.alive && dist(this, e) < 150) e.takeDmg(75 * this.dmgMult, true, true);
             }
-            ctx.closePath();
-            ctx.fill(); ctx.stroke();
-        }
-        
-        ctx.restore();
-        
-        this.drawFx(ctx);
-        // Halka kalkan efekti
-        if (this.sh > 0) {
-            ctx.globalAlpha = (this.sh / this.ms) * 0.3; ctx.strokeStyle = LINK; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.r + 10, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
-        }
-    }
-}
-
-// ── Düşman Tanımları ──
-const ET = {
-    drone: { r: 12, hp: 20, spd: 110, dmg: 8, sc: 10, color: '#ff4444' },
-    tank: { r: 22, hp: 80, spd: 55, dmg: 18, sc: 30, color: '#ff8800' },
-    speeder: { r: 9, hp: 12, spd: 230, dmg: 5, sc: 15, color: '#44ff44' },
-    shooter: { r: 15, hp: 35, spd: 75, dmg: 10, sc: 25, color: '#ffff00' },
-    orbiter: { r: 10, hp: 25, spd: 140, dmg: 10, sc: 20, color: '#00ffcc' },
-    splitter: { r: 16, hp: 45, spd: 90, dmg: 12, sc: 35, color: '#ff66ff' },
-    shielder: { r: 18, hp: 60, spd: 65, dmg: 14, sc: 40, color: '#6666ff' },
-    sniper: { r: 13, hp: 28, spd: 50, dmg: 15, sc: 30, color: '#ff3300' },
-    kamikaze: { r: 11, hp: 18, spd: 200, dmg: 35, sc: 20, color: '#ff5500' },
-    phantom: { r: 14, hp: 40, spd: 100, dmg: 12, sc: 30, color: '#bf00ff' },
-    sweeper: { r: 17, hp: 70, spd: 45, dmg: 16, sc: 45, color: '#00f0ff' },
-    healer: { r: 16, hp: 55, spd: 85, dmg: 7, sc: 40, color: '#ff1744' }
-};
-
-class Enemy {
-    constructor(type, x, y) {
-        this.type = type; this.x = x; this.y = y; this.vx = 0; this.vy = 0; this.alive = true;
-        this.aA = rand(0, Math.PI * 2); this.fl = 0;
-        const d = ET[type] || ET.drone;
-        this.r = d.r; this.hp = d.hp * DC.ehm; this.maxHp = this.hp;
-        this.spd = d.spd * DC.esm; this.damage = d.dmg * DC.edm;
-        this.sc = d.sc; this.color = d.color;
-        this.sT = rand(1, 3);
-        
-        // Dengeli Orbiter
-        this.oA = rand(0, Math.PI * 2);
-        this.oD = type === 'orbiter' ? rand(170, 240) : rand(80, 150);
-        this.orbitTimer = rand(2, 4);
-        this.orbitPhase = 'orbit';
-        
-        this.shHp = type === 'shielder' ? 30 * DC.ehm : 0;
-        this.isBoss = false;
-        this.eid = Math.random();
-        this.slowT = 0;
-        this.isElite = !this.isBoss && wave >= 15 && Math.random() < Math.min(0.35, 0.08 + (wave - 15) * 0.015);
-        this.truePctDmg = this.isElite ? Math.min(0.14, 0.05 + Math.max(0, wave - 15) * 0.003) : 0;
-        
-        // Yeni Düşman Tanımları Aşamaları
-        if (type === 'phantom') {
-            this.teleportTimer = rand(2.0, 3.5);
-        }
-        if (type === 'healer') {
-            this.sT = rand(1, 2);
+            sfx.dash();
+        } else if (this.shipClass === 'solarflare') {
+            // Güneş Patlaması (Solar Nova)
+            particles.push(new Particle(this.x, this.y, 0, 0, '#ff6600', 0.7, 300, 'shockwave'));
+            for (const e of enemies) {
+                if (e.alive && dist(this, e) < 280) {
+                    e.takeDmg(90 * this.dmgMult, true, true);
+                    e.burnT = 4.0;
+                }
+            }
+            sfx.exp();
+            shake(10);
         }
     }
+
     update(dt) {
-        if (!this.alive) return false;
-        this.aA += dt * 2; this.fl = Math.max(0, this.fl - dt);
-        
-        let tgt = null, td = Infinity;
-        const lp = livePlayers();
-        for (const p of lp) { const d = dist(this, p); if (d < td) { td = d; tgt = p; } }
-        if (!tgt) return true;
-        
-        const a = ang(this, tgt);
-        switch (this.type) {
-            case 'drone': case 'tank': case 'kamikaze':
-                this.vx = lerp(this.vx, Math.cos(a) * this.spd, 0.05);
-                this.vy = lerp(this.vy, Math.sin(a) * this.spd, 0.05); break;
-            case 'speeder':
-                this.vx = lerp(this.vx, Math.cos(a) * this.spd, 0.08);
-                this.vy = lerp(this.vy, Math.sin(a) * this.spd, 0.08); break;
-            case 'shooter': case 'sniper':
-                if (td > 250) {
-                    this.vx = lerp(this.vx, Math.cos(a) * this.spd, 0.04);
-                    this.vy = lerp(this.vy, Math.sin(a) * this.spd, 0.04);
-                } else {
-                    this.vx *= 0.94; this.vy *= 0.94;
+        if (!this.alive) return;
+        const decay = getCosmicDecay();
+        if (this.invT > 0) this.invT -= dt;
+        if (this.shRegenDelay > 0) this.shRegenDelay -= dt;
+        if (this.abCd > 0) this.abCd -= dt;
+        if (this.shieldHit > 0) this.shieldHit -= dt;
+        if (this.empNovaCd > 0) this.empNovaCd -= dt;
+        if (this.blackHoleCd > 0) this.blackHoleCd -= dt;
+
+        this.healBudget = Math.min(this.mh * 0.20 * decay, this.healBudget + this.mh * 0.20 * decay * dt);
+
+        // Biyo-Reaktör pasif can yenilemesi
+        if (this.bioRegen > 0 && this.hp < this.mh) {
+            this.hp = Math.min(this.mh, this.hp + this.bioRegen * decay * dt);
+        }
+
+        // Gemi Pasifleri:
+        // 1. Gölge (Void Phantom): Her 10 sn'de 1.5 sn Görünmezlik
+        if (this.shipClass === 'phantom') {
+            if (this.stealthT > 0) {
+                this.stealthT -= dt;
+            } else {
+                this.stealthCycleT -= dt;
+                if (this.stealthCycleT <= 0) {
+                    this.stealthCycleT = 10.0;
+                    this.stealthT = 1.5;
+                    this.invT = Math.max(this.invT, 1.5);
+                    floatT(this.x, this.y - 32, '👻 GÖLGE GÖRÜNMEZLİĞİ (1.5s)', '#ff006a', 13);
                 }
-                this.sT -= dt;
-                if (this.sT <= 0) {
-                    this.sT = this.type === 'sniper' ? 2.5 : 2;
-                    const sa = ang(this, tgt);
-                    const sp = this.type === 'sniper' ? 450 : 280;
-                    const dm = this.type === 'sniper' ? 15 : 8;
-                    eBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * sp, vy: Math.sin(sa) * sp, damage: dm * DC.edm, size: this.type === 'sniper' ? 4 : 5, color: this.color, life: 3 });
-                    spawnP(this.x, this.y, this.color, 3, 60, 0.2, 2);
+            }
+        }
+
+        // 2. Aegis: Otomatik Kalkan Patlaması
+        if (this.shipClass === 'aegis') {
+            this.aegisPulseT -= dt;
+            if (this.aegisPulseT <= 0) {
+                this.aegisPulseT = 6.0;
+                particles.push(new Particle(this.x, this.y, 0, 0, '#bf00ff', 0.45, 165, 'shockwave'));
+                for (const e of enemies) {
+                    if (e.alive && dist(this, e) < 165) e.takeDmg(38 * this.dmgMult, false, true);
                 }
-                break;
-            case 'orbiter':
-                this.orbitTimer -= dt;
-                if (this.orbitTimer <= 0) {
-                    this.orbitPhase = this.orbitPhase === 'orbit' ? 'rush' : 'orbit';
-                    this.orbitTimer = this.orbitPhase === 'rush' ? 1.2 : rand(3, 5);
+            }
+        }
+
+        // 3. Solar Flare: Sürekli Yanan Radyasyon Aurası
+        if (this.shipClass === 'solarflare') {
+            this.solarTickT -= dt;
+            if (this.solarTickT <= 0) {
+                this.solarTickT = 0.25;
+                for (const e of enemies) {
+                    if (e.alive && dist(this, e) < 145) {
+                        e.takeDmg(9.5 * this.dmgMult, false, true);
+                    }
                 }
-                
-                if (this.orbitPhase === 'rush') {
-                    this.vx = lerp(this.vx, Math.cos(a) * this.spd * 1.3, 0.06);
-                    this.vy = lerp(this.vy, Math.sin(a) * this.spd * 1.3, 0.06);
-                } else {
-                    this.oA += dt * 0.5;
-                    const tx = tgt.x + Math.cos(this.oA) * this.oD;
-                    const ty = tgt.y + Math.sin(this.oA) * this.oD;
-                    this.vx = lerp(this.vx, (tx - this.x) * 2.5, 0.05);
-                    this.vy = lerp(this.vy, (ty - this.y) * 2.5, 0.05);
+            }
+        }
+
+        // Hareket Girdisi (1P: WASD veya Yön Tuşları + Mobil Joystick)
+        let mx = 0, my = 0;
+        if (keys.KeyW || keys.ArrowUp) my -= 1;
+        if (keys.KeyS || keys.ArrowDown) my += 1;
+        if (keys.KeyA || keys.ArrowLeft) mx -= 1;
+        if (keys.KeyD || keys.ArrowRight) mx += 1;
+        if (window.__joyX || window.__joyY) {
+            mx += window.__joyX || 0;
+            my += window.__joyY || 0;
+        }
+
+        // Harita 2 Gaz Bulutu Hız Çarpanı
+        let envSpeedMult = 1.0;
+        if (SELECTED_MAP === 'nebula') {
+            for (const gc of gasClouds) {
+                if (dist(this, gc) < gc.r) {
+                    envSpeedMult = gc.type === 'boost' ? 1.38 : 0.68;
+                    break;
                 }
-                break;
-            case 'splitter': case 'shielder':
-                this.vx = lerp(this.vx, Math.cos(a) * this.spd, 0.05);
-                this.vy = lerp(this.vy, Math.sin(a) * this.spd, 0.05); break;
-            case 'phantom':
-                this.vx = lerp(this.vx, Math.cos(a) * this.spd, 0.05);
-                this.vy = lerp(this.vy, Math.sin(a) * this.spd, 0.05);
-                
-                this.teleportTimer -= dt;
-                if (this.teleportTimer <= 0) {
-                    this.teleportTimer = rand(2.2, 3.8);
-                    spawnP(this.x, this.y, this.color, 8, 80, 0.3, 2);
-                    this.x += Math.cos(a) * 165;
-                    this.y += Math.sin(a) * 165;
-                    spawnP(this.x, this.y, this.color, 8, 80, 0.3, 2);
+            }
+        }
+
+        const len = Math.hypot(mx, my);
+        const effSp = this.sp * envSpeedMult * (this.dashT > 0 ? 1.85 : 1.0);
+        if (len > 0) {
+            mx /= len; my /= len;
+            this.vx = lerp(this.vx, mx * effSp, 0.22);
+            this.vy = lerp(this.vy, my * effSp, 0.22);
+            this.fac = Math.atan2(this.vy, this.vx);
+        } else {
+            this.vx *= 0.86;
+            this.vy *= 0.86;
+        }
+
+        // Harita 3 Kara Delik Çekim Anomalisi
+        if (SELECTED_MAP === 'blackhole') {
+            const cx = canvas.width / 2, cy = canvas.height / 2;
+            const dCenter = Math.hypot(cx - this.x, cy - this.y);
+            if (dCenter > 30 && dCenter < 460) {
+                const pull = (1 - dCenter / 460) * 95 * dt;
+                const pa = Math.atan2(cy - this.y, cx - this.x);
+                this.x += Math.cos(pa) * pull;
+                this.y += Math.sin(pa) * pull;
+            }
+        }
+
+        this.x = clamp(this.x + this.vx * dt, 36, canvas.width - 36);
+        this.y = clamp(this.y + this.vy * dt, 36, canvas.height - 36);
+
+        // Aktif Yetenek Süreleri
+        if (this.dashT > 0) {
+            this.dashT -= dt;
+            laserTrails.push({ x: this.x, y: this.y, l: 0.75, c: this.c });
+        }
+        if (this.salvoT > 0) {
+            this.salvoT -= dt;
+            this.salvoTick -= dt;
+            if (this.salvoTick <= 0) {
+                this.salvoTick = 0.14;
+                this.salvoA += 0.25;
+                for (let i = 0; i < 8; i++) {
+                    const a = this.salvoA + (i * Math.PI * 2 / 8);
+                    bullets.push({
+                        x: this.x, y: this.y,
+                        vx: Math.cos(a) * 420, vy: Math.sin(a) * 420,
+                        damage: 14 * this.dmgMult, size: 3.5, color: '#ffaa00',
+                        life: 1.1, piercing: false, bounces: 0, crit: false
+                    });
                 }
-                break;
-            case 'sweeper':
-                this.vx = lerp(this.vx, Math.cos(a) * this.spd, 0.04);
-                this.vy = lerp(this.vy, Math.sin(a) * this.spd, 0.04);
-                
-                if (this.laserAngle === undefined) {
-                    this.laserAngle = rand(0, Math.PI * 2);
-                    this.laserRotationSpeed = rand(0.6, 1.2) * (Math.random() < 0.5 ? 1 : -1);
-                    this.laserDmgTimer = 0;
+                sfx.salvo();
+            }
+        }
+
+        // Kalkan Yenilenmesi
+        if (this.sh < this.ms && this.shRegenDelay <= 0) {
+            let sRate = DC.sr * decay * (1 + (this.trinkets.shieldMatrix || 0) * 0.22);
+            if (this.shipClass === 'aegis') sRate *= 1.45;
+            if ((this.evolutions.aegisResonance || this.superEvolutions.eventHorizon) && Math.hypot(this.vx, this.vy) > 40) {
+                sRate += 14 * decay;
+            }
+            this.sh = Math.min(this.ms, this.sh + sRate * dt);
+        }
+
+        // Tüm Aktif Silahları, Evrimleri ve Süper Evrimleri Ateşle
+        this.updateWeapons(dt);
+
+        // Manyetik XP & Sandık Çekimi
+        for (const pu of pickups) {
+            const d = dist(this, pu);
+            const pullR = pu.type === 'cosmicChest' ? this.magR * 0.65 : this.magR;
+            if (d < pullR && d > 1) {
+                const a = ang(pu, this);
+                pu.x += Math.cos(a) * 280 * dt;
+                pu.y += Math.sin(a) * 280 * dt;
+            }
+        }
+    }
+
+    findNearestEnemy(maxDist = 850) {
+        let best = null, bestD = maxDist;
+        for (const e of enemies) {
+            if (!e.alive || e.x < 0 || e.x > canvas.width || e.y < 0 || e.y > canvas.height) continue;
+            const d = dist(this, e);
+            if (d < bestD) { bestD = d; best = e; }
+        }
+        return best;
+    }
+
+    rollCrit(baseDmg, target = null) {
+        let cr = Math.random() < this.crit;
+        let mult = cr ? 2.4 : 1.0;
+        // Gölge (Void Phantom) görünmezlik veya arkadan vuruş bonusu
+        if (this.shipClass === 'phantom' && (this.stealthT > 0 || (target && Math.cos(this.fac - (target.aA || 0)) > 0.2))) {
+            cr = true;
+            mult = 2.85;
+        }
+        return { dmg: baseDmg * mult, crit: cr };
+    }
+
+    updateWeapons(dt) {
+        const nearest = this.findNearestEnemy(900);
+        const aimA = nearest ? ang(this, nearest) : this.fac;
+
+        // 1. Çift Lazer / Gatling Fırtınası / Cehennem Gatling'i
+        const laserLv = this.weapons.dualLaser || 0;
+        const hasGatling = !!this.evolutions.gatlingStorm;
+        const hasInferno = !!this.superEvolutions.infernoGatling;
+        if (laserLv > 0 || hasGatling || hasInferno) {
+            this.wTimers.dualLaser -= dt;
+            const cd = (hasInferno ? 0.08 : hasGatling ? 0.10 : Math.max(0.12, 0.25 - laserLv * 0.02)) * this.cdMult;
+            if (this.wTimers.dualLaser <= 0) {
+                this.wTimers.dualLaser = cd;
+                const count = hasInferno ? 4 : hasGatling ? 3 : 1 + Math.floor(laserLv / 2);
+                const baseD = (hasInferno ? 34 : hasGatling ? 24 : 14 + laserLv * 4.5) * this.dmgMult;
+                for (let i = 0; i < count; i++) {
+                    const spread = (i - (count - 1) / 2) * 0.12;
+                    const a = aimA + spread;
+                    const { dmg, crit } = this.rollCrit(baseD, nearest);
+                    bullets.push({
+                        x: this.x + Math.cos(a) * 18, y: this.y + Math.sin(a) * 18,
+                        vx: Math.cos(a) * 560, vy: Math.sin(a) * 560,
+                        damage: dmg, size: hasInferno ? 5 : 3.8,
+                        color: hasInferno ? '#ff0055' : hasGatling ? '#00ff88' : '#00f0ff',
+                        life: 1.25 * this.rangeMult,
+                        bounces: (hasInferno || hasGatling) ? 3 : 0,
+                        splash: hasInferno, leech: hasInferno, crit
+                    });
                 }
-                this.laserAngle += this.laserRotationSpeed * dt;
-                
-                this.laserDmgTimer -= dt;
-                if (this.laserDmgTimer <= 0) {
-                    this.laserDmgTimer = 0.15;
-                    const len = 350;
-                    const lx2 = this.x + Math.cos(this.laserAngle) * len;
-                    const ly2 = this.y + Math.sin(this.laserAngle) * len;
-                    
-                    for (const p of livePlayers()) {
-                        const dx = lx2 - this.x, dy = ly2 - this.y;
-                        const l2 = dx * dx + dy * dy;
-                        if (l2 === 0) continue;
-                        let t = ((p.x - this.x) * dx + (p.y - this.y) * dy) / l2;
-                        t = clamp(t, 0, 1);
-                        const cx = this.x + t * dx, cy = this.y + t * dy;
-                        if (dist(p, { x: cx, y: cy }) < p.r + 8) {
-                            p.takeDmg(this.damage * 0.45);
+                sfx.shoot();
+            }
+        }
+
+        // 2. Ağır Plazma Topu / Kan Hasadı
+        const plasmaLv = this.weapons.heavyPlasma || 0;
+        const hasBlood = !!this.evolutions.bloodHarvest;
+        if (plasmaLv > 0 || hasBlood) {
+            this.wTimers.heavyPlasma -= dt;
+            const cd = (hasBlood ? 0.42 : Math.max(0.48, 0.85 - plasmaLv * 0.07)) * this.cdMult;
+            if (this.wTimers.heavyPlasma <= 0) {
+                this.wTimers.heavyPlasma = cd;
+                const baseD = (hasBlood ? 52 : 26 + plasmaLv * 8) * this.dmgMult;
+                const shots = (hasBlood || plasmaLv >= 4) ? 2 : 1;
+                for (let s = 0; s < shots; s++) {
+                    const a = aimA + (s - (shots - 1) / 2) * 0.16;
+                    const { dmg, crit } = this.rollCrit(baseD, nearest);
+                    bullets.push({
+                        x: this.x + Math.cos(a) * 20, y: this.y + Math.sin(a) * 20,
+                        vx: Math.cos(a) * 390, vy: Math.sin(a) * 390,
+                        damage: dmg, size: hasBlood ? 7.5 : 6,
+                        color: hasBlood ? '#ff1744' : '#ff5500',
+                        life: 1.5 * this.rangeMult,
+                        splash: true, leech: hasBlood, bounces: 0, crit
+                    });
+                }
+            }
+        }
+
+        // 3. Dönen Enerji Diski / Aegis Rezonansı / Olay Ufku Tekilliği
+        const discLv = this.weapons.energyDisc || 0;
+        const hasAegisEvo = !!this.evolutions.aegisResonance;
+        const hasHorizon = !!this.superEvolutions.eventHorizon;
+        if (discLv > 0 || hasAegisEvo || hasHorizon) {
+            this.discAngle += dt * (hasHorizon ? 5.2 : hasAegisEvo ? 4.4 : 3.2);
+            const discCount = hasHorizon ? 6 : hasAegisEvo ? 5 : 1 + Math.floor(discLv * 0.8);
+            const orbitR = (hasHorizon ? 108 : hasAegisEvo ? 96 : 75) * this.rangeMult;
+            const dps = (hasHorizon ? 140 : hasAegisEvo ? 95 : 35 + discLv * 14) * this.dmgMult;
+
+            for (let i = 0; i < discCount; i++) {
+                const a = this.discAngle + (i * Math.PI * 2 / discCount);
+                const dx = this.x + Math.cos(a) * orbitR;
+                const dy = this.y + Math.sin(a) * orbitR;
+                for (const e of enemies) {
+                    if (e.alive && Math.hypot(e.x - dx, e.y - dy) < e.r + 16) {
+                        e.takeDmg(dps * dt, hasHorizon, true);
+                        if (hasHorizon && this.blackHoleCd <= 0 && blackHoles.length < 3) {
+                            this.blackHoleCd = 1.2;
+                            blackHoles.push({ x: e.x, y: e.y, r: 165, life: 2.1, maxLife: 2.1, dps: 75 * this.dmgMult, a: 0, dmgT: 0 });
                         }
                     }
                 }
-                break;
-            case 'healer':
-                let healTgt = null, hd = Infinity;
-                for (let i = 0; i < enemies.length; i++) {
-                    const e = enemies[i];
-                    if (e !== this && e.alive && e.hp < e.maxHp && !e.isBoss) {
-                        const d = dist(this, e);
-                        if (d < hd) { hd = d; healTgt = e; }
-                    }
-                }
-                if (healTgt) {
-                    const hAngle = ang(this, healTgt);
-                    this.vx = lerp(this.vx, Math.cos(hAngle) * this.spd, 0.06);
-                    this.vy = lerp(this.vy, Math.sin(hAngle) * this.spd, 0.06);
-                    
-                    this.sT -= dt;
-                    if (this.sT <= 0 && hd < 180) {
-                        this.sT = 1.8;
-                        healTgt.hp = Math.min(healTgt.maxHp, healTgt.hp + healTgt.maxHp * 0.25);
-                        spawnP(healTgt.x, healTgt.y, '#ff1744', 8, 70, 0.35, 2.5);
-                        floatT(healTgt.x, healTgt.y - 15, 'DÜŞMAN CANLANDI!', '#ff1744', 11);
-                        shake(2);
-                    }
-                } else {
-                    this.vx = lerp(this.vx, Math.cos(a) * this.spd, 0.04);
-                    this.vy = lerp(this.vy, Math.sin(a) * this.spd, 0.04);
-                }
-                break;
+            }
         }
-        const sm = this.slowT > 0 ? 0.65 : 1.0;
+
+        // 4. Kuantum Hançeri / Kozmik Süpernova
+        const daggerLv = this.weapons.quantumDagger || 0;
+        const hasSupernova = !!this.evolutions.cosmicSupernova;
+        if (daggerLv > 0 || hasSupernova || hasHorizon) {
+            this.wTimers.quantumDagger -= dt;
+            const cd = (hasHorizon ? 0.30 : hasSupernova ? 0.36 : Math.max(0.42, 0.72 - daggerLv * 0.06)) * this.cdMult;
+            if (this.wTimers.quantumDagger <= 0) {
+                this.wTimers.quantumDagger = cd;
+                const count = (hasHorizon || hasSupernova) ? 3 : 1 + Math.floor(daggerLv / 2);
+                const baseD = (hasHorizon ? 46 : hasSupernova ? 36 : 20 + daggerLv * 6.5) * this.dmgMult;
+                for (let i = 0; i < count; i++) {
+                    const a = aimA + (i - (count - 1) / 2) * 0.14;
+                    const { dmg, crit } = this.rollCrit(baseD, nearest);
+                    bullets.push({
+                        x: this.x, y: this.y,
+                        vx: Math.cos(a) * 620, vy: Math.sin(a) * 620,
+                        damage: dmg, size: 4.5,
+                        color: hasSupernova || hasHorizon ? '#bf00ff' : '#ff006a',
+                        life: 1.3 * this.rangeMult,
+                        piercing: true, pierceLeft: 3,
+                        spawnBlackHole: hasSupernova || hasHorizon,
+                        crit: crit || hasSupernova || hasHorizon
+                    });
+                }
+            }
+        }
+
+        // 5. Alev Hattı / Titan Koronası / Omega Kıyamet Reaktörü
+        const flameLv = this.weapons.flameLine || 0;
+        const hasTitan = !!this.evolutions.titanCore;
+        const hasOmega = !!this.superEvolutions.omegaJudgement;
+        if (flameLv > 0 || hasTitan || hasOmega) {
+            this.wTimers.flameLine -= dt;
+            if (this.wTimers.flameLine <= 0) {
+                this.wTimers.flameLine = 0.14;
+                const fx = this.x + Math.cos(this.fac) * 42;
+                const fy = this.y + Math.sin(this.fac) * 42;
+                laserTrails.push({ x: fx, y: fy, l: 0.9, c: hasOmega ? '#ffd700' : '#ff6600' });
+                laserTrails.push({ x: this.x - Math.cos(this.fac) * 24, y: this.y - Math.sin(this.fac) * 24, l: 0.75, c: '#ff4400' });
+            }
+            if (hasTitan || hasOmega) {
+                this.titanPulseT -= dt;
+                if (this.titanPulseT <= 0) {
+                    this.titanPulseT = hasOmega ? 1.8 : 2.5;
+                    const pulseR = hasOmega ? 280 : 210;
+                    particles.push(new Particle(this.x, this.y, 0, 0, '#ff8800', 0.5, pulseR, 'shockwave'));
+                    for (const e of enemies) {
+                        if (e.alive && dist(this, e) < pulseR) {
+                            e.takeDmg((this.mh * 0.25 + 45) * this.dmgMult, true, true);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 6. Güdümlü Füze Sürüsü / Kuantum Yargıç
+        const missileLv = this.weapons.swarmMissiles || 0;
+        const hasArbiter = !!this.evolutions.quantumArbiter;
+        if (missileLv > 0 || hasArbiter || hasOmega) {
+            this.wTimers.swarmMissiles -= dt;
+            const cd = (hasOmega ? 0.38 : hasArbiter ? 0.45 : Math.max(0.55, 0.95 - missileLv * 0.08)) * this.cdMult;
+            if (this.wTimers.swarmMissiles <= 0) {
+                this.wTimers.swarmMissiles = cd;
+                const count = hasOmega ? 5 : hasArbiter ? 4 : 1 + Math.floor(missileLv * 0.7);
+                const baseD = (hasOmega ? 48 : hasArbiter ? 36 : 18 + missileLv * 5.5) * this.dmgMult;
+                for (let i = 0; i < count; i++) {
+                    const a = aimA + (i - (count - 1) / 2) * 0.22;
+                    const { dmg, crit } = this.rollCrit(baseD, nearest);
+                    bullets.push({
+                        x: this.x, y: this.y,
+                        vx: Math.cos(a) * 480, vy: Math.sin(a) * 480,
+                        damage: dmg, size: 5,
+                        color: hasOmega || hasArbiter ? '#ffd700' : '#00ff88',
+                        life: 1.6 * this.rangeMult,
+                        homing: true,
+                        piercing: hasArbiter || hasOmega,
+                        pierceLeft: (hasArbiter || hasOmega) ? 4 : 1,
+                        arbiterBoost: hasArbiter || hasOmega,
+                        crit
+                    });
+                }
+            }
+        }
+    }
+
+    draw(ctx) {
+        if (!this.alive) return;
+
+        // Solar Flare Radyasyon Aurası Çizimi
+        if (this.shipClass === 'solarflare') {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 102, 0, 0.35)';
+            ctx.fillStyle = 'rgba(255, 102, 0, 0.06)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 145, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Dönen Enerji Disklerini Çiz
+        const discLv = this.weapons.energyDisc || 0;
+        const hasAegisEvo = !!this.evolutions.aegisResonance;
+        const hasHorizon = !!this.superEvolutions.eventHorizon;
+        if (discLv > 0 || hasAegisEvo || hasHorizon) {
+            const discCount = hasHorizon ? 6 : hasAegisEvo ? 5 : 1 + Math.floor(discLv * 0.8);
+            const orbitR = (hasHorizon ? 108 : hasAegisEvo ? 96 : 75) * this.rangeMult;
+            for (let i = 0; i < discCount; i++) {
+                const a = this.discAngle + (i * Math.PI * 2 / discCount);
+                const dx = this.x + Math.cos(a) * orbitR;
+                const dy = this.y + Math.sin(a) * orbitR;
+                ctx.save();
+                ctx.translate(dx, dy);
+                ctx.rotate(this.discAngle * 3);
+                ctx.strokeStyle = hasHorizon ? '#00f0ff' : '#bf00ff';
+                ctx.fillStyle = 'rgba(191, 0, 255, 0.35)';
+                ctx.lineWidth = 2.2;
+                ctx.beginPath();
+                ctx.arc(0, 0, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.fac);
+        if (this.stealthT > 0) ctx.globalAlpha = 0.38;
+        else if (this.invT > 0 && Math.floor(this.invT * 12) % 2 === 0) ctx.globalAlpha = 0.55;
+
+        const r = this.r;
+        ctx.strokeStyle = this.c;
+        ctx.fillStyle = this.c + '33';
+        ctx.lineWidth = 2.4;
+        ctx.shadowColor = this.c;
+        ctx.shadowBlur = perfMode ? 0 : 12;
+
+        ctx.beginPath();
+        if (this.shipClass === 'interceptor') {
+            ctx.moveTo(r * 1.35, 0);
+            ctx.lineTo(-r * 0.8, -r * 0.95);
+            ctx.lineTo(-r * 0.35, 0);
+            ctx.lineTo(-r * 0.8, r * 0.95);
+        } else if (this.shipClass === 'dreadnought') {
+            ctx.moveTo(r * 1.15, -r * 0.45);
+            ctx.lineTo(r * 1.15, r * 0.45);
+            ctx.lineTo(-r * 0.9, r * 0.95);
+            ctx.lineTo(-r * 0.65, 0);
+            ctx.lineTo(-r * 0.9, -r * 0.95);
+        } else if (this.shipClass === 'aegis') {
+            for (let i = 0; i < 6; i++) {
+                const a = (i / 6) * Math.PI * 2;
+                ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * r, Math.sin(a) * r);
+            }
+        } else if (this.shipClass === 'phantom') {
+            ctx.moveTo(r * 1.45, 0);
+            ctx.lineTo(-r * 0.6, -r * 1.05);
+            ctx.lineTo(-r * 0.15, 0);
+            ctx.lineTo(-r * 0.6, r * 1.05);
+        } else {
+            // Solar Flare
+            for (let i = 0; i < 8; i++) {
+                const a = (i / 8) * Math.PI * 2;
+                const rad = i % 2 === 0 ? r * 1.3 : r * 0.68;
+                ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * rad, Math.sin(a) * rad);
+            }
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+// ── Düşman (Enemy) Sınıfı ──
+const ENEMY_CFG = {
+    drone:    { hp: 22,  spd: 105, r: 12, dmg: 10, sc: 15, color: '#ff3366' },
+    tank:     { hp: 90,  spd: 58,  r: 20, dmg: 22, sc: 40, color: '#ff8800' },
+    speeder:  { hp: 16,  spd: 185, r: 10, dmg: 8,  sc: 20, color: '#ffff00' },
+    shooter:  { hp: 36,  spd: 78,  r: 14, dmg: 12, sc: 30, color: '#cc44ff' },
+    orbiter:  { hp: 30,  spd: 135, r: 13, dmg: 12, sc: 28, color: '#00ff88' },
+    splitter: { hp: 48,  spd: 75,  r: 17, dmg: 14, sc: 35, color: '#ff6600' },
+    shielder: { hp: 42,  spd: 72,  r: 15, dmg: 14, sc: 38, color: '#4488ff' },
+    sniper:   { hp: 28,  spd: 65,  r: 13, dmg: 18, sc: 42, color: '#ff0044' },
+    kamikaze: { hp: 26,  spd: 165, r: 13, dmg: 28, sc: 36, color: '#ff4400' },
+    phantom:  { hp: 38,  spd: 115, r: 14, dmg: 15, sc: 45, color: '#aa66ff' },
+    sweeper:  { hp: 70,  spd: 62,  r: 18, dmg: 18, sc: 55, color: '#00ffcc' },
+    healer:   { hp: 62,  spd: 68,  r: 16, dmg: 14, sc: 60, color: '#ff1744' }
+};
+
+class Enemy {
+    constructor(type, x, y, isMiniBoss = false) {
+        const cfg = ENEMY_CFG[type] || ENEMY_CFG.drone;
+        this.type = type;
+        this.x = x; this.y = y;
+        this.vx = 0; this.vy = 0;
+        this.isBoss = false;
+        this.isMiniBoss = isMiniBoss;
+        this.eid = Math.random();
+
+        const wScale = 1 + (wave - 1) * 0.16;
+        this.hp = cfg.hp * wScale * DC.ehm * (isMiniBoss ? 6.5 : 1);
+        this.maxHp = this.hp;
+        this.spd = cfg.spd * DC.esm * (isMiniBoss ? 0.88 : 1);
+        this.r = cfg.r * (isMiniBoss ? 1.85 : 1);
+        this.damage = cfg.dmg * (isMiniBoss ? 1.5 : 1);
+        this.sc = cfg.sc * (isMiniBoss ? 5 : 1);
+        this.color = isMiniBoss ? '#ffd700' : cfg.color;
+        this.shHp = type === 'shielder' ? 35 * wScale : 0;
+
+        this.alive = true;
+        this.aA = rand(0, Math.PI * 2);
+        this.fl = 0;
+        this.sT = rand(1.0, 2.4);
+        this.slowT = 0;
+        this.burnT = 0;
+        this.laserAngle = rand(0, Math.PI * 2);
+        this.isElite = isMiniBoss || (!this.isBoss && wave >= 10 && Math.random() < 0.14);
+        this.truePctDmg = this.isElite ? 0.05 : 0;
+    }
+
+    takeDmg(d, cr = false, ignoreArmor = false, hitAngle = null) {
+        if (!this.alive) return false;
+        if (this.shHp > 0) {
+            this.shHp -= d;
+            if (this.shHp > 0) return true;
+            d = -this.shHp;
+            this.shHp = 0;
+        }
+        this.hp -= d;
+        this.fl = 0.08;
+        dpsWindowDmg += d;
+        totalDamageDealt += d;
+        if (cr) floatT(this.x + rand(-8, 8), this.y - this.r - 6, `CRIT! ${Math.floor(d)}`, '#ffd700', 12);
+        if (this.hp <= 0) this.die();
+        return true;
+    }
+
+    die() {
+        if (!this.alive) return;
+        this.alive = false;
+        spawnExp(this.x, this.y, this.color, this.isMiniBoss ? 2.2 : 1.0);
+        sfx.exp();
+
+        const mapMult = (MAPS[SELECTED_MAP] || MAPS.sector9).scoreMult;
+        const pts = Math.floor(this.sc * comboM * DC.sm * mapMult);
+        score += pts;
+        totalKills++;
+        comboC++;
+        comboTm = 3.2;
+        comboM = Math.min(5.0, 1 + Math.floor(comboC / 5) * 0.25);
+
+        if (p1 && p1.alive) {
+            p1.gainXP(this.sc * 0.9);
+            if (p1.trinkets.bioreactor) p1.healLeech(p1.trinkets.bioreactor * 1.5);
+        }
+
+        // Elit Mini-Boss %50 ihtimalle altın Kozmik Şans Sandığı düşürür!
+        if (this.isMiniBoss) {
+            floatT(this.x, this.y - 25, '★ ELİT MİNİ-BOSS İMHA EDİLDİ! ★', '#ffd700', 16);
+            if (Math.random() < 0.50) {
+                spawnCosmicChest(this.x, this.y);
+            }
+        } else if (Math.random() < 0.12 * DC.pdm) {
+            const pTypes = ['heal', 'shield', 'xpGem'];
+            pickups.push({ x: this.x, y: this.y, r: 10, type: pTypes[randInt(0, pTypes.length - 1)], life: 12, aA: 0 });
+        }
+    }
+
+    update(dt) {
+        if (!this.alive) return false;
+        this.aA += dt * 2.2;
+        if (this.fl > 0) this.fl -= dt;
+        if (this.burnT > 0) {
+            this.burnT -= dt;
+            this.takeDmg(18 * dt, false, true);
+        }
+
+        if (!p1 || !p1.alive) return true;
+        // Gölge görünmezken parazitler rastgele yöne sapar
+        const a = p1.stealthT > 0 ? this.aA : ang(this, p1);
+        const sm = this.slowT > 0 ? 0.6 : 1.0;
         if (this.slowT > 0) this.slowT -= dt;
-        this.x += this.vx * sm * dt; this.y += this.vy * sm * dt;
-        
-        for (const p of lp) {
-            if (dist(this, p) < this.r + p.r) {
-                p.takeDmg(this.damage, this.truePctDmg || 0);
-                if (this.type !== 'tank' && this.type !== 'sweeper' && this.type !== 'healer' && !this.isBoss) { this.hp = 0; this.die(); return false; }
+
+        this.vx = lerp(this.vx, Math.cos(a) * this.spd * sm, 0.08);
+        this.vy = lerp(this.vy, Math.sin(a) * this.spd * sm, 0.08);
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+
+        if ((this.type === 'shooter' || this.type === 'sniper' || this.isMiniBoss) && p1.stealthT <= 0) {
+            this.sT -= dt;
+            if (this.sT <= 0) {
+                this.sT = this.isMiniBoss ? 1.2 : 2.1;
+                const sp = this.type === 'sniper' ? 340 : 210;
+                eBullets.push({
+                    x: this.x, y: this.y,
+                    vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+                    damage: this.damage * 0.7, size: this.isMiniBoss ? 6 : 4.5,
+                    color: this.color, life: 3.5, truePct: this.truePctDmg
+                });
+            }
+        }
+
+        if (dist(this, p1) < this.r + p1.r) {
+            p1.takeDmg(this.damage, this.truePctDmg);
+            if (!this.isMiniBoss && !this.isBoss && this.type !== 'tank') {
+                this.hp = 0;
+                this.die();
+                return false;
             }
         }
         return true;
     }
-    takeDmg(d, cr, ignoreArmor = false, hitAngle = null) {
-        // Ekran dışındaki düşmanlar ve giriş aşamasındaki bosslar hasar almaz
-        if (this.isBoss) {
-            if (this.y < 80 || this.x < 0 || this.x > canvas.width || this.y > canvas.height) return false;
-            // OBLIVION BEHEMOTH Ön Zırh Plakası Kontrolü (Mermi geçirmeyen ön kalkan, arkadaki açık reaktör zayıf noktası)
-            if (this.bossType === 'behemoth' && !ignoreArmor && hitAngle !== null) {
-                let ad = hitAngle - this.armorAngle;
-                while (ad > Math.PI) ad -= Math.PI * 2;
-                while (ad < -Math.PI) ad += Math.PI * 2;
-                if (Math.abs(ad) < 1.75) { // ~200 derece ön zırh plakası
-                    const bx = this.x + Math.cos(hitAngle) * this.r;
-                    const by = this.y + Math.sin(hitAngle) * this.r;
-                    spawnP(bx, by, '#ffaa00', 4, 190, 0.22, 2.2, 'spark');
-                    if (this.deflectTextCd <= 0) {
-                        this.deflectTextCd = 0.45;
-                        floatT(bx, by - 12, '🛡️ ZIRH ENGELLEDİ!', '#ffaa00', 13);
-                    }
-                    return false;
-                } else {
-                    // Arkadaki açık reaktöre vuruş (%75 ekstra zayıf nokta hasarı!)
-                    d *= 1.75;
-                    cr = true;
-                }
-            }
-        } else {
-            if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) return false;
-        }
 
-        if (this.shHp > 0) {
-            const ab = Math.min(this.shHp, d); this.shHp -= ab; d -= ab;
-            spawnP(this.x, this.y, '#6666ff', 3, 60, 0.2, 2);
-        }
-        this.hp -= d; this.fl = 0.1;
-        if (cr) {
-            floatT(this.x + rand(-8, 8), this.y - 18, 'CRIT!', '#ffe600', 20); spawnP(this.x, this.y, '#ffe600', 6, 240, 0.3, 2.4, 'spark');
-            shake(3);
-        }
-        if (this.hp <= 0) this.die();
-    }
-    die() {
-        this.alive = false; 
-        spawnExp(this.x, this.y, this.color, this.isBoss ? 4.5 : 1.2); spawnP(this.x, this.y, this.color, perfMode ? 3 : (this.isBoss ? 18 : 6), 280, 0.8, this.r * 0.35 + 2, 'shard'); 
-        sfx.kill();
-        shake(this.isBoss ? 25 : 5);
-        
-        const pts = Math.floor(this.sc * comboM * DC.sm); score += pts; totalKills++;
-        floatT(this.x, this.y - 20, '+' + pts, GOLD);
-        comboC++; comboTm = 3; comboM = Math.min(1 + Math.floor(comboC / 5) * 0.5, 10);
-        
-        livePlayers().forEach(p => { if (dist(this, p) < 500) p.gainXP(this.sc * 0.5); });
-        
-        if (Math.random() < DC.pc) spawnPickup(this.x, this.y);
-        
-        if (this.type === 'splitter' && !this.isBoss) {
-            for (let i = 0; i < 3; i++) {
-                const ne = new Enemy('speeder', this.x + rand(-20, 20), this.y + rand(-20, 20));
-                ne.hp *= 0.5; ne.maxHp = ne.hp; enemies.push(ne);
-            }
-        }
-        
-        if (this.type === 'kamikaze') {
-            spawnExp(this.x, this.y, '#ff4400', 1.4);
-            for (const p of livePlayers()) {
-                if (dist(this, p) < 95) {
-                    p.takeDmg(this.damage * 0.7);
-                }
-            }
-        }
-        
-        livePlayers().filter(p => p.vamp > 0).forEach(p => { p.healLeech(p.vamp); });
-    }
     draw(ctx) {
         if (!this.alive) return;
-        const fl = this.fl > 0;
-        const grd = ctx.createRadialGradient(this.x, this.y, this.r * 0.3, this.x, this.y, this.r * 2.2);
-        grd.addColorStop(0, this.color + '12'); grd.addColorStop(1, this.color + '00');
-        ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(this.x, this.y, this.r * 2.2, 0, Math.PI * 2); ctx.fill();
-        
-        if (this.isElite && !this.isBoss) {
-            ctx.save();
-            ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 1.6; ctx.setLineDash([4, 4]);
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.r + 7, 0, Math.PI * 2); ctx.stroke();
-            ctx.setLineDash([]); ctx.restore();
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        if (this.isMiniBoss || this.isElite) {
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = this.isMiniBoss ? 2.5 : 1.4;
+            ctx.setLineDash([5, 4]);
+            ctx.beginPath();
+            ctx.arc(0, 0, this.r + 7, this.aA, this.aA + Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
         }
-        ctx.save(); ctx.translate(this.x, this.y);
-        ctx.fillStyle = fl ? '#fff' : this.color + '40'; ctx.strokeStyle = fl ? '#fff' : this.color; ctx.lineWidth = 2;
-        switch (this.type) {
-            case 'drone': ctx.rotate(this.aA * 0.5); ctx.beginPath(); ctx.moveTo(0, -this.r); ctx.lineTo(this.r, 0); ctx.lineTo(0, this.r); ctx.lineTo(-this.r, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); break;
-            case 'tank': ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2 + this.aA * 0.2; ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * this.r, Math.sin(a) * this.r) } ctx.closePath(); ctx.fill(); ctx.stroke(); break;
-            case 'speeder': ctx.rotate(this.aA); ctx.beginPath(); ctx.moveTo(0, -this.r); ctx.lineTo(this.r * 0.866, this.r * 0.5); ctx.lineTo(-this.r * 0.866, this.r * 0.5); ctx.closePath(); ctx.fill(); ctx.stroke(); break;
-            case 'shooter': ctx.beginPath(); for (let i = 0; i < 5; i++) { const a = (i / 5) * Math.PI * 2 - Math.PI / 2 + this.aA * 0.3; ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * this.r, Math.sin(a) * this.r) } ctx.closePath(); ctx.fill(); ctx.stroke(); break;
-            case 'orbiter': ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); break;
-            case 'splitter': ctx.rotate(this.aA * 0.3); ctx.beginPath(); for (let i = 0; i < 4; i++) { const a = (i / 4) * Math.PI * 2; ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * this.r, Math.sin(a) * this.r) } ctx.closePath(); ctx.fill(); ctx.stroke(); break;
-            case 'shielder': ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); if (this.shHp > 0) { ctx.globalAlpha = 0.4; ctx.strokeStyle = '#aaf'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, this.r + 6, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1 } break;
-            case 'sniper': ctx.rotate(this.aA * 0.2); ctx.beginPath(); ctx.moveTo(this.r, 0); ctx.lineTo(-this.r * 0.5, -this.r * 0.7); ctx.lineTo(-this.r * 0.5, this.r * 0.7); ctx.closePath(); ctx.fill(); ctx.stroke(); break;
-            case 'kamikaze': ctx.rotate(this.aA * 0.8); ctx.beginPath(); ctx.moveTo(0, -this.r); ctx.lineTo(this.r * 0.7, this.r * 0.7); ctx.lineTo(-this.r * 0.7, this.r * 0.7); ctx.closePath(); ctx.fill(); ctx.stroke(); break;
-            case 'phantom': ctx.rotate(this.aA * 0.4); ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, this.r * 0.5, 0, Math.PI * 2); ctx.stroke(); break;
-            case 'sweeper': 
-                ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); 
-                if (this.laserAngle !== undefined) {
-                    ctx.save();
-                    ctx.strokeStyle = this.color;
-                    ctx.lineWidth = 2.5;
-                    ctx.shadowColor = this.color;
-                    ctx.shadowBlur = 10;
-                    ctx.beginPath();
-                    ctx.moveTo(0, 0);
-                    ctx.lineTo(Math.cos(this.laserAngle) * 350, Math.sin(this.laserAngle) * 350);
-                    ctx.stroke();
-                    ctx.restore();
-                }
-                break;
-            case 'healer':
-                // Pulsing danger aura
-                const hGrd = ctx.createRadialGradient(0, 0, this.r * 0.3, 0, 0, this.r * 2.3);
-                hGrd.addColorStop(0, 'rgba(255, 23, 68, 0.28)');
-                hGrd.addColorStop(1, 'rgba(255, 23, 68, 0)');
-                ctx.fillStyle = hGrd;
-                ctx.beginPath(); ctx.arc(0, 0, this.r * 2.3, 0, Math.PI * 2); ctx.fill();
-                
-                // Rotating outer predator spikes
-                ctx.save();
-                ctx.rotate(this.aA * 0.8);
-                ctx.strokeStyle = '#ff1744'; ctx.fillStyle = 'rgba(255, 23, 68, 0.25)'; ctx.lineWidth = 2;
-                ctx.beginPath();
-                for (let i = 0; i < 4; i++) {
-                    const ba = i * Math.PI / 2;
-                    ctx.moveTo(Math.cos(ba) * this.r * 0.7, Math.sin(ba) * this.r * 0.7);
-                    ctx.lineTo(Math.cos(ba) * (this.r + 7), Math.sin(ba) * (this.r + 7));
-                    ctx.lineTo(Math.cos(ba + 0.35) * this.r * 0.8, Math.sin(ba + 0.35) * this.r * 0.8);
-                }
-                ctx.stroke();
-                ctx.restore();
-                
-                // Inner crimson core
-                ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI * 2);
-                ctx.fillStyle = '#ff174430'; ctx.strokeStyle = '#ff1744'; ctx.lineWidth = 2.5;
-                ctx.fill(); ctx.stroke();
-                
-                // Hostile siphon diamond center
-                ctx.fillStyle = '#ff1744';
-                ctx.beginPath();
-                ctx.moveTo(0, -this.r * 0.6); ctx.lineTo(this.r * 0.6, 0); ctx.lineTo(0, this.r * 0.6); ctx.lineTo(-this.r * 0.6, 0);
-                ctx.closePath(); ctx.fill();
-                ctx.fillStyle = '#0a0204';
-                ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
-                
-                // Danger Skull / Alert tag above enemy healer
-                ctx.fillStyle = '#ff1744';
-                ctx.font = 'bold 9px Orbitron';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText('☠ RAKİP', 0, -this.r - 7);
-                break;
-        }
+        ctx.fillStyle = this.fl > 0 ? '#ffffff' : this.color + '44';
+        ctx.strokeStyle = this.fl > 0 ? '#ffffff' : this.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
         ctx.restore();
     }
 }
 
-// ── Boss Sınıfı ──
-const BOSS_NAMES = ['VOID WALKER', 'NEBULA LORD', 'STAR EATER', 'DARK NOVA', 'COSMIC DREAD', 'NOVA TYRANT', 'ENTROPY KING', 'VOID EMPEROR', 'GALAXY BANE', 'DEATH ORBIT'];
+// ── Boss Sınıfı (Chronos Weaver Dalga 20 & Oblivion Behemoth Dalga 30 Dahil) ──
+const BOSS_NAMES = ['VOID WALKER', 'NEBULA LORD', 'STAR EATER', 'CHRONOS WEAVER', 'COSMIC DREAD', 'OBLIVION BEHEMOTH'];
 class Boss extends Enemy {
     constructor(bw, x, y, bossType = null) {
-        super('drone', x, y); 
-        this.isBoss = true; 
-        this.type = 'boss'; 
+        super('drone', x, y, false);
+        this.isBoss = true;
+        this.type = 'boss';
         this.bw = bw;
         this.r = 44 + bw * 2;
-        
-        // Oyuncu gücüne göre dinamik HP ölçekleme (Player DPS ve Max HP)
-        const lPlayers = livePlayers();
-        const totalDps = lPlayers.reduce((sum, p) => sum + (p.bd / p.sr) * (1 + (p.extraS || 0) * 0.7), 0);
-        const playerPowerMult = Math.max(1.0, totalDps / 25);
-        const maxPlayerHp = lPlayers.length > 0 ? Math.max(...lPlayers.map(p => p.mh)) : 100;
-        
-        // Temel HP'yi aşırı güçlendirdik, canavar gücüne eşitledik
-        const baseBossHp = 1500 + bw * 500;
-        this.hp = baseBossHp * DC.bhm * playerPowerMult;
+        this.hp = (1450 + bw * 520) * DC.bhm;
         this.maxHp = this.hp;
-        
-        this.spd = 35 + bw * 2.5;
-        
-        // Oyuncu can havuzuna göre hasar ölçekleme
-        const baseBossDmg = 25 + bw * 6;
-        this.damage = baseBossDmg * DC.edm * Math.max(1.0, maxPlayerHp / 100);
-        
-        this.sc = 300 + bw * 50;
-        this.color = '#ff00ff'; 
-        this.sT = 0; 
+        this.spd = 42 + bw * 2.5;
+        this.damage = (24 + bw * 5) * DC.edm;
+        this.sc = 350 + bw * 60;
         this.pT = 0;
-        this.enraged = false; 
-        this.sumT = 8; 
-        this.shHp = 0;
-        this.overloadT = 0; // Boss özel lazer aşırı yüklenme zamanlayıcısı
-        
-        this.bossName = BOSS_NAMES[Math.min(bw - 1, BOSS_NAMES.length - 1)] || 'COSMIC BOSS';
-        
-        // Özel Boss Çeşitleri: chaser, bullethell, gravity, chronos (Dalga 20), behemoth (Dalga 30)
-        this.bossType = bossType || ['chaser', 'bullethell', 'gravity'][randInt(0, 2)];
+        this.enraged = false;
         this.armorAngle = Math.PI / 2;
         this.deflectTextCd = 0;
-        
-        if (this.bossType === 'chaser') {
-            this.bossName = 'VOID PHANTOM ◈ ' + this.bossName;
-            this.color = '#ff006a';
-            this.spd *= 1.35;
-            this.dashTimer = 3.5;
-            this.dashState = 'normal';
-            this.chargeTimer = 0;
-            this.dashDuration = 0;
-            this.dashAngle = 0;
-        } else if (this.bossType === 'bullethell') {
-            this.bossName = 'NOVA BLASTER ◈ ' + this.bossName;
-            this.color = '#bf00ff';
-            this.spd *= 0.85;
-        } else if (this.bossType === 'gravity') {
-            this.bossName = 'ENTROPY STAR ◈ ' + this.bossName;
-            this.color = '#00f0ff';
-            this.spd *= 0.95;
-            this.dzTimer = 2.0;
-        } else if (this.bossType === 'chronos') {
+        this.riftTimer = 2.4;
+        this.mortarTimer = 3.0;
+
+        this.bossType = bossType || ['chaser', 'bullethell', 'gravity'][bw % 3];
+        this.bossName = BOSS_NAMES[Math.min(bw - 1, BOSS_NAMES.length - 1)] || 'COSMIC BOSS';
+        if (this.bossType === 'chronos') {
             this.bossName = 'CHRONOS WEAVER ◈ ZAMAN DOKUYUCU';
             this.color = '#00ffcc';
-            this.spd *= 1.05;
-            this.riftTimer = 2.4;
         } else if (this.bossType === 'behemoth') {
             this.bossName = 'OBLIVION BEHEMOTH ◈ ZIRHLI YIKICI';
             this.color = '#ff5500';
             this.r += 10;
-            this.hp *= 1.35; this.maxHp = this.hp;
-            this.spd *= 0.78;
-            this.mortarTimer = 3.2;
+            this.hp *= 1.3;
+            this.maxHp = this.hp;
+        } else {
+            this.color = '#ff006a';
         }
     }
+
+    takeDmg(d, cr = false, ignoreArmor = false, hitAngle = null) {
+        if (!this.alive) return false;
+        if (this.bossType === 'behemoth' && !ignoreArmor && hitAngle !== null) {
+            let ad = hitAngle - this.armorAngle;
+            while (ad > Math.PI) ad -= Math.PI * 2;
+            while (ad < -Math.PI) ad += Math.PI * 2;
+            if (Math.abs(ad) < 1.75) {
+                if (this.deflectTextCd <= 0) {
+                    this.deflectTextCd = 0.4;
+                    floatT(this.x, this.y - this.r - 10, '🛡️ ZIRH ENGELLEDİ!', '#ffaa00', 13);
+                }
+                return false;
+            } else {
+                d *= 1.75;
+                cr = true;
+            }
+        }
+        return super.takeDmg(d, cr, ignoreArmor, hitAngle);
+    }
+
     update(dt) {
         if (!this.alive) return false;
-        this.aA += dt * 1.5; 
-        this.fl = Math.max(0, this.fl - dt); 
         this.pT += dt;
-        
-        // Faz 2 Tetiklenme (%35 canın altında)
-        if (!this.enraged && this.hp < this.maxHp * 0.35) {
-            this.enraged = true; 
-            this.spd *= 1.45;
-            floatT(this.x, this.y - 50, 'ÖFKELENDİ! (FAZ 2)', '#ff0000', 26);
-            spawnP(this.x, this.y, '#ff0000', 35, 200, 0.6, 4); 
-            shake(12);
-        }
-        
-        let tgt = null, td = Infinity; 
-        const lp = livePlayers();
-        for (const p of lp) { const d = dist(this, p); if (d < td) { td = d; tgt = p; } }
-        if (!tgt) return true;
-        
-        const a = ang(this, tgt);
-        
-        // Boss Giriş Animasyonu (Yukarıdan aşağı yavaşça iner)
-        if (this.y < 80) {
-            this.y += 90 * dt;
-            this.vx = 0; this.vy = 0;
-            return true;
-        }
-        
-        // Boss Tipi Davranış Mekanikleri
-        if (this.bossType === 'chaser') {
-            if (this.dashState === 'normal') {
-                this.vx = lerp(this.vx, Math.cos(a) * this.spd, 0.05);
-                this.vy = lerp(this.vy, Math.sin(a) * this.spd, 0.05);
-                
-                this.dashTimer -= dt;
-                if (this.dashTimer <= 0) {
-                    this.dashState = 'charging';
-                    this.chargeTimer = 1.2;
-                    this.vx = 0; this.vy = 0;
-                    floatT(this.x, this.y - 45, 'KİLİTLENİYOR...', '#ff006a', 16);
-                }
-                
-                // Normal atış burst
-                this.sT -= dt * DC.bsr * (this.enraged ? 1.5 : 1.0);
-                if (this.sT <= 0) {
-                    this.sT = 1.35;
-                    const saNow = ang(this, tgt);
-                    for (let i = 0; i < 3; i++) {
-                        setTimeout(() => {
-                            if (!this.alive) return;
-                            eBullets.push({ x: this.x, y: this.y, vx: Math.cos(saNow) * 320, vy: Math.sin(saNow) * 320, damage: 10 * DC.edm, size: 5, color: this.color, life: 2.5 });
-                        }, i * 140);
-                    }
-                }
-            } else if (this.dashState === 'charging') {
-                // Şarj aşaması (Kırmızı partiküller saçar)
-                if (Math.random() < 0.45) {
-                    spawnP(this.x, this.y, '#ff006a', 3, 100, 0.35, 2.5);
-                }
-                this.chargeTimer -= dt;
-                if (this.chargeTimer <= 0) {
-                    this.dashState = 'dashing';
-                    this.dashDuration = 0.8;
-                    this.dashAngle = ang(this, tgt);
-                    this.vx = Math.cos(this.dashAngle) * this.spd * 4.5;
-                    this.vy = Math.sin(this.dashAngle) * this.spd * 4.5;
-                    sfx.shoot();
-                    shake(8);
-                }
-            } else if (this.dashState === 'dashing') {
-                // Yüksek hızla hücum ederken yanlara mermiler bırakır
-                if (Math.random() < 0.35) {
-                    const perpA = this.dashAngle + Math.PI / 2;
-                    eBullets.push({ x: this.x, y: this.y, vx: Math.cos(perpA) * 70, vy: Math.sin(perpA) * 70, damage: 12 * DC.edm, size: 5, color: this.color, life: 2 });
-                    eBullets.push({ x: this.x, y: this.y, vx: -Math.cos(perpA) * 70, vy: -Math.sin(perpA) * 70, damage: 12 * DC.edm, size: 5, color: this.color, life: 2 });
-                }
-                this.dashDuration -= dt;
-                if (this.dashDuration <= 0) {
-                    this.dashState = 'normal';
-                    this.dashTimer = rand(3.5, 5.5);
-                    this.vx = 0; this.vy = 0;
-                }
-            }
-        } else if (this.bossType === 'bullethell') {
-            // Sonsuzluk (Figür-8) şeklinde yörünge hareketi
-            const tx = canvas.width / 2 + Math.sin(this.pT * 0.8) * (canvas.width * 0.35);
-            const ty = canvas.height / 2 - 50 + Math.cos(this.pT * 1.6) * (canvas.height * 0.2);
-            this.vx = lerp(this.vx, (tx - this.x) * 1.5, 0.05);
-            this.vy = lerp(this.vy, (ty - this.y) * 1.5, 0.05);
-            
-            // Dönen spiral mermiler
-            this.sT -= dt * (this.enraged ? 1.65 : 1.0) * DC.bsr;
-            if (this.sT <= 0) {
-                this.sT = 0.12;
-                const branches = this.enraged ? 8 : 4;
-                const angleOffset = this.pT * 2.2;
-                for (let i = 0; i < branches; i++) {
-                    const sa = angleOffset + i * Math.PI * 2 / branches;
-                    eBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * 230, vy: Math.sin(sa) * 230, damage: 8 * DC.edm, size: 5, color: this.color, life: 3.5 });
-                }
-            }
-            
-            // Periyodik büyük halka mermileri
-            if (this.pT % 5.5 < dt) {
-                const count = 16;
-                for (let i = 0; i < count; i++) {
-                    const sa = i * Math.PI * 2 / count;
-                    eBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * 170, vy: Math.sin(sa) * 170, damage: 10 * DC.edm, size: 6, color: '#fff', life: 4 });
-                }
-            }
-        } else if (this.bossType === 'gravity') {
-            // Yavaşça oyuncuyu takip eder
-            this.vx = lerp(this.vx, Math.cos(a) * this.spd, 0.03);
-            this.vy = lerp(this.vy, Math.sin(a) * this.spd, 0.03);
-            
-            // Oyuncuları kendine çeker (Gravitational Pull)
-            for (const p of lp) {
-                const d = dist(this, p);
-                if (d < 700) {
-                    const force = (1 - d / 700) * 130 * dt;
-                    const pullAngle = ang(p, this);
-                    p.x += Math.cos(pullAngle) * force;
-                    p.y += Math.sin(pullAngle) * force;
-                    if (Math.random() < 0.15) {
-                        spawnP(p.x, p.y, this.color, 1, 40, 0.3, 2);
-                    }
-                }
-            }
-            
-            // Oyuncu konumlarına kırmızı patlayan tehlike alanları (Danger Zone) bırakır
-            this.dzTimer -= dt;
-            if (this.dzTimer <= 0) {
-                this.dzTimer = this.enraged ? 2.0 : 3.0;
-                for (const p of lp) {
-                    dangerZones.push({
-                        x: p.x + rand(-30, 30),
-                        y: p.y + rand(-30, 30),
-                        r: 110,
-                        timer: 1.5,
-                        maxTimer: 1.5,
-                        damage: 28 * DC.edm,
-                        color: '#ff3300'
-                    });
-                }
-                floatT(this.x, this.y - 45, 'YERÇEKİMİ BOMBASI!', this.color, 16);
-            }
-            
-            // Büyük yavaş yerçekimi gülleleri fırlatır
-            this.sT -= dt * DC.bsr * (this.enraged ? 1.5 : 1.0);
-            if (this.sT <= 0) {
-                this.sT = 1.6;
-                const count = 8;
-                for (let i = 0; i < count; i++) {
-                    const sa = a + i * Math.PI * 2 / count;
-                    eBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * 150, vy: Math.sin(sa) * 150, damage: 12 * DC.edm, size: 8, color: this.color, life: 5.0 });
-                }
-            }
-        } else if (this.bossType === 'chronos') {
-            // CHRONOS WEAVER (Dalga 20): Zamanı büken yerçekimi yarıkları açar ve oyuncuyu ters yöne iter
-            const orbitX = canvas.width / 2 + Math.cos(this.pT * 0.65) * (canvas.width * 0.28);
-            const orbitY = canvas.height * 0.35 + Math.sin(this.pT * 1.3) * (canvas.height * 0.16);
-            this.vx = lerp(this.vx, (orbitX - this.x) * 1.4, 0.05);
-            this.vy = lerp(this.vy, (orbitY - this.y) * 1.4, 0.05);
+        if (this.deflectTextCd > 0) this.deflectTextCd -= dt;
+        if (this.y < 85) { this.y += 95 * dt; return true; }
+        if (!p1 || !p1.alive) return true;
 
+        const a = ang(this, p1);
+        if (this.bossType === 'chronos') {
             this.riftTimer -= dt;
             if (this.riftTimer <= 0) {
-                this.riftTimer = this.enraged ? 2.1 : 3.2;
-                for (const p of lp) {
-                    if (gravityRifts.length < 4) {
-                        gravityRifts.push({
-                            x: clamp(p.x + rand(-90, 90), 90, canvas.width - 90),
-                            y: clamp(p.y + rand(-90, 90), 90, canvas.height - 90),
-                            r: 150,
-                            life: 4.2,
-                            maxLife: 4.2,
-                            a: rand(0, Math.PI * 2),
-                            dmgTick: 0
-                        });
-                    }
-                }
-                floatT(this.x, this.y - 48, '⏳ ZAMAN YARIĞI AÇILDI!', '#00ffcc', 16);
-                sfx.emp();
-            }
-
-            this.sT -= dt * DC.bsr * (this.enraged ? 1.55 : 1.0);
-            if (this.sT <= 0) {
-                this.sT = 0.95;
-                const arms = this.enraged ? 10 : 6;
-                for (let i = 0; i < arms; i++) {
-                    const sa = this.pT * 1.8 + (i * Math.PI * 2 / arms);
-                    const sp = (i % 2 === 0) ? 290 : 185;
-                    eBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * sp, vy: Math.sin(sa) * sp, damage: 11 * DC.edm, size: 5, color: '#00ffcc', life: 3.8, truePct: 0.04 });
+                this.riftTimer = 3.2;
+                if (gravityRifts.length < 3) {
+                    gravityRifts.push({ x: p1.x + rand(-80, 80), y: p1.y + rand(-80, 80), r: 145, life: 4.0, maxLife: 4.0, a: 0, dmgTick: 0 });
                 }
             }
         } else if (this.bossType === 'behemoth') {
-            // OBLIVION BEHEMOTH (Dalga 30): Ön gövdesinde mermi geçirmeyen dönen zırh plakaları taşır
-            if (this.deflectTextCd > 0) this.deflectTextCd -= dt;
-            const turnRate = (this.enraged ? 1.55 : 1.12) * dt;
+            const turnRate = 1.15 * dt;
             let diff = a - this.armorAngle;
             while (diff > Math.PI) diff -= Math.PI * 2;
             while (diff < -Math.PI) diff += Math.PI * 2;
             this.armorAngle += clamp(diff, -turnRate, turnRate);
+        }
 
-            this.vx = lerp(this.vx, Math.cos(this.armorAngle) * this.spd, 0.04);
-            this.vy = lerp(this.vy, Math.sin(this.armorAngle) * this.spd, 0.04);
+        this.vx = lerp(this.vx, Math.cos(a) * this.spd, 0.04);
+        this.vy = lerp(this.vy, Math.sin(a) * this.spd, 0.04);
+        this.x = clamp(this.x + this.vx * dt, this.r, canvas.width - this.r);
+        this.y = clamp(this.y + this.vy * dt, this.r, canvas.height - this.r);
 
-            // Ön ağır plazma bataryası
-            this.sT -= dt * DC.bsr * (this.enraged ? 1.5 : 1.0);
-            if (this.sT <= 0) {
-                this.sT = 1.1;
-                for (let k = -2; k <= 2; k++) {
-                    const sa = this.armorAngle + k * 0.16;
-                    eBullets.push({
-                        x: this.x + Math.cos(this.armorAngle) * (this.r * 0.8),
-                        y: this.y + Math.sin(this.armorAngle) * (this.r * 0.8),
-                        vx: Math.cos(sa) * 310, vy: Math.sin(sa) * 310,
-                        damage: 14 * DC.edm, size: 6, color: '#ff5500', life: 3.5, truePct: 0.06
-                    });
-                }
-            }
-
-            // Havan topu tehlike alanları
-            this.mortarTimer -= dt;
-            if (this.mortarTimer <= 0) {
-                this.mortarTimer = this.enraged ? 2.2 : 3.4;
-                for (const p of lp) {
-                    dangerZones.push({
-                        x: p.x + rand(-40, 40), y: p.y + rand(-40, 40),
-                        r: 105, timer: 1.4, maxTimer: 1.4, damage: 32 * DC.edm, color: '#ff5500'
-                    });
-                }
+        this.sT -= dt * DC.bsr;
+        if (this.sT <= 0) {
+            this.sT = 1.25;
+            for (let i = 0; i < 8; i++) {
+                const sa = this.pT + (i * Math.PI * 2 / 8);
+                eBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * 210, vy: Math.sin(sa) * 210, damage: 12 * DC.edm, size: 5.5, color: this.color, life: 3.8, truePct: 0.04 });
             }
         }
-        
-        this.x += this.vx * dt; this.y += this.vy * dt;
-        
-        this.x = clamp(this.x, this.r, canvas.width - this.r);
-        this.y = clamp(this.y, this.r, canvas.height - this.r);
-        
-        // Minyon portali periyodik açar
-        this.sumT -= dt;
-        if (this.sumT <= 0) {
-            this.sumT = this.enraged ? 6.0 : 9.0;
-            const ts = ['drone', 'speeder', 'orbiter'];
-            const amount = 2 + this.bw + (this.enraged ? 2 : 0);
-            for (let i = 0; i < amount; i++) {
-                const sa = rand(0, Math.PI * 2);
-                enemies.push(new Enemy(ts[randInt(0, ts.length - 1)], this.x + Math.cos(sa) * 65, this.y + Math.sin(sa) * 65));
-            }
-            floatT(this.x, this.y - this.r - 20, 'MİNYON PORTAL!', '#ff66ff', 16);
-        }
-        
-        // Çarpışma hasarı (saniyede sabit hasar olarak ayarlandı)
-        for (const p of lp) {
-            if (dist(this, p) < this.r + p.r) {
-                p.takeDmg(this.damage * 0.3 * 60 * dt);
-            }
-        }
-        
         return true;
     }
-    die() {
-        this.alive = false; 
-        spawnExp(this.x, this.y, this.color, 4.5); spawnP(this.x, this.y, this.color, perfMode ? 8 : 30, 340, 1.1, 14, 'shard'); 
-        sfx.bKill(); 
-        shake(28);
-        slowT = 1.6; 
-        slowF = 0.25; 
-        screenFl = 0.5; 
-        screenFC = '#ff00ff';
-        
-        const pts = Math.floor(this.sc * comboM * DC.sm); 
-        score += pts; 
-        totalKills++;
-        floatT(this.x, this.y - 30, '+' + pts, GOLD, 26);
-        livePlayers().forEach(p => p.gainXP(this.sc));
-        
-        // Dalga içindeki diğer bosslar yaşıyor mu kontrol et
-        const otherBossesAlive = enemies.some(e => e.isBoss && e.alive && e !== this);
-        if (!otherBossesAlive) {
-            bossActive = null;
-            document.getElementById('bossBar').classList.remove('active');
-            showBossReward(this.bossName);
-        }
-    }
-    draw(ctx) {
-        if (!this.alive) return;
-        if (!perfMode) {
-            const gs = this.r * 3; 
-            const grd = ctx.createRadialGradient(this.x, this.y, this.r * 0.3, this.x, this.y, gs);
-            grd.addColorStop(0, (this.enraged ? '#ff000020' : this.color + '18')); 
-            grd.addColorStop(1, this.color + '00');
-            ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(this.x, this.y, gs, 0, Math.PI * 2); ctx.fill();
-        }
-        
-        ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.aA * 0.2);
-        const fl = this.fl > 0;
-        ctx.strokeStyle = fl ? '#fff' : this.color; 
-        ctx.fillStyle = fl ? 'rgba(255,255,255,0.25)' : this.color + '20'; 
-        ctx.lineWidth = 3;
-        
-        // Gelişmiş Boss Vektör Görselleri
-        if (this.bossType === 'chaser') {
-            ctx.beginPath();
-            const points = 10;
-            for(let i=0; i<points; i++) {
-                const a = i * Math.PI * 2 / points;
-                const r = i % 2 === 0 ? this.r : this.r * 0.75;
-                ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * r, Math.sin(a) * r);
-            }
-            ctx.closePath();
-            ctx.stroke(); ctx.fill();
-        } else if (this.bossType === 'gravity') {
-            ctx.beginPath();
-            const points = 6;
-            for(let i=0; i<points; i++) {
-                const a = i * Math.PI * 2 / points;
-                ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * this.r, Math.sin(a) * this.r);
-            }
-            ctx.closePath();
-            ctx.stroke(); ctx.fill();
-        } else {
-            ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI * 2); ctx.stroke(); ctx.fill();
-        }
-        
-        for (let i = 0; i < 8; i++) {
-            const a = (i / 8) * Math.PI * 2;
-            ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * this.r * 0.9, Math.sin(a) * this.r * 0.9); ctx.stroke();
-        }
-        
-        ctx.beginPath(); ctx.arc(0, 0, this.r * 0.45, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        
-        if (this.bossType === 'gravity') {
-            ctx.strokeStyle = this.color;
-            ctx.lineWidth = 2;
-            for(let j=0; j<4; j++) {
-                ctx.beginPath();
-                ctx.arc(0, 0, this.r * 0.6, j * Math.PI/2 + this.aA, j * Math.PI/2 + this.aA + Math.PI/3);
-                ctx.stroke();
-            }
-        }
-        
-        for (let i = 0; i < 6; i++) {
-            const a = this.aA * 1.5 + i * Math.PI * 2 / 6;
-            ctx.fillStyle = fl ? '#fff' : this.enraged ? '#ff3333' : this.color;
-            ctx.beginPath(); 
-            ctx.arc(Math.cos(a) * this.r * 0.7, Math.sin(a) * this.r * 0.7, 5 + Math.sin(this.aA + i) * 2, 0, Math.PI * 2); 
-            ctx.fill();
-        }
-        ctx.fillStyle = this.enraged ? '#ff0000' : '#fff'; 
-        ctx.beginPath(); ctx.arc(0, 0, 7, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
 
-        // OBLIVION BEHEMOTH Ön Zırh Plakaları & Arka Açık Reaktör Çizimi
+    die() {
+        super.die();
+        document.getElementById('bossBar').classList.remove('active');
+        bossActive = null;
+        spawnCosmicChest(this.x, this.y);
+    }
+
+    draw(ctx) {
+        super.draw(ctx);
         if (this.bossType === 'behemoth') {
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.armorAngle);
-            // Ön kurşun geçirmez zırh kalkanı (Kalın altın/turuncu yay)
             ctx.strokeStyle = '#ffaa00';
-            ctx.lineWidth = 8;
-            ctx.shadowColor = '#ffaa00';
-            ctx.shadowBlur = perfMode ? 0 : 12;
+            ctx.lineWidth = 7;
             ctx.beginPath();
             ctx.arc(0, 0, this.r + 10, -1.72, 1.72);
             ctx.stroke();
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            ctx.arc(0, 0, this.r + 14, -1.55, 1.55);
-            ctx.stroke();
-
-            // Arka açık reaktör çekirdeği (Parlayan camgöbeği/kırmızı zayıf nokta)
-            const pulse = 0.6 + 0.4 * Math.sin(this.pT * 8);
             ctx.fillStyle = '#00f0ff';
-            ctx.shadowColor = '#00f0ff';
-            ctx.shadowBlur = perfMode ? 0 : 16;
             ctx.beginPath();
-            ctx.arc(-this.r * 0.85, 0, 9 * pulse + 3, 0, Math.PI * 2);
+            ctx.arc(-this.r * 0.85, 0, 9, 0, Math.PI * 2);
             ctx.fill();
             ctx.restore();
         }
     }
 }
 
-// ── Megaponk 5-Slot & Füzyon Sentez Seçim Sistemi (Level Up & Klavye Seçimi) ──
+// ── Kozmik Şans Sandığı (Loot Box) Mekanikleri ──
+function spawnCosmicChest(x, y) {
+    pickups.push({
+        x: clamp(x, 60, canvas.width - 60),
+        y: clamp(y, 60, canvas.height - 60),
+        r: 18,
+        type: 'cosmicChest',
+        life: 25,
+        aA: 0
+    });
+    floatT(x, y - 35, '🎁 KOZMİK ŞANS SANDIĞI DÜŞTÜ!', '#ffd700', 16);
+}
+
+function openCosmicChest(player) {
+    if (!player || !player.alive) return;
+    gameState = 'lootBox';
+    setCursorMode(true);
+    setSoundMuffled(true);
+    sfx.chest();
+
+    let rewardTitle = '';
+    let rewardDesc = '';
+    let rewardChip = '';
+
+    // 1. Önce hazır Süper Evrim veya Standart Evrim varsa anında ücretsiz sentezle!
+    const readyF = player.getReadyFusions();
+    if (readyF.length > 0) {
+        const f = readyF[0];
+        player.applyFusion(f.id);
+        rewardTitle = `🌌 EFSANEVİ EVRİM SENTEZLENDİ!`;
+        rewardDesc = `Kozmik Sandık reaktörünüzdeki Lv.5 bileşenleri birleştirerek doğrudan ${f.name} evrimini açtı!`;
+        rewardChip = `${f.icon} ${f.name.toUpperCase()} [${f.formula}]`;
+    } else {
+        // 2. Mevcut silah veya aletlerden Lv.5 olmayan birini anında yükselt (veya boş slota yeni silah/alet ver)
+        const upgradableWeapons = Object.keys(player.weapons).filter(k => player.weapons[k] < MAX_PERK_LEVEL);
+        const upgradableTrinkets = Object.keys(player.trinkets).filter(k => player.trinkets[k] < MAX_PERK_LEVEL);
+        const pool = [...upgradableWeapons, ...upgradableTrinkets];
+
+        if (pool.length > 0) {
+            const pick = pool[randInt(0, pool.length - 1)];
+            player.addUpg(pick, 1);
+            const item = UPG[pick];
+            const newLv = player.pU[pick];
+            rewardTitle = `⚡ ANINDA REAKTÖR YÜKSELTMESİ!`;
+            rewardDesc = item.desc;
+            rewardChip = `${item.icon} ${item.name} ➔ SEVİYE ${newLv}/${MAX_PERK_LEVEL}`;
+        } else {
+            score += 1200;
+            player.hp = player.mh;
+            player.sh = player.ms;
+            rewardTitle = `👑 ALTIN REAKTÖR AŞIRI YÜKLEMESİ!`;
+            rewardDesc = `Tüm aktif sistemleriniz maksimumda! +1,200 Skor ve %100 Gövde/Kalkan Onarımı kazandınız.`;
+            rewardChip = `✦ +1,200 BONUS SKOR & TAM ONARIM`;
+        }
+    }
+
+    player.hp = Math.min(player.mh, player.hp + player.mh * 0.35);
+    player.sh = player.ms;
+    updateUpgDisplay();
+
+    document.getElementById('lootBoxTitle').textContent = rewardTitle;
+    document.getElementById('lootBoxDesc').textContent = rewardDesc;
+    document.getElementById('lootBoxRewardChip').textContent = rewardChip;
+    document.getElementById('lootBoxOv').classList.add('show');
+}
+
+function closeCosmicChest() {
+    const ov = document.getElementById('lootBoxOv');
+    if (!ov.classList.contains('show')) return;
+    ov.classList.remove('show');
+    setCursorMode(false);
+    setSoundMuffled(false);
+    gameState = 'playing';
+    document.body.classList.add('playing-mode');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 1. KRİTİK HİLE & AÇIK ONARIMI (RACE CONDITION FIX) + REROLL & SKIP SİSTEMİ
+// ═══════════════════════════════════════════════════════════════════════════
 function buildLevelUpChoices(player, lv) {
     const choices = [];
-    const readyFusions = player.getReadyFusions();
-    const pairedSet = player.getPairedPerks();
 
-    // 1. Hazır Füzyon Sentezi varsa ilk sıraya Efsanevi Füzyon Kartı olarak koy!
+    // 1. Hazır Süper Evrim veya Standart Evrim varsa ilk sıraya koy
+    const readyFusions = player.getReadyFusions();
     for (const f of readyFusions) {
         if (choices.length < 3) {
             choices.push({
                 kind: 'fusion',
                 key: f.id,
                 fusion: f,
-                rarity: 'legendary',
+                rarity: f.kind === 'superEvolution' ? 'super' : 'legendary',
                 lvAdd: 1
             });
         }
     }
 
-    // 2. Normal Perk Havuzu (5 Slot sınırı ve Maks Lv.5 kuralı)
-    const slotsFull = player.usedSlots() >= MAX_PERK_SLOTS;
-    const pool = UPG_KEYS.filter(k => {
+    // 2. Silah (4 Slot) ve Alet (4 Slot) Havuzu
+    const wFull = player.usedWeaponSlots() >= MAX_WEAPON_SLOTS;
+    const tFull = player.usedTrinketSlots() >= MAX_TRINKET_SLOTS;
+
+    const candidateKeys = UPG_KEYS.filter(k => {
+        const item = UPG[k];
         const cur = player.pU[k] || 0;
         if (cur >= MAX_PERK_LEVEL) return false;
-        if (slotsFull && cur <= 0) return false;
+        if (item.kind === 'weapon') {
+            if (player.evolutions[item.evoId]) return false;
+            if (wFull && cur <= 0) return false;
+        } else {
+            if (tFull && cur <= 0) return false;
+        }
         return true;
     });
 
-    // Karıştır ve en fazla 3 seçeneği tamamla
-    const shuffled = pool.slice().sort(() => Math.random() - 0.5);
+    const shuffled = candidateKeys.slice().sort(() => Math.random() - 0.5);
     for (const k of shuffled) {
         if (choices.length >= 3) break;
         const cur = player.pU[k] || 0;
-        const roll = Math.random();
-        const forceHigh = (lv % 5 === 0 && choices.length === 0);
-        let rarity = 'common';
-        let lvAdd = 1;
-        if (forceHigh || roll < 0.08) {
-            rarity = 'legendary';
-            lvAdd = Math.min(2, MAX_PERK_LEVEL - cur);
-        } else if (roll < 0.25) {
-            rarity = 'epic';
-            lvAdd = Math.min(2, MAX_PERK_LEVEL - cur);
-        } else if (roll < 0.55 || pairedSet.has(k)) {
-            rarity = 'rare';
-            lvAdd = 1;
-        }
+        const item = UPG[k];
+        const isPairOwned = item.kind === 'weapon'
+            ? (player.trinkets[item.pairTrinket] || 0) > 0
+            : ((player.weapons[item.pairWeapon] || 0) > 0 || !!player.evolutions[item.evoId]);
+
         choices.push({
             kind: 'perk',
             key: k,
-            rarity,
+            rarity: (cur >= 4 || isPairOwned) ? 'epic' : 'common',
             curLv: cur,
-            nextLv: Math.min(MAX_PERK_LEVEL, cur + lvAdd),
-            lvAdd
+            nextLv: Math.min(MAX_PERK_LEVEL, cur + 1),
+            lvAdd: 1
         });
     }
 
-    // 3. Tüm 5 slot dolu ve tüm perkler Lv.5 ise Reaktör Aşırı Yükleme (Overclock) seçeneği sun
     while (choices.length < 3) {
         choices.push({
             kind: 'overclock',
@@ -1824,56 +1736,20 @@ function buildLevelUpChoices(player, lv) {
     return choices;
 }
 
-function triggerLevelUpChoice(info) {
-    gameState = 'levelChoice';
-    levelingPlayer = info.player;
-    setCursorMode(true);
-    setSoundMuffled(true);
-    sfx.lvl();
-    document.body.classList.remove('playing-mode');
-    
-    for (const k in keys) delete keys[k];
-    
-    const overlay = document.getElementById('levelUpOv');
-    overlay.classList.remove('p1-active', 'p2-active');
-    overlay.classList.add(levelingPlayer.id === 1 ? 'p1-active' : 'p2-active');
-    
-    const subt = document.getElementById('luPlayerSubtitle');
-    subt.textContent = `◈ ${levelingPlayer.name.toUpperCase()} SEVİYE ATLADI (SEVİYE ${info.lv} · SLOT ${levelingPlayer.usedSlots()}/${MAX_PERK_SLOTS}) ◈`;
-    subt.style.color = levelingPlayer.c;
-    
-    const banner = document.getElementById('luPilotBanner');
-    if (banner) {
-        banner.style.borderColor = levelingPlayer.c;
-        banner.style.boxShadow = `0 0 25px ${levelingPlayer.c}30`;
-    }
-    const badge = document.getElementById('luControlBadge');
-    if (badge) {
-        if (levelingPlayer.id === 1) {
-            badge.textContent = 'KONTROL: A - W - D TUŞLARI';
-            badge.style.color = '#00f0ff';
-            badge.style.borderColor = 'rgba(0, 240, 255, 0.4)';
-        } else {
-            badge.textContent = 'KONTROL: YÖN TUŞLARI (← - ↑ - →)';
-            badge.style.color = '#ff006a';
-            badge.style.borderColor = 'rgba(255, 0, 106, 0.4)';
-        }
-    }
-    
+function renderLevelUpCards(player, lv) {
     const container = document.getElementById('luCardsContainer');
     container.innerHTML = '';
     levelUpActiveChoices = [];
-    
-    const generated = buildLevelUpChoices(levelingPlayer, info.lv);
+
+    const generated = buildLevelUpChoices(player, lv);
     const keyConfigs = [
-        { p1Key: 'KeyA', p1Label: 'A', p2Key: 'ArrowLeft', p2Label: '←' },
-        { p1Key: 'KeyW', p1Label: 'W', p2Key: 'ArrowUp', p2Label: '↑' },
-        { p1Key: 'KeyD', p1Label: 'D', p2Key: 'ArrowRight', p2Label: '→' }
+        { key: 'KeyA', altKey: 'ArrowLeft', label: 'A' },
+        { key: 'KeyW', altKey: 'ArrowUp',   label: 'W' },
+        { key: 'KeyD', altKey: 'ArrowRight',label: 'D' }
     ];
-    
+
     generated.forEach((cItem, index) => {
         const cfg = keyConfigs[index];
-        const assignedKeyLabel = levelingPlayer.id === 1 ? cfg.p1Label : cfg.p2Label;
         let rarityBadge = '';
         let iconHtml = '';
         let titleHtml = '';
@@ -1881,30 +1757,29 @@ function triggerLevelUpChoice(info) {
 
         if (cItem.kind === 'fusion') {
             const f = cItem.fusion;
-            rarityBadge = '⚡ FÜZYON SENTEZİ (+1 BOŞ SLOT AÇAR)';
-            iconHtml = `<div class="lu-card-icon" style="color:${f.color}; border-color:${f.color}80; box-shadow:0 0 24px ${f.color}50">${f.icon}</div>`;
-            titleHtml = '🌌 ' + f.name.toUpperCase();
+            const isSuper = f.kind === 'superEvolution';
+            rarityBadge = isSuper ? '👑 KOZMİK SÜPER EVRİM (+1 SLOT AÇAR)' : '⚡ STANDART EVRİM SENTEZİ';
+            iconHtml = `<div class="lu-card-icon" style="color:${f.color}">${f.icon}</div>`;
+            titleHtml = f.name.toUpperCase();
             descHtml = `<div style="color:#ffd700;font-weight:700;font-size:0.74rem;margin-bottom:4px;">[${f.formula}]</div>${f.desc}`;
         } else if (cItem.kind === 'perk') {
             const u = UPG[cItem.key];
-            const isMaxNext = cItem.nextLv >= MAX_PERK_LEVEL;
+            const slotTypeLbl = u.kind === 'weapon' ? '⚔ SİLAH SLOTU' : '🧲 ALET SLOTU';
             rarityBadge = cItem.curLv === 0
-                ? `YENİ PERK SLOTU (${levelingPlayer.usedSlots() + 1}/${MAX_PERK_SLOTS})`
-                : `SEVİYE ${cItem.curLv} → ${cItem.nextLv}${isMaxNext ? ' (MAKS ★)' : ''}`;
-            iconHtml = `<div class="lu-card-icon" style="color:${u.color}; border-color:${u.color}30">${u.icon}</div>`;
-            titleHtml = (cItem.lvAdd > 1 ? '⚡ HIZLI SENTEZ: ' : '') + u.name;
-            // Füzyon ipucu göster
-            const partnerHint = FUSION_KEYS.map(fk => FUSIONS[fk]).find(f => f.req.includes(cItem.key));
-            const partnerKey = partnerHint ? (partnerHint.req[0] === cItem.key ? partnerHint.req[1] : partnerHint.req[0]) : null;
-            const partnerName = partnerKey ? UPG[partnerKey].name : '';
-            descHtml = `${u.desc}${cItem.lvAdd > 1 ? ' <strong style="color:#ffd700">(+2 Seviye Birden!)</strong>' : ''}<br><span style="font-size:0.7rem;color:rgba(0,240,255,0.75)">🔗 Füzyon: Lv.5 + ${partnerName} Lv.5 → ${partnerHint ? partnerHint.name : ''}</span>`;
+                ? `YENİ ${slotTypeLbl}`
+                : `${slotTypeLbl} · LV.${cItem.curLv} ➔ LV.${cItem.nextLv}${cItem.nextLv >= 5 ? ' (MAKS ★)' : ''}`;
+            iconHtml = `<div class="lu-card-icon" style="color:${u.color}">${u.icon}</div>`;
+            titleHtml = u.name;
+            const evo = EVOLUTIONS[u.evoId];
+            const partnerName = u.kind === 'weapon' ? TRINKETS[u.pairTrinket].name : WEAPONS[u.pairWeapon].name;
+            descHtml = `${u.desc}<br><span style="font-size:0.72rem;color:#00f0ff">🔗 Evrim: Lv.5 + ${partnerName} Lv.5 ➔ ${evo ? evo.name : ''}</span>`;
         } else {
-            rarityBadge = 'REAKTÖR AŞIRI YÜKLEME';
-            iconHtml = `<div class="lu-card-icon" style="color:#ffd700; border-color:#ffd70050">✦</div>`;
+            rarityBadge = 'REAKTÖR OVERCLOCK';
+            iconHtml = `<div class="lu-card-icon" style="color:#ffd700">✦</div>`;
             titleHtml = 'KOZMİK OVERCLOCK';
-            descHtml = 'Tüm slotlar maksimumda! Gövde ve kalkanı +%40 onarır, +500 bonus skor ve geçici aşırı güç verir.';
+            descHtml = 'Tüm slotlar dolu! Gövde ve kalkanı +%40 onarır ve +600 bonus skor verir.';
         }
-        
+
         const card = document.createElement('div');
         card.className = `lu-card ${cItem.rarity}`;
         card.innerHTML = `
@@ -1914,18 +1789,16 @@ function triggerLevelUpChoice(info) {
             <div class="lu-card-desc">${descHtml}</div>
             <div class="lu-key-hint-box">
                 <div class="lu-keycap-row">
-                    <div class="lu-keycap" style="border-color:${levelingPlayer.c}60;">${assignedKeyLabel}</div>
-                    <div class="lu-key-desc">
-                        <div class="lu-key-subtext">2 SN BASILI TUT</div>
-                        <div class="lu-hold-timer-text">0.0s / 2.0s</div>
+                    <div class="lu-keycap">${cfg.label}</div>
+                    <div>
+                        <div class="lu-key-subtext">BASILI TUT VEYA TIKLA</div>
+                        <div class="lu-hold-timer-text">0.0s / 1.4s</div>
                     </div>
                 </div>
-                <div class="lu-hold-track">
-                    <div class="lu-hold-fill"></div>
-                </div>
+                <div class="lu-hold-track"><div class="lu-hold-fill"></div></div>
             </div>
         `;
-        
+
         const choiceItem = {
             index,
             choice: cItem,
@@ -1934,680 +1807,876 @@ function triggerLevelUpChoice(info) {
             fillEl: card.querySelector('.lu-hold-fill'),
             timerTextEl: card.querySelector('.lu-hold-timer-text'),
             holdTimer: 0,
-            requiredHold: 2.0,
+            requiredHold: 1.4,
             completed: false
         };
-        
+
         levelUpActiveChoices.push(choiceItem);
-        card.addEventListener('click', () => selectUpgradeCard(choiceItem));
+        card.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            selectUpgradeCard(choiceItem);
+        });
         container.appendChild(card);
     });
-    
-    overlay.classList.remove('hidden');
+
+    // Reroll & Skip butonlarını güncelle
+    const rerollBtn = document.getElementById('luRerollBtn');
+    const skipBtn = document.getElementById('luSkipBtn');
+    const rerollCnt = document.getElementById('luRerollCount');
+    const skipCnt = document.getElementById('luSkipCount');
+    if (rerollCnt) rerollCnt.textContent = player.rerollsLeft;
+    if (skipCnt) skipCnt.textContent = player.skipsLeft;
+    if (rerollBtn) rerollBtn.disabled = player.rerollsLeft <= 0;
+    if (skipBtn) skipBtn.disabled = player.skipsLeft <= 0;
 }
 
+function triggerLevelUpChoice(info) {
+    gameState = 'levelChoice';
+    levelingPlayer = info.player;
+    // SENKRON KİLİT AÇILIŞI
+    isLevelingUp = true;
+    window.isLevelingUp = true;
+
+    setCursorMode(true);
+    setSoundMuffled(true);
+    sfx.lvl();
+    document.body.classList.remove('playing-mode');
+    for (const k in keys) delete keys[k];
+
+    const overlay = document.getElementById('levelUpOv');
+    overlay.classList.remove('hidden', 'locked');
+    overlay.style.pointerEvents = 'auto';
+
+    const subt = document.getElementById('luPlayerSubtitle');
+    if (subt) {
+        subt.textContent = `◈ ${levelingPlayer.name.toUpperCase()} · SEVİYE ${info.lv} (SİLAH ${levelingPlayer.usedWeaponSlots()}/4 · ALET ${levelingPlayer.usedTrinketSlots()}/4) ◈`;
+    }
+
+    renderLevelUpCards(levelingPlayer, info.lv);
+}
+
+// ── KRİTİK 3-TUŞ AÇIĞI ONARIMI: Senkron & Atomik Tekil Kart Seçimi ──
 function selectUpgradeCard(choiceItem) {
-    if (choiceItem.completed) return;
+    // Eğer isLevelingUp zaten kilitlendiyse (aynı karede 2. veya 3. tuş/tıklama geldiyse) ANINDA REDDET!
+    if (!isLevelingUp || gameState !== 'levelChoice' || !choiceItem || choiceItem.completed) {
+        return false;
+    }
+
+    // 1. SENKRON VE ANLIK KİLİTLEME (Aynı tick içinde diğer tüm kartları ve modalı kilitler)
+    isLevelingUp = false;
+    window.isLevelingUp = false;
     choiceItem.completed = true;
-    
-    choiceItem.cardEl.classList.add('selected-flash');
-    sfx.pow();
-    
-    setTimeout(() => {
-        applyCardUpgrade(levelingPlayer, choiceItem.choice);
-        
-        document.getElementById('levelUpOv').classList.add('hidden');
-        setCursorMode(false);
-        setSoundMuffled(false);
-        gameState = 'playing';
-        updateUpgDisplay();
-        document.body.classList.add('playing-mode');
-        levelUpActiveChoices = [];
-    }, 240);
+    for (let i = 0; i < levelUpActiveChoices.length; i++) {
+        levelUpActiveChoices[i].completed = true;
+        levelUpActiveChoices[i].holdTimer = 0;
+    }
+    for (const k in keys) delete keys[k];
+
+    const overlay = document.getElementById('levelUpOv');
+    if (overlay) {
+        overlay.style.pointerEvents = 'none';
+        overlay.classList.add('locked', 'hidden');
+    }
+
+    // 2. Yükseltmeyi yalnızca 1 kez uygula ve oyuna dön
+    applyCardUpgrade(levelingPlayer, choiceItem.choice);
+    levelUpActiveChoices = [];
+    setCursorMode(false);
+    setSoundMuffled(false);
+    gameState = 'playing';
+    updateUpgDisplay();
+    document.body.classList.add('playing-mode');
+    return true;
 }
 
-let holdToneTimer = 0;
+function rerollLevelUpChoices() {
+    if (!isLevelingUp || gameState !== 'levelChoice' || !levelingPlayer || levelingPlayer.rerollsLeft <= 0) return false;
+    levelingPlayer.rerollsLeft--;
+    for (const k in keys) delete keys[k];
+    sfx.pow();
+    renderLevelUpCards(levelingPlayer, levelingPlayer.lv);
+    return true;
+}
+
+function skipLevelUpChoice() {
+    if (!isLevelingUp || gameState !== 'levelChoice' || !levelingPlayer || levelingPlayer.skipsLeft <= 0) return false;
+    // Senkron kilit
+    isLevelingUp = false;
+    window.isLevelingUp = false;
+    levelingPlayer.skipsLeft--;
+    for (const c of levelUpActiveChoices) c.completed = true;
+    for (const k in keys) delete keys[k];
+
+    const overlay = document.getElementById('levelUpOv');
+    if (overlay) {
+        overlay.style.pointerEvents = 'none';
+        overlay.classList.add('locked', 'hidden');
+    }
+
+    // Küçük XP Telafisi (%35 XP) + Onarım
+    levelingPlayer.xp += Math.floor(levelingPlayer.xpN * 0.35);
+    levelingPlayer.hp = Math.min(levelingPlayer.mh, levelingPlayer.hp + levelingPlayer.mh * 0.25);
+    levelingPlayer.sh = Math.min(levelingPlayer.ms, levelingPlayer.sh + levelingPlayer.ms * 0.35);
+    floatT(levelingPlayer.x, levelingPlayer.y - 35, '⏭️ PAS GEÇİLDİ (+%35 XP & ONARIM)', '#ffd700', 15);
+    sfx.pow();
+
+    levelUpActiveChoices = [];
+    setCursorMode(false);
+    setSoundMuffled(false);
+    gameState = 'playing';
+    updateUpgDisplay();
+    document.body.classList.add('playing-mode');
+    return true;
+}
+
 function updateLevelChoice(dt) {
-    if (gameState !== 'levelChoice' || levelUpActiveChoices.length === 0) return;
-    holdToneTimer -= dt;
-    
+    if (gameState !== 'levelChoice' || !isLevelingUp || levelUpActiveChoices.length === 0) return;
+
+    // Kaç seçim tuşuna aynı anda basıldığını say (Çoklu tuş basımını girdi katmanında da engelle!)
+    let heldIndices = [];
     for (let i = 0; i < levelUpActiveChoices.length; i++) {
         const item = levelUpActiveChoices[i];
         if (item.completed) continue;
-        
-        let isHeld = false;
-        if (MODE === '2p') {
-            if (levelingPlayer && levelingPlayer.id === 1) {
-                isHeld = !!(keys[item.cfg.p1Key] || (item.cfg.p1AltKey && keys[item.cfg.p1AltKey]));
-            } else if (levelingPlayer && levelingPlayer.id === 2) {
-                isHeld = !!(keys[item.cfg.p2Key] || (item.cfg.p2AltKey && keys[item.cfg.p2AltKey]));
-            }
-        } else {
-            isHeld = !!(keys[item.cfg.p1Key] || (item.cfg.p1AltKey && keys[item.cfg.p1AltKey]) ||
-                        keys[item.cfg.p2Key] || (item.cfg.p2AltKey && keys[item.cfg.p2AltKey]));
+        if (keys[item.cfg.key] || keys[item.cfg.altKey]) {
+            heldIndices.push(i);
         }
-        
-        if (isHeld) {
+    }
+
+    // Eğer oyuncu aynı anda birden fazla seçim tuşuna (örn. A+W+D) basıyorsa hiçbir sayacı ilerletme!
+    const allowHold = heldIndices.length === 1;
+
+    for (let i = 0; i < levelUpActiveChoices.length; i++) {
+        const item = levelUpActiveChoices[i];
+        if (item.completed) continue;
+        const isSingleHeld = allowHold && heldIndices[0] === i;
+
+        if (isSingleHeld) {
             item.holdTimer = Math.min(item.requiredHold, item.holdTimer + dt);
-            item.cardEl.classList.add('holding');
             const progress = item.holdTimer / item.requiredHold;
             if (item.fillEl) item.fillEl.style.width = (progress * 100).toFixed(1) + '%';
-            if (item.timerTextEl) item.timerTextEl.textContent = `${item.holdTimer.toFixed(1)}s / 2.0s`;
-            if (holdToneTimer <= 0) {
-                holdToneTimer = 0.22;
-                tone(280 + progress * 500, 0.07, 'sine', 0.035);
-            }
+            if (item.timerTextEl) item.timerTextEl.textContent = `${item.holdTimer.toFixed(1)}s / ${item.requiredHold.toFixed(1)}s`;
             if (item.holdTimer >= item.requiredHold) {
                 selectUpgradeCard(item);
-                break;
+                return; // İlk seçim yapıldığı anda döngüden derhal çık!
             }
         } else if (item.holdTimer > 0) {
             item.holdTimer = Math.max(0, item.holdTimer - dt * 3.5);
             const progress = item.holdTimer / item.requiredHold;
             if (item.fillEl) item.fillEl.style.width = (progress * 100).toFixed(1) + '%';
-            if (item.timerTextEl) item.timerTextEl.textContent = `${item.holdTimer.toFixed(1)}s / 2.0s`;
-            if (item.holdTimer === 0) item.cardEl.classList.remove('holding');
-        } else {
-            item.cardEl.classList.remove('holding');
+            if (item.timerTextEl) item.timerTextEl.textContent = `${item.holdTimer.toFixed(1)}s / ${item.requiredHold.toFixed(1)}s`;
         }
     }
 }
 
 function applyCardUpgrade(player, cItem) {
-    if (!cItem) return;
+    if (!player || !cItem) return;
     const decay = getCosmicDecay();
     if (cItem.kind === 'fusion') {
         player.applyFusion(cItem.key);
     } else if (cItem.kind === 'perk') {
         player.addUpg(cItem.key, cItem.lvAdd || 1);
-        spawnP(player.x, player.y, UPG[cItem.key].color, 25, 200, 0.5, 4);
     } else {
-        score += 500;
-        player.tP.damage = 6;
-        player.tP.rapidfire = 6;
-        spawnP(player.x, player.y, GOLD, 25, 200, 0.5, 4);
+        score += 600;
     }
     player.hp = Math.min(player.mh, player.hp + player.mh * 0.18 * decay);
-    player.sh = Math.min(player.ms, player.sh + player.ms * 0.15 * decay);
+    player.sh = Math.min(player.ms, player.sh + player.ms * 0.20 * decay);
     sfx.pow();
 }
 
-// ── Boss Ödülü Ekranı (5 Saniye Duraklatma - 5 Slot & Füzyon Uyumlu) ──
-function showBossReward(bossName) {
-    bossRewardActive = true; bossRewardTimer = 5;
-    gameState = 'bossReward';
-    setCursorMode(true);
-    setSoundMuffled(true);
-    document.body.classList.remove('playing-mode');
-    
-    const rewards = [];
-    const alivePlayers = livePlayers();
-    const decay = getCosmicDecay();
-    
-    for (const pl of alivePlayers) {
-        const given = [];
-        for (let i = 0; i < 2; i++) {
-            const readyF = pl.getReadyFusions();
-            if (readyF.length > 0) {
-                const f = readyF[0];
-                pl.applyFusion(f.id);
-                given.push({ label: '🌌 FÜZYON: ' + f.name.toUpperCase(), icon: f.icon, color: f.color });
-                continue;
-            }
-            const slotsFull = pl.usedSlots() >= MAX_PERK_SLOTS;
-            const candidates = UPG_KEYS.filter(k => {
-                const cur = pl.pU[k] || 0;
-                if (cur >= MAX_PERK_LEVEL) return false;
-                if (slotsFull && cur <= 0) return false;
-                return true;
-            });
-            if (candidates.length > 0) {
-                const k = candidates[randInt(0, candidates.length - 1)];
-                pl.addUpg(k, 1);
-                const u = UPG[k];
-                given.push({ label: `${u.name} (Lv.${pl.pU[k]}/${MAX_PERK_LEVEL})`, icon: u.icon, color: u.color });
-            } else {
-                score += 750;
-                given.push({ label: 'REAKTÖR OVERCLOCK (+750 SKOR)', icon: '✦', color: '#ffd700' });
-            }
-        }
-        pl.hp = Math.min(pl.mh, pl.hp + pl.mh * 0.65 * decay);
-        pl.sh = Math.min(pl.ms, pl.sh + pl.ms * 0.8 * decay);
-        rewards.push({ player: pl, given });
-    }
-    
-    updateUpgDisplay();
-    
-    const el = document.getElementById('bossRewardOv');
-    document.getElementById('brBossName').textContent = `"${bossName}" imha edildi!`;
-    
-    const cont = document.getElementById('brPlayers');
-    cont.innerHTML = '';
-    
-    for (const rw of rewards) {
-        const pl = rw.player;
-        let html = `<div class="br-player-box"><div class="br-pname" style="color:${pl.c}">◈ ${pl.name.toUpperCase()} (SLOT ${pl.usedSlots()}/${MAX_PERK_SLOTS})</div>`;
-        html += `<div class="br-stats-grid">`;
-        html += `<div class="br-stat">Can: <span>${Math.floor(pl.mh)}</span></div>`;
-        html += `<div class="br-stat">Kalkan: <span>${Math.floor(pl.ms)}</span></div>`;
-        html += `<div class="br-stat">Hasar: <span>${pl.bd.toFixed(1)}</span></div>`;
-        html += `<div class="br-stat">Hız: <span>${Math.floor(pl.sp)}</span></div>`;
-        html += `<div class="br-stat">Ateş Hz: <span>${(1 / pl.sr).toFixed(1)}/s</span></div>`;
-        html += `<div class="br-stat">Kritik: <span>%${Math.floor(pl.crit * 100)}</span></div>`;
-        html += `</div>`;
-        
-        html += `<div class="br-new-title">BOSS SENTEZ ÖDÜLLERİ</div><div class="br-new-list">`;
-        for (const g of rw.given) {
-            html += `<div class="br-upg-chip legendary" style="color:${g.color}; border-color:${g.color}; background:rgba(255,215,0,0.08); font-weight:bold;">${g.icon} ${g.label}</div>`;
-        }
-        html += `</div>`;
-        
-        html += `<div class="br-all-title">AKTİF 5-SLOT DİZİLİMİ</div><div class="br-all-list">`;
-        for (const fk of Object.keys(pl.fusions)) {
-            const f = FUSIONS[fk];
-            if (f) html += `<div class="br-all-chip" style="color:${f.color};border-color:${f.color}80;font-weight:700;">${f.icon} ${f.name} [FÜZYON]</div>`;
-        }
-        for (const [k, v] of Object.entries(pl.pU)) {
-            const u = UPG[k];
-            if (u) html += `<div class="br-all-chip" style="color:${u.color}">${u.icon} ${u.name} Lv.${Math.floor(v)}/${MAX_PERK_LEVEL}</div>`;
-        }
-        html += `</div></div>`;
-        cont.innerHTML += html;
-    }
-    
-    el.classList.add('show');
-    sfx.pow();
-}
-
-function updateBossReward(dt) {
-    bossRewardTimer -= dt;
-    document.getElementById('brTimer').textContent = Math.ceil(bossRewardTimer);
-    if (bossRewardTimer <= 0) {
-        bossRewardActive = false;
-        document.getElementById('bossRewardOv').classList.remove('show');
-        setSoundMuffled(false);
-        gameState = 'playing';
-        setCursorMode(false);
-        document.body.classList.add('playing-mode');
-    }
-}
-
-// ── Drop Eşyaları ──
-function spawnPickup(x, y) {
-    const t = PTYPES[randInt(0, PTYPES.length - 1)];
-    const pad = 35; // Ekran kenarından minimum uzaklık
-    const clampedX = clamp(x, pad, canvas.width - pad);
-    const clampedY = clamp(y, pad, canvas.height - pad);
-    pickups.push({ x: clampedX, y: clampedY, type: t, r: 12, life: 12, aA: rand(0, Math.PI * 2), color: PDATA[t].c });
-}
-function applyPickup(pl, t) {
-    sfx.pow(); const d = PDATA[t];
-    floatT(pl.x, pl.y - 30, d.n, d.c, 18);
-    spawnP(pl.x, pl.y, d.c, 12, 130, 0.4, 3);
-    switch (t) {
-        case 'health': pl.hp = Math.min(pl.mh, pl.hp + 35); break;
-        case 'shield': pl.sh = pl.ms; break;
-        case 'bomb':
-            for (const e of enemies) {
-                if (!e.isBoss) {
-                    e.hp = 0; e.die();
-                } else {
-                    e.takeDmg(60, false);
-                }
-            }
-            shake(18); screenFl = 0.4; screenFC = '#ff4444'; break;
-        default: pl.tP[t] = 8; break;
-    }
-}
-
-// ── Kooperatif Sinerji Durum Kontrolü ──
-function getActiveCoopStates() {
-    if (MODE === '1p') return { synergy: false, linkDmgScale: 1.0, maxLinkD: 500 };
-    if (!p1.alive || !p2.alive) return { synergy: false, linkDmgScale: 1.0, maxLinkD: 500 };
-    
-    // Destek (Aegis) sınıfı varsa sinerji ve bağ menzili 2 katına çıkar
-    const hasAegis = p1.shipClass === 'aegis' || p2.shipClass === 'aegis';
-    const maxLinkD = hasAegis ? 900 : 500;
-    
-    const d = dist(p1, p2);
-    const synergyActive = (d < (hasAegis ? 280 : 150));
-    
-    let linkDmgScale = 1.0;
-    if (d < maxLinkD) {
-        linkDmgScale = 1.0 + (1.0 - d / maxLinkD) * 2.0;
-    }
-    
-    if (synergyActive && Math.random() < 0.1) {
-        const mx = (p1.x + p2.x) / 2;
-        const my = (p1.y + p2.y) / 2;
-        spawnP(mx, my, GOLD, 1, 40, 0.4, 2);
-    }
-    
-    return { synergy: synergyActive, linkDmgScale, maxLinkD };
-}
-
-// ── Çekirdek Helper Metotları ──
-function livePlayers() {
-    const r = []; if (p1.alive) r.push(p1);
-    if (MODE === '2p' && p2.alive) r.push(p2);
-    return r;
-}
-
+// ── Minimalist HUD ve Gelişmiş Duraklatma (ESC) Terminali Güncellemesi ──
 function updateUpgDisplay() {
-    const players = MODE === '2p' ? [p1, p2] : [p1];
-    const p2Dock = document.getElementById('p2PerkDock');
-    if (p2Dock) p2Dock.style.display = MODE === '2p' ? 'flex' : 'none';
+    if (!p1) return;
+    p1.syncLegacyMaps();
 
-    for (const pl of players) {
-        pl.syncSlotOrder();
-        const c = document.getElementById(pl.id === 1 ? 'p1Upgs' : 'p2Upgs');
-        if (c) {
-            c.innerHTML = '';
-            for (const fk of Object.keys(pl.fusions)) {
-                const f = FUSIONS[fk]; if (!f) continue;
-                const el = document.createElement('div'); el.className = 'hud-ui fusion';
-                el.style.color = f.color; el.style.borderColor = f.color;
-                el.title = `[FÜZYON] ${f.name}\n${f.desc}`;
-                el.innerHTML = f.icon + `<span class="uc" style="color:#ffd700;border-color:#ffd700">★</span>`;
-                c.appendChild(el);
-            }
-            for (const [k, v] of Object.entries(pl.pU)) {
-                const d = UPG[k]; if (!d) continue;
-                const el = document.createElement('div'); el.className = 'hud-ui';
-                el.style.color = d.color; el.style.borderColor = d.color + '50';
-                el.title = `${d.name} Lv.${Math.floor(v)}/${MAX_PERK_LEVEL}\n${d.desc}`;
-                el.innerHTML = d.icon + `<span class="uc">${Math.floor(v)}</span>`;
-                c.appendChild(el);
-            }
-        }
+    const wHud = document.getElementById('p1WeaponsHud');
+    const tHud = document.getElementById('p1TrinketsHud');
 
-        // 5-Slot Neon Perk & Füzyon Dock Render
-        const dock = document.getElementById(pl.id === 1 ? 'p1PerkDockSlots' : 'p2PerkDockSlots');
-        const dockMeta = document.getElementById(pl.id === 1 ? 'p1DockMeta' : 'p2DockMeta');
-        if (!dock) continue;
-        const readyFusions = pl.getReadyFusions();
-        const readyReqSet = new Set();
-        readyFusions.forEach(f => { readyReqSet.add(f.req[0]); readyReqSet.add(f.req[1]); });
-        const pairedSet = pl.getPairedPerks();
+    if (wHud) {
+        wHud.innerHTML = '';
+        const weaponItems = [];
+        for (const sk of Object.keys(p1.superEvolutions)) weaponItems.push({ kind: 'super', data: SUPER_EVOLUTIONS[sk], lv: '★' });
+        for (const ek of Object.keys(p1.evolutions)) weaponItems.push({ kind: 'evo', data: EVOLUTIONS[ek], lv: '★' });
+        for (const [wk, lv] of Object.entries(p1.weapons)) weaponItems.push({ kind: 'weapon', data: WEAPONS[wk], lv });
 
-        if (dockMeta) {
-            dockMeta.textContent = readyFusions.length > 0
-                ? `⚡ FÜZYON HAZIR: ${readyFusions.map(f => f.name).join(', ')}`
-                : `SLOT ${pl.usedSlots()}/${MAX_PERK_SLOTS}`;
-            dockMeta.classList.toggle('ready', readyFusions.length > 0);
-        }
-
-        dock.innerHTML = '';
-        for (let idx = 0; idx < MAX_PERK_SLOTS; idx++) {
-            const item = pl.slotOrder[idx];
-            const slotEl = document.createElement('div');
-            if (!item) {
-                slotEl.className = 'perk-slot empty';
-                slotEl.innerHTML = `<span class="ps-idx">${idx + 1}</span><span class="ps-empty-ico">◇</span><span class="ps-lbl">BOŞ SLOT</span>`;
-            } else if (item.type === 'fusion') {
-                const f = FUSIONS[item.key];
-                slotEl.className = 'perk-slot fused';
-                slotEl.style.setProperty('--sc', f.color);
-                slotEl.title = `${f.name} (${f.formula})\n${f.desc}`;
-                slotEl.innerHTML = `
-                    <span class="ps-ring"></span>
-                    <span class="ps-ico" style="color:${f.color}">${f.icon}</span>
-                    <span class="ps-lbl" style="color:${f.color}">${f.name}</span>
-                    <span class="ps-pips fused-badge">★ FÜZYON</span>
-                `;
+        for (let i = 0; i < MAX_WEAPON_SLOTS; i++) {
+            const it = weaponItems[i];
+            const el = document.createElement('div');
+            if (!it || !it.data) {
+                el.className = 'hud-ui empty-slot';
+                el.textContent = '·';
             } else {
-                const u = UPG[item.key];
-                const lv = Math.min(MAX_PERK_LEVEL, Math.floor(pl.pU[item.key] || 1));
-                const isReady = readyReqSet.has(item.key);
-                const isPaired = pairedSet.has(item.key);
-                slotEl.className = `perk-slot filled${lv >= MAX_PERK_LEVEL ? ' maxed' : ''}${isReady ? ' fusion-ready' : isPaired ? ' fusion-paired' : ''}`;
-                slotEl.style.setProperty('--sc', u.color);
-                let pips = '';
-                for (let p = 1; p <= MAX_PERK_LEVEL; p++) {
-                    pips += `<i class="${p <= lv ? 'on' : ''}"></i>`;
-                }
-                slotEl.title = `${u.name} (Lv.${lv}/${MAX_PERK_LEVEL})\n${u.desc}`;
-                slotEl.innerHTML = `
-                    ${(isReady || isPaired) ? '<span class="ps-ring"></span>' : ''}
-                    <span class="ps-ico" style="color:${u.color}">${u.icon}</span>
-                    <span class="ps-lbl">${u.name}</span>
-                    <span class="ps-pips">${pips}</span>
-                `;
+                el.className = 'hud-ui' + (it.kind === 'super' ? ' super-evolved' : it.kind === 'evo' ? ' evolved' : '');
+                el.style.color = it.data.color;
+                el.style.borderColor = it.data.color + '80';
+                el.title = `${it.data.name} (${it.lv})`;
+                el.innerHTML = `${it.data.icon}<span class="uc">${it.lv}</span>`;
             }
-            dock.appendChild(slotEl);
+            wHud.appendChild(el);
         }
     }
-}
 
-function setCursorMode(visible) {
-    if (visible) {
-        document.body.classList.remove('playing-cursor');
-        document.body.classList.add('menu-cursor');
-    } else {
-        document.body.classList.remove('menu-cursor');
-        document.body.classList.add('playing-cursor');
-    }
-}
-
-// ── Izgara Bükülme Formülü (Gravitational Grid Warp - Yüksek Performanslı) ──
-const staticGridOffset = { x: 0, y: 0 };
-const activeWarpEntities = [];
-
-function prepareGridWarpEntities() {
-    activeWarpEntities.length = 0;
-    if (perfMode) return; // Performans modunda ızgara bükümünü atlayarak maksimum FPS sağla
-    
-    const lp = livePlayers();
-    for (let i = 0; i < lp.length; i++) {
-        activeWarpEntities.push({ x: lp[i].x, y: lp[i].y, maxR: 240, maxRSq: 57600, power: 16, mult: -1, type: 'point' });
-    }
-    
-    if (bossActive) {
-        for (let i = 0; i < enemies.length; i++) {
-            const e = enemies[i];
-            if (e.isBoss && e.alive) {
-                activeWarpEntities.push({ x: e.x, y: e.y, maxR: 380, maxRSq: 144400, power: 35, mult: -1, type: 'point' });
-            }
-        }
-    }
-    
-    for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        if (p.t === 'shockwave' && p.l > 0) {
-            const radius = p.s * (1 - p.l / p.ml) * 3;
-            activeWarpEntities.push({ x: p.x, y: p.y, radius: radius, power: 16 * (p.l / p.ml), type: 'wave' });
-        }
-    }
-}
-
-function getGridOffset(x, y) {
-    staticGridOffset.x = 0;
-    staticGridOffset.y = 0;
-    if (activeWarpEntities.length === 0) return staticGridOffset;
-    
-    let dx = 0, dy = 0;
-    for (let i = 0; i < activeWarpEntities.length; i++) {
-        const w = activeWarpEntities[i];
-        const diffX = x - w.x, diffY = y - w.y;
-        
-        if (w.type === 'point') {
-            const dSq = diffX * diffX + diffY * diffY;
-            if (dSq < w.maxRSq && dSq > 0.001) {
-                const d = Math.sqrt(dSq);
-                const str = (1 - d / w.maxR) * w.power;
-                dx += (diffX / d) * str * w.mult;
-                dy += (diffY / d) * str * w.mult;
-            }
-        } else {
-            const dSq = diffX * diffX + diffY * diffY;
-            const d = Math.sqrt(dSq);
-            const dRange = Math.abs(d - w.radius);
-            if (dRange < 70 && d > 0.001) {
-                const str = (1 - dRange / 70) * w.power;
-                dx += (diffX / d) * str;
-                dy += (diffY / d) * str;
-            }
-        }
-    }
-    staticGridOffset.x = dx;
-    staticGridOffset.y = dy;
-    return staticGridOffset;
-}
-
-// ── Dalga Sistemi ──
-function startWave(w) {
-    wave = w; waveTm = 0;
-    const base = DC.bwe + Math.floor(wave * (1 + wave * DC.wsr));
-    waveEC = Math.min(base, DC.mwe); waveSp = 0;
-    
-    waveDl = Math.max(0.2, DC.sd - wave * 0.05);
-    
-    if (wave > 1 && wave % 5 === 0) {
-        const bn = wave / 5;
-        const types = ['chaser', 'bullethell', 'gravity', 'chronos', 'behemoth'];
-        const numBosses = Math.min(3, Math.floor((wave - 5) / 10) + 1);
-        
-        for (let i = 0; i < numBosses; i++) {
-            const bx = canvas.width / (numBosses + 1) * (i + 1);
-            const by = -100 - (i * 60);
-            let bType = types[(bn - 1 + i) % 3];
-            if (i === 0 && wave % 30 === 0) bType = 'behemoth';
-            else if (i === 0 && wave % 20 === 0) bType = 'chronos';
-            else if (wave >= 25 && i === 1) bType = (wave % 2 === 0) ? 'chronos' : 'behemoth';
-            const b = new Boss(bn, bx, by, bType);
-            enemies.push(b);
-            if (i === 0) bossActive = b;
-        }
-        
-        sfx.bWarn();
-        floatT(canvas.width / 2, canvas.height / 2 - 50, numBosses > 1 ? '⚠ KOZMİK SAVAŞ GRUBU YAKLAŞIYOR!' : '⚠ BOSS YAKLAŞIYOR!', '#ff00ff', 28);
-        
-        const bBar = document.getElementById('bossBar');
-        if (bBar) bBar.classList.add('active');
-    }
-    
-    const el = document.getElementById('waveAnn');
-    document.getElementById('waT').textContent = `DALGA ${wave}`;
-    const subs = ['HAYATTA KAL', 'KORİDORU KORU', 'PARAZİT AKINI', 'KOZMİK SAVAŞ', 'KAOS KAÇINILMAZ'];
-    document.getElementById('waS').textContent = wave % 5 === 0 ? '⚠ BOSS TESPİT EDİLDİ' : subs[randInt(0, subs.length - 1)];
-    el.classList.add('show'); sfx.wave();
-    setTimeout(() => el.classList.remove('show'), 2000);
-}
-
-function getET() {
-    const r = Math.random();
-    if (wave >= 14 && r < 0.08) return 'sweeper';
-    if (wave >= 12 && r < 0.08) return 'sniper';
-    if (wave >= 11 && r < 0.10) return 'phantom';
-    if (wave >= 10 && r < 0.12) return 'shielder';
-    if (wave >= 8 && r < 0.10) return 'healer';
-    if (wave >= 7 && r < 0.14) return 'splitter';
-    if (wave >= 6 && r < 0.15) return 'kamikaze';
-    if (wave >= 5 && r < 0.16) return 'shooter';
-    if (wave >= 4 && r < 0.12) return 'orbiter';
-    if (wave >= 3 && r < 0.12) return 'tank';
-    if (r < 0.28) return 'speeder';
-    return 'drone';
-}
-
-function spawnEnemy() {
-    const t = getET(); let x, y; const side = randInt(0, 3), pad = 50;
-    switch (side) {
-        case 0: x = rand(pad, canvas.width - pad); y = -pad; break;
-        case 1: x = canvas.width + pad; y = rand(pad, canvas.height - pad); break;
-        case 2: x = rand(pad, canvas.width - pad); y = canvas.height + pad; break;
-        case 3: x = -pad; y = rand(pad, canvas.height - pad); break;
-    }
-    const e = new Enemy(t, x, y);
-    
-    // Üssel dalga zorluğu ölçekleme (Exponential wave scaling)
-    const sf = Math.pow(1 + DC.wsr, wave - 1);
-    const df = Math.pow(1 + DC.wsr * 0.75, wave - 1);
-    
-    // Oyuncu gücüne göre can ölçekleme (Yapay zekanın erimesini engeller)
-    const lPlayers = livePlayers();
-    const totalDps = lPlayers.reduce((sum, p) => sum + (p.bd / p.sr) * (1 + (p.extraS || 0) * 0.7), 0);
-    const playerPowerMult = Math.max(1.0, totalDps / 30);
-    const hpPowerScale = 1.0 + (playerPowerMult - 1.0) * 0.45;
-    
-    e.hp *= sf * hpPowerScale; 
-    e.maxHp = e.hp; 
-    e.spd *= (1 + (wave - 1) * 0.018); 
-    e.damage *= df;
-    if (e.shHp > 0) e.shHp *= sf * hpPowerScale;
-    enemies.push(e); waveSp++;
-}
-
-// ── Lazer Bağı Render & Mekanikler ──
-function drawLink(ctx, coopState) {
-    if (MODE === '1p') return;
-    if (!p1.alive || !p2.alive) return;
-    
-    const d = dist(p1, p2), maxD = coopState.maxLinkD;
-    if (d > maxD) return;
-    
-    const segs = 30, time = gameTime * 3;
-    const thicknessFactor = coopState.linkDmgScale;
-    
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    for (let s = 0; s < 3; s++) {
-        const off = s * Math.PI * 2 / 3; ctx.beginPath();
-        ctx.strokeStyle = s === 0 ? LINK : s === 1 ? P1 : P2;
-        ctx.lineWidth = (2.2 - s * 0.5) * (0.6 + thicknessFactor * 0.4);
-        ctx.globalAlpha = (1 - d / maxD) * (0.65 - s * 0.12);
-        
-        for (let i = 0; i <= segs; i++) {
-            const t = i / segs; const x = lerp(p1.x, p2.x, t), y = lerp(p1.y, p2.y, t);
-            const px = -(p2.y - p1.y) / d, py = (p2.x - p1.x) / d;
-            const w = Math.sin(t * Math.PI * 4 + time + off) * (15 * (1 - d / maxD));
-            const fx = x + px * w, fy = y + py * w;
-            i === 0 ? ctx.moveTo(fx, fy) : ctx.lineTo(fx, fy);
-        }
-        ctx.stroke();
-    }
-    ctx.restore();
-    
-    // Lazer Hasarı
-    linkDT += 1 / 60;
-    if (linkDT >= 0.15) {
-        linkDT = 0;
-        let ld = (5 + wave * 0.8) * coopState.linkDmgScale;
-        let activeBossesHit = [];
-        
-        for (const e of enemies) {
-            if (!e.alive) continue;
-            const dx = p2.x - p1.x, dy = p2.y - p1.y, l2 = dx * dx + dy * dy;
-            if (l2 === 0) continue;
-            let t = ((e.x - p1.x) * dx + (e.y - p1.y) * dy) / l2;
-            t = clamp(t, 0, 1);
-            const cx = p1.x + t * dx, cy = p1.y + t * dy;
-            
-            if (Math.hypot(e.x - cx, e.y - cy) < e.r + 15 && d < maxD) {
-                if (e.isBoss) activeBossesHit.push(e);
-                e.takeDmg(ld, false);
-                spawnP(cx, cy, LINK, 2, 80, 0.15, 2);
-            }
-        }
-        
-        // Her boss için bağımsız aşırı yüklenme zamanlamasını kontrol et
-        const allBosses = enemies.filter(e => e.isBoss && e.alive);
-        for (const boss of allBosses) {
-            if (activeBossesHit.includes(boss)) {
-                boss.overloadT += 0.15;
-                if (boss.overloadT >= 1.2) {
-                    boss.overloadT = 0;
-                    boss.takeDmg(120, true);
-                    sfx.exp(); shake(20);
-                    floatT(boss.x, boss.y - 40, '⚡ AŞIRI YÜKLENME!', LINK, 20);
-                    spawnP(boss.x, boss.y, LINK, 30, 300, 0.8, 5, 'shockwave');
-                }
+    if (tHud) {
+        tHud.innerHTML = '';
+        const trinketItems = Object.entries(p1.trinkets);
+        for (let i = 0; i < MAX_TRINKET_SLOTS; i++) {
+            const entry = trinketItems[i];
+            const el = document.createElement('div');
+            if (!entry) {
+                el.className = 'hud-ui empty-slot';
+                el.textContent = '·';
             } else {
-                boss.overloadT = Math.max(0, boss.overloadT - 0.1);
+                const d = TRINKETS[entry[0]];
+                el.className = 'hud-ui';
+                el.style.color = d.color;
+                el.style.borderColor = d.color + '80';
+                el.title = `${d.name} Lv.${entry[1]}/5`;
+                el.innerHTML = `${d.icon}<span class="uc">${entry[1]}</span>`;
             }
+            tHud.appendChild(el);
         }
     }
-    
-    const rad = hasAegis() ? 280 : 150;
-    if (d < rad) {
-        const za = (1 - d / rad) * 0.15;
-        const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
-        const g = ctx.createRadialGradient(mx, my, 0, mx, my, 80);
-        g.addColorStop(0, `rgba(191, 0, 255, ${za})`);
-        g.addColorStop(1, 'rgba(191, 0, 255, 0)');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(mx, my, 80, 0, Math.PI * 2); ctx.fill();
-    }
 }
 
-// Aegis sınıfının varlık kontrolü
-function hasAegis() {
-    return p1.shipClass === 'aegis' || (MODE === '2p' && p2.shipClass === 'aegis');
-}
-
-// ── Duraklatma Paneli ──
 function updatePauseStatsUI() {
     const grid = document.getElementById('pauseStatsGrid');
-    if (MODE === '2p') {
-        grid.className = 'pilot-stats-flex';
-        grid.style.display = 'flex';
-        grid.style.gap = '10px';
-        grid.innerHTML = renderPlayerStatPanel(p1) + renderPlayerStatPanel(p2);
-    } else {
-        grid.className = 'pilot-stats-flex';
-        grid.style.display = 'block';
-        grid.innerHTML = renderPlayerStatPanel(p1);
-    }
-}
+    if (!grid || !p1) return;
+    const shipCfg = SHIPS[p1.shipClass] || SHIPS.interceptor;
+    const avgDps = gameTime > 1 ? Math.floor(totalDamageDealt / gameTime) : 0;
 
-function renderPlayerStatPanel(pl) {
-    const isP1 = pl.id === 1;
-    const nameColor = isP1 ? P1 : P2;
-    const upgEntries = Object.entries(pl.pU);
-    const shipLabels = { interceptor: 'Avcı', dreadnought: 'Kruvazör', aegis: 'Destek' };
-    
-    const fEntries = Object.keys(pl.fusions || {});
-    let upgradeHtml = '<div style="color: rgba(255,255,255,0.35); font-size:0.7rem; margin-top:6px;">Yükseltme Kartı Yok</div>';
-    if (upgEntries.length > 0 || fEntries.length > 0) {
-        upgradeHtml = `<div class="br-all-list" style="margin-top:6px;">`;
-        for (const fk of fEntries) {
-            const f = FUSIONS[fk];
-            if (f) upgradeHtml += `<div class="br-all-chip" style="color:${f.color}; border-color:${f.color}; font-size:0.55rem; padding: 2px 6px; font-weight:700;">${f.icon} ${f.name} [FÜZYON]</div>`;
-        }
-        for (const [k, v] of upgEntries) {
-            const u = UPG[k];
-            if (u) upgradeHtml += `<div class="br-all-chip" style="color:${u.color}; border-color:${u.color}30; font-size:0.55rem; padding: 2px 6px;">${u.icon} ${u.name} Lv.${Math.floor(v)}/${MAX_PERK_LEVEL}</div>`;
-        }
-        upgradeHtml += `</div>`;
+    // 4 Silah Kartı
+    const weaponCards = [];
+    for (const sk of Object.keys(p1.superEvolutions)) {
+        const d = SUPER_EVOLUTIONS[sk];
+        weaponCards.push(`<div class="pause-slot-card" style="border-color:${d.color}"><span class="psc-ico">${d.icon}</span><span class="psc-nm">${d.name}</span><span class="psc-lv">👑 SÜPER</span></div>`);
+    }
+    for (const ek of Object.keys(p1.evolutions)) {
+        const d = EVOLUTIONS[ek];
+        weaponCards.push(`<div class="pause-slot-card" style="border-color:${d.color}"><span class="psc-ico">${d.icon}</span><span class="psc-nm">${d.name}</span><span class="psc-lv">⚡ EVRİM</span></div>`);
+    }
+    for (const [wk, lv] of Object.entries(p1.weapons)) {
+        const d = WEAPONS[wk];
+        weaponCards.push(`<div class="pause-slot-card" style="border-color:${d.color}60"><span class="psc-ico">${d.icon}</span><span class="psc-nm">${d.name}</span><span class="psc-lv">Lv.${lv}/5</span></div>`);
+    }
+    while (weaponCards.length < 4) {
+        weaponCards.push(`<div class="pause-slot-card empty"><span class="psc-ico">◇</span><span class="psc-nm">Boş Silah</span><span class="psc-lv">-</span></div>`);
     }
 
-    return `
-        <div class="pilot-stat-col" style="border-color: ${nameColor}30; flex: 1;">
-            <div style="font-family:'Orbitron', monospace; font-size:0.75rem; font-weight:700; color:${nameColor}; margin-bottom:8px; display:flex; justify-content:space-between;">
-                <span>◈ ${pl.name.toUpperCase()} (${shipLabels[pl.shipClass]})</span>
-                <span style="color:var(--gold)">Lv.${pl.lv}</span>
-            </div>
-            <div class="stat-line"><span class="lbl">Maks Can</span><span class="val">${Math.floor(pl.hp)}/${Math.floor(pl.mh)} HP</span></div>
-            <div class="stat-line"><span class="lbl">Kalkan</span><span class="val">${Math.floor(pl.sh)}/${Math.floor(pl.ms)} SH</span></div>
-            <div class="stat-line"><span class="lbl">Mermi Hasarı</span><span class="val">${pl.bd.toFixed(1)}</span></div>
-            <div class="stat-line"><span class="lbl">Gemi Hızı</span><span class="val">${Math.floor(pl.sp)}</span></div>
-            <div class="stat-line"><span class="lbl">Atış Hızı</span><span class="val">${(1 / pl.sr).toFixed(1)}/sn</span></div>
-            <div class="stat-line"><span class="lbl">Kritik Şans</span><span class="val">%${Math.floor(pl.crit * 100)}</span></div>
-            <div class="stat-line"><span class="lbl">Can Çalma</span><span class="val">+${pl.vamp} HP/Kill</span></div>
-            
-            <div style="font-family:'Rajdhani',sans-serif; font-size:0.6rem; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-top:10px; border-top:1px solid rgba(255,255,255,0.04); padding-top:4px;">Kazanılan Prototip Kartlar</div>
-            ${upgradeHtml}
+    // 4 Alet Kartı
+    const trinketCards = [];
+    for (const [tk, lv] of Object.entries(p1.trinkets)) {
+        const d = TRINKETS[tk];
+        trinketCards.push(`<div class="pause-slot-card" style="border-color:${d.color}60"><span class="psc-ico">${d.icon}</span><span class="psc-nm">${d.name}</span><span class="psc-lv">Lv.${lv}/5</span></div>`);
+    }
+    while (trinketCards.length < 4) {
+        trinketCards.push(`<div class="pause-slot-card empty"><span class="psc-ico">◇</span><span class="psc-nm">Boş Alet</span><span class="psc-lv">-</span></div>`);
+    }
+
+    grid.innerHTML = `
+        <div style="font-size:0.78rem;font-weight:800;color:${p1.c};margin-bottom:6px;display:flex;justify-content:space-between;">
+            <span>◈ ${p1.name.toUpperCase()} — ${shipCfg.name}</span>
+            <span style="color:#ffd700">SEVİYE ${p1.lv}</span>
         </div>
+        <div style="font-size:0.62rem;color:#00f0ff;margin-bottom:4px;">⚔ AKTİF SİLAH SLOTLARI (${p1.usedWeaponSlots()}/4)</div>
+        <div class="pause-loadout-grid" style="margin-bottom:10px;">${weaponCards.join('')}</div>
+        <div style="font-size:0.62rem;color:#44ffaa;margin-bottom:4px;">🧲 AKTİF ALET / TRINKET SLOTLARI (${p1.usedTrinketSlots()}/4)</div>
+        <div class="pause-loadout-grid" style="margin-bottom:12px;">${trinketCards.join('')}</div>
+
+        <div class="stat-line"><span class="lbl">Anlık / Ortalama DPS</span><span class="val" style="color:#ffd700">${Math.floor(currentDps)} / ${avgDps} DPS</span></div>
+        <div class="stat-line"><span class="lbl">Gövde Canı / Kalkan</span><span class="val">${Math.floor(p1.hp)}/${Math.floor(p1.mh)} HP · ${Math.floor(p1.sh)}/${Math.floor(p1.ms)} SH</span></div>
+        <div class="stat-line"><span class="lbl">Hasar Çarpanı & Kritik Şans</span><span class="val">x${p1.dmgMult.toFixed(2)} · %${Math.floor(p1.crit * 100)}</span></div>
+        <div class="stat-line"><span class="lbl">Zırh & Cooldown Azaltma</span><span class="val">%${Math.floor(p1.armor * 100)} Zırh · -%${Math.floor((1 - p1.cdMult) * 100)} CD</span></div>
+        <div class="stat-line"><span class="lbl">Mıknatıs Çekim Çapı & Hız</span><span class="val">${Math.floor(p1.magR)}m · ${Math.floor(p1.sp)} m/s</span></div>
+        <div class="stat-line"><span class="lbl">Kalan Reroll / Skip Hakkı</span><span class="val">${p1.rerollsLeft} Reroll · ${p1.skipsLeft} Skip</span></div>
     `;
 }
 
-// ── Kurulum ve Başlangıç ──
-function initGame() {
-    const p1ShipClass = sessionStorage.getItem('cosmic_p1_ship') || 'interceptor';
-    const p2ShipClass = sessionStorage.getItem('cosmic_p2_ship') || 'interceptor';
-    
-    p1 = new Player(1, canvas.width * (MODE === '2p' ? 0.35 : 0.5), canvas.height * 0.5, P1, P1D, P1_NAME, p1ShipClass);
-    p1.invT = 3;
-    
-    if (MODE === '2p') {
-        p2 = new Player(2, canvas.width * 0.65, canvas.height * 0.5, P2, P2D, P2_NAME, p2ShipClass);
-        p2.invT = 3;
-    } else {
-        p2 = new Player(2, -999, -999, P2, P2D, '', 'interceptor');
-        p2.alive = false; p2.respT = 99999;
+// ── Dalga & Spawn Yönetimi (Her 3 Dalgada Bir Elit Mini-Boss!) ──
+let p1 = null;
+
+function startWave(w) {
+    wave = w;
+    waveSp = 0;
+    waveTm = 0;
+    waveEC = Math.floor((8 + w * 3.5) * DC.ecm);
+    waveDl = Math.max(0.28, (1.25 - w * 0.03) * DC.sdm);
+
+    const wa = document.getElementById('waveAnn');
+    document.getElementById('waT').textContent = `DALGA ${wave}`;
+    const mapCfg = MAPS[SELECTED_MAP] || MAPS.sector9;
+    document.getElementById('waS').textContent = wave % 5 === 0
+        ? '⚠️ OMEGA BOSS ALARMI!'
+        : wave % 3 === 0
+        ? '★ ELİT MİNİ-BOSS SAHAYA İNDİ! (%50 ŞANS SANDIĞI) ★'
+        : mapCfg.name.toUpperCase();
+    wa.classList.add('show');
+    setTimeout(() => wa.classList.remove('show'), 2200);
+    sfx.wave();
+
+    // Her 3 dalgada bir Elit Mini-Boss iner!
+    if (wave % 3 === 0) {
+        const mbX = clamp(p1.x + rand(-260, 260), 90, canvas.width - 90);
+        const mbY = clamp(p1.y - 220, 80, canvas.height - 80);
+        const mb = new Enemy('tank', mbX, mbY, true);
+        enemies.push(mb);
     }
-    
-    bullets.length = 0; enemies.length = 0; eBullets.length = 0; pickups.length = 0; particles.length = 0; floats.length = 0; dangerZones.length = 0; laserTrails.length = 0; blackHoles.length = 0; gravityRifts.length = 0;
-    levelUpQueue = [];
-    score = 0; wave = 0; comboC = 0; comboTm = 0; comboM = 1; gameTime = 0; totalKills = 0;
-    shakeI = 0; screenFl = 0; linkDT = 0; bossActive = null; slowT = 0; slowF = 1;
-    bossRewardActive = false; bossRewardTimer = 0;
-    beamOverloadTimer = 0;
-    
-    document.getElementById('bossBar').classList.remove('active');
-    document.getElementById('bossRewardOv').classList.remove('show');
-    document.getElementById('levelUpOv').classList.add('hidden');
-    document.getElementById('pauseOv').classList.add('hidden');
-    
+
+    // Her 5 dalgada bir ana Boss (Dalga 20: Chronos Weaver, Dalga 30: Oblivion Behemoth)
+    if (wave >= 5 && wave % 5 === 0) {
+        const bn = wave / 5;
+        let bType = ['chaser', 'bullethell', 'gravity'][(bn - 1) % 3];
+        if (wave % 30 === 0) bType = 'behemoth';
+        else if (wave % 20 === 0) bType = 'chronos';
+        const b = new Boss(bn, canvas.width / 2, -60, bType);
+        enemies.push(b);
+        bossActive = b;
+        document.getElementById('bossBar').classList.add('active');
+        document.getElementById('bossNm').textContent = b.bossName;
+    }
+}
+
+function spawnEnemy() {
+    const mapCfg = MAPS[SELECTED_MAP] || MAPS.sector9;
+    const pool = mapCfg.enemyPool;
+    const maxIdx = Math.min(pool.length - 1, Math.floor(wave / 2) + 2);
+    const type = pool[randInt(0, maxIdx)];
+
+    const side = randInt(0, 3);
+    let x = 0, y = 0;
+    if (side === 0) { x = rand(40, canvas.width - 40); y = 30; }
+    else if (side === 1) { x = rand(40, canvas.width - 40); y = canvas.height - 30; }
+    else if (side === 2) { x = 30; y = rand(40, canvas.height - 40); }
+    else { x = canvas.width - 30; y = rand(40, canvas.height - 40); }
+
+    enemies.push(new Enemy(type, x, y, false));
+    waveSp++;
+}
+
+function applyPickup(p, type) {
+    if (type === 'cosmicChest') {
+        openCosmicChest(p);
+        return;
+    }
+    const decay = getCosmicDecay();
+    if (type === 'heal') {
+        p.hp = Math.min(p.mh, p.hp + 35 * decay);
+        floatT(p.x, p.y - 25, '+35 HP', '#00ff88', 13);
+    } else if (type === 'shield') {
+        p.sh = p.ms;
+        floatT(p.x, p.y - 25, 'KALKAN FULL!', '#bf00ff', 13);
+    } else {
+        p.gainXP(45);
+        floatT(p.x, p.y - 25, '+45 XP', '#ffd700', 13);
+    }
+    sfx.pow();
+}
+
+// ── Ana Güncelleme Döngüsü (update) ──
+function update(dt) {
+    if (gameState === 'levelChoice') {
+        updateLevelChoice(dt);
+        return;
+    }
+    if (gameState === 'lootBox' || gameState === 'paused' || gameState === 'gameover') {
+        return;
+    }
+
+    if (levelUpQueue.length > 0 && !isLevelingUp) {
+        triggerLevelUpChoice(levelUpQueue.shift());
+        return;
+    }
+
+    if (gameState !== 'playing') return;
+
+    const eDt = dt * slowF;
+    gameTime += eDt;
+
+    // Anlık DPS Hesaplama
+    dpsTimer += eDt;
+    if (dpsTimer >= 0.5) {
+        currentDps = lerp(currentDps, dpsWindowDmg / dpsTimer, 0.45);
+        dpsWindowDmg = 0;
+        dpsTimer = 0;
+    }
+
+    p1.update(eDt);
+    if (!p1.alive) {
+        endGame();
+        return;
+    }
+
+    // Harita Çevresel Dinamikleri
+    if (SELECTED_MAP === 'sector9') {
+        for (const d of mapDebris) {
+            d.a += d.va * eDt;
+            d.x += d.vx * eDt;
+            d.y += d.vy * eDt;
+            if (d.x < 80 || d.x > canvas.width - 80) d.vx *= -1;
+            if (d.y < 80 || d.y > canvas.height - 80) d.vy *= -1;
+        }
+    } else if (SELECTED_MAP === 'nebula') {
+        for (const gc of gasClouds) {
+            gc.x += gc.vx * eDt;
+            gc.y += gc.vy * eDt;
+            if (gc.x < 90 || gc.x > canvas.width - 90) gc.vx *= -1;
+            if (gc.y < 90 || gc.y > canvas.height - 90) gc.vy *= -1;
+        }
+    } else if (SELECTED_MAP === 'blackhole') {
+        while (lavaAsteroids.length < 4) spawnLavaAsteroid();
+        for (let i = lavaAsteroids.length - 1; i >= 0; i--) {
+            const la = lavaAsteroids[i];
+            la.x += la.vx * eDt;
+            la.y += la.vy * eDt;
+            la.a += eDt * 1.2;
+            if (la.x < 40 || la.x > canvas.width - 40) la.vx *= -1;
+            if (la.y < 40 || la.y > canvas.height - 40) la.vy *= -1;
+            if (dist(la, p1) < la.r + p1.r) {
+                p1.takeDmg(24, 0.04);
+                spawnExp(la.x, la.y, '#ff4400', 1.5);
+                lavaAsteroids.splice(i, 1);
+            }
+        }
+    }
+
+    // Kara Delikler (Kozmik Süpernova & Olay Ufku)
+    for (let i = blackHoles.length - 1; i >= 0; i--) {
+        const bh = blackHoles[i];
+        bh.life -= eDt; bh.a += eDt * 6;
+        if (bh.life <= 0) { blackHoles.splice(i, 1); continue; }
+        for (const e of enemies) {
+            if (!e.alive) continue;
+            const d = dist(bh, e);
+            if (d < bh.r && d > 4) {
+                const pa = ang(e, bh);
+                e.x += Math.cos(pa) * 190 * eDt;
+                e.y += Math.sin(pa) * 190 * eDt;
+                e.takeDmg(bh.dps * eDt, false, true);
+            }
+        }
+    }
+
+    // Chronos Weaver Zaman Yarıkları
+    for (let i = gravityRifts.length - 1; i >= 0; i--) {
+        const rf = gravityRifts[i];
+        rf.life -= eDt; rf.a -= eDt * 4;
+        if (rf.life <= 0) { gravityRifts.splice(i, 1); continue; }
+        if (dist(rf, p1) < rf.r) {
+            const pushA = ang(rf, p1);
+            p1.x = clamp(p1.x + Math.cos(pushA) * 180 * eDt - p1.vx * 1.3 * eDt, 36, canvas.width - 36);
+            p1.y = clamp(p1.y + Math.sin(pushA) * 180 * eDt - p1.vy * 1.3 * eDt, 36, canvas.height - 36);
+        }
+    }
+
+    // Lazer & Alev İzleri
+    for (let i = laserTrails.length - 1; i >= 0; i--) {
+        const lt = laserTrails[i];
+        lt.l -= eDt;
+        if (lt.l <= 0) { laserTrails.splice(i, 1); continue; }
+        for (const e of enemies) {
+            if (e.alive && Math.hypot(e.x - lt.x, e.y - lt.y) < e.r + 18) {
+                e.takeDmg(42 * p1.dmgMult * eDt, false, true);
+            }
+        }
+    }
+
+    if (comboTm > 0) {
+        comboTm -= eDt;
+        if (comboTm <= 0) { comboC = 0; comboM = 1; }
+    }
+
+    waveTm += eDt;
+    if (waveSp < waveEC && waveTm >= waveDl) {
+        waveTm = 0;
+        spawnEnemy();
+    }
+    if (waveSp >= waveEC && enemies.every(e => !e.alive)) {
+        startWave(wave + 1);
+    }
+
+    // Oyuncu Mermileri
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i];
+        if (b.homing) {
+            const tgt = p1.findNearestEnemy(500);
+            if (tgt) {
+                const ta = ang(b, tgt);
+                const sp = Math.hypot(b.vx, b.vy);
+                b.vx = lerp(b.vx, Math.cos(ta) * sp, 0.12);
+                b.vy = lerp(b.vy, Math.sin(ta) * sp, 0.12);
+            }
+        }
+        b.x += b.vx * eDt;
+        b.y += b.vy * eDt;
+        b.life -= eDt;
+        if (b.life <= 0 || b.x < -40 || b.x > canvas.width + 40 || b.y < -40 || b.y > canvas.height + 40) {
+            bullets.splice(i, 1);
+            continue;
+        }
+
+        let removeBullet = false;
+        for (let j = 0; j < enemies.length; j++) {
+            const e = enemies[j];
+            if (!e.alive) continue;
+            if (b.hitIds && b.hitIds.includes(e.eid)) continue;
+
+            const rad = e.r + b.size;
+            const dx = b.x - e.x, dy = b.y - e.y;
+            if (dx * dx + dy * dy < rad * rad) {
+                const impactAngle = Math.atan2(dy, dx);
+                const dealt = e.takeDmg(b.damage, b.crit, false, impactAngle);
+                spawnP(b.x, b.y, b.color, 3, 160, 0.2, 2, 'spark');
+                sfx.hit();
+
+                if (dealt !== false) {
+                    if (b.leech) p1.healLeech(b.damage * 0.10);
+                    if (b.splash) {
+                        particles.push(new Particle(b.x, b.y, 0, 0, b.color, 0.22, 52, 'shockwave'));
+                        for (const ne of enemies) {
+                            if (ne !== e && ne.alive && dist(b, ne) < 55 + ne.r) {
+                                ne.takeDmg(b.damage * 0.38, false, true);
+                            }
+                        }
+                    }
+                    if (b.spawnBlackHole && b.crit && p1.blackHoleCd <= 0 && blackHoles.length < 3) {
+                        p1.blackHoleCd = 1.1;
+                        blackHoles.push({ x: e.x, y: e.y, r: 160, life: 2.2, maxLife: 2.2, dps: 68 * p1.dmgMult, a: 0, dmgT: 0 });
+                    }
+                    if (b.arbiterBoost) {
+                        e.slowT = 1.5;
+                        b.damage *= 1.25;
+                    }
+                }
+
+                // Sekme (Ricochet)
+                if (b.bounces && b.bounces > 0) {
+                    b.bounces--;
+                    if (!b.hitIds) b.hitIds = [];
+                    b.hitIds.push(e.eid);
+                    let nextT = null, bestD = 280;
+                    for (const ce of enemies) {
+                        if (!ce.alive || ce === e || (b.hitIds && b.hitIds.includes(ce.eid))) continue;
+                        const cd = dist(e, ce);
+                        if (cd < bestD) { bestD = cd; nextT = ce; }
+                    }
+                    if (nextT) {
+                        const ra = ang(b, nextT);
+                        const sp = Math.hypot(b.vx, b.vy);
+                        b.vx = Math.cos(ra) * sp;
+                        b.vy = Math.sin(ra) * sp;
+                        b.life = Math.max(b.life, 0.5);
+                        break;
+                    }
+                }
+
+                if (b.piercing && b.pierceLeft > 1) {
+                    b.pierceLeft--;
+                    if (!b.hitIds) b.hitIds = [];
+                    b.hitIds.push(e.eid);
+                } else {
+                    removeBullet = true;
+                    break;
+                }
+            }
+        }
+        if (removeBullet) bullets.splice(i, 1);
+    }
+
+    // Düşman Mermileri
+    for (let i = eBullets.length - 1; i >= 0; i--) {
+        const b = eBullets[i];
+        b.x += b.vx * eDt;
+        b.y += b.vy * eDt;
+        b.life -= eDt;
+        if (b.life <= 0 || b.x < -40 || b.x > canvas.width + 40 || b.y < -40 || b.y > canvas.height + 40) {
+            eBullets.splice(i, 1);
+            continue;
+        }
+        if (dist(b, p1) < p1.r + b.size) {
+            p1.takeDmg(b.damage, b.truePct || 0);
+            eBullets.splice(i, 1);
+        }
+    }
+
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        enemies[i].update(eDt);
+        if (!enemies[i].alive) enemies.splice(i, 1);
+    }
+
+    for (let i = pickups.length - 1; i >= 0; i--) {
+        const pu = pickups[i];
+        pu.life -= eDt; pu.aA += eDt * 3.5;
+        if (pu.life <= 0) { pickups.splice(i, 1); continue; }
+        if (dist(pu, p1) < pu.r + p1.r + 10) {
+            const pType = pu.type;
+            pickups.splice(i, 1);
+            applyPickup(p1, pType);
+            if (gameState !== 'playing') break;
+        }
+    }
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+        if (!particles[i].update(eDt)) particles.splice(i, 1);
+    }
+    for (let i = floats.length - 1; i >= 0; i--) {
+        const f = floats[i];
+        f.y += f.vy * eDt;
+        f.l -= eDt;
+        if (f.l <= 0) floats.splice(i, 1);
+    }
+
+    shakeI *= 0.88;
+    if (shakeI < 0.4) shakeI = 0;
+
+    updateHUD();
+}
+
+function updateHUD() {
+    if (!p1) return;
+    document.getElementById('p1Hp').style.width = `${clamp((p1.hp / p1.mh) * 100, 0, 100)}%`;
+    document.getElementById('p1Sh').style.width = `${clamp((p1.sh / p1.ms) * 100, 0, 100)}%`;
+    document.getElementById('p1Xp').style.width = `${clamp((p1.xp / p1.xpN) * 100, 0, 100)}%`;
+    document.getElementById('p1HpTxt').textContent = `${Math.ceil(p1.hp)}/${Math.floor(p1.mh)}`;
+    document.getElementById('p1ShTxt').textContent = `${Math.ceil(p1.sh)}/${Math.floor(p1.ms)}`;
+    document.getElementById('p1DpsTxt').textContent = `${Math.floor(currentDps)} DPS`;
+    document.getElementById('p1Lv').textContent = `Lv.${p1.lv}`;
+
+    const cfg = SHIPS[p1.shipClass] || SHIPS.interceptor;
+    const abBox = document.getElementById('p1Ab');
+    const abLbl = document.getElementById('p1AbLbl');
+    const abFill = document.getElementById('p1AbFill');
+    const ready = p1.abCd <= 0;
+    const pct = ready ? 100 : clamp((1 - p1.abCd / p1.abMax) * 100, 0, 100);
+    abBox.style.setProperty('--ab', cfg.abilityColor);
+    abBox.classList.toggle('ready', ready);
+    abLbl.textContent = ready ? `✦ ${cfg.abilityName} [SPACE] HAZIR` : `${cfg.abilityName} (${p1.abCd.toFixed(1)}s)`;
+    abFill.style.width = `${pct}%`;
+    abFill.style.background = cfg.abilityColor;
+
+    document.getElementById('hudSc').textContent = Math.floor(score).toLocaleString();
+    document.getElementById('hudWv').textContent = `DALGA ${wave}`;
+    const m = Math.floor(gameTime / 60).toString().padStart(2, '0');
+    const s = Math.floor(gameTime % 60).toString().padStart(2, '0');
+    document.getElementById('hudTm').textContent = `${m}:${s}`;
+
+    const cEl = document.getElementById('hudCo');
+    if (comboM > 1) {
+        cEl.classList.add('active');
+        cEl.textContent = `COMBO x${comboM.toFixed(2)}`;
+    } else {
+        cEl.classList.remove('active');
+    }
+
+    const radEl = document.getElementById('hudRad');
+    if (radEl) {
+        if (wave >= 25) {
+            radEl.style.display = 'block';
+            radEl.textContent = `☢ KOZMİK ÇÜRÜME: -%${Math.round((1 - getCosmicDecay()) * 100)}`;
+        } else {
+            radEl.style.display = 'none';
+        }
+    }
+
+    if (bossActive && bossActive.alive) {
+        document.getElementById('bossHp').style.width = `${clamp((bossActive.hp / bossActive.maxHp) * 100, 0, 100)}%`;
+    }
+}
+
+// ── Çizim Döngüsü (draw) ──
+function draw() {
+    const mapCfg = MAPS[SELECTED_MAP] || MAPS.sector9;
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, mapCfg.bgTop);
+    grad.addColorStop(1, mapCfg.bgBot);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    if (shakeI > 0) ctx.translate(rand(-shakeI, shakeI), rand(-shakeI, shakeI));
+
+    // Taktiksel Arena Izgarası & Sınır Çerçevesi
+    ctx.strokeStyle = mapCfg.gridColor;
+    ctx.lineWidth = 1;
+    const step = 70;
+    for (let x = 0; x < canvas.width; x += step) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += step) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+
+    // Sınırlı Arena Duvar Çizgisi
+    ctx.strokeStyle = mapCfg.borderColor + '55';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(24, 24, canvas.width - 48, canvas.height - 48);
+
+    // Harita 1: Dönen Hurda Metaller
+    if (SELECTED_MAP === 'sector9') {
+        for (const d of mapDebris) {
+            ctx.save();
+            ctx.translate(d.x, d.y);
+            ctx.rotate(d.a);
+            ctx.strokeStyle = '#5588aa';
+            ctx.fillStyle = 'rgba(30, 50, 75, 0.45)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 0; i < d.sides; i++) {
+                const a = (i / d.sides) * Math.PI * 2;
+                ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * d.r, Math.sin(a) * d.r);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+
+    // Harita 2: Kuantum Nebulası Gaz Bulutları
+    if (SELECTED_MAP === 'nebula') {
+        for (const gc of gasClouds) {
+            ctx.save();
+            const g = ctx.createRadialGradient(gc.x, gc.y, 10, gc.x, gc.y, gc.r);
+            g.addColorStop(0, gc.color + '30');
+            g.addColorStop(1, gc.color + '00');
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(gc.x, gc.y, gc.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = gc.color + '55';
+            ctx.setLineDash([6, 6]);
+            ctx.beginPath();
+            ctx.arc(gc.x, gc.y, gc.r * 0.85, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
+        }
+    }
+
+    // Harita 3: Merkez Kara Delik Anomalisi & Lav Asteroidleri
+    if (SELECTED_MAP === 'blackhole') {
+        const cx = canvas.width / 2, cy = canvas.height / 2;
+        ctx.save();
+        const g = ctx.createRadialGradient(cx, cy, 8, cx, cy, 175);
+        g.addColorStop(0, '#000000');
+        g.addColorStop(0.35, 'rgba(255, 68, 0, 0.35)');
+        g.addColorStop(1, 'rgba(255, 68, 0, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(cx, cy, 175, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#ff5500';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx, cy, 28, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+
+        for (const la of lavaAsteroids) {
+            ctx.save();
+            ctx.translate(la.x, la.y);
+            ctx.rotate(la.a);
+            ctx.fillStyle = 'rgba(255, 68, 0, 0.45)';
+            ctx.strokeStyle = '#ff8800';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, la.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+
+    // Kara Delikler & Zaman Yarıkları
+    for (const bh of blackHoles) {
+        ctx.save();
+        ctx.strokeStyle = '#bf00ff';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(bh.x, bh.y, bh.r * 0.5, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+    }
+    for (const rf of gravityRifts) {
+        ctx.save();
+        ctx.strokeStyle = '#00ffcc';
+        ctx.setLineDash([8, 6]);
+        ctx.beginPath(); ctx.arc(rf.x, rf.y, rf.r, 0, Math.PI * 2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+    }
+
+    // Lazer & Alev İzleri
+    for (const lt of laserTrails) {
+        ctx.save();
+        ctx.globalAlpha = clamp(lt.l, 0, 1) * 0.65;
+        ctx.fillStyle = lt.c;
+        ctx.beginPath(); ctx.arc(lt.x, lt.y, 10, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
+    // Pickups & Kozmik Şans Sandığı
+    for (const pu of pickups) {
+        ctx.save();
+        ctx.translate(pu.x, pu.y);
+        if (pu.type === 'cosmicChest') {
+            ctx.strokeStyle = '#ffd700';
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.25)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.roundRect(-14, -11, 28, 22, 5);
+            ctx.fill();
+            ctx.stroke();
+            ctx.font = '16px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🎁', 0, 0);
+        } else {
+            ctx.fillStyle = pu.type === 'heal' ? '#00ff88' : pu.type === 'shield' ? '#bf00ff' : '#ffd700';
+            ctx.beginPath(); ctx.arc(0, 0, pu.r, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    // Mermiler
+    for (const b of bullets) {
+        ctx.fillStyle = b.color;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2); ctx.fill();
+    }
+    for (const b of eBullets) {
+        ctx.fillStyle = b.color;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Düşmanlar ve Pilot
+    for (const e of enemies) e.draw(ctx);
+    if (p1) p1.draw(ctx);
+    for (const pt of particles) pt.draw(ctx);
+
+    // Yüzen Metinler
+    for (const f of floats) {
+        ctx.save();
+        ctx.globalAlpha = clamp(f.l / f.ml, 0, 1);
+        ctx.font = `bold ${f.sz}px Orbitron`;
+        ctx.fillStyle = f.c;
+        ctx.textAlign = 'center';
+        ctx.fillText(f.txt, f.x, f.y);
+        ctx.restore();
+    }
+
+    ctx.restore();
+}
+
+// ── Kurulum, Duraklatma ve Oyun Sonu ──
+function initGame() {
+    p1 = new Player(1, canvas.width / 2, canvas.height / 2, SELECTED_SHIP);
+    bullets.length = 0; eBullets.length = 0; enemies.length = 0; pickups.length = 0;
+    particles.length = 0; floats.length = 0; laserTrails.length = 0;
+    blackHoles.length = 0; gravityRifts.length = 0;
+    levelUpQueue = []; levelUpActiveChoices = [];
+    isLevelingUp = false; window.isLevelingUp = false;
+
+    score = 0; wave = 1; comboC = 0; comboTm = 0; comboM = 1; gameTime = 0; totalKills = 0;
+    dpsWindowDmg = 0; currentDps = 0; totalDamageDealt = 0; bossActive = null;
+
+    const shipCfg = SHIPS[p1.shipClass] || SHIPS.interceptor;
+    const mapCfg = MAPS[SELECTED_MAP] || MAPS.sector9;
+    document.getElementById('p1NameLabel').textContent = `◈ ${p1.name.toUpperCase()} (${shipCfg.name.split(' ')[0]})`;
+    document.getElementById('hudMapName').textContent = `📍 ${mapCfg.name.toUpperCase()}`;
+
+    initMapEnvironment();
     updateUpgDisplay();
     startWave(1);
     setCursorMode(false);
@@ -2617,1009 +2686,146 @@ function startGame() {
     gameState = 'playing';
     initGame();
     document.getElementById('gameOverOv').classList.add('hidden');
+    document.getElementById('pauseOv').classList.add('hidden');
+    document.getElementById('levelUpOv').classList.add('hidden');
     document.getElementById('hud').classList.remove('hidden');
-    const df = document.getElementById('hudDf'); df.textContent = DC.label; df.className = 'hud-df ' + DC.cls;
+    const df = document.getElementById('hudDf');
+    df.textContent = DC.label;
+    df.className = 'hud-df ' + DC.cls;
     eA();
     setSoundMuffled(false);
     document.body.classList.add('playing-mode');
 }
 
-// ── Liderlik Tablosuna Kaydetme ──
-function saveScore() {
-    const playersLabel = MODE === '2p' ? `${P1_NAME} & ${P2_NAME}` : P1_NAME;
-    CosmicLeaderboard.submitScore(playersLabel, score, wave, gameTime, DIFFKEY, MODE);
+function togglePause() {
+    if (gameState === 'playing') {
+        gameState = 'paused';
+        updatePauseStatsUI();
+        document.getElementById('pauseOv').classList.remove('hidden');
+        setCursorMode(true);
+        setSoundMuffled(true);
+        document.body.classList.remove('playing-mode');
+    } else if (gameState === 'paused') {
+        gameState = 'playing';
+        document.getElementById('pauseOv').classList.add('hidden');
+        setCursorMode(false);
+        setSoundMuffled(false);
+        document.body.classList.add('playing-mode');
+    }
 }
 
 function endGame() {
     gameState = 'gameover';
     setCursorMode(true);
-    saveScore();
-    
-    document.getElementById('hud').classList.add('hidden');
-    document.getElementById('bossBar').classList.remove('active');
-    document.getElementById('bossRewardOv').classList.remove('show');
-    document.getElementById('levelUpOv').classList.add('hidden');
-    document.getElementById('gameOverOv').classList.remove('hidden');
     document.body.classList.remove('playing-mode');
-    
-    const fs = Math.floor(score);
-    document.getElementById('goSc').textContent = fs.toLocaleString();
+    if (typeof CosmicLeaderboard !== 'undefined') {
+        CosmicLeaderboard.submitScore(P1_NAME, Math.floor(score), wave, gameTime, DIFFKEY, '1p');
+    }
+    document.getElementById('hud').classList.add('hidden');
+    document.getElementById('gameOverOv').classList.remove('hidden');
+    document.getElementById('goSc').textContent = Math.floor(score).toLocaleString();
     document.getElementById('goWv').textContent = wave;
     document.getElementById('goKl').textContent = totalKills;
+    document.getElementById('goMap').textContent = (MAPS[SELECTED_MAP] || MAPS.sector9).name;
     const m = Math.floor(gameTime / 60), s = Math.floor(gameTime % 60);
     document.getElementById('goTm').textContent = `${m}:${s.toString().padStart(2, '0')}`;
-    
-    const list = JSON.parse(localStorage.getItem('cosmic_leaderboard') || '[]');
-    list.sort((a,b) => b.score - a.score);
-    const bestScore = list[0] ? list[0].score : fs;
-    
-    if (fs >= bestScore) {
-        document.getElementById('goNr').classList.remove('hidden');
-    } else {
-        document.getElementById('goNr').classList.add('hidden');
+
+    const sum = document.getElementById('goUsum');
+    let html = '<div class="go-ul">';
+    for (const sk of Object.keys(p1.superEvolutions)) {
+        const d = SUPER_EVOLUTIONS[sk];
+        html += `<div class="go-uc" style="color:${d.color};border-color:${d.color}">👑 ${d.icon} ${d.name}</div>`;
     }
-    
-    document.getElementById('goHs').innerHTML = `TÜM ZAMANLARIN YEREL REKORU: <span style="color:${GOLD}">${bestScore.toLocaleString()}</span>`;
-    
-    // Yükseltme Özet Bilgileri
-    const sum = document.getElementById('goUsum'); let html = '';
-    const players = MODE === '2p' ? [p1, p2] : [p1];
-    for (const pl of players) {
-        const ent = Object.entries(pl.pU);
-        const fEnt = Object.keys(pl.fusions || {});
-        if (ent.length === 0 && fEnt.length === 0) continue;
-        html += `<div class="go-ut" style="color:${pl.c}">${pl.name.toUpperCase()} PİLOT KARTLARI (SLOT ${pl.usedSlots()}/${MAX_PERK_SLOTS})</div><div class="go-ul">`;
-        for (const fk of fEnt) {
-            const f = FUSIONS[fk]; if (f) html += `<div class="go-uc" style="color:${f.color};border-color:${f.color};font-weight:700;">${f.icon} ${f.name} [FÜZYON]</div>`;
-        }
-        for (const [k, v] of ent) {
-            const u = UPG[k]; if (u) html += `<div class="go-uc" style="color:${u.color};border-color:${u.color}40">${u.icon} ${u.name} Lv.${Math.floor(v)}/${MAX_PERK_LEVEL}</div>`;
-        }
-        html += '</div>';
+    for (const ek of Object.keys(p1.evolutions)) {
+        const d = EVOLUTIONS[ek];
+        html += `<div class="go-uc" style="color:${d.color};border-color:${d.color}">⚡ ${d.icon} ${d.name}</div>`;
     }
+    for (const [k, v] of Object.entries(p1.pU)) {
+        const d = UPG[k];
+        if (d) html += `<div class="go-uc" style="color:${d.color}">${d.icon} ${d.name} Lv.${v}</div>`;
+    }
+    html += '</div>';
     sum.innerHTML = html;
 }
 
-// ── Güncelleme Döngüsü ──
-function update(dt) {
-    if (gameState === 'bossReward') {
-        updateBossReward(dt);
+// ── Klavye ve Buton Dinleyicileri ──
+window.addEventListener('keydown', e => {
+    eA();
+    if (e.code === 'Escape') {
+        if (gameState === 'playing' || gameState === 'paused') togglePause();
         return;
     }
-    
-    // Seviye atlama ekranı açıldığında seçim güncellemesini çalıştır ve oyunu duraklat
+    if (gameState === 'lootBox' && (e.code === 'Space' || e.code === 'Enter')) {
+        e.preventDefault();
+        closeCosmicChest();
+        return;
+    }
     if (gameState === 'levelChoice') {
-        updateLevelChoice(dt);
+        // Sadece isLevelingUp aktifken klavye girdisini kabul et
+        if (!isLevelingUp) return;
+        if (e.code === 'KeyR') { e.preventDefault(); rerollLevelUpChoices(); return; }
+        if (e.code === 'KeyX') { e.preventDefault(); skipLevelUpChoice(); return; }
+        keys[e.code] = true;
         return;
     }
-    
-    // Kuyrukta seviye atlama olayı varsa çalıştır
-    if (levelUpQueue.length > 0) {
-        triggerLevelUpChoice(levelUpQueue.shift());
-        return;
+    keys[e.code] = true;
+    if ((e.code === 'Space' || e.code === 'Enter') && gameState === 'playing' && p1) {
+        e.preventDefault();
+        p1.activate();
     }
-    
-    if (gameState !== 'playing') return;
-    
-    if (slowT > 0) {
-        slowT -= dt; slowF = lerp(slowF, 1, dt * 2); if (slowT <= 0) slowF = 1;
-    }
-    const eDt = dt * slowF; gameTime += eDt;
-    
-    const coopState = getActiveCoopStates();
-    
-    p1.update(eDt, coopState.synergy);
-    if (MODE === '2p') p2.update(eDt, coopState.synergy);
-    
-    updateLaserTrails(eDt);
-    
-    // Kozmik Süpernova Kara Delikleri (Black Holes)
-    for (let i = blackHoles.length - 1; i >= 0; i--) {
-        const bh = blackHoles[i];
-        bh.life -= eDt; bh.a += eDt * 6;
-        if (bh.life <= 0) {
-            spawnExp(bh.x, bh.y, '#bf00ff', 1.4);
-            blackHoles.splice(i, 1);
-            continue;
-        }
-        bh.dmgT -= eDt;
-        const doTick = bh.dmgT <= 0;
-        if (doTick) bh.dmgT = 0.2;
-        for (const e of enemies) {
-            if (!e.alive) continue;
-            const d = dist(bh, e);
-            if (d < bh.r && d > 4) {
-                const pull = (1 - d / bh.r) * (e.isBoss ? 85 : 240) * eDt;
-                const pa = ang(e, bh);
-                e.x += Math.cos(pa) * pull;
-                e.y += Math.sin(pa) * pull;
-                if (doTick) e.takeDmg(bh.dps * 0.2, false, true);
-            }
-        }
-    }
+});
 
-    // Chronos Weaver Zaman/Yerçekimi Yarıkları (Oyuncuyu ters yöne iter)
-    for (let i = gravityRifts.length - 1; i >= 0; i--) {
-        const rf = gravityRifts[i];
-        rf.life -= eDt; rf.a -= eDt * 4; rf.dmgTick -= eDt;
-        if (rf.life <= 0) { gravityRifts.splice(i, 1); continue; }
-        for (const p of livePlayers()) {
-            const d = dist(rf, p);
-            if (d < rf.r) {
-                const pushAngle = ang(rf, p);
-                const pushForce = (1 - d / rf.r) * 260 * eDt;
-                // Oyuncunun hareket vektörünü tersine bük ve dışarı it
-                p.x += (Math.cos(pushAngle) * pushForce) - p.vx * 1.45 * eDt;
-                p.y += (Math.sin(pushAngle) * pushForce) - p.vy * 1.45 * eDt;
-                p.x = clamp(p.x, 25, canvas.width - 25);
-                p.y = clamp(p.y, 25, canvas.height - 25);
-                if (d < rf.r * 0.38 && rf.dmgTick <= 0) {
-                    rf.dmgTick = 0.45;
-                    p.takeDmg(12 * DC.edm, 0.03);
-                }
-            }
-        }
-    }
+window.addEventListener('keyup', e => {
+    delete keys[e.code];
+});
 
-    // Tehlike alanları güncellemesi (Danger Zones)
-    for (let i = dangerZones.length - 1; i >= 0; i--) {
-        const dz = dangerZones[i];
-        dz.timer -= eDt;
-        if (dz.timer <= 0) {
-            spawnExp(dz.x, dz.y, dz.color, 1.8);
-            sfx.exp();
-            shake(15);
-            for (const p of livePlayers()) {
-                if (dist(p, dz) < dz.r) {
-                    p.takeDmg(dz.damage);
-                }
-            }
-            dangerZones.splice(i, 1);
-        }
-    }
-    
-    if (MODE === '1p') {
-        if (!p1.alive) { endGame(); return; }
+// UI Buton Bağlantıları
+document.getElementById('luRerollBtn')?.addEventListener('click', () => rerollLevelUpChoices());
+document.getElementById('luSkipBtn')?.addEventListener('click', () => skipLevelUpChoice());
+document.getElementById('lootBoxClaimBtn')?.addEventListener('click', () => closeCosmicChest());
+document.getElementById('resumeBtn')?.addEventListener('click', () => togglePause());
+document.getElementById('resumeGameBtn')?.addEventListener('click', () => togglePause());
+document.getElementById('restartGameBtn')?.addEventListener('click', () => startGame());
+document.getElementById('retryBtn')?.addEventListener('click', () => startGame());
+document.getElementById('quitBtn')?.addEventListener('click', () => { window.location.href = 'index.html'; });
+document.getElementById('menuBtn')?.addEventListener('click', () => { window.location.href = 'index.html'; });
+document.getElementById('mobilePauseBtn')?.addEventListener('click', () => togglePause());
+document.getElementById('mobileAbilityBtn')?.addEventListener('click', () => { if (p1) p1.activate(); });
+
+document.getElementById('sfxVolumeRange')?.addEventListener('input', e => {
+    sfxVol = Number(e.target.value) / 100;
+    document.getElementById('sfxVolumeVal').textContent = `${e.target.value}%`;
+});
+document.getElementById('synthSoundToggle')?.addEventListener('click', e => {
+    synthSoundOn = !synthSoundOn;
+    e.target.textContent = synthSoundOn ? 'AÇIK' : 'KAPALI';
+    e.target.classList.toggle('on', synthSoundOn);
+});
+document.getElementById('perfModeToggle')?.addEventListener('click', e => {
+    perfMode = !perfMode;
+    e.target.textContent = perfMode ? 'AÇIK' : 'KAPALI';
+    e.target.classList.toggle('on', perfMode);
+});
+document.getElementById('fullscreenToggle')?.addEventListener('click', e => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.();
+        e.target.textContent = 'AÇIK';
+        e.target.classList.add('on');
     } else {
-        if (!p1.alive && !p2.alive) { endGame(); return; }
+        document.exitFullscreen?.();
+        e.target.textContent = 'KAPALI';
+        e.target.classList.remove('on');
     }
-    
-    // Diriltme Mekaniği
-    if (MODE === '2p') {
-        if (!p1.alive && p2.alive && p1.respT <= 0) {
-            p1.reset(p2.x + rand(-30, 30), p2.y + rand(-30, 30)); p1.hp = p1.mh * 0.4;
-            spawnP(p1.x, p1.y, P1, 20, 150, 0.5, 3); floatT(p1.x, p1.y - 30, 'DİRİLDİ!', P1, 22); updateUpgDisplay();
-            // Dirilmede itici kalkan şoku
-            particles.push(new Particle(p1.x, p1.y, 0, 0, P1, 0.35, 30, 'shockwave'));
-        }
-        if (!p2.alive && p1.alive && p2.respT <= 0) {
-            p2.reset(p1.x + rand(-30, 30), p1.y + rand(-30, 30)); p2.hp = p2.mh * 0.4;
-            spawnP(p2.x, p2.y, P2, 20, 150, 0.5, 3); floatT(p2.x, p2.y - 30, 'DİRİLDİ!', P2, 22); updateUpgDisplay();
-            particles.push(new Particle(p2.x, p2.y, 0, 0, P2, 0.35, 30, 'shockwave'));
-        }
-    }
-    
-    if (comboTm > 0) {
-        comboTm -= eDt; if (comboTm <= 0) { comboC = 0; comboM = 1; }
-    }
-    
-    if (MODE === '2p' && p1.alive && p2.alive) {
-        const d = dist(p1, p2);
-        if (d < 150) {
-            comboM = Math.max(comboM, 1 + (1 - d / 150) * 2);
-        }
-    }
-    
-    waveTm += eDt;
-    if (waveSp < waveEC && waveTm >= waveDl) { waveTm = 0; spawnEnemy(); }
-    if (waveSp >= waveEC && enemies.every(e => !e.alive)) startWave(wave + 1);
-    
-    // Mermiler (Yüksek Performanslı AABB & Squared Distance Kontrolü)
-    for (let i = bullets.length - 1; i >= 0; i--) {
-        const b = bullets[i]; b.x += b.vx * eDt; b.y += b.vy * eDt; b.life -= eDt;
-        if (b.life <= 0 || b.x < -50 || b.x > canvas.width + 50 || b.y < -50 || b.y > canvas.height + 50) { bullets.splice(i, 1); continue; }
-        
-        let hit = false;
-        const shooter = b.owner === 1 ? p1 : p2;
-        for (let j = 0; j < enemies.length; j++) {
-            const e = enemies[j];
-            if (!e.alive) continue;
-            if (b.hitIds && b.hitIds.includes(e.eid)) continue;
-            
-            const rad = e.r + b.size;
-            const dx = b.x - e.x, dy = b.y - e.y;
-            if (Math.abs(dx) <= rad && Math.abs(dy) <= rad && (dx * dx + dy * dy < rad * rad)) {
-                const impactAngle = Math.atan2(dy, dx);
-                const dealt = e.takeDmg(b.damage, b.crit, false, impactAngle);
-                spawnP(b.x, b.y, b.color, 4, 220, 0.25, 2.2, 'spark'); spawnP(b.x, b.y, '#fff', 2, 140, 0.15, 1.5); sfx.hit();
+});
 
-                if (dealt !== false && shooter && shooter.alive) {
-                    // Füzyon 1: Kan Hasadı -> Plazma patlaması + hasarın %10'unu cana çevirir
-                    if (shooter.fusions.bloodHarvest) {
-                        shooter.healLeech(b.damage * 0.10);
-                        particles.push(new Particle(b.x, b.y, 0, 0, '#ff1744', 0.22, 18, 'shockwave'));
-                        for (let k = 0; k < enemies.length; k++) {
-                            const ne = enemies[k];
-                            if (ne !== e && ne.alive && dist(b, ne) < 58 + ne.r) {
-                                ne.takeDmg(b.damage * 0.35, false, true);
-                            }
-                        }
-                    }
-                    // Füzyon 4: Kozmik Süpernova -> Kritik vuruşlarda kara delik açar
-                    if (shooter.fusions.cosmicSupernova && b.crit && shooter.blackHoleCd <= 0 && blackHoles.length < 3) {
-                        shooter.blackHoleCd = 1.1;
-                        blackHoles.push({ x: e.x, y: e.y, r: 165, life: 2.2, maxLife: 2.2, dps: shooter.bd * 2.2, a: 0, dmgT: 0 });
-                    }
-                    // Füzyon 6: Kuantum Yargıç -> Yavaşlatma ve deldikçe +%25 hasar artışı
-                    if (shooter.fusions.quantumArbiter) {
-                        e.slowT = 1.5;
-                        b.damage *= 1.25;
-                    }
-                }
-
-                // Füzyon 2: Gatling Fırtınası -> Düşmanlar arasında 3 kez sekme (Ricochet)
-                if (b.bounces && b.bounces > 0) {
-                    b.bounces--;
-                    if (!b.hitIds) b.hitIds = [];
-                    b.hitIds.push(e.eid);
-                    let nextTarget = null, bestD = 260;
-                    for (let k = 0; k < enemies.length; k++) {
-                        const ce = enemies[k];
-                        if (!ce.alive || ce === e || (b.hitIds && b.hitIds.includes(ce.eid))) continue;
-                        const cd = dist(e, ce);
-                        if (cd < bestD) { bestD = cd; nextTarget = ce; }
-                    }
-                    if (nextTarget) {
-                        const ra = ang(b, nextTarget);
-                        const sp = Math.hypot(b.vx, b.vy);
-                        b.vx = Math.cos(ra) * sp; b.vy = Math.sin(ra) * sp;
-                        b.life = Math.max(b.life, 0.55);
-                        hit = false;
-                        break;
-                    }
-                }
-
-                if (b.pierceLeft && b.pierceLeft > 0) {
-                    b.pierceLeft--;
-                    if (!b.hitIds) b.hitIds = [];
-                    b.hitIds.push(e.eid);
-                    if (b.pierceLeft <= 0) hit = true;
-                } else if (!b.piercing) {
-                    hit = true;
-                }
-                if (hit || !b.piercing) break;
-            }
-        }
-        if (hit) bullets.splice(i, 1);
-    }
-    
-    // Düşman Mermileri (Yüksek Performanslı Kontrol)
-    for (let i = eBullets.length - 1; i >= 0; i--) {
-        const b = eBullets[i]; b.x += b.vx * eDt; b.y += b.vy * eDt; b.life -= eDt;
-        if (b.life <= 0 || b.x < -50 || b.x > canvas.width + 50 || b.y < -50 || b.y > canvas.height + 50) { eBullets.splice(i, 1); continue; }
-        
-        const lp = livePlayers();
-        for (let j = 0; j < lp.length; j++) {
-            const p = lp[j];
-            const rad = p.r + b.size;
-            const dx = b.x - p.x, dy = b.y - p.y;
-            if (Math.abs(dx) <= rad && Math.abs(dy) <= rad && (dx * dx + dy * dy < rad * rad)) {
-                p.takeDmg(b.damage, b.truePct || 0); spawnP(b.x, b.y, b.color, 5, 100, 0.3, 2);
-                eBullets.splice(i, 1); break;
-            }
-        }
-    }
-    
-    for (let i = enemies.length - 1; i >= 0; i--) { if (!enemies[i].update(eDt) || !enemies[i].alive) { if (!enemies[i].alive) enemies.splice(i, 1); } }
-    
-    for (let i = pickups.length - 1; i >= 0; i--) {
-        const pu = pickups[i]; pu.life -= eDt; pu.aA += eDt * 3;
-        if (pu.life <= 0) { pickups.splice(i, 1); continue; }
-        for (const p of livePlayers()) { if (dist(pu, p) < pu.r + p.r + 10) { applyPickup(p, pu.type); pickups.splice(i, 1); break; } }
-    }
-    
-    for (let i = particles.length - 1; i >= 0; i--) if (!particles[i].update(eDt)) particles.splice(i, 1);
-    for (let i = floats.length - 1; i >= 0; i--) { const f = floats[i]; f.y += f.vy * eDt; f.l -= eDt; if (f.l <= 0) floats.splice(i, 1); }
-    
-    shakeI *= 0.9; if (shakeI < 0.5) shakeI = 0;
-    if (screenFl > 0) screenFl -= eDt * 2;
-    score += eDt * 2;
-    
-    updateHUD();
-}
-
-function updateAbilityHUD() {
-    const set = (pl, pre, keyLabel) => {
-        const lbl = document.getElementById(pre + 'AbLbl'), fill = document.getElementById(pre + 'AbFill'), box = document.getElementById(pre + 'Ab');
-        if (!lbl) return;
-        const A = ABILITY[pl.shipClass] || ABILITY.interceptor;
-        const ready = pl.alive && pl.abCd <= 0;
-        const txt = !pl.alive ? A.name + ' · DEVRE DIŞI' : ready ? '[' + keyLabel + '] ' + A.name + ' · HAZIR' : A.name + ' · ' + Math.max(0, pl.abCd).toFixed(1) + 's';
-        if (lbl.textContent !== txt) lbl.textContent = txt;
-        fill.style.width = (pl.alive ? (1 - Math.max(0, pl.abCd) / pl.abMax) * 100 : 0) + '%';
-        fill.style.background = A.color; box.classList.toggle('ready', ready);
-        box.style.setProperty('--ab', A.color);
-    };
-    set(p1, 'p1', isMobile ? 'DOKUN' : 'SPACE');
-    if (MODE === '2p') set(p2, 'p2', 'ENTER');
-    if (isMobile) {
-        const mb = document.getElementById('mobileAbilityBtn');
-        if (mb) {
-            const A = ABILITY[p1.shipClass] || ABILITY.interceptor, pct = p1.alive ? (1 - Math.max(0, p1.abCd) / p1.abMax) * 100 : 0;
-            mb.style.setProperty('--pct', pct + '%'); mb.style.setProperty('--ab', A.color);
-            mb.classList.toggle('ready', p1.alive && p1.abCd <= 0);
-        }
-    }
-}
-
-let cachedBossElements = [];
-function updateHUD() {
-    document.getElementById('p1Hp').style.width = (p1.alive ? p1.hp / p1.mh * 100 : 0) + '%';
-    document.getElementById('p1Sh').style.width = (p1.alive ? p1.sh / p1.ms * 100 : 0) + '%';
-    document.getElementById('p1Xp').style.width = (p1.xp / p1.xpN * 100) + '%';
-    document.getElementById('p1Lv').textContent = 'Lv.' + p1.lv;
-    updateAbilityHUD();
-    
-    if (MODE === '2p') {
-        document.getElementById('p2Hp').style.width = (p2.alive ? p2.hp / p2.mh * 100 : 0) + '%';
-        document.getElementById('p2Sh').style.width = (p2.alive ? p2.sh / p2.ms * 100 : 0) + '%';
-        document.getElementById('p2Xp').style.width = (p2.xp / p2.xpN * 100) + '%';
-        document.getElementById('p2Lv').textContent = 'Lv.' + p2.lv;
-    }
-    
-    document.getElementById('hudSc').textContent = Math.floor(score).toLocaleString();
-    document.getElementById('hudWv').textContent = 'DALGA ' + wave;
-    const m = Math.floor(gameTime / 60), s = Math.floor(gameTime % 60);
-    document.getElementById('hudTm').textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    
-    const cEl = document.getElementById('hudCo');
-    if (comboM > 1) {
-        cEl.classList.add('active'); cEl.textContent = `COMBO x${comboM.toFixed(1)}`;
-    } else {
-        cEl.classList.remove('active');
-    }
-    const radEl = document.getElementById('hudRad');
-    if (radEl) {
-        if (wave >= 25) {
-            const pct = Math.round((1 - getCosmicDecay()) * 100);
-            radEl.style.display = 'block';
-            radEl.textContent = `☢ KOZMİK ÇÜRÜME: -%${pct}`;
-        } else {
-            radEl.style.display = 'none';
-        }
-    }
-    
-    // Çoklu boss can barı ve ismi güncellemesi (Yüksek Performanslı DOM Önbellekleme)
-    const activeBosses = [];
-    for (let i = 0; i < enemies.length; i++) {
-        if (enemies[i].isBoss && enemies[i].alive) activeBosses.push(enemies[i]);
-    }
-    const bossBar = document.getElementById('bossBar');
-    if (activeBosses.length > 0) {
-        bossBar.classList.add('active');
-        
-        // Rebuild structure only when the number of bosses changes
-        if (cachedBossElements.length !== activeBosses.length) {
-            bossBar.innerHTML = '';
-            cachedBossElements = [];
-            const container = document.createElement('div');
-            container.style.cssText = 'display: flex; gap: 15px; justify-content: center; width: 100%;';
-            
-            for (let i = 0; i < activeBosses.length; i++) {
-                const b = activeBosses[i];
-                const box = document.createElement('div');
-                box.style.cssText = 'flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 90px; max-width: 220px;';
-                
-                const label = document.createElement('div');
-                label.className = 'bn';
-                label.style.cssText = 'font-size:0.6rem; letter-spacing:0.1em; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center; color:#fff; font-weight:700;';
-                
-                const barWrap = document.createElement('div');
-                barWrap.className = 'bhw';
-                barWrap.style.cssText = `height:7px; border:1px solid ${b.color}50; border-radius:4px; overflow:hidden; background:rgba(0,0,0,0.5); width:100%;`;
-                
-                const barFill = document.createElement('div');
-                barFill.className = 'bhb';
-                barFill.style.cssText = `height:100%; width:100%; background:linear-gradient(90deg, ${b.color}, #ff006a); box-shadow:0 0 10px ${b.color}60; transition:width 0.08s ease;`;
-                
-                barWrap.appendChild(barFill);
-                box.appendChild(label);
-                box.appendChild(barWrap);
-                container.appendChild(box);
-                
-                cachedBossElements.push({ labelEl: label, fillEl: barFill });
-            }
-            bossBar.appendChild(container);
-        }
-        
-        // Update values on cached elements directly with 0 DOM allocations
-        for (let i = 0; i < activeBosses.length; i++) {
-            const b = activeBosses[i];
-            const cached = cachedBossElements[i];
-            if (!cached) continue;
-            
-            let label = b.bossName;
-            if (b.y < 80) label += ' (GİRİŞ...)';
-            else if (b.enraged) label += ' (FAZ 2 🔥)';
-            
-            const hpPct = Math.max(0, b.hp / b.maxHp * 100).toFixed(1);
-            if (cached.labelEl.textContent !== label) cached.labelEl.textContent = label;
-            cached.fillEl.style.width = hpPct + '%';
-        }
-    } else {
-        if (cachedBossElements.length > 0) {
-            bossBar.classList.remove('active');
-            bossBar.innerHTML = '';
-            cachedBossElements = [];
-        }
-    }
-}
-
-// ── Çizim İşlemleri ──
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    if (shakeI > 0) ctx.translate((Math.random() - 0.5) * shakeI, (Math.random() - 0.5) * shakeI);
-    drawBG();
-    
-    if (gameState === 'playing' || gameState === 'paused' || gameState === 'bossReward' || gameState === 'levelChoice') {
-        drawArena();
-        
-        const coopState = getActiveCoopStates();
-        drawLink(ctx, coopState);
-        
-        // Pickups
-        for (const pu of pickups) {
-            const pulse = (Math.sin(pu.aA) + 1) * 0.5; const d = PDATA[pu.type];
-            ctx.globalAlpha = 0.3 + pulse * 0.3;
-            const g = ctx.createRadialGradient(pu.x, pu.y, 0, pu.x, pu.y, pu.r * 3); g.addColorStop(0, pu.color + '40'); g.addColorStop(1, pu.color + '00');
-            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(pu.x, pu.y, pu.r * 3, 0, Math.PI * 2); ctx.fill();
-            
-            ctx.globalAlpha = pu.life < 3 ? (Math.sin(pu.aA * 5) + 1) * 0.5 : 1;
-            ctx.fillStyle = pu.color + '30'; ctx.strokeStyle = pu.color; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.arc(pu.x, pu.y, pu.r + pulse * 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-            
-            ctx.fillStyle = pu.color; ctx.font = 'bold 13px Orbitron'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(d.i, pu.x, pu.y); ctx.globalAlpha = 1;
-        }
-        
-        // Kara Delikleri Çiz (Kozmik Süpernova)
-        for (const bh of blackHoles) {
-            const k = clamp(bh.life / bh.maxLife, 0, 1);
-            ctx.save();
-            ctx.translate(bh.x, bh.y);
-            ctx.rotate(bh.a);
-            const g = ctx.createRadialGradient(0, 0, 6, 0, 0, bh.r * 0.75);
-            g.addColorStop(0, '#000000');
-            g.addColorStop(0.35, 'rgba(191, 0, 255, 0.55)');
-            g.addColorStop(1, 'rgba(191, 0, 255, 0)');
-            ctx.fillStyle = g;
-            ctx.beginPath(); ctx.arc(0, 0, bh.r * 0.75, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = '#bf00ff'; ctx.lineWidth = 2.2 * k; ctx.setLineDash([8, 6]);
-            ctx.beginPath(); ctx.arc(0, 0, bh.r * 0.45, 0, Math.PI * 2); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle = '#000'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.arc(0, 0, 14 * k, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-            ctx.restore();
-        }
-
-        // Chronos Weaver Zaman Yarıklarını Çiz (Gravity Rifts)
-        for (const rf of gravityRifts) {
-            const k = clamp(rf.life / rf.maxLife, 0, 1);
-            ctx.save();
-            ctx.translate(rf.x, rf.y);
-            ctx.rotate(rf.a);
-            ctx.strokeStyle = '#00ffcc';
-            ctx.lineWidth = 2.5 * k;
-            ctx.setLineDash([10, 8]);
-            ctx.beginPath(); ctx.arc(0, 0, rf.r, 0, Math.PI * 2); ctx.stroke();
-            ctx.beginPath(); ctx.arc(0, 0, rf.r * 0.55, 0, Math.PI * 2); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle = 'rgba(0, 255, 204, 0.08)';
-            ctx.beginPath(); ctx.arc(0, 0, rf.r, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px Orbitron'; ctx.textAlign = 'center';
-            ctx.fillText('⏳ TERS ÇEKİM', 0, 4);
-            ctx.restore();
-        }
-
-        // Tehlike Alanlarını Çiz (Danger Zones)
-        for (const dz of dangerZones) {
-            const progress = Math.max(0, dz.timer / dz.maxTimer);
-            ctx.save();
-            ctx.strokeStyle = dz.color;
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(dz.x, dz.y, dz.r, 0, Math.PI * 2);
-            ctx.stroke();
-            
-            ctx.fillStyle = dz.color + '25'; // %15 saydamlık
-            ctx.beginPath();
-            ctx.arc(dz.x, dz.y, dz.r * (1 - progress), 0, Math.PI * 2);
-            ctx.fill();
-            
-            ctx.fillStyle = dz.color;
-            ctx.font = 'bold 11px Orbitron';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('⚠ DANGER', dz.x, dz.y);
-            ctx.restore();
-        }
-        
-        drawLaserTrails(ctx);
-        for (const e of enemies) { e.draw(ctx); if (!e.isBoss) drawEnemyFx(ctx, e); }
-        
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        for (let i = 0; i < bullets.length; i++) {
-            const b = bullets[i];
-            // Outer neon glow halo (sıfır radial gradient tahsisi!)
-            ctx.fillStyle = b.color + '38';
-            ctx.beginPath(); ctx.arc(b.x, b.y, b.size * 2.3, 0, Math.PI * 2); ctx.fill();
-            // Parlak çekirdek
-            ctx.fillStyle = b.crit ? '#ffff00' : '#ffffff';
-            ctx.beginPath(); ctx.arc(b.x, b.y, b.size * (b.crit ? 0.9 : 0.65), 0, Math.PI * 2); ctx.fill();
-            // Ana renk
-            ctx.fillStyle = b.color;
-            ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2); ctx.fill();
-        }
-        
-        for (let i = 0; i < eBullets.length; i++) {
-            const b = eBullets[i];
-            // Düşman mermi halosu (sıfır shadowBlur Gaussian filtresi!)
-            ctx.fillStyle = b.color + '40';
-            ctx.beginPath(); ctx.arc(b.x, b.y, b.size * 1.8, 0, Math.PI * 2); ctx.fill();
-            // Çekirdek
-            ctx.fillStyle = b.color;
-            ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2); ctx.fill();
-        }
-        ctx.restore();
-        
-        p1.draw(ctx);
-        if (MODE === '2p') p2.draw(ctx);
-        
-        for (const p of particles) p.draw(ctx);
-        
-        for (const f of floats) {
-            ctx.globalAlpha = clamp(f.l / f.ml, 0, 1);
-            ctx.fillStyle = f.c; ctx.font = `bold ${f.s}px Orbitron`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.shadowColor = f.c; ctx.shadowBlur = perfMode ? 0 : 14; ctx.fillText(f.t, f.x, f.y); ctx.shadowBlur = 0;
-        }
-        ctx.globalAlpha = 1;
-        
-        if (screenFl > 0) {
-            ctx.globalAlpha = screenFl * 0.3; ctx.fillStyle = screenFC;
-            ctx.fillRect(-50, -50, canvas.width + 100, canvas.height + 100); ctx.globalAlpha = 1;
-        }
-        
-        // Kritik durum CRT Glitch Efekti
-        const pList = livePlayers();
-        let isLowHealth = false;
-        for (const p of pList) { if (p.hp / p.mh < 0.25) isLowHealth = true; }
-        if (isLowHealth && Math.random() < 0.08 && gameState === 'playing') {
-            ctx.save();
-            ctx.fillStyle = 'rgba(255, 0, 106, 0.02)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = 'rgba(255, 0, 106, 0.15)';
-            ctx.lineWidth = rand(1, 4);
-            const ry = rand(0, canvas.height);
-            ctx.beginPath(); ctx.moveTo(0, ry); ctx.lineTo(canvas.width, ry); ctx.stroke();
-            ctx.restore();
-            shake(1.5);
-        }
-        
-        if (!perfMode) drawVig();
-    }
-    ctx.restore();
-}
-
-function drawBG() {
-    prepareGridWarpEntities();
-    
-    // Arka plan gradientı - perfMode'da basit siyah, normal modda radial gradient
-    if (perfMode) {
-        ctx.fillStyle = '#020008';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    } else {
-        const bg = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width * 0.7);
-        bg.addColorStop(0, '#04010a'); bg.addColorStop(0.5, '#020006'); bg.addColorStop(1, '#000');
-        ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    
-    const nebulaeToDraw = perfMode ? [] : nebulae;
-    for (let i = 0; i < nebulaeToDraw.length; i++) {
-        const n = nebulaeToDraw[i];
-        const ng = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r);
-        ng.addColorStop(0, `hsla(${n.h},80%,40%,${n.a})`); ng.addColorStop(0.5, `hsla(${n.h+20},70%,30%,${n.a * 0.5})`);
-        ng.addColorStop(1, 'transparent'); ctx.fillStyle = ng; ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx.fill();
-    }
-    
-    const timeSec = performance.now() / 1000;
-    const layersToDraw = perfMode ? starLayers.slice(0, 2) : starLayers;
-    layersToDraw.forEach(layer => {
-        ctx.fillStyle = layer.color;
-        const starsToDraw = perfMode ? layer.stars.slice(0, 30) : layer.stars;
-        for (let i = 0; i < starsToDraw.length; i++) {
-            const s = starsToDraw[i];
-            const x = (s.x - gameTime * layer.speed * 40) % canvas.width;
-            const y = s.y % canvas.height;
-            const finalX = x < 0 ? x + canvas.width : x;
-            
-            const twinkle = layer.size * (0.6 + 0.4 * Math.sin(timeSec * s.tw));
-            ctx.beginPath();
-            ctx.arc(finalX, y, twinkle, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    });
-    
-    // Izgara çizgileri (Yüksek Performanslı Tek Geçiş Çizim)
-    ctx.strokeStyle = 'rgba(120,60,220,0.035)'; ctx.lineWidth = 1;
-    const step = perfMode ? 120 : 60;
-    const subStep = perfMode ? 120 : 35;
-    
-    ctx.beginPath();
-    // Yatay çizgiler
-    for (let y = 0; y < canvas.height + step; y += step) {
-        let first = true;
-        for (let x = 0; x < canvas.width + subStep; x += subStep) {
-            const offset = getGridOffset(x, y);
-            if (first) {
-                ctx.moveTo(x + offset.x, y + offset.y);
-                first = false;
-            } else {
-                ctx.lineTo(x + offset.x, y + offset.y);
-            }
-        }
-    }
-    
-    // Dikey çizgiler
-    for (let x = 0; x < canvas.width + step; x += step) {
-        let first = true;
-        for (let y = 0; y < canvas.height + subStep; y += subStep) {
-            const offset = getGridOffset(x, y);
-            if (first) {
-                ctx.moveTo(x + offset.x, y + offset.y);
-                first = false;
-            } else {
-                ctx.lineTo(x + offset.x, y + offset.y);
-            }
-        }
-    }
-    ctx.stroke();
-}
-
-function drawArena() {
-    const p = 20; ctx.strokeStyle = 'rgba(100,60,180,0.12)'; ctx.lineWidth = 2; ctx.setLineDash([10, 10]); ctx.strokeRect(p, p, canvas.width - p * 2, canvas.height - p * 2); ctx.setLineDash([]);
-    const cs = 30; ctx.strokeStyle = 'rgba(100,60,180,0.25)';
-    [[p, p, 1, 1], [canvas.width - p, p, -1, 1], [p, canvas.height - p, 1, -1], [canvas.width - p, canvas.height - p, -1, -1]].forEach(([cx, cy, dx, dy]) => {
-        ctx.beginPath(); ctx.moveTo(cx, cy + dy * cs); ctx.lineTo(cx, cy); ctx.lineTo(cx + dx * cs, cy); ctx.stroke();
-    });
-}
-function drawVig() {
-    const v = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, canvas.height * 0.3, canvas.width / 2, canvas.height / 2, canvas.width * 0.8);
-    v.addColorStop(0, 'transparent'); v.addColorStop(1, 'rgba(0,0,0,0.5)');
-    ctx.fillStyle = v; ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-// ── Döngü Yönetimi ──
-let lastT = 0;
-function loop(ts) {
-    const dt = Math.min((ts - lastT) / 1000, 0.05); lastT = ts;
-    if (gameState === 'playing' || gameState === 'bossReward' || gameState === 'levelChoice') update(dt);
+// Ana Oyun Döngüsü
+let lastT = performance.now();
+function loop(now) {
+    const dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    update(dt);
     draw();
     requestAnimationFrame(loop);
-}
-
-function resumeGame() {
-    gameState = 'playing';
-    document.getElementById('pauseOv').classList.add('hidden');
-    setSoundMuffled(false);
-    setCursorMode(false);
-    document.body.classList.add('playing-mode');
-}
-
-function pauseGame() {
-    gameState = 'paused';
-    updatePauseStatsUI();
-    document.getElementById('pauseOv').classList.remove('hidden');
-    setSoundMuffled(true);
-    setCursorMode(true);
-    document.body.classList.remove('playing-mode');
-}
-
-document.getElementById('resumeBtn').addEventListener('click', resumeGame);
-document.getElementById('resumeGameBtn').addEventListener('click', resumeGame);
-document.getElementById('restartGameBtn').addEventListener('click', () => {
-    startGame();
-});
-document.getElementById('quitBtn').addEventListener('click', () => {
-    endGame();
-});
-
-// Ayarlar panel kontrolleri
-const sfxVolumeSlider = document.getElementById('sfxVolumeRange');
-const sfxVolumeText = document.getElementById('sfxVolumeVal');
-sfxVolumeSlider.addEventListener('input', () => {
-    sfxVolume = sfxVolumeSlider.value / 100;
-    sfxVolumeText.textContent = sfxVolumeSlider.value + '%';
-});
-
-const synthSoundToggle = document.getElementById('synthSoundToggle');
-synthSoundToggle.addEventListener('click', () => {
-    synthSoundActive = !synthSoundActive;
-    if (synthSoundActive) {
-        synthSoundToggle.textContent = 'AÇIK';
-        synthSoundToggle.className = 'toggle-btn on';
-    } else {
-        synthSoundToggle.textContent = 'KAPALI';
-        synthSoundToggle.className = 'toggle-btn off';
-    }
-});
-
-const fullscreenToggle = document.getElementById('fullscreenToggle');
-if (fullscreenToggle) {
-    fullscreenToggle.addEventListener('click', () => {
-        const docEl = document.documentElement;
-        const fsEl = document.fullscreenElement || 
-                     document.mozFullScreenElement || 
-                     document.webkitFullscreenElement || 
-                     document.msFullscreenElement;
-
-        if (!fsEl) {
-            if (docEl.requestFullscreen) {
-                docEl.requestFullscreen();
-            } else if (docEl.mozRequestFullScreen) {
-                docEl.mozRequestFullScreen();
-            } else if (docEl.webkitRequestFullscreen) {
-                docEl.webkitRequestFullscreen();
-            } else if (docEl.msRequestFullscreen) {
-                docEl.msRequestFullscreen();
-            }
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-                document.mozCancelFullScreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
-            }
-        }
-    });
-
-    const updateFullscreenButtonState = () => {
-        const fsEl = document.fullscreenElement || 
-                     document.mozFullScreenElement || 
-                     document.webkitFullscreenElement || 
-                     document.msFullscreenElement;
-        if (fsEl) {
-            fullscreenToggle.textContent = 'AÇIK';
-            fullscreenToggle.className = 'toggle-btn on';
-        } else {
-            fullscreenToggle.textContent = 'KAPALI';
-            fullscreenToggle.className = 'toggle-btn off';
-        }
-    };
-
-    document.addEventListener('fullscreenchange', updateFullscreenButtonState);
-    document.addEventListener('mozfullscreenchange', updateFullscreenButtonState);
-    document.addEventListener('webkitfullscreenchange', updateFullscreenButtonState);
-    document.addEventListener('msfullscreenchange', updateFullscreenButtonState);
-}
-
-const perfModeToggle = document.getElementById('perfModeToggle');
-if (perfModeToggle) {
-    perfModeToggle.textContent = perfMode ? 'AÇIK' : 'KAPALI';
-    perfModeToggle.className = `toggle-btn ${perfMode ? 'on' : 'off'}`;
-    perfModeToggle.addEventListener('click', () => {
-        perfMode = !perfMode;
-        localStorage.setItem('cosmic_perf_mode', perfMode ? 'true' : 'false');
-        perfModeToggle.textContent = perfMode ? 'AÇIK' : 'KAPALI';
-        perfModeToggle.className = `toggle-btn ${perfMode ? 'on' : 'off'}`;
-    });
-}
-
-// Oyun Bitti Kontrolleri
-document.getElementById('retryBtn').addEventListener('click', startGame);
-document.getElementById('menuBtn').addEventListener('click', () => {
-    window.location.href = 'index.html';
-});
-
-// Klavye Giriş Yönetimi
-const keys = {};
-addEventListener('keydown', e => {
-    keys[e.code] = true;
-    if (e.code === 'Space') e.preventDefault();
-    if (gameState === 'playing' && !e.repeat) {
-        if (e.code === 'Space') p1.activate();
-        else if (MODE === '2p' && (e.code === 'Enter' || e.code === 'ShiftRight' || e.code === 'Numpad0')) p2.activate();
-    }
-    if (e.code === 'Enter' && gameState === 'gameover') startGame();
-    if (e.code === 'Escape') {
-        if (gameState === 'playing') {
-            pauseGame();
-        } else if (gameState === 'paused') {
-            resumeGame();
-        }
-    }
-});
-addEventListener('keyup', e => { delete keys[e.code]; });
-
-// ── Fare Geri/İleri (Mouse4/Mouse5) Tuşlarını Engelleme ve Çıkış Uyarısı ──
-window.addEventListener('mousedown', e => {
-    if (e.button === 3 || e.button === 4) {
-        e.preventDefault();
-    }
-});
-window.addEventListener('mouseup', e => {
-    if (e.button === 3 || e.button === 4) {
-        e.preventDefault();
-    }
-});
-window.addEventListener('auxclick', e => {
-    if (e.button === 3 || e.button === 4) {
-        e.preventDefault();
-    }
-});
-
-// Sayfadan çıkışta uyarı çıkarma (beforeunload)
-window.addEventListener('beforeunload', e => {
-    if (gameState === 'playing' || gameState === 'paused' || gameState === 'bossReward' || gameState === 'levelChoice') {
-        e.preventDefault();
-        e.returnValue = 'Oyundan çıkmak istediğinize emin misiniz? Simülasyon ilerlemeniz kaybolacak.';
-        return e.returnValue;
-    }
-});
-
-// Tarayıcı geri/ileri butonunu engellemek için dummy history ekleme
-history.pushState(null, null, location.href);
-window.addEventListener('popstate', () => {
-    history.pushState(null, null, location.href);
-});
-
-const PTYPES = ['health', 'shield', 'rapidfire', 'damage', 'tripleshot', 'speed', 'bomb', 'piercing'];
-const PDATA = {
-    health: { i: '♥', n: 'CAN', c: '#ff4444' },
-    shield: { i: '◆', n: 'KALKAN', c: '#bf00ff' },
-    rapidfire: { i: '»', n: 'HIZLI ATEŞ', c: '#ffff00' },
-    damage: { i: '★', n: 'GÜÇ', c: '#ff8800' },
-    tripleshot: { i: '⋮', n: 'ÜÇLÜ ATIŞ', c: '#00ff88' },
-    speed: { i: '⚡', n: 'HIZ', c: '#00ccff' },
-    bomb: { i: '●', n: 'BOMBA', c: '#ff0000' },
-    piercing: { i: '→', n: 'DELİCİ', c: '#ffffff' }
-};
-
-// ── Mobile Joystick and Touch Handling ──
-if (isMobile) {
-    const joyContainer = document.getElementById('mobileJoystickContainer');
-    const joyOuter = document.getElementById('joystickOuter');
-    const joyKnob = document.getElementById('joystickKnob');
-    const pauseBtn = document.getElementById('mobilePauseBtn');
-    const abBtn = document.getElementById('mobileAbilityBtn');
-    if (abBtn) {
-        abBtn.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); if (gameState === 'playing') p1.activate(); }, { passive: false });
-        abBtn.addEventListener('click', e => { e.stopPropagation(); if (gameState === 'playing') p1.activate(); });
-    }
-
-    pauseBtn.addEventListener('touchstart', e => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (gameState === 'playing') {
-            pauseGame();
-        } else if (gameState === 'paused') {
-            resumeGame();
-        }
-    }, { passive: false });
-
-    // Standard click fallback just in case
-    pauseBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        if (gameState === 'playing') {
-            pauseGame();
-        } else if (gameState === 'paused') {
-            resumeGame();
-        }
-    });
-
-    let joyStartX = 0;
-    let joyStartY = 0;
-    const maxLimit = 50; // Max pixels knob can move from center
-    let joystickTouchId = null;
-
-    window.addEventListener('touchstart', e => {
-        if (gameState !== 'playing') return;
-        
-        for (let i = 0; i < e.changedTouches.length; i++) {
-            const touch = e.changedTouches[i];
-            // Allow triggering anywhere on the screen
-            if (joystickTouchId === null) {
-                if (e.target.closest('#mobilePauseBtn') || e.target.closest('#mobileAbilityBtn')) continue;
-
-                e.preventDefault(); // Prevent default touch actions like zooming/scrolling
-                joystickTouchId = touch.identifier;
-                mobileJoystick.active = true;
-                
-                // Position and show the joystick centered on the touch point
-                joyContainer.style.left = `${touch.clientX}px`;
-                joyContainer.style.top = `${touch.clientY}px`;
-                joyContainer.classList.add('visible');
-                
-                joyStartX = touch.clientX;
-                joyStartY = touch.clientY;
-                updateJoystickPosition(touch.clientX, touch.clientY);
-                break;
-            }
-        }
-    }, { passive: false });
-
-    window.addEventListener('touchmove', e => {
-        if (joystickTouchId === null) return;
-        
-        for (let i = 0; i < e.touches.length; i++) {
-            const touch = e.touches[i];
-            if (touch.identifier === joystickTouchId) {
-                e.preventDefault();
-                updateJoystickPosition(touch.clientX, touch.clientY);
-                break;
-            }
-        }
-    }, { passive: false });
-
-    window.addEventListener('touchend', e => {
-        if (joystickTouchId === null) return;
-        
-        for (let i = 0; i < e.changedTouches.length; i++) {
-            const touch = e.changedTouches[i];
-            if (touch.identifier === joystickTouchId) {
-                joystickTouchId = null;
-                mobileJoystick.active = false;
-                mobileJoystick.x = 0;
-                mobileJoystick.y = 0;
-                joyContainer.classList.remove('visible');
-                joyKnob.style.transform = 'translate(-50%, -50%)';
-                break;
-            }
-        }
-    });
-
-    window.addEventListener('touchcancel', e => {
-        if (joystickTouchId === null) return;
-        for (let i = 0; i < e.changedTouches.length; i++) {
-            const touch = e.changedTouches[i];
-            if (touch.identifier === joystickTouchId) {
-                joystickTouchId = null;
-                mobileJoystick.active = false;
-                mobileJoystick.x = 0;
-                mobileJoystick.y = 0;
-                joyContainer.classList.remove('visible');
-                joyKnob.style.transform = 'translate(-50%, -50%)';
-                break;
-            }
-        }
-    });
-
-    function updateJoystickPosition(clientX, clientY) {
-        let dx = clientX - joyStartX;
-        let dy = clientY - joyStartY;
-        const distance = Math.hypot(dx, dy);
-
-        if (distance > maxLimit) {
-            dx = (dx / distance) * maxLimit;
-            dy = (dy / distance) * maxLimit;
-        }
-
-        joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-        mobileJoystick.x = dx / maxLimit;
-        mobileJoystick.y = dy / maxLimit;
-    }
-
-    // Prevent default touch actions on the canvas to avoid zoom/scrolling issues
-    canvas.addEventListener('touchstart', e => {
-        if (gameState === 'playing') e.preventDefault();
-    }, { passive: false });
-    canvas.addEventListener('touchmove', e => {
-        if (gameState === 'playing') e.preventDefault();
-    }, { passive: false });
 }
 
 startGame();

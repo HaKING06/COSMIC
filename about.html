@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cosmic Survivors — Sektör 9 Arşivi, Gemi Teknik Çizimleri & Künye</title>
-    <meta name="description" content="Cosmic Survivors Sektör 9 Arşivi: Kozmik Parazit istilasının hikayesi, gemi teknik CAD çizimleri, düşman ve Boss ansiklopedisi (Bestiary), iletişim ve lisans bilgileri.">
-    <meta name="keywords" content="Cosmic Survivors, Sektör 9 arşivi, uzay oyunu hikayesi, Chronos Weaver, Oblivion Behemoth, Halit Güneş, HaKING">
+    <title>Cosmic Survivors v7.0 — Sektör 9 Arşivi, 5 Gemi Teknik Çizimi & Künye</title>
+    <meta name="description" content="Cosmic Survivors v7.0 Sektör 9 Arşivi: Kozmik Parazit istilasının hikayesi, 5 özgün geminin CAD teknik çizimleri, 3 harita, Boss ansiklopedisi ve künye.">
+    <meta name="keywords" content="Cosmic Survivors, Sektör 9 arşivi, 5 uzay gemisi, Void Phantom, Solar Flare, Chronos Weaver, Oblivion Behemoth, Halit Güneş, HaKING">
     <meta name="author" content="Halit Güneş (HaKING)">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#00f0ff">
@@ -17,21 +17,21 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="tr_TR">
     <meta property="og:site_name" content="Cosmic Survivors">
-    <meta property="og:title" content="Cosmic Survivors — Sektör 9 Arşivi & Bestiary">
-    <meta property="og:description" content="Kozmik Parazit istilasının hikayesi, gemi teknik çizimleri, düşman ansiklopedisi ve geliştirici künyesi.">
+    <meta property="og:title" content="Cosmic Survivors v7.0 — Sektör 9 Arşivi & 5 Gemi Şeması">
+    <meta property="og:description" content="Kozmik Parazit istilasının hikayesi, 5 gemi teknik çizimi, 3 harita ve geliştirici künyesi.">
     <meta property="og:url" content="https://cosmic.haking.tr/about.html">
     <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Cosmic Survivors — Sektör 9 Arşivi & Bestiary">
-    <meta name="twitter:description" content="Kozmik Parazit istilasının hikayesi, gemi teknik çizimleri ve düşman ansiklopedisi.">
+    <meta name="twitter:title" content="Cosmic Survivors v7.0 — Sektör 9 Arşivi">
+    <meta name="twitter:description" content="5 gemi teknik çizimi, 3 harita ve geliştirici künyesi.">
     <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #030109;
+            --bg-dark: #020008;
             --p1: #00f0ff;
             --p2: #ff006a;
             --link: #bf00ff;
@@ -43,61 +43,33 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body {
-            background: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Rajdhani', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
+            background: var(--bg-dark); color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif; min-height: 100vh; overflow-x: hidden;
         }
-
         body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
+            content: ""; position: fixed; inset: 0;
             background:
                 linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%),
                 radial-gradient(circle at 15% 20%, rgba(0, 240, 255, 0.05), transparent 45%),
                 radial-gradient(circle at 85% 75%, rgba(255, 0, 106, 0.06), transparent 50%);
             background-size: 100% 4px, 100% 100%, 100% 100%;
-            pointer-events: none;
-            z-index: 999;
+            pointer-events: none; z-index: 999;
         }
+        .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
-        .bg-canvas {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* ─── SHARED GLASSMORPHISM NAVBAR ─── */
+        /* ─── SHARED NAVBAR ─── */
         .navbar {
-            min-height: 70px;
-            padding: 12px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(6, 3, 18, 0.65);
-            backdrop-filter: blur(18px) saturate(1.4);
-            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(191, 0, 255, 0.2);
-            position: relative;
-            z-index: 20;
-            flex-wrap: wrap;
-            gap: 12px;
+            min-height: 70px; padding: 12px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(6, 3, 18, 0.68); backdrop-filter: blur(18px) saturate(1.4);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.22);
+            position: relative; z-index: 20; flex-wrap: wrap; gap: 12px;
         }
         .nav-logo {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.35rem;
-            font-weight: 900;
-            letter-spacing: 0.08em;
-            background: linear-gradient(90deg, #00f0ff, #bf00ff, #ff006a);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
+            font-family: 'Orbitron', monospace; font-size: 1.35rem; font-weight: 900;
+            letter-spacing: 0.08em; background: linear-gradient(90deg, #00f0ff, #bf00ff, #ff006a);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            display: flex; align-items: center; gap: 12px; text-decoration: none;
         }
         .nav-logo .nav-mark { width: 34px; height: 34px; filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.5)); }
         .nav-logo .nav-ver {
@@ -111,324 +83,98 @@
             padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);
             background: rgba(255, 255, 255, 0.03); transition: all 0.25s ease; white-space: nowrap;
         }
-        .nav-link:hover {
-            color: var(--p1); border-color: rgba(0, 240, 255, 0.45);
-            background: rgba(0, 240, 255, 0.08); box-shadow: 0 0 14px rgba(0, 240, 255, 0.2);
-            transform: translateY(-1px);
-        }
+        .nav-link:hover { color: var(--p1); border-color: rgba(0, 240, 255, 0.45); background: rgba(0, 240, 255, 0.08); }
         .nav-link.active {
             color: var(--p1); border-color: rgba(0, 240, 255, 0.65);
             background: linear-gradient(135deg, rgba(0, 240, 255, 0.16), rgba(191, 0, 255, 0.14));
             box-shadow: 0 0 18px rgba(0, 240, 255, 0.25);
         }
 
-        /* ─── CONTAINER ─── */
         .page-wrap {
-            position: relative;
-            z-index: 5;
-            max-width: 1380px;
-            margin: 0 auto;
-            padding: 30px 24px 70px;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
+            position: relative; z-index: 5; max-width: 1400px; margin: 0 auto;
+            padding: 28px 24px 64px; display: flex; flex-direction: column; gap: 28px;
         }
-
         .glass-section {
-            background: linear-gradient(150deg, rgba(10, 16, 38, 0.75), rgba(6, 3, 18, 0.88));
-            border: 1px solid rgba(0, 240, 255, 0.22);
-            border-radius: 18px;
-            padding: 28px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 16px 46px rgba(0, 0, 0, 0.65);
+            background: linear-gradient(150deg, rgba(10, 16, 38, 0.76), rgba(6, 3, 20, 0.9));
+            border: 1px solid rgba(0, 240, 255, 0.22); border-radius: 18px;
+            padding: 26px; backdrop-filter: blur(20px); box-shadow: 0 16px 46px rgba(0, 0, 0, 0.65);
         }
-
         .sec-tag {
-            display: inline-block;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.68rem;
-            color: var(--p1);
-            background: rgba(0, 240, 255, 0.08);
-            border: 1px solid rgba(0, 240, 255, 0.35);
-            padding: 3px 10px;
-            border-radius: 20px;
-            letter-spacing: 0.12em;
-            margin-bottom: 8px;
+            display: inline-block; font-family: 'Space Mono', monospace; font-size: 0.66rem;
+            color: var(--p1); background: rgba(0, 240, 255, 0.08);
+            border: 1px solid rgba(0, 240, 255, 0.35); padding: 3px 10px;
+            border-radius: 20px; letter-spacing: 0.12em; margin-bottom: 8px;
         }
         .sec-title {
-            font-family: 'Orbitron', monospace;
-            font-size: clamp(1.3rem, 2.4vw, 1.9rem);
-            font-weight: 900;
-            letter-spacing: 0.06em;
-            color: #fff;
-            margin-bottom: 14px;
+            font-family: 'Orbitron', monospace; font-size: clamp(1.3rem, 2.3vw, 1.85rem);
+            font-weight: 900; color: #fff; margin-bottom: 14px;
         }
 
-        /* ─── LORE & PROTOCOLS ─── */
-        .lore-grid {
-            display: grid;
-            grid-template-columns: 1.25fr 1fr;
-            gap: 24px;
-        }
-        @media (max-width: 960px) {
-            .lore-grid { grid-template-columns: 1fr; }
-        }
+        .lore-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 22px; }
+        @media (max-width: 960px) { .lore-grid { grid-template-columns: 1fr; } }
         .lore-terminal {
-            background: rgba(0, 0, 0, 0.48);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            border-left: 4px solid var(--p1);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            line-height: 1.6;
-            font-size: 0.96rem;
-            color: rgba(255, 255, 255, 0.85);
-        }
-        .lore-terminal code {
-            font-family: 'Space Mono', monospace;
-            color: var(--gold);
-            font-size: 0.82rem;
-        }
-        .protocol-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .protocol-card {
-            background: rgba(255, 255, 255, 0.025);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 14px 16px;
-        }
-        .protocol-card h3 {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.82rem;
-            color: var(--gold);
-            margin-bottom: 4px;
-            letter-spacing: 0.06em;
-        }
-        .protocol-card p {
-            font-size: 0.86rem;
-            color: var(--text-dim);
-            line-height: 1.45;
+            background: rgba(0, 0, 0, 0.48); border: 1px solid rgba(0, 240, 255, 0.2);
+            border-left: 4px solid var(--p1); border-radius: 12px; padding: 18px;
+            display: flex; flex-direction: column; gap: 10px; line-height: 1.58; font-size: 0.94rem;
         }
 
-        /* ─── SHIP TECHNICAL BLUEPRINTS ─── */
         .blueprint-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
         }
-        @media (max-width: 1020px) {
-            .blueprint-grid { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 1180px) { .blueprint-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 640px) { .blueprint-grid { grid-template-columns: 1fr; } }
         .bp-card {
             background:
                 linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px),
-                rgba(4, 10, 28, 0.88);
-            background-size: 20px 20px, 20px 20px, 100% 100%;
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 14px;
-            padding: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            position: relative;
+                rgba(4, 10, 28, 0.9);
+            background-size: 18px 18px, 18px 18px, 100% 100%;
+            border: 1px solid rgba(0, 240, 255, 0.28); border-radius: 14px;
+            padding: 14px; display: flex; flex-direction: column; gap: 8px;
         }
         .bp-canvas-wrap {
-            width: 100%;
-            height: 170px;
-            border: 1px dashed rgba(0, 240, 255, 0.28);
-            border-radius: 10px;
-            background: rgba(0, 8, 22, 0.65);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+            width: 100%; height: 130px; border: 1px dashed rgba(0, 240, 255, 0.28);
+            border-radius: 10px; background: rgba(0, 8, 22, 0.65);
+            display: flex; align-items: center; justify-content: center;
         }
-        .bp-code {
-            position: absolute;
-            top: 8px;
-            left: 10px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.62rem;
-            color: rgba(0, 240, 255, 0.7);
-        }
-        .bp-dim {
-            position: absolute;
-            bottom: 6px;
-            right: 10px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.58rem;
-            color: rgba(255, 255, 255, 0.45);
-        }
-        .bp-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 1rem;
-            font-weight: 800;
-            color: #fff;
-        }
-        .bp-specs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.7rem;
-            color: var(--text-dim);
-        }
-        .bp-specs span strong { color: #fff; }
-        .bp-ability {
-            padding: 10px 12px;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.45);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            font-size: 0.82rem;
-            color: var(--text-dim);
-            line-height: 1.4;
-        }
+        .bp-title { font-family: 'Orbitron', monospace; font-size: 0.82rem; font-weight: 800; }
+        .bp-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.38; }
 
-        /* ─── BESTIARY (BOSSES + 12 PARASITES) ─── */
         .boss-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;
         }
         .boss-card {
             background: linear-gradient(160deg, rgba(28, 8, 44, 0.82), rgba(8, 3, 20, 0.92));
-            border: 1.5px solid var(--bc, #ff006a);
-            border-radius: 14px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            box-shadow: 0 0 22px color-mix(in srgb, var(--bc, #ff006a) 20%, transparent);
-        }
-        .boss-wave-badge {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.64rem;
-            color: var(--bc, #ff006a);
-            border: 1px solid var(--bc, #ff006a);
-            padding: 2px 8px;
-            border-radius: 6px;
-            align-self: flex-start;
-        }
-        .boss-name {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.92rem;
-            font-weight: 900;
-            color: #fff;
-        }
-        .boss-desc {
-            font-size: 0.83rem;
-            color: var(--text-dim);
-            line-height: 1.45;
+            border: 1.5px solid var(--bc, #ff006a); border-radius: 14px; padding: 14px;
+            display: flex; flex-direction: column; gap: 6px;
         }
 
-        .bestiary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 12px;
-        }
-        .enemy-item {
-            background: rgba(255, 255, 255, 0.025);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 12px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .enemy-item h4 {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.76rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .enemy-item p {
-            font-size: 0.78rem;
-            color: var(--text-dim);
-            line-height: 1.35;
-        }
-
-        /* ─── SUPPORT, CONTACT & LICENSE ─── */
-        .credits-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-        }
-        @media (max-width: 980px) {
-            .credits-grid { grid-template-columns: 1fr; }
-        }
+        .credits-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        @media (max-width: 960px) { .credits-grid { grid-template-columns: 1fr; } }
         .credit-box {
-            background: rgba(0, 0, 0, 0.45);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 22px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 14px;
+            background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 20px; display: flex; flex-direction: column;
+            justify-content: space-between; gap: 14px;
         }
         .credit-box.bmc-card {
             border-color: rgba(255, 215, 0, 0.55);
             background: radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.14), rgba(14, 8, 28, 0.92));
-            box-shadow: 0 0 32px rgba(255, 215, 0, 0.15);
-        }
-        .credit-box h3 {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.95rem;
-            font-weight: 800;
-            color: #fff;
         }
         .cta-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-family: 'Orbitron', monospace;
-            font-size: 0.78rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-decoration: none;
-            padding: 13px 20px;
-            border-radius: 12px;
-            transition: all 0.25s ease;
-            text-align: center;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            font-family: 'Orbitron', monospace; font-size: 0.76rem; font-weight: 800;
+            text-decoration: none; padding: 12px 18px; border-radius: 10px; transition: all 0.25s;
         }
-        .cta-btn.bmc-btn {
-            background: linear-gradient(135deg, #ffd700, #ff8800);
-            color: #000;
-            box-shadow: 0 0 24px rgba(255, 215, 0, 0.45);
-        }
-        .cta-btn.bmc-btn:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 0 34px rgba(255, 215, 0, 0.75);
-        }
-        .cta-btn.mail-btn {
-            background: rgba(0, 240, 255, 0.12);
-            color: var(--p1);
-            border: 1px solid var(--p1);
-            box-shadow: 0 0 18px rgba(0, 240, 255, 0.2);
-        }
-        .cta-btn.mail-btn:hover {
-            background: var(--p1);
-            color: #000;
-            box-shadow: 0 0 28px rgba(0, 240, 255, 0.55);
-        }
+        .cta-btn.bmc-btn { background: linear-gradient(135deg, #ffd700, #ff8800); color: #000; }
+        .cta-btn.mail-btn { background: rgba(0, 240, 255, 0.12); color: var(--p1); border: 1px solid var(--p1); }
 
         .site-footer {
-            position: relative; z-index: 5; text-align: center; padding: 34px 20px 46px;
-            border-top: 1px solid rgba(0, 240, 255, 0.12); background: rgba(3, 1, 9, 0.85);
+            position: relative; z-index: 5; text-align: center; padding: 30px 20px 42px;
+            border-top: 1px solid rgba(0, 240, 255, 0.12); background: rgba(3, 1, 9, 0.88);
             font-size: 0.82rem; color: var(--text-dim); line-height: 1.8;
         }
-        .site-footer img { height: 54px; margin-bottom: 8px; }
+        .site-footer img { height: 52px; margin-bottom: 8px; }
         .site-footer a { color: var(--p1); text-decoration: none; border-bottom: 1px dashed rgba(0, 240, 255, 0.4); }
-        .site-footer a:hover { color: #fff; }
     </style>
 </head>
 <body>
@@ -436,7 +182,7 @@
 
     <!-- SHARED NAVBAR -->
     <nav class="navbar" aria-label="Ana Navigasyon">
-        <a href="index.html" class="nav-logo"><img class="nav-mark" src="assets/favicon.svg" alt="" width="34" height="34"> COSMIC SURVIVORS <span class="nav-ver">v6.0 MEGAPONK</span></a>
+        <a href="index.html" class="nav-logo"><img class="nav-mark" src="assets/favicon.svg" alt="" width="34" height="34"> COSMIC SURVIVORS <span class="nav-ver">v7.0 VAMPIRE SURVIVORS</span></a>
         <div class="nav-links">
             <a href="index.html" class="nav-link">ANA KOMUTA</a>
             <a href="game.html" class="nav-link">SAVAŞ ARENASI</a>
@@ -446,221 +192,135 @@
     </nav>
 
     <main class="page-wrap">
-        <!-- SECTION 1: SECTOR 9 LORE & PROTOCOLS -->
+        <!-- LORE & 3 MAPS -->
         <section class="glass-section">
-            <span class="sec-tag">◈ GİZLİ ARŞİV KAYDI #S9-2189 · KOZMİK PARAZİT İSTİLASI</span>
-            <h1 class="sec-title">SEKTÖR 9 ARŞİVİ & SİMÜLASYON PROTOKOLLERİ</h1>
-
+            <span class="sec-tag">◈ GİZLİ ARŞİV KAYDI #S9-2189 · V7.0 VAMPIRE SURVIVORS PROTOKOLÜ</span>
+            <h1 class="sec-title">SEKTÖR 9 ARŞİVİ, 3 OPERASYON HARİTASI & PROTOKOLLER</h1>
             <div class="lore-grid">
                 <div class="lore-terminal">
-                    <div><code>[TARİH: 2189.11.04 // KONUM: SEKTÖR 9 DIŞ YÖRÜNGE KUŞAĞI]</code></div>
                     <p>
-                        İnsanlığın derin uzay madencilik kolonisinin sınırında yer alan <strong>Sektör 9</strong>, karanlık madde sondajı sırasında boyutlar arası bir yırtılma yaşadı. Yırtıktan sızan varlıklar biyolojik değil; yıldız enerjisi ve reaktör çekirdekleriyle beslenen, kendi kendini kopyalayan sentetik-organik <strong>Kozmik Parazit</strong> sürüleriydi.
+                        <strong>Sektör 9</strong> karanlık madde sondajı sırasında açılan boyutlar arası yarıktan sızan <strong>Kozmik Parazit</strong> sürüleri, koloni savunma hatlarını saniyeler içinde yuttu. Merkez Komutanlık bunun üzerine tek bir elit pilotun 4 Aktif Silah ve 4 Alet (Trinket) reaktörüyle donatıldığı <strong>"Vampire Survivors & Megabonk Protokolü (v7.0)"</strong> projesini başlattı.
                     </p>
                     <p>
-                        Merkez Komutanlık, ana savunma filosunu kaybettikten sonra son çare olarak <strong>"Simülasyon Protokolü: MEGAPONK"</strong> projesini devreye aldı. Bu protokolde yalnızca 1 veya 2 elit pilot, aşırı yüklenmiş deneysel reaktörlü gemilerle sürülerin merkezine bırakılır. İki gemi birbirine yaklaştığında oluşan <strong>Kuantum Sinerji Bağı</strong>, karanlık madde kabuklarını eritebilen tek silahtır.
+                        Pilotlar artık <strong>3 gerçek operasyon bölgesinde</strong> savaşıyor: Dönen uydu enkazlarıyla dolu <strong>Sektör 9 Enkazı</strong>, iyon/stasis bulutlarının hız dengesini değiştirdiği <strong>Kuantum Nebulası</strong> ve merkezdeki tekilliğin her şeyi kendine çektiği patlayan lav asteroidli <strong>Kara Delik Çevresi</strong>.
                     </p>
                     <p>
-                        Ancak Dalga 25'ten itibaren uzay-zaman dokusu tamamen çökmeye başlar. <strong>Kozmik Çürüme (Radyasyon)</strong> adı verilen bu evrede gemi onarım sistemleri her dalgada zayıflar ve zamanı büken <strong>Chronos Weaver</strong> ile zırhlı yıkıcı <strong>Oblivion Behemoth</strong> sahneye çıkar.
+                        Her 3 dalgada bir sahaya inen <strong>Elit Mini-Boss</strong>'lar imha edildiğinde %50 ihtimalle <strong>Altın Kozmik Şans Sandığı</strong> düşürerek slot sınırına takılmadan anında seviye veya <strong>Süper Evrim</strong> kazandırır!
                     </p>
                 </div>
-
-                <div class="protocol-list">
-                    <div class="protocol-card">
-                        <h3>⚡ PROTOKOL 01: 5-SLOT MEGAPONK REAKTÖR SINIRI</h3>
-                        <p>Aşırı yüklenmeyi önlemek için her gemi en fazla <strong>5 pasif perk slotu</strong> taşıyabilir ve her perk <strong>Seviye 5</strong> ile sınırlıdır. İki uyumlu Lv.5 perk birleştiğinde <strong>Füzyon Sentezi</strong> gerçekleşir ve 2 slot tek slota inerek +1 yeni slot açar.</p>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div class="credit-box" style="padding:14px;">
+                        <strong style="font-family:'Orbitron',monospace;font-size:0.78rem;color:#00f0ff;">1. HARİTA: SEKTÖR 9 ENKAZI (1.0x SKOR)</strong>
+                        <p style="font-size:0.82rem;color:var(--text-dim);">Dönen hurda metal plakaları ve dengeli parazit filosuyla standart hayatta kalma arenası.</p>
                     </div>
-                    <div class="protocol-card">
-                        <h3>☢ PROTOKOL 02: KOZMİK ÇÜRÜME & RADYASYON (DALGA 25+)</h3>
-                        <p>Dalga 25'ten sonra her dalgada pasif can yenilenmesi, vampir biyo-onarımı ve kalkan dolum hızı <strong>%4 oranında zayıflar</strong>. Sonsuz ölümsüzlük döngüsü matematiksel olarak imkansızdır.</p>
+                    <div class="credit-box" style="padding:14px;">
+                        <strong style="font-family:'Orbitron',monospace;font-size:0.78rem;color:#bf00ff;">2. HARİTA: KUANTUM NEBULASI (1.25x SKOR)</strong>
+                        <p style="font-size:0.82rem;color:var(--text-dim);">Hızlandıran (+%38) İyon Akımları, yavaşlatan (-%32) Stasis Bulutları ve ışınlanan hayalet parazitler.</p>
                     </div>
-                    <div class="protocol-card">
-                        <h3>💀 PROTOKOL 03: ELİT GERÇEK % HASAR (TRUE % DAMAGE)</h3>
-                        <p>Dalga 15+ elit parazitler (altın kesik halkalı) ve oyun sonu Boss mermileri, kalkanları aşarak pilotun <strong>Maksimum Canına oranla (%5 - %14 True HP Damage)</strong> doğrudan gövde hasarı verir.</p>
+                    <div class="credit-box" style="padding:14px;">
+                        <strong style="font-family:'Orbitron',monospace;font-size:0.78rem;color:#ff5500;">3. HARİTA: KARA DELİK ÇEVRESİ (1.50x SKOR)</strong>
+                        <p style="font-size:0.82rem;color:var(--text-dim);">Merkeze doğru çeken yerçekimi anomalisi, patlayan lav asteroidleri ve yüksek zırhlı elit yaratıklar.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 2: SHIP TECHNICAL BLUEPRINTS -->
+        <!-- 5 SHIP TECHNICAL BLUEPRINTS -->
         <section class="glass-section">
-            <span class="sec-tag">◈ MÜHENDİSLİK ŞEMALARI · CAD TEKNİK ÇİZİMLER</span>
-            <h2 class="sec-title">GEMİ SINIFLARI VE TEKNİK ÇİZİMLERİ</h2>
-
+            <span class="sec-tag">◈ MÜHENDİSLİK ŞEMALARI · 5 ÖZGÜN GEMİ SINIFI</span>
+            <h2 class="sec-title">5 GEMİ (KARAKTER) VE CAD TEKNİK ÇİZİMLERİ</h2>
             <div class="blueprint-grid">
-                <!-- INTERCEPTOR -->
                 <div class="bp-card">
-                    <div class="bp-canvas-wrap">
-                        <span class="bp-code">CAD // INT-MK4</span>
-                        <canvas id="bpInterceptor" width="280" height="150"></canvas>
-                        <span class="bp-dim">UZUNLUK: 18.4m · KANAT: 14.2m</span>
-                    </div>
-                    <div class="bp-title" style="color:#00f0ff">AVCI (INTERCEPTOR MK-IV)</div>
-                    <div class="bp-specs">
-                        <span>GÖVDE: <strong>80 HP</strong></span>
-                        <span>KALKAN: <strong>40 SH</strong></span>
-                        <span>İTİCİ HIZI: <strong>335 m/s</strong></span>
-                        <span>KRİTİK: <strong>%15 Baz</strong></span>
-                    </div>
-                    <div class="bp-ability">
-                        <strong style="color:#00f0ff">AKTİF YETENEK — WARP DASH (SPACE / ENTER):</strong><br>
-                        1.2 saniye boyunca boyutlar arası dokunulmazlık taklası atar ve arkasında temas eden parazitleri yakan yüksek enerjili lazer hattı bırakır.
-                    </div>
+                    <div class="bp-canvas-wrap"><canvas id="bpInterceptor" width="200" height="120"></canvas></div>
+                    <div class="bp-title" style="color:#00f0ff">1. AVCI (INTERCEPTOR)</div>
+                    <p class="bp-desc"><strong>Silah:</strong> Çift Lazer<br><strong>Pasif:</strong> +%20 Hız, +%15 Kritik<br><strong>Aktif:</strong> Warp Dash (1.2sn dokunulmaz takla)</p>
                 </div>
-
-                <!-- DREADNOUGHT -->
                 <div class="bp-card">
-                    <div class="bp-canvas-wrap">
-                        <span class="bp-code">CAD // DRD-TX9</span>
-                        <canvas id="bpDreadnought" width="280" height="150"></canvas>
-                        <span class="bp-dim">UZUNLUK: 32.0m · ZIRH: AĞIR</span>
-                    </div>
-                    <div class="bp-title" style="color:#ffaa00">KRUVAZÖR (DREADNOUGHT TX-9)</div>
-                    <div class="bp-specs">
-                        <span>GÖVDE: <strong>160 HP</strong></span>
-                        <span>KALKAN: <strong>80 SH</strong></span>
-                        <span>İTİCİ HIZI: <strong>215 m/s</strong></span>
-                        <span>NAMLU: <strong>Çift Plazma</strong></span>
-                    </div>
-                    <div class="bp-ability">
-                        <strong style="color:#ffaa00">AKTİF YETENEK — MİKRO FÜZE SALVOSU:</strong><br>
-                        3 saniye boyunca gemi etrafında 360 derece dönen güdümsüz mikro füze bataryalarını ateşleyerek kuşatmaları yarar.
-                    </div>
+                    <div class="bp-canvas-wrap"><canvas id="bpDreadnought" width="200" height="120"></canvas></div>
+                    <div class="bp-title" style="color:#ffaa00">2. KRUVAZÖR (DREADNOUGHT)</div>
+                    <p class="bp-desc"><strong>Silah:</strong> Ağır Plazma Topu<br><strong>Pasif:</strong> +%30 Zırh, -%10 Hız<br><strong>Aktif:</strong> 360° Mikro Füze Salvosu</p>
                 </div>
-
-                <!-- AEGIS -->
                 <div class="bp-card">
-                    <div class="bp-canvas-wrap">
-                        <span class="bp-code">CAD // AEG-S7</span>
-                        <canvas id="bpAegis" width="280" height="150"></canvas>
-                        <span class="bp-dim">ÇAP: 24.6m · REAKTÖR: SİNERJİ</span>
-                    </div>
-                    <div class="bp-title" style="color:#bf00ff">DESTEK (AEGIS CORE S-7)</div>
-                    <div class="bp-specs">
-                        <span>GÖVDE: <strong>100 HP</strong></span>
-                        <span>KALKAN: <strong>110 SH</strong></span>
-                        <span>İTİCİ HIZI: <strong>270 m/s</strong></span>
-                        <span>BAĞ MENZİLİ: <strong>280m (+%75)</strong></span>
-                    </div>
-                    <div class="bp-ability">
-                        <strong style="color:#bf00ff">AKTİF YETENEK — EMP ŞOK DALGASI:</strong><br>
-                        Ekrandaki tüm düşman mermilerini anında siler ve imha edilen her mermiyi geminin kalkan enerjisine dönüştürür.
-                    </div>
+                    <div class="bp-canvas-wrap"><canvas id="bpAegis" width="200" height="120"></canvas></div>
+                    <div class="bp-title" style="color:#bf00ff">3. AEGIS (MUHAFIZ)</div>
+                    <p class="bp-desc"><strong>Silah:</strong> Dönen Enerji Diski<br><strong>Pasif:</strong> Otomatik Kalkan Patlaması<br><strong>Aktif:</strong> EMP Şok Dalgası</p>
+                </div>
+                <div class="bp-card">
+                    <div class="bp-canvas-wrap"><canvas id="bpPhantom" width="200" height="120"></canvas></div>
+                    <div class="bp-title" style="color:#ff006a">4. GÖLGE (VOID PHANTOM)</div>
+                    <p class="bp-desc"><strong>Silah:</strong> Kuantum Hançeri<br><strong>Pasif:</strong> 10sn'de 1.5sn Görünmezlik & Suikast<br><strong>Aktif:</strong> Gölge Sıçraması</p>
+                </div>
+                <div class="bp-card">
+                    <div class="bp-canvas-wrap"><canvas id="bpSolar" width="200" height="120"></canvas></div>
+                    <div class="bp-title" style="color:#ff6600">5. SOLAR FLARE</div>
+                    <p class="bp-desc"><strong>Silah:</strong> Sürekli Yanan Alev Hattı<br><strong>Pasif:</strong> Yakıcı Radyasyon Aurası<br><strong>Aktif:</strong> Korona Güneş Patlaması</p>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 3: ENEMY & BOSS BESTIARY -->
+        <!-- BOSS & MINI-BOSS BESTIARY -->
         <section class="glass-section">
-            <span class="sec-tag">◈ SEKTÖR 9 TEHDİT VERİTABANI · BESTIARY</span>
-            <h2 class="sec-title">BOSS VE KOZMİK PARAZİT ANSİKLOPEDİSİ</h2>
-
-            <h3 style="font-family:'Orbitron',monospace;font-size:0.88rem;color:var(--gold);margin-bottom:12px;letter-spacing:0.1em;">
-                👑 SINIF-OMEGA ANOMALİ BOSSLARI (5 BOSS ТİPİ)
-            </h3>
+            <span class="sec-tag">◈ TEHDİT VERİTABANI · BESTIARY</span>
+            <h2 class="sec-title">ELİT MİNİ-BOSS VE OMEGA BOSS ANSİKLOPEDİSİ</h2>
             <div class="boss-grid">
-                <div class="boss-card" style="--bc:#ff006a">
-                    <span class="boss-wave-badge">DALGA 5+ // HÜCUM TİPİ</span>
-                    <div class="boss-name">VOID PHANTOM</div>
-                    <p class="boss-desc">Hedefe kilitlenip yüksek hızda yırtıcı dash hücumları yapar ve geçtiği hat boyunca dikey plazma mayınları bırakır.</p>
-                </div>
-                <div class="boss-card" style="--bc:#bf00ff">
-                    <span class="boss-wave-badge">DALGA 10+ // MERMİ CEHENNEMİ</span>
-                    <div class="boss-name">NOVA BLASTER</div>
-                    <p class="boss-desc">Sonsuzluk (Figür-8) yörüngesinde süzülerek 8 kollu spiral mermi fırtınaları ve radyal şok halkaları yayar.</p>
-                </div>
-                <div class="boss-card" style="--bc:#00f0ff">
-                    <span class="boss-wave-badge">DALGA 15+ // KÜTLE ÇEKİM</span>
-                    <div class="boss-name">ENTROPY STAR</div>
-                    <p class="boss-desc">Gemileri merkeze doğru vakumlayan kütleçekim alanı oluşturur ve pilotların altına gecikmeli patlayan yerçekimi bombaları bırakır.</p>
+                <div class="boss-card" style="--bc:#ffd700">
+                    <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#ffd700;">HER 3 DALGADA BİR // %50 SANDIK</div>
+                    <div style="font-family:'Orbitron',monospace;font-weight:900;">🎁 ARCHON ELİT MİNİ-BOSS</div>
+                    <p style="font-size:0.8rem;color:var(--text-dim);">Her 3 dalgada bir sahaya iner. Öldüğünde %50 ihtimalle anında Evrim veya seviye veren Altın Kozmik Şans Sandığı bırakır.</p>
                 </div>
                 <div class="boss-card" style="--bc:#00ffcc">
-                    <span class="boss-wave-badge">DALGA 20 // ZAMAN DOKUYUCU (YENİ!)</span>
-                    <div class="boss-name">⏳ CHRONOS WEAVER</div>
-                    <p class="boss-desc">Uzay-zamanı bükerek arenada <strong>Ters Çekim Yarıkları</strong> açar. Yarığa giren pilotların hareket vektörünü tersine çevirir ve dışarı iter.</p>
+                    <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#00ffcc;">DALGA 20 // ZAMAN DOKUYUCU</div>
+                    <div style="font-family:'Orbitron',monospace;font-weight:900;">⏳ CHRONOS WEAVER</div>
+                    <p style="font-size:0.8rem;color:var(--text-dim);">Uzay-zamanı büküp pilotu hareket yönünün tersine iten Ters Çekim Yarıkları açar.</p>
                 </div>
                 <div class="boss-card" style="--bc:#ff5500">
-                    <span class="boss-wave-badge">DALGA 30 // ZIRHLI YIKICI (YENİ!)</span>
-                    <div class="boss-name">🛡️ OBLIVION BEHEMOTH</div>
-                    <p class="boss-desc">Ön gövdesinde mermi geçirmeyen 200° dönen zırh plakaları taşır. Pilotlar hasar vermek için <strong>arkasındaki açık reaktör çekirdeğine (%175 Zayıf Nokta)</strong> manevra yapmak zorundadır.</p>
+                    <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#ff5500;">DALGA 30 // ZIRHLI YIKICI</div>
+                    <div style="font-family:'Orbitron',monospace;font-weight:900;">🛡️ OBLIVION BEHEMOTH</div>
+                    <p style="font-size:0.8rem;color:var(--text-dim);">Ön gövdesinde mermi geçirmeyen dönen zırh plakaları taşır; arkasındaki açık reaktör %175 zayıf nokta hasarı alır.</p>
                 </div>
-            </div>
-
-            <h3 style="font-family:'Orbitron',monospace;font-size:0.88rem;color:var(--p1);margin-bottom:12px;letter-spacing:0.1em;">
-                👾 STANDART VE ELİT PARAZİT SÜRÜLERİ (12 SINIF)
-            </h3>
-            <div class="bestiary-grid">
-                <div class="enemy-item"><h4 style="color:#ff3366">1. DRONE <span>Dalga 1+</span></h4><p>Temel sürü paraziti. Doğrudan en yakın gemiye yönelir ve sürü halinde kuşatma yapar.</p></div>
-                <div class="enemy-item"><h4 style="color:#ff8800">2. TANK <span>Dalga 2+</span></h4><p>Altıgen ağır zırhlı gövde. Yüksek can havuzuna sahiptir ve çarpışmada ölmez.</p></div>
-                <div class="enemy-item"><h4 style="color:#ffff00">3. SPEEDER <span>Dalga 2+</span></h4><p>Üçgen hiper-hızlı avcı. Düzensiz manevralarla savunma hattını deler.</p></div>
-                <div class="enemy-item"><h4 style="color:#cc44ff">4. SHOOTER <span>Dalga 3+</span></h4><p>Beşgen menzilli topçu. Mesafesini koruyarak hedefe güdümlü plazma topları ateşler.</p></div>
-                <div class="enemy-item"><h4 style="color:#00ff88">5. ORBITER <span>Dalga 4+</span></h4><p>Pilotun etrafında dairesel yörüngeye girerek kaçış alanını daraltır ve içeriden ateş eder.</p></div>
-                <div class="enemy-item"><h4 style="color:#ff6600">6. SPLITTER <span>Dalga 5+</span></h4><p>İmha edildiğinde çekirdeği bölünerek iki hızlı Drone parazitine ayrılır.</p></div>
-                <div class="enemy-item"><h4 style="color:#4488ff">7. SHIELDER <span>Dalga 6+</span></h4><p>Gövdesini koruyan ekstra enerji kalkanıyla doğar; kalkan kırılmadan gövde hasarı almaz.</p></div>
-                <div class="enemy-item"><h4 style="color:#ff0044">8. SNIPER <span>Dalga 7+</span></h4><p>Uzaktan nişan alarak yüksek hızlı ve yüksek hasarlı delici keskin nişancı mermisi fırlatır.</p></div>
-                <div class="enemy-item"><h4 style="color:#ff4400">9. KAMIKAZE <span>Dalga 8+</span></h4><p>Yüksek hızla pilota çarpar ve imha olduğunda 95m yarıçapında termal patlama yaratır.</p></div>
-                <div class="enemy-item"><h4 style="color:#aa66ff">10. PHANTOM <span>Dalga 9+</span></h4><p>Kısa aralıklarla uzay dokusunda kısa mesafeli ışınlanma (blink) yaparak mermilerden kaçar.</p></div>
-                <div class="enemy-item"><h4 style="color:#00ffcc">11. SWEEPER <span>Dalga 11+</span></h4><p>Etrafında sürekli dönen 350m uzunluğunda ölümcül bir tarayıcı lazer ışını taşır.</p></div>
-                <div class="enemy-item"><h4 style="color:#ff1744">12. SIPHON HEALER <span>Dalga 12+</span></h4><p>Yakındaki pilotun canını emer ve çevresindeki yaralı parazitleri saniyede +25 HP iyileştirir.</p></div>
             </div>
         </section>
 
-        <!-- SECTION 4: CONTACT, BUY ME A COFFEE & MIT LICENSE -->
+        <!-- CONTACT, BUY ME A COFFEE & LICENSE -->
         <section class="glass-section">
-            <span class="sec-tag">◈ GELİŞTİRİCİ KÜNYESİ · DESTEK & AÇIK KAYNAK LİSANSI</span>
+            <span class="sec-tag">◈ GELİŞTİRİCİ KÜNYESİ · DESTEK & MIT LİSANSI</span>
             <h2 class="sec-title">İLETİŞİM, DESTEK VE TELİF HAKLARI</h2>
-
             <div class="credits-grid">
-                <!-- SUPPORT CARD (BUY ME A COFFEE) -->
                 <div class="credit-box bmc-card">
                     <div>
-                        <span class="sec-tag" style="color:var(--gold);border-color:rgba(255,215,0,0.5);background:rgba(255,215,0,0.12)">☕ BAĞIMSIZ GELİŞTİRİCİYE DESTEK</span>
-                        <h3 style="color:var(--gold);margin-top:6px;">REAKTÖRE KAHVE İKRAM ET!</h3>
-                        <p style="font-size:0.9rem;color:rgba(255,255,255,0.82);margin-top:8px;line-height:1.5;">
-                            <strong>Cosmic Survivors</strong> tamamen reklamsız, açık kaynaklı ve bağımsız olarak geliştirilmektedir. Yeni gemi sınıfları, yeni Füzyon yetenekleri ve sunucu altyapısına katkıda bulunmak için geliştiriciye destek olabilirsiniz:
+                        <strong style="font-family:'Orbitron',monospace;color:var(--gold);">☕ GELİŞTİRİCİYE DESTEK OL</strong>
+                        <p style="font-size:0.86rem;color:rgba(255,255,255,0.85);margin-top:6px;line-height:1.45;">
+                            Cosmic Survivors tamamen ücretsiz ve açık kaynaklıdır. Yeni gemiler ve haritalar için projeye destek olabilirsiniz:
                         </p>
                     </div>
-                    <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener" class="cta-btn bmc-btn">
-                        ☕ buymeacoffee.com/haking
-                    </a>
+                    <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener" class="cta-btn bmc-btn">☕ buymeacoffee.com/haking</a>
                 </div>
-
-                <!-- OFFICIAL CONTACT CARD -->
                 <div class="credit-box">
                     <div>
-                        <span class="sec-tag">📡 RESMİ HABERLEŞME KANALI</span>
-                        <h3 style="margin-top:6px;">İLETİŞİM & GERİ BİLDİRİM</h3>
-                        <p style="font-size:0.9rem;color:var(--text-dim);margin-top:8px;line-height:1.5;">
-                            Hata bildirimleri, dengeleme önerileri, iş birlikleri veya topluluk turnuvaları için doğrudan resmi Sektör 9 komuta e-posta adresimiz üzerinden iletişime geçebilirsiniz:
+                        <strong style="font-family:'Orbitron',monospace;color:var(--p1);">📡 RESMİ İLETİŞİM</strong>
+                        <p style="font-size:0.86rem;color:var(--text-dim);margin-top:6px;line-height:1.45;">
+                            Öneri, hata bildirimi ve topluluk iletişimi için doğrudan e-posta gönderebilirsiniz:
                         </p>
                     </div>
-                    <a href="mailto:cosmic@haking.tr" class="cta-btn mail-btn">
-                        ✉️ cosmic@haking.tr
-                    </a>
+                    <a href="mailto:cosmic@haking.tr" class="cta-btn mail-btn">✉️ cosmic@haking.tr</a>
                 </div>
-
-                <!-- COPYRIGHT & MIT LICENSE CARD -->
                 <div class="credit-box">
                     <div>
-                        <span class="sec-tag" style="color:var(--link);border-color:rgba(191,0,255,0.45)">⚖️ TELİF & AÇIK KAYNAK</span>
-                        <h3 style="margin-top:6px;">HALİT GÜNEŞ (HaKING)</h3>
-                        <p style="font-size:0.88rem;color:var(--text-dim);margin-top:8px;line-height:1.5;">
-                            <strong>Telif Sahibi:</strong> Halit Güneş (HaKING)<br>
-                            <strong>Lisans:</strong> MIT License (Açık Kaynak)<br>
-                            <strong>Teknoloji:</strong> Sıfır bağımlılıklı Vanilla JS, HTML5 Canvas 2D Motoru ve Prosedürel Web Audio API Sentezleyicisi.
+                        <strong style="font-family:'Orbitron',monospace;color:#e09eff;">⚖️ TELİF & AÇIK KAYNAK</strong>
+                        <p style="font-size:0.86rem;color:var(--text-dim);margin-top:6px;line-height:1.45;">
+                            <strong>Geliştirici:</strong> Halit Güneş (HaKING)<br>
+                            <strong>Lisans:</strong> MIT License (Açık Kaynak)
                         </p>
                     </div>
-                    <a href="https://github.com/HaKING06/COSMIC" target="_blank" rel="noopener" class="cta-btn mail-btn" style="border-color:var(--link);color:#e09eff">
-                        🐙 GitHub Deposu & MIT Lisansı
-                    </a>
+                    <a href="https://github.com/HaKING06/COSMIC" target="_blank" rel="noopener" class="cta-btn mail-btn">🐙 GitHub Deposu</a>
                 </div>
             </div>
         </section>
     </main>
 
     <footer class="site-footer">
-        <img src="assets/logo.svg" alt="Cosmic Survivors logosu" width="190" height="54"><br>
-        <strong>Cosmic Survivors v6.0 MEGAPONK EDITION</strong> — Sektör 9 Arşivi & Künye<br>
+        <img src="assets/logo.svg" alt="Cosmic Survivors logosu" width="185" height="52"><br>
+        <strong>Cosmic Survivors v7.0 VAMPIRE SURVIVORS EDITION</strong> — Sektör 9 Arşivi & Künye<br>
         <a href="index.html">Ana Komuta</a> ·
         <a href="game.html">Savaş Arenası</a> ·
         <a href="tree.html">Füzyon Ağacı</a> ·
@@ -670,123 +330,46 @@
     </footer>
 
     <script>
-        // Render animated CAD Ship Blueprints
         function drawBlueprint(canvasId, type, color) {
             const c = document.getElementById(canvasId);
             if (!c) return;
             const ctx = c.getContext('2d');
             let angle = 0;
-
             function frame() {
-                angle += 0.015;
+                angle += 0.02;
                 ctx.clearRect(0, 0, c.width, c.height);
-                const cx = c.width / 2, cy = c.height / 2;
-
-                // Target reticle rings
                 ctx.save();
-                ctx.translate(cx, cy);
-                ctx.strokeStyle = 'rgba(0, 240, 255, 0.18)';
-                ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.arc(0, 0, 56, 0, Math.PI * 2); ctx.stroke();
-                ctx.setLineDash([4, 4]);
-                ctx.beginPath(); ctx.arc(0, 0, 40, angle, angle + Math.PI * 2); ctx.stroke();
-                ctx.setLineDash([]);
-
-                // Crosshair ticks
-                ctx.beginPath();
-                ctx.moveTo(-68, 0); ctx.lineTo(-48, 0);
-                ctx.moveTo(48, 0); ctx.lineTo(68, 0);
-                ctx.moveTo(0, -64); ctx.lineTo(0, -46);
-                ctx.moveTo(0, 46); ctx.lineTo(0, 64);
-                ctx.stroke();
-
-                // Rotate ship schematic slowly
-                ctx.rotate(Math.sin(angle) * 0.25 - Math.PI / 2);
+                ctx.translate(c.width / 2, c.height / 2);
+                ctx.strokeStyle = color + '33';
+                ctx.beginPath(); ctx.arc(0, 0, 42, 0, Math.PI * 2); ctx.stroke();
+                ctx.rotate(Math.sin(angle) * 0.3 - Math.PI / 2);
                 ctx.strokeStyle = color;
-                ctx.fillStyle = color + '22';
+                ctx.fillStyle = color + '28';
                 ctx.lineWidth = 2.2;
-                ctx.shadowColor = color;
-                ctx.shadowBlur = 12;
-
-                const r = 28;
-                if (type === 'interceptor') {
-                    ctx.beginPath();
-                    ctx.moveTo(r * 1.35, 0);
-                    ctx.lineTo(-r * 0.8, -r * 0.95);
-                    ctx.lineTo(-r * 0.35, 0);
-                    ctx.lineTo(-r * 0.8, r * 0.95);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-                } else if (type === 'dreadnought') {
-                    ctx.beginPath();
-                    ctx.moveTo(r * 1.1, -r * 0.45);
-                    ctx.lineTo(r * 1.1, r * 0.45);
-                    ctx.lineTo(-r * 0.9, r * 0.95);
-                    ctx.lineTo(-r * 0.65, 0);
-                    ctx.lineTo(-r * 0.9, -r * 0.95);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-                } else {
-                    ctx.beginPath();
-                    for (let i = 0; i < 6; i++) {
-                        const a = (i / 6) * Math.PI * 2;
-                        ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * r, Math.sin(a) * r);
-                    }
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.arc(0, 0, r * 0.45, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-
-                // Reactor core dot
-                ctx.fillStyle = '#ffffff';
+                const r = 22;
                 ctx.beginPath();
-                ctx.arc(0, 0, 4, 0, Math.PI * 2);
-                ctx.fill();
+                if (type === 'interceptor') {
+                    ctx.moveTo(r * 1.35, 0); ctx.lineTo(-r * 0.8, -r * 0.95); ctx.lineTo(-r * 0.35, 0); ctx.lineTo(-r * 0.8, r * 0.95);
+                } else if (type === 'dreadnought') {
+                    ctx.moveTo(r * 1.15, -r * 0.45); ctx.lineTo(r * 1.15, r * 0.45); ctx.lineTo(-r * 0.9, r * 0.95); ctx.lineTo(-r * 0.65, 0); ctx.lineTo(-r * 0.9, -r * 0.95);
+                } else if (type === 'aegis') {
+                    for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2; ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * r, Math.sin(a) * r); }
+                } else if (type === 'phantom') {
+                    ctx.moveTo(r * 1.45, 0); ctx.lineTo(-r * 0.6, -r * 1.05); ctx.lineTo(-r * 0.15, 0); ctx.lineTo(-r * 0.6, r * 1.05);
+                } else {
+                    for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; const rad = i % 2 === 0 ? r * 1.3 : r * 0.68; ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * rad, Math.sin(a) * rad); }
+                }
+                ctx.closePath(); ctx.fill(); ctx.stroke();
                 ctx.restore();
-
                 requestAnimationFrame(frame);
             }
             frame();
         }
-
         drawBlueprint('bpInterceptor', 'interceptor', '#00f0ff');
         drawBlueprint('bpDreadnought', 'dreadnought', '#ffaa00');
         drawBlueprint('bpAegis', 'aegis', '#bf00ff');
-
-        // Background starfield
-        const bgC = document.getElementById('bgCanvas');
-        const bgCtx = bgC.getContext('2d');
-        let stars = [];
-        function initStars() {
-            bgC.width = window.innerWidth;
-            bgC.height = window.innerHeight;
-            stars = Array.from({ length: 65 }, () => ({
-                x: Math.random() * bgC.width,
-                y: Math.random() * bgC.height,
-                r: Math.random() * 1.5 + 0.4,
-                s: Math.random() * 0.35 + 0.1
-            }));
-        }
-        function animStars() {
-            bgCtx.clearRect(0, 0, bgC.width, bgC.height);
-            bgCtx.fillStyle = 'rgba(191, 0, 255, 0.5)';
-            for (const st of stars) {
-                st.y += st.s;
-                if (st.y > bgC.height) st.y = 0;
-                bgCtx.beginPath();
-                bgCtx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
-                bgCtx.fill();
-            }
-            requestAnimationFrame(animStars);
-        }
-        initStars();
-        animStars();
-        window.addEventListener('resize', initStars);
+        drawBlueprint('bpPhantom', 'phantom', '#ff006a');
+        drawBlueprint('bpSolar', 'solarflare', '#ff6600');
     </script>
 </body>
 </html>
