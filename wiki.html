@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cosmic Survivors — Kozmik Wiki &amp; Taktik Strateji Ansiklopedisi</title>
+  <meta name="description" content="Cosmic Survivors — Kozmik Arena & Hiper-Evrim Roguelike: Harita & Gemi Sinerji Rehberi, En İyi 5 Meta Evrim/Mega Füzyon Komboları ve Boss Taktikleri." />
+  <meta name="keywords" content="Cosmic Survivors, kozmik arena, hiper evrim roguelike, uzay oyunu rehberi, meta build, boss taktikleri" />
+  <meta name="author" content="Halit Güneş (HaKING)" />
+  <meta name="theme-color" content="#00f0ff" />
+  <link rel="canonical" href="https://cosmic.haking.tr/wiki.html" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="tr_TR" />
+  <meta property="og:site_name" content="Cosmic Survivors" />
+  <meta property="og:title" content="Cosmic Survivors — Kozmik Wiki &amp; Taktik Strateji Ansiklopedisi" />
+  <meta property="og:description" content="Harita & Gemi Sinerjileri, En Güçlü 5 Hiper-Evrim Meta Komboları ve Oblivion Behemoth Boss Taktikleri." />
+  <meta property="og:url" content="https://cosmic.haking.tr/wiki.html" />
+  <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-dark: #03010a;
+      --panel: rgba(10, 7, 26, 0.88);
+      --cyan: #00f0ff;
+      --magenta: #ff006a;
+      --purple: #bf00ff;
+      --gold: #ffd700;
+      --green: #00ff88;
+      --orange: #ff6600;
+      --text: #eef6ff;
+      --muted: #8fa5c9;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* VARSAYILAN %75 GÖRÜNÜM ÖLÇEĞİ (12px kök ölçek + tek ekran sıfır taşma) */
+    html {
+      font-size: 75%;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 30%, #13082c 0%, #050210 65%, #020106 100%);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── ÜST NAVİGASYON ── */
+    .top-nav {
+      height: 46px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(5, 3, 16, 0.92);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.24);
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .brand-logo { width: 28px; height: 28px; }
+
+    .brand-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #00f0ff, #fff, #ffd700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--gold);
+      letter-spacing: 1.2px;
+      margin-left: 8px;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+
+    .nav-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 6px 13px;
+      border-radius: 7px;
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 240, 255, 0.28);
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      background: rgba(0, 240, 255, 0.18);
+      border-color: var(--cyan);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+    }
+
+    /* ── WİKİ SEKMELERİ BAR ── */
+    .wiki-tabs-bar {
+      padding: 8px 20px;
+      background: rgba(8, 5, 22, 0.9);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .wiki-tabs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .wiki-tab-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 8px 18px;
+      border-radius: 9px;
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      background: rgba(16, 11, 38, 0.8);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wiki-tab-btn:hover {
+      border-color: var(--cyan);
+      color: #fff;
+    }
+
+    .wiki-tab-btn.active {
+      background: linear-gradient(90deg, rgba(0, 240, 255, 0.2), rgba(191, 0, 255, 0.22));
+      border-color: var(--cyan);
+      color: #fff;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
+    }
+
+    .wiki-header-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--gold);
+      background: rgba(255, 215, 0, 0.1);
+      border: 1px solid rgba(255, 215, 0, 0.35);
+      padding: 5px 12px;
+      border-radius: 6px;
+    }
+
+    /* ── ANA WİKİ İÇERİK ALANI ── */
+    .wiki-main {
+      flex: 1;
+      min-height: 0;
+      padding: 12px 20px 14px;
+      max-width: 1720px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wiki-section {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      gap: 14px;
+    }
+
+    .wiki-section.active {
+      display: grid;
+    }
+
+    /* SEKME 1: HARİTA & GEMİ SİNERJİ MATRİSİ */
+    #sec-synergy.active {
+      grid-template-columns: 1.15fr 0.85fr;
+    }
+
+    /* SEKME 2: META BUILD REHBERİ */
+    #sec-builds.active {
+      grid-template-columns: 1.25fr 0.75fr;
+    }
+
+    /* SEKME 3: DÜŞMAN & BOSS TAKTİKLERİ */
+    #sec-bosses.active {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+
+    .wiki-card {
+      background: var(--panel);
+      border: 1px solid rgba(0, 240, 255, 0.22);
+      border-radius: 12px;
+      padding: 12px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      overflow-y: auto;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.55);
+    }
+
+    .card-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 6px;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--cyan);
+      letter-spacing: 1.2px;
+    }
+
+    .card-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.74rem;
+      color: var(--gold);
+      background: rgba(255, 215, 0, 0.12);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    /* TABLOLAR */
+    .tac-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    .tac-table th, .tac-table td {
+      padding: 7px 9px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .tac-table th {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.78rem;
+      color: var(--cyan);
+      background: rgba(0, 240, 255, 0.06);
+      letter-spacing: 0.8px;
+    }
+
+    .tier-s { color: var(--gold); font-weight: 800; font-family: 'Space Mono', monospace; }
+    .tier-a { color: var(--green); font-weight: 700; font-family: 'Space Mono', monospace; }
+    .tier-b { color: var(--cyan); font-family: 'Space Mono', monospace; }
+
+    /* HARİTA REHBER KUTULARI */
+    .map-guide-box {
+      background: rgba(16, 12, 38, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-left: 4px solid var(--mc, #00f0ff);
+      border-radius: 9px;
+      padding: 9px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .map-guide-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .map-guide-text {
+      font-size: 0.92rem;
+      color: #d2e2ff;
+      line-height: 1.35;
+    }
+
+    /* META BUILD KARTLARI */
+    .build-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .build-item {
+      background: rgba(15, 10, 36, 0.85);
+      border: 1px solid rgba(255, 215, 0, 0.28);
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .build-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .build-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.94rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .build-math {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.76rem;
+      color: var(--green);
+      background: rgba(0, 255, 136, 0.1);
+      padding: 2px 7px;
+      border-radius: 5px;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+
+    .build-recipe {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--cyan);
+    }
+
+    .build-desc {
+      font-size: 0.9rem;
+      color: #d4e3ff;
+      line-height: 1.3;
+    }
+
+    /* ZAMAN ÇİZELGESİ / BOSS KUTULARI */
+    .phase-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 9px;
+      padding: 8px 11px;
+    }
+
+    .phase-hdr {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--cyan);
+      margin-bottom: 3px;
+    }
+
+    .phase-txt {
+      font-size: 0.9rem;
+      color: #cfe0ff;
+      line-height: 1.32;
+    }
+
+    @media (max-width: 1100px) {
+      html, body { overflow-y: auto; height: auto; }
+      #sec-synergy.active, #sec-builds.active, #sec-bosses.active {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ÜST NAVİGASYON -->
+  <header class="top-nav">
+    <a href="index.html" class="brand-box">
+      <img src="assets/logo.svg" alt="Logo" class="brand-logo" />
+      <span class="brand-title">COSMIC SURVIVORS</span>
+      <span class="brand-sub">KOZMİK WİKİ &amp; TAKTİK ANSİKLOPEDİSİ</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html" class="nav-btn">🏠 OYUN LOBİSİ</a>
+      <a href="tree.html" class="nav-btn">⚡ EVRİM AĞACI</a>
+      <a href="wiki.html" class="nav-btn active">📚 KOZMİK WİKİ</a>
+      <a href="about.html" class="nav-btn">📖 ARŞİV &amp; KÜNYE</a>
+      <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener" class="nav-btn" style="border-color:#ffd700;color:#ffd700;">☕ DESTEK</a>
+    </nav>
+  </header>
+
+  <!-- WİKİ SEKMELERİ -->
+  <section class="wiki-tabs-bar">
+    <div class="wiki-tabs">
+      <button type="button" class="wiki-tab-btn active" data-tab="sec-synergy">🗺️ 1. HARİTA &amp; GEMİ SİNERJİ REHBERİ</button>
+      <button type="button" class="wiki-tab-btn" data-tab="sec-builds">🔥 2. META EVRİM &amp; MEGA FÜZYON KOMBOLARI</button>
+      <button type="button" class="wiki-tab-btn" data-tab="sec-bosses">👾 3. DÜŞMAN, MİNİ-BOSS &amp; BOSS TAKTİKLERİ</button>
+    </div>
+    <div class="wiki-header-tag">⚡ SEKTÖR 9 AKADEMİ VERİTABANI • v7.0</div>
+  </section>
+
+  <!-- ANA WİKİ İÇERİĞİ -->
+  <main class="wiki-main">
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- SEKME 1: HARİTA & GEMİ SİNERJİ REHBERİ                               -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section class="wiki-section active" id="sec-synergy">
+      <div class="wiki-card">
+        <div class="card-hdr">
+          <span class="card-title">🛸 HARİTA × GEMİ TAKTİKSEL EŞLEŞTİRME MATRİSİ</span>
+          <span class="card-badge">SİNERJİ DERECELERİ &amp; NEDENLERİ</span>
+        </div>
+
+        <table class="tac-table">
+          <thead>
+            <tr>
+              <th>GEMİ SINIFI</th>
+              <th>SEKTÖR 9 ENKAZI (1.0x)</th>
+              <th>KUANTUM NEBULASI (1.25x)</th>
+              <th>KARA DELİK ÇEVRESİ (1.50x)</th>
+              <th>STRATEJİK ÜSTÜNLÜK NEDENİ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:#00f0ff">⚡ Avcı (Interceptor)</strong></td>
+              <td><span class="tier-a">★★★★☆ (A)</span></td>
+              <td><span class="tier-s">★★★★★ (S+)</span></td>
+              <td><span class="tier-b">★★★☆☆ (B)</span></td>
+              <td> +%20 baz hızı ve <em>Warp Dash</em> taklası sayesinde Kuantum Nebulası'ndaki yavaşlatıcı mor gazlardan etkilenmez; mavi iyon bulutlarında ses duvarını aşar.</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ffaa00">🛡️ Kruvazör (Dreadnought)</strong></td>
+              <td><span class="tier-a">★★★★☆ (A)</span></td>
+              <td><span class="tier-b">★★★☆☆ (B)</span></td>
+              <td><span class="tier-s">★★★★★ (S+)</span></td>
+              <td>+%30 Zırhı ve <em>Reaktif Zırh Plakası</em> ile Kara Delik Çevresi'ndeki merkez çekim anomalisine ve patlayan lav şarapnellerine karşı yıkılmaz bir kaledir.</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#bf00ff">💠 Aegis (Kalkan Muhafızı)</strong></td>
+              <td><span class="tier-s">★★★★★ (S)</span></td>
+              <td><span class="tier-a">★★★★☆ (A)</span></td>
+              <td><span class="tier-s">★★★★★ (S+)</span></td>
+              <td>Dönen Enerji Diskleri dar hurda koridorlarını kapatır; <em>EMP Şok Dalgası</em> Kara Delik haritasındaki yoğun mermi cehennemini anında kalkana dönüştürür.</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ff006a">👻 Gölge (Void Phantom)</strong></td>
+              <td><span class="tier-a">★★★★☆ (A)</span></td>
+              <td><span class="tier-s">★★★★★ (S+)</span></td>
+              <td><span class="tier-a">★★★★☆ (A)</span></td>
+              <td>10 sn'de bir devreye giren görünmezliği ve <em>Gölge Sıçraması</em>, ışınlanan Hayalet parazitleri ve Bossların arka reaktör zayıf noktasını avlamak için idealdir.</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ff6600">☀️ Solar Flare (Güneş)</strong></td>
+              <td><span class="tier-s">★★★★★ (S+)</span></td>
+              <td><span class="tier-a">★★★★☆ (A)</span></td>
+              <td><span class="tier-a">★★★★☆ (A)</span></td>
+              <td>Sektör 9'daki dönen titanyum enkazların arasına sıkışan sürüleri <em>Termal Radyasyon Aurası</em> ve <em>Alev Hattı</em> ile saniyeler içinde eritir.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="phase-box" style="margin-top:auto;">
+          <div class="phase-hdr">💡 KOMUTANIN HARİTA KONUMLANMA İPUCU</div>
+          <div class="phase-txt">
+            • <strong>Sektör 9 Enkazı:</strong> Dönen hurda metalleri kalkan gibi kullanarak <em>Shooter</em> ve <em>Sniper</em> mermilerini engelleyin.<br/>
+            • <strong>Kuantum Nebulası:</strong> Elit Mini-Boss dalgalarında (Dalga 3, 6, 9...) mavi iyonize bulutun içinde kalarak <strong>+%45 hız</strong> avantajıyla çember çizin.<br/>
+            • <strong>Kara Delik Çevresi:</strong> Lav asteroidlerini düşman sürüleri tam yanından geçerken patlatın; 8 yöne saçılan termal şarapnel düşmanlara da ağır hasar verir!
+          </div>
+        </div>
+      </div>
+
+      <div class="wiki-card">
+        <div class="card-hdr">
+          <span class="card-title">🌌 3 OPERASYON SEKTÖRÜ ANOMALİ ANALİZİ</span>
+          <span class="card-badge">ÇEVRESEL MEKANİKLER</span>
+        </div>
+
+        <div class="map-guide-box" style="--mc:#00f0ff">
+          <div class="map-guide-title">
+            <span>1. SEKTÖR 9 ENKAZI (STANDART ARENA)</span>
+            <span style="color:#00f0ff">1.0x SKOR ÇARPANI</span>
+          </div>
+          <div class="map-guide-text">
+            <strong>• Çevresel Anomali:</strong> Yörüngede dönen 6 adet dev titanyum enkaz parçası. Hem gemiyi hem de mermileri fiziksel olarak saptırır.<br/>
+            <strong>• Baskın Parazit Filosu:</strong> Dengeli Drone, Tank, Shooter ve Orbiter sürüleri.<br/>
+            <strong>• Önerilen İlk Alet (Trinket):</strong> <em>Kriyo Soğutucu</em> veya <em>Mıknatıs Çekirdeği</em>.
+          </div>
+        </div>
+
+        <div class="map-guide-box" style="--mc:#bf00ff">
+          <div class="map-guide-title">
+            <span>2. KUANTUM NEBULASI (HIZ &amp; FAZ ANOMALİSİ)</span>
+            <span style="color:#bf00ff">1.25x SKOR ÇARPANI</span>
+          </div>
+          <div class="map-guide-text">
+            <strong>• Çevresel Anomali:</strong> Mavi İyonize Bulutlar gemi hızını <strong>+%45 artırırken</strong>, Mor Yoğun Gaz bulutları <strong>-%35 yavaşlatır</strong>.<br/>
+            <strong>• Baskın Parazit Filosu:</strong> Işınlanan <em>Phantom</em>, yüksek hızlı <em>Speeder</em> ve <em>Kamikaze</em> sürüleri.<br/>
+            <strong>• Önerilen İlk Alet (Trinket):</strong> <em>Kinetik İtici</em> (Mor gaz yavaşlatmasını telafi eder).
+          </div>
+        </div>
+
+        <div class="map-guide-box" style="--mc:#ff5500">
+          <div class="map-guide-title">
+            <span>3. KARA DELİK ÇEVRESİ (TEKİLLİK &amp; LAV)</span>
+            <span style="color:#ff5500">1.50x SKOR ÇARPANI</span>
+          </div>
+          <div class="map-guide-text">
+            <strong>• Çevresel Anomali:</strong> Arena merkezindeki <strong>Olay Ufku Tekilliği</strong> 460px çapındaki tüm gemi ve düşmanları merkeze çeker. Kararsız <strong>Lav Asteroidleri</strong> vurulduğunda 8 yöne lav şarapneli saçar.<br/>
+            <strong>• Baskın Parazit Filosu:</strong> Yüksek zırhlı <em>Tank</em>, <em>Shielder</em>, <em>Healer</em> ve <em>Sweeper</em> elitleri.<br/>
+            <strong>• Önerilen İlk Alet (Trinket):</strong> <em>Biyo-Reaktör</em> + <em>Deflektör Matrisi</em>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- SEKME 2: EN İYİ EVRİM & MEGA FÜZYON KOMBOLARI (META BUILD REHBERİ)   -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section class="wiki-section" id="sec-builds">
+      <div class="wiki-card">
+        <div class="card-hdr">
+          <span class="card-title">👑 EN GÜÇLÜ 5 HİPER-EVRİM &amp; MEGA FÜZYON KOMBOSU</span>
+          <span class="card-badge">MATEMATİKSEL META ANALİZİ</span>
+        </div>
+
+        <div class="build-list">
+          <div class="build-item">
+            <div class="build-top">
+              <span class="build-name">1. KIZIL CEHENNEM (CEHENNEM GATLİNG'İ)</span>
+              <span class="build-math">DPS: x3.80 • %10 CAN ÇALMA • +1 BOŞ SLOT</span>
+            </div>
+            <div class="build-recipe">Formül: [Çift Lazer + Soğutucu ➔ Gatling Fırtınası] + [Ağır Plazma + Biyo-Reaktör ➔ Kan Hasadı]</div>
+            <div class="build-desc">
+              Saniyede 12.5 atış hızıyla 4'lü kızıl plazma mermisi yağdırır. Her mermi düşmanlar arasında <strong>3 kez seker</strong>, her sekmede alan patlaması yaratır ve verilen hasarın %10'unu doğrudan gövde canına dönüştürür. Dalga 20+ sürü temizliğinde rakipsizdir.
+            </div>
+          </div>
+
+          <div class="build-item">
+            <div class="build-top">
+              <span class="build-name">2. MUTLAK TEKİLLİK (OLAY UFKU TEKİLLİĞİ)</span>
+              <span class="build-math">6 KARA DELİK DİSKİ • +%18 KRİTİK • OTO-EMP</span>
+            </div>
+            <div class="build-recipe">Formül: [Kuantum Hançeri + Mıknatıs ➔ Kozmik Süpernova] + [Enerji Diski + İtici ➔ Aegis Rezonansı]</div>
+            <div class="build-desc">
+              Gemi etrafında 6 adet kesici Olay Ufku diski dönerken, her kritik vuruş düşmanları içine çekip ezen <strong>165px çapında Kara Delik</strong> açar. Kalkan kırıldığı anda tüm ekranı temizleyen otomatik EMP patlatır.
+            </div>
+          </div>
+
+          <div class="build-item">
+            <div class="build-top">
+              <span class="build-name">3. YÖRÜNGESEL KIYAMET (OMEGA KIYAMET REAKTÖRÜ)</span>
+              <span class="build-math">+130 MAKS HP • +%20 ZIRH • 280px TERMAL NOVA</span>
+            </div>
+            <div class="build-recipe">Formül: [Alev Hattı + Deflektör ➔ Titan Koronası] + [Füze Sürüsü + Nişangah ➔ Kuantum Yargıç]</div>
+            <div class="build-desc">
+              Her 1.8 saniyede bir düşmanın maksimum canının <strong>%25'i kadar gerçek alan hasarı</strong> vuran güneş novası yayar ve aynı anda 4 hedefi delip geçen 5'li altın kuantum mızrağı ateşler.
+            </div>
+          </div>
+
+          <div class="build-item">
+            <div class="build-top">
+              <span class="build-name">4. HİÇLİK SUİKASTÇISI (TUTULMA TANRISI — GÖLGE ÖZEL)</span>
+              <span class="build-math">x2.85 SUİKAST KRİTİĞİ • %30 ANINDA İNFAZ</span>
+            </div>
+            <div class="build-recipe">Formül: [Hiper-Uzay Tırpanı + Gölge Pelerini ➔ Hiçlik Biçicisi] + [Kozmik Süpernova / Hayalet İnfazcı]</div>
+            <div class="build-desc">
+              Void Phantom'un özel dalı! Görünmezlikten çıkarken yapılan saldırılar <strong>x2.85 kritik çarpanıyla</strong> vurur ve canı %30'un altına düşen elit olmayan parazitleri anında biçer.
+            </div>
+          </div>
+
+          <div class="build-item">
+            <div class="build-top">
+              <span class="build-name">5. TAKYON HÜKÜMDARI (HYPERION IŞIK HÜKÜMDARI — AVCI ÖZEL)</span>
+              <span class="build-math">-%55 COOLDOWN • 8 YÖNLÜ DELİCİ LAZER AĞI</span>
+            </div>
+            <div class="build-recipe">Formül: [Foton Raylı Top + Hiper-İvme ➔ Takyon Mızrağı] + [Gatling Fırtınası / Prizma Kırılması]</div>
+            <div class="build-desc">
+              Avcı gemisinin yüksek hareket hızını saf ateş gücüne çevirir; ekranı boydan boya kesen delici takyon ışınları ve 5 yöne kırılan prizma lazerleriyle Boss reaktörlerini saniyeler içinde eritir.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wiki-card">
+        <div class="card-hdr">
+          <span class="card-title">⏱️ HANGİ EVRİMİ NE ZAMAN KURMALISIN?</span>
+          <span class="card-badge">DALGA ZAMANLAMASI</span>
+        </div>
+
+        <div class="phase-box">
+          <div class="phase-hdr">🟢 FAZ 1: DALGA 1 – 5 (ÇEKİRDEK KURULUMU)</div>
+          <div class="phase-txt">
+            4 Silah slotunu hemen rastgele doldurmayın! Önce geminizin <strong>Başlangıç Silahını</strong> veya <strong>Özel Kök Silahını</strong> Lv.3-4'e yükseltin ve onu evrimleştirecek <strong>Aleti (Trinket)</strong> envantere alın. Eşleşen bir alet aldığınızda seviye atlama havuzunda o silahın çıkma şansı yükselir.
+          </div>
+        </div>
+
+        <div class="phase-box">
+          <div class="phase-hdr">🟡 FAZ 2: DALGA 6 – 12 (İLK ÇAPRAZ EVRİM &amp; SANDIK HİLESİ)</div>
+          <div class="phase-txt">
+            Dalga 6 ve 9'daki <strong>Elit Mini-Boss</strong> %50 ihtimalle altın <strong>Kozmik Şans Sandığı</strong> düşürür. Sandık yerde <strong>25 saniye</strong> kalır! Eğer silahınız Lv.5 ve aletiniz Lv.4 ise sandığı hemen almayın; birkaç parazit kesip aleti Lv.5 yapın ve ardından sandığı alarak <strong>beklemeden anında Evrim Sentezi</strong> açın!
+          </div>
+        </div>
+
+        <div class="phase-box">
+          <div class="phase-hdr">🟣 FAZ 3: DALGA 13 – 24 (MEGA EVRİM &amp; +1 BOŞ SLOT AÇMA)</div>
+          <div class="phase-txt">
+            Uyumlu iki Evrimleşmiş Silahı (Örn: <em>Gatling Fırtınası + Kan Hasadı</em>) tamamladığınızda sonraki seviye atlamada <strong>Kozmik Mega Evrim</strong> kartı çıkar. Bu kart iki silahı tek slotta birleştirir ve size <strong>+1 Boş Silah Slotu</strong> kazandırarak 5. bir süper silah kuşanma imkânı verir!
+          </div>
+        </div>
+
+        <div class="phase-box">
+          <div class="phase-hdr">🔴 FAZ 4: DALGA 25+ (KOZMİK ÇÜRÜME PROTOKOLÜ)</div>
+          <div class="phase-txt">
+            Dalga 25'ten itibaren <strong>Kozmik Çürüme (☢)</strong> başlar; her dalgada can çalma ve kalkan dolumu <code>0.96^(Dalga-24)</code> oranında azalır ve düşmanlar <strong>gerçek yüzdelik hasar</strong> vurur. Bu aşamada saf iyileşme yerine <em>Kara Delik kontrolü</em>, <em>EMP mermi silme</em> ve <em>Kritik İnfaz</em> kombolarına geçin!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- SEKME 3: DÜŞMAN, MİNİ-BOSS & BOSS TAKTİKLERİ                         -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section class="wiki-section" id="sec-bosses">
+      <div class="wiki-card">
+        <div class="card-hdr">
+          <span class="card-title">👾 PARAZİT SINIFLARI &amp; ZAYIF NOKTA REHBERİ</span>
+          <span class="card-badge">12 DÜŞMAN TİPİ</span>
+        </div>
+
+        <table class="tac-table">
+          <thead>
+            <tr>
+              <th>PARAZİT SINIFI</th>
+              <th>TEHDİT PROFİLİ</th>
+              <th>ZAYIF NOKTASI &amp; KARŞI TAKTİK</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:#ff3366">Drone &amp; Speeder</strong></td>
+              <td>Yüksek sürü yoğunluğu, hızlı kuşatma</td>
+              <td><em>Dönen Enerji Diski</em>, <em>Alev Hattı</em> ve sekme (Ricochet) yapan <em>Gatling Fırtınası</em> ile toplu imha edilir.</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ff8800">Tank &amp; Splitter</strong></td>
+              <td>Yüksek gövde canı; Splitter ölünce 2 mini parazite bölünür</td>
+              <td>Zırh delici <em>Kuantum Hançeri</em> ve <em>Titan Koronası</em> (%25 Maks HP hasarı) Tankları anında eritir.</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#4488ff">Shielder &amp; Healer</strong></td>
+              <td>Ön enerji kalkanı ve yakındaki parazitleri iyileştirme</td>
+              <td>Öncelikli hedef! <em>Kuantum Yargıç</em> delici mızrakları ön kalkanı delip arkadaki Healer'ı vurur.</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ff0044">Shooter &amp; Sniper</strong></td>
+              <td>Uzaktan hızlı mermi ve kırmızı lazer nişangahlı keskin atış</td>
+              <td>Sniper'ın kırmızı nişan çizgisi kilitlendiğinde dikey hareket edin veya <em>Aegis EMP</em> ile mermileri silin.</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#aa66ff">Phantom &amp; Kamikaze</strong></td>
+              <td>Kısa mesafe ışınlanma ve yüksek patlama hasarı</td>
+              <td>Kamikaze yaklaştığında <em>Warp Dash</em> / <em>Gölge Sıçraması</em> kullanın veya <em>Kriyo Kasırgası</em> ile dondurun.</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#00ffcc">Sweeper (Süpürücü)</strong></td>
+              <td>Geniş plazma dalgaları saçan elit kruvazör</td>
+              <td>Yavaş döner; arkasına geçerek yakın mesafeden <em>Kan Hasadı</em> veya <em>Hiçlik Biçicisi</em> ile kesin.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="wiki-card">
+        <div class="card-hdr">
+          <span class="card-title">💀 ANA BOSS &amp; ELİT MİNİ-BOSS PROTOKOLÜ</span>
+          <span class="card-badge">OBLIVION BEHEMOTH TAKTİKLERİ</span>
+        </div>
+
+        <div class="map-guide-box" style="--mc:#ffd700">
+          <div class="map-guide-title">
+            <span>🎯 1. ARKA REAKTÖR ZAYIF NOKTA AÇISI (+%100 HASAR!)</span>
+            <span style="color:#ffd700">2.0x HASAR ÇARPANI</span>
+          </div>
+          <div class="map-guide-text">
+            Ana Bossların (<em>Oblivion Behemoth</em>) ön zırh plakası gelen hasarı sönümlerken, <strong>arka motor reaktörü (145°–215° arka koni açısı)</strong> tamamen açıktır! Boss'un arkasına geçerek ateş ettiğinizde mermileriniz <strong>+%100 Zayıf Nokta Hasarı (`REAKTÖR KRİTİK!`)</strong> vurur. <em>Void Phantom</em> bu açıda ek suikast çarpanıyla Boss'u 3 kat hızlı eritir.
+          </div>
+        </div>
+
+        <div class="map-guide-box" style="--mc:#ff006a">
+          <div class="map-guide-title">
+            <span>🚨 2. DÖNER ÖLÜM LAZERİ (DEATH RAY) &amp; FAZ 2 ÖFKESİ</span>
+            <span style="color:#ff006a">%50 HP ALTI TEHLİKE</span>
+          </div>
+          <div class="map-guide-text">
+            Boss canı <strong>%50'nin altına</strong> düştüğünde <em>Öfke Fazı</em> başlar: 360° mermi halkaları sıklaşır ve Boss açısal bir <strong>Ölüm Lazeri</strong> döndürmeye başlar. Lazer dönerken Boss'a uzak kalmak yerine <strong>Boss'a yakın yörüngede</strong> dönün; iç çemberde açısal hız çok daha düşüktür ve kolayca kaçılır!
+          </div>
+        </div>
+
+        <div class="map-guide-box" style="--mc:#00ff88">
+          <div class="map-guide-title">
+            <span>🎲 3. REROLL (2x) &amp; SKIP (1x) EKONOMİSİ</span>
+            <span style="color:#00ff88">STRATEJİK KART YÖNETİMİ</span>
+          </div>
+          <div class="map-guide-text">
+            • <strong>Reroll (`R` Tuşu - 2 Hak):</strong> İlk 5 seviyede harcamayın! Silah ve Aletiniz Lv.4-5 olduğunda Evrim kartını yakalamak için saklayın.<br/>
+            • <strong>Skip (`X` Tuşu - 1 Hak):</strong> İstemediğiniz 3 kart geldiğinde Pas Geçmek size anında <strong>+%35 XP Telafisi</strong> ve <strong>+%25 Gövde / +%35 Kalkan Onarımı</strong> sağlar; acil durumda hayat kurtaran bir taktiksel iyileşme olarak kullanabilirsiniz!
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.querySelectorAll('.wiki-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.wiki-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.wiki-section').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        const target = document.getElementById(btn.dataset.tab);
+        if (target) target.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

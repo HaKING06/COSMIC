@@ -1,12 +1,12 @@
 'use strict';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// COSMIC SURVIVORS — v7.0 VAMPIRE SURVIVORS & MEGABONK EDITION
+// COSMIC SURVIVORS — v7.0 KOZMİK ARENA & HİPER-EVRİM ROGUELIKE
 // Saf 1P Odaklı Uzay Roguelike Motoru:
 // • Kritik 3-Tuş Hile Açığı Onarımı (Senkron isLevelingUp Atomik Kilidi)
 // • 5 Özgün Gemi (Interceptor, Dreadnought, Aegis, Void Phantom, Solar Flare)
 // • 3 Gerçek Harita (Sektör 9 Enkazı, Kuantum Nebulası, Kara Delik Çevresi)
-// • 4 Silah Slotu + 4 Alet (Trinket) Slotu · Standart Evrim & Kozmik Süper Evrim
+// • 4 Silah Slotu + 4 Alet (Trinket) Slotu · Çapraz Evrim & Kozmik Mega Evrim
 // • 2 Reroll (Zar At) + 1 Skip (Pas Geç) · 3 Dalgada Bir Elit Mini-Boss & Şans Sandığı
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -40,19 +40,28 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
-// ── Ses Sentezleyici (Web Audio API) ──
+// ── Ses Sentezleyici (Web Audio API — Çakışma & Bellek Korumalı) ──
 let actx = null;
 let sfxVol = 0.5;
 let synthSoundOn = true;
 let isSoundMuffled = false;
+let _activeOscCount = 0;
+let _lastToneMap = {};
 
 function iA() { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); }
 function eA() { iA(); if (actx && actx.state === 'suspended') actx.resume(); }
 
 function tone(f, d, t = 'sine', v = 0.08, det = 0) {
     if (!actx || !synthSoundOn || sfxVol <= 0) return;
+    if (_activeOscCount >= 16) return; // Yoğun dalgalarda ses kanalı doygunluğunu önle
+    const nowMs = performance.now();
+    const bucket = Math.round(f / 20);
+    if (_lastToneMap[bucket] && nowMs - _lastToneMap[bucket] < 18) return;
+    _lastToneMap[bucket] = nowMs;
     try {
         const o = actx.createOscillator(), g = actx.createGain();
+        _activeOscCount++;
+        o.onended = () => { _activeOscCount = Math.max(0, _activeOscCount - 1); };
         o.type = t; o.frequency.value = f; o.detune.value = det;
         let finalVol = v * (sfxVol / 0.5);
         if (isSoundMuffled) finalVol *= 0.2;
@@ -60,7 +69,9 @@ function tone(f, d, t = 'sine', v = 0.08, det = 0) {
         g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + d);
         o.connect(g); g.connect(actx.destination);
         o.start(); o.stop(actx.currentTime + d);
-    } catch (e) {}
+    } catch (e) {
+        _activeOscCount = Math.max(0, _activeOscCount - 1);
+    }
 }
 
 const sfx = {
@@ -2686,11 +2697,21 @@ function update(dt) {
     for (let i = particles.length - 1; i >= 0; i--) {
         if (!particles[i].update(eDt)) particles.splice(i, 1);
     }
+    const maxParticles = perfMode ? 140 : 320;
+    if (particles.length > maxParticles) {
+        particles.splice(0, particles.length - maxParticles);
+    }
+    if (laserTrails.length > 160) {
+        laserTrails.splice(0, laserTrails.length - 160);
+    }
     for (let i = floats.length - 1; i >= 0; i--) {
         const f = floats[i];
         f.y += f.vy * eDt;
         f.l -= eDt;
         if (f.l <= 0) floats.splice(i, 1);
+    }
+    if (floats.length > 60) {
+        floats.splice(0, floats.length - 60);
     }
 
     shakeI *= 0.88;

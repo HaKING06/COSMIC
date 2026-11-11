@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Cosmic Survivors v7.0 — Taktik Hangar &amp; Oyun Lobisi</title>
-  <meta name="description" content="Cosmic Survivors v7.0 Vampire Survivors & Megabonk Edition: 5 özgün yıldız gemisi, karaktere özel evrim ağaçları, çapraz füzyon matrisi ve 3 anomali haritası." />
-  <meta name="keywords" content="Cosmic Survivors, uzay oyunu, web tabanlı roguelike, vampire survivors benzeri uzay oyunu, megabonk, html5 arena oyunu" />
+  <title>Cosmic Survivors — Kozmik Arena &amp; Hiper-Evrim Roguelike</title>
+  <meta name="description" content="Cosmic Survivors — Kozmik Arena & Hiper-Evrim Roguelike: 5 özgün yıldız gemisi, karaktere özel evrim ağaçları, çapraz füzyon matrisi ve 3 anomali haritası." />
+  <meta name="keywords" content="Cosmic Survivors, kozmik arena, hiper evrim roguelike, uzay oyunu, web tabanlı roguelike, html5 arena oyunu" />
   <meta name="author" content="Halit Güneş (HaKING)" />
   <meta name="theme-color" content="#00f0ff" />
   <link rel="canonical" href="https://cosmic.haking.tr/" />
@@ -16,14 +16,14 @@
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="tr_TR" />
   <meta property="og:site_name" content="Cosmic Survivors" />
-  <meta property="og:title" content="Cosmic Survivors v7.0 — Vampire Survivors &amp; Megabonk Edition" />
+  <meta property="og:title" content="Cosmic Survivors — Kozmik Arena &amp; Hiper-Evrim Roguelike" />
   <meta property="og:description" content="5 özgün gemi, karaktere özel kök yetenek ağaçları, çapraz evrimler (X+Y=Z) ve Kozmik Mega Evrimlerle Sektör 9'da hayatta kal!" />
   <meta property="og:url" content="https://cosmic.haking.tr/" />
   <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Cosmic Survivors v7.0 — 1P Uzay Roguelike" />
+  <meta name="twitter:title" content="Cosmic Survivors — Kozmik Arena &amp; Hiper-Evrim Roguelike" />
   <meta name="twitter:description" content="5 gemi, çapraz evrim ağacı ve 3 anomali haritası. Tarayıcıda ücretsiz oyna!" />
   <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
 
@@ -50,7 +50,15 @@
       user-select: none;
     }
 
-    html, body {
+    /* VARSAYILAN %75 GÖRÜNÜM ÖLÇEĞİ */
+    html {
+      font-size: 75%;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    body {
       width: 100vw;
       height: 100vh;
       overflow: hidden;
@@ -70,12 +78,12 @@
       pointer-events: none;
     }
 
-    /* ── TOP NAVBAR (SADECE EVRİM AĞACI, ARŞİV, DESTEK) ── */
+    /* ── TOP NAVBAR ── */
     .top-nav {
       position: relative;
       z-index: 10;
-      height: 58px;
-      padding: 0 26px;
+      height: 48px;
+      padding: 0 22px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -89,19 +97,19 @@
     .brand-box {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       text-decoration: none;
     }
 
     .brand-logo {
-      width: 36px;
-      height: 36px;
+      width: 30px;
+      height: 30px;
       filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.65));
     }
 
     .brand-title {
       font-family: 'Orbitron', sans-serif;
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       font-weight: 900;
       letter-spacing: 2.5px;
       background: linear-gradient(90deg, #00f0ff, #ffffff, #ff006a);
@@ -111,7 +119,7 @@
 
     .brand-sub {
       font-family: 'Space Mono', monospace;
-      font-size: 0.65rem;
+      font-size: 0.72rem;
       color: var(--gold);
       letter-spacing: 1.5px;
       display: block;
@@ -763,18 +771,19 @@
 <body>
   <canvas id="starfieldBg"></canvas>
 
-  <!-- ÜST MENÜ: SADECE EVRİM AĞACI, ARŞİV VE DESTEK -->
+  <!-- ÜST MENÜ: EVRİM AĞACI, KOZMİK WİKİ, ARŞİV VE DESTEK -->
   <header class="top-nav">
     <a href="index.html" class="brand-box">
       <img src="assets/logo.svg" alt="Cosmic Survivors Logo" class="brand-logo" />
       <div>
         <span class="brand-title">COSMIC SURVIVORS</span>
-        <span class="brand-sub">v7.0 VAMPIRE SURVIVORS &amp; MEGABONK EDITION</span>
+        <span class="brand-sub">KOZMİK ARENA &amp; HİPER-EVRİM ROGUELIKE</span>
       </div>
     </a>
 
     <nav class="nav-links">
       <a href="tree.html" id="navTreeLink" class="nav-btn tree-btn">⚡ EVRİM AĞACI</a>
+      <a href="wiki.html" class="nav-btn">📚 KOZMİK WİKİ</a>
       <a href="about.html" class="nav-btn">📖 ARŞİV</a>
       <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener" class="nav-btn coffee-btn">☕ DESTEK</a>
     </nav>

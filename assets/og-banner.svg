@@ -84,76 +84,57 @@
     <path d="M 990 340 Q 810 250 600 290" fill="none" stroke="#ff5500" stroke-width="2" stroke-dasharray="6 4"/>
   </g>
 
-  <!-- ════════════════════════════════════════════════════════════════════ -->
-  <!-- CENTERPIECE: 5 DISTINCT SHIP SILHOUETTES IN V-FORMATION              -->
-  <!-- ════════════════════════════════════════════════════════════════════ -->
-
-  <!-- 1. VOID PHANTOM (Far Left - Stealth Assassin Wing) -->
+  <!-- 5 DISTINCT SHIP SILHOUETTES IN V-FORMATION -->
+  <!-- 1. VOID PHANTOM -->
   <g transform="translate(210, 355) rotate(-14) scale(1.15)" filter="url(#neonGlow)">
     <circle cx="0" cy="0" r="42" fill="#ff006a" fill-opacity="0.08" stroke="#ff006a" stroke-opacity="0.35" stroke-dasharray="4 4"/>
-    <!-- Thruster -->
     <polygon points="-8,24 0,48 8,24" fill="#ff006a" opacity="0.85"/>
-    <!-- Crescent Stealth Hull -->
     <polygon points="0,-32 -28,22 -10,12 0,26 10,12 28,22" fill="#180414" stroke="#ff006a" stroke-width="2.5"/>
     <polygon points="0,-18 -12,10 0,4 12,10" fill="#ff006a" opacity="0.85"/>
     <text x="0" y="64" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="10" font-weight="700" fill="#ff66a3" letter-spacing="1">VOID PHANTOM</text>
   </g>
 
-  <!-- 2. AEGIS (Mid Left - Shield Guardian Disc Carrier) -->
+  <!-- 2. AEGIS -->
   <g transform="translate(395, 325) rotate(-7) scale(1.2)" filter="url(#neonGlow)">
     <circle cx="0" cy="0" r="46" fill="#bf00ff" fill-opacity="0.1" stroke="#bf00ff" stroke-width="1.5" stroke-dasharray="8 4"/>
-    <!-- Orbiting Energy Discs -->
     <circle cx="-38" cy="-12" r="7" fill="#00f0ff" stroke="#bf00ff" stroke-width="2"/>
     <circle cx="38" cy="-12" r="7" fill="#00f0ff" stroke="#bf00ff" stroke-width="2"/>
-    <!-- Thruster -->
     <polygon points="-9,24 0,44 9,24" fill="#bf00ff" opacity="0.9"/>
-    <!-- Hexagonal Bastion Hull -->
     <polygon points="0,-30 -24,-8 -20,22 0,28 20,22 24,-8" fill="#110522" stroke="#bf00ff" stroke-width="2.5"/>
     <circle cx="0" cy="-2" r="9" fill="#00f0ff" opacity="0.9"/>
     <text x="0" y="62" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="10" font-weight="700" fill="#d980ff" letter-spacing="1">AEGIS GUARDIAN</text>
   </g>
 
-  <!-- 3. INTERCEPTOR (Center Lead - Flagship Twin-Laser Striker) -->
+  <!-- 3. INTERCEPTOR -->
   <g transform="translate(600, 295) scale(1.45)" filter="url(#heavyGlow)">
     <circle cx="0" cy="0" r="52" fill="#00f0ff" fill-opacity="0.12" stroke="#00f0ff" stroke-width="1.8" stroke-opacity="0.55"/>
-    <!-- Twin Laser Beams -->
     <line x1="-14" y1="-26" x2="-14" y2="-75" stroke="#00f0ff" stroke-width="3"/>
     <line x1="14" y1="-26" x2="14" y2="-75" stroke="#00f0ff" stroke-width="3"/>
-    <!-- Thruster Plume -->
     <polygon points="-10,24 0,54 10,24" fill="#00f0ff"/>
     <polygon points="-5,24 0,42 5,24" fill="#ffffff"/>
-    <!-- Swept Wing Striker Hull -->
     <polygon points="0,-36 -30,20 -12,14 -6,26 6,26 12,14 30,20" fill="#041824" stroke="#00f0ff" stroke-width="2.6"/>
     <polygon points="0,-20 -10,8 0,2 10,8" fill="#00f0ff"/>
     <text x="0" y="64" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="9.5" font-weight="800" fill="#00f0ff" letter-spacing="1.5">INTERCEPTOR</text>
   </g>
 
-  <!-- 4. DREADNOUGHT (Mid Right - Heavy Armored Cruiser) -->
+  <!-- 4. DREADNOUGHT -->
   <g transform="translate(805, 325) rotate(7) scale(1.2)" filter="url(#neonGlow)">
     <circle cx="0" cy="0" r="46" fill="#ffaa00" fill-opacity="0.09" stroke="#ffaa00" stroke-width="1.5" stroke-dasharray="6 4"/>
-    <!-- Dual Thrusters -->
     <polygon points="-16,26 -10,46 -4,26" fill="#ffaa00"/>
     <polygon points="4,26 10,46 16,26" fill="#ffaa00"/>
-    <!-- Heavy Broadside Hull -->
     <polygon points="-12,-30 12,-30 28,-6 24,26 -24,26 -28,-6" fill="#211204" stroke="#ffaa00" stroke-width="2.5"/>
     <rect x="-12" y="-14" width="24" height="22" rx="3" fill="#ffaa00" opacity="0.85"/>
     <text x="0" y="62" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="10" font-weight="700" fill="#ffcc44" letter-spacing="1">DREADNOUGHT</text>
   </g>
 
-  <!-- 5. SOLAR FLARE (Far Right - Sunstorm Radiation Phoenix) -->
+  <!-- 5. SOLAR FLARE -->
   <g transform="translate(990, 355) rotate(14) scale(1.15)" filter="url(#neonGlow)">
     <circle cx="0" cy="0" r="44" fill="#ff5500" fill-opacity="0.12" stroke="#ff5500" stroke-width="1.5" stroke-opacity="0.5"/>
-    <!-- Solar Corona Thruster -->
     <polygon points="-11,22 0,50 11,22" fill="#ff5500"/>
-    <!-- Phoenix Wing Hull -->
     <polygon points="0,-34 -32,6 -16,24 0,16 16,24 32,6" fill="#240903" stroke="#ff6600" stroke-width="2.5"/>
     <circle cx="0" cy="-4" r="10" fill="#ffd700"/>
     <text x="0" y="64" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="10" font-weight="700" fill="#ff8844" letter-spacing="1">SOLAR FLARE</text>
   </g>
-
-  <!-- ════════════════════════════════════════════════════════════════════ -->
-  <!-- TOP & BOTTOM CYBERPUNK TYPOGRAPHY & HUD FRAME                        -->
-  <!-- ════════════════════════════════════════════════════════════════════ -->
 
   <!-- Outer Cyber Frame -->
   <rect x="24" y="22" width="1152" height="586" rx="14" fill="none" stroke="#00f0ff" stroke-opacity="0.28" stroke-width="1.5"/>
@@ -165,12 +146,12 @@
   <!-- Top Version Pill -->
   <g transform="translate(600, 58)">
     <rect x="-250" y="-18" width="500" height="32" rx="16" fill="#090418" stroke="#00f0ff" stroke-width="1.5"/>
-    <text x="0" y="3" text-anchor="middle" font-family="Orbitron, monospace" font-size="13" font-weight="800" fill="#00f0ff" letter-spacing="3">⚡ v7.0 VAMPIRE SURVIVORS &amp; MEGABONK EDITION ⚡</text>
+    <text x="0" y="3" text-anchor="middle" font-family="Orbitron, monospace" font-size="13" font-weight="800" fill="#00f0ff" letter-spacing="3">⚡ v7.0 KOZMİK ARENA &amp; HİPER-EVRİM SÜRÜMÜ ⚡</text>
   </g>
 
-  <!-- Main Title -->
-  <text x="600" y="138" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="68" font-weight="900" fill="url(#titleCyan)" letter-spacing="6" filter="url(#neonGlow)">COSMIC SURVIVORS</text>
-  <text x="600" y="176" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="20" font-weight="800" fill="url(#titleGold)" letter-spacing="5">1P SPACE BULLET-HEAVEN • BRANCHING EVOLUTION MATRIX</text>
+  <!-- Main Title & Brand-Pure Subtitle -->
+  <text x="600" y="136" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="68" font-weight="900" fill="url(#titleCyan)" letter-spacing="6" filter="url(#neonGlow)">COSMIC SURVIVORS</text>
+  <text x="600" y="175" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="21" font-weight="800" fill="url(#titleGold)" letter-spacing="4.5">HYPER-EVOLUTION SPACE ROGUELIKE</text>
 
   <!-- Bottom Feature Badges -->
   <g transform="translate(600, 515)" font-family="Orbitron, monospace" font-size="12" font-weight="800">
