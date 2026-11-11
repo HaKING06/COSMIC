@@ -1,835 +1,1281 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cosmic Survivors v7.0 — Vampire Survivors & Megabonk Tarzı Uzay Roguelike Oyunu</title>
-    <meta name="description" content="Cosmic Survivors v7.0 Vampire Survivors Edition: 5 özgün uzay gemisi, 3 harita, 4 Silah + 4 Alet slotu, Kozmik Süper Evrimler ve Mini-Boss Şans Sandıklarıyla ücretsiz web tabanlı uzay roguelike oyunu.">
-    <meta name="keywords" content="Cosmic Survivors, uzay oyunu, web tabanlı roguelike, vampire survivors benzeri uzay oyunu, megabonk, html5 arena oyunu, ücretsiz tarayıcı oyunu">
-    <meta name="author" content="Halit Güneş (HaKING)">
-    <meta name="robots" content="index, follow">
-    <meta name="theme-color" content="#00f0ff">
-    <link rel="canonical" href="https://cosmic.haking.tr/">
-    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="manifest" href="manifest.webmanifest">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Cosmic Survivors v7.0 — Taktik Hangar &amp; Oyun Lobisi</title>
+  <meta name="description" content="Cosmic Survivors v7.0 Vampire Survivors & Megabonk Edition: 5 özgün yıldız gemisi, karaktere özel evrim ağaçları, çapraz füzyon matrisi ve 3 anomali haritası." />
+  <meta name="keywords" content="Cosmic Survivors, uzay oyunu, web tabanlı roguelike, vampire survivors benzeri uzay oyunu, megabonk, html5 arena oyunu" />
+  <meta name="author" content="Halit Güneş (HaKING)" />
+  <meta name="theme-color" content="#00f0ff" />
+  <link rel="canonical" href="https://cosmic.haking.tr/" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:locale" content="tr_TR">
-    <meta property="og:site_name" content="Cosmic Survivors">
-    <meta property="og:title" content="Cosmic Survivors v7.0 — Vampire Survivors Edition Uzay Roguelike">
-    <meta property="og:description" content="5 özgün gemi, 3 harita, 4 Silah + 4 Alet slotu, Kozmik Süper Evrimler ve Mini-Boss Şans Sandıkları. Tarayıcıda ücretsiz oyna!">
-    <meta property="og:url" content="https://cosmic.haking.tr/">
-    <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="tr_TR" />
+  <meta property="og:site_name" content="Cosmic Survivors" />
+  <meta property="og:title" content="Cosmic Survivors v7.0 — Vampire Survivors &amp; Megabonk Edition" />
+  <meta property="og:description" content="5 özgün gemi, karaktere özel kök yetenek ağaçları, çapraz evrimler (X+Y=Z) ve Kozmik Mega Evrimlerle Sektör 9'da hayatta kal!" />
+  <meta property="og:url" content="https://cosmic.haking.tr/" />
+  <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Cosmic Survivors v7.0 — Vampire Survivors Edition">
-    <meta name="twitter:description" content="5 gemi, 3 harita, Süper Evrimler ve Mini-Boss Şans Sandıkları. Ücretsiz HTML5 uzay roguelike!">
-    <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Cosmic Survivors v7.0 — 1P Uzay Roguelike" />
+  <meta name="twitter:description" content="5 gemi, çapraz evrim ağacı ve 3 anomali haritası. Tarayıcıda ücretsiz oyna!" />
+  <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #020008;
-            --p1: #00f0ff;
-            --p2: #ff006a;
-            --link: #bf00ff;
-            --gold: #ffd700;
-            --green: #00ff88;
-            --text-main: #ffffff;
-            --text-dim: rgba(255, 255, 255, 0.64);
-        }
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body {
-            background: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Rajdhani', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+  <style>
+    :root {
+      --bg-deep: #03010a;
+      --bg-panel: rgba(9, 6, 24, 0.82);
+      --cyan: #00f0ff;
+      --magenta: #ff006a;
+      --purple: #bf00ff;
+      --gold: #ffd700;
+      --green: #00ff88;
+      --orange: #ff6600;
+      --text: #eef6ff;
+      --muted: #8fa3c7;
+    }
 
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background:
-                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%),
-                radial-gradient(circle at 18% 18%, rgba(0, 240, 255, 0.06), transparent 45%),
-                radial-gradient(circle at 82% 78%, rgba(191, 0, 255, 0.07), transparent 50%);
-            background-size: 100% 4px, 100% 100%, 100% 100%;
-            pointer-events: none;
-            z-index: 999;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
 
-        .bg-canvas {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: radial-gradient(circle at 70% 42%, #130829 0%, #05020f 60%, #020106 100%);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
 
-        /* ─── SHARED GLASSMORPHISM NAVBAR ─── */
-        .navbar {
-            min-height: 70px;
-            padding: 12px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(6, 3, 18, 0.68);
-            backdrop-filter: blur(18px) saturate(1.4);
-            border-bottom: 1px solid rgba(0, 240, 255, 0.22);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(191, 0, 255, 0.2);
-            position: relative;
-            z-index: 20;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .nav-logo {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.35rem;
-            font-weight: 900;
-            letter-spacing: 0.08em;
-            background: linear-gradient(90deg, #00f0ff, #bf00ff, #ff006a);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-        .nav-logo .nav-mark { width: 34px; height: 34px; filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.5)); }
-        .nav-logo .nav-ver {
-            font-size: 0.55rem; letter-spacing: 0.12em; padding: 3px 8px; border-radius: 6px;
-            border: 1px solid rgba(255, 215, 0, 0.5); -webkit-text-fill-color: var(--gold); background: rgba(255, 215, 0, 0.08);
-        }
-        .nav-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .nav-link {
-            font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700;
-            letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.72); text-decoration: none;
-            padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);
-            background: rgba(255, 255, 255, 0.03); transition: all 0.25s ease; white-space: nowrap;
-        }
-        .nav-link:hover {
-            color: var(--p1); border-color: rgba(0, 240, 255, 0.45);
-            background: rgba(0, 240, 255, 0.08); box-shadow: 0 0 14px rgba(0, 240, 255, 0.2);
-            transform: translateY(-1px);
-        }
-        .nav-link.active {
-            color: var(--p1); border-color: rgba(0, 240, 255, 0.65);
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.16), rgba(191, 0, 255, 0.14));
-            box-shadow: 0 0 18px rgba(0, 240, 255, 0.25);
-        }
+    #starfieldBg {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-        /* ─── MAIN HANGAR TERMINAL LAYOUT ─── */
-        .hangar-wrap {
-            position: relative;
-            z-index: 5;
-            max-width: 1440px;
-            margin: 0 auto;
-            padding: 26px 24px 60px;
-            display: flex;
-            flex-direction: column;
-            gap: 28px;
-        }
+    /* ── TOP NAVBAR (SADECE EVRİM AĞACI, ARŞİV, DESTEK) ── */
+    .top-nav {
+      position: relative;
+      z-index: 10;
+      height: 58px;
+      padding: 0 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(5, 3, 16, 0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.22);
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.65);
+      flex-shrink: 0;
+    }
 
-        .hangar-grid {
-            display: grid;
-            grid-template-columns: 1.45fr 1fr;
-            gap: 24px;
-            align-items: start;
-        }
-        @media (max-width: 1120px) {
-            .hangar-grid { grid-template-columns: 1fr; }
-        }
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
 
-        .glass-card {
-            background: linear-gradient(155deg, rgba(10, 16, 40, 0.75), rgba(6, 3, 20, 0.88));
-            border: 1px solid rgba(0, 240, 255, 0.24);
-            border-radius: 18px;
-            padding: 22px 24px;
-            backdrop-filter: blur(20px) saturate(1.4);
-            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.65));
+    }
 
-        .sec-hdr {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-            padding-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .sec-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.92rem;
-            font-weight: 800;
-            letter-spacing: 0.1em;
-            color: var(--p1);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .sec-badge {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.62rem;
-            color: var(--gold);
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid rgba(255, 215, 0, 0.35);
-            padding: 2px 9px;
-            border-radius: 12px;
-        }
+    .brand-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 2.5px;
+      background: linear-gradient(90deg, #00f0ff, #ffffff, #ff006a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-        /* ─── 5 SHIPS (CHARACTERS) GRID ─── */
-        .ships-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-        }
-        @media (max-width: 920px) {
-            .ships-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        .ship-card {
-            background: rgba(255, 255, 255, 0.025);
-            border: 1.5px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 14px 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            position: relative;
-        }
-        .ship-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--sc, #00f0ff);
-            background: rgba(255, 255, 255, 0.05);
-        }
-        .ship-card.active {
-            border-color: var(--sc, #00f0ff);
-            background: radial-gradient(circle at 50% 20%, color-mix(in srgb, var(--sc, #00f0ff) 25%, transparent), rgba(8, 4, 24, 0.92));
-            box-shadow: 0 0 24px color-mix(in srgb, var(--sc, #00f0ff) 40%, transparent);
-            transform: translateY(-3px);
-        }
-        .ship-ico-box {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.45rem;
-            border: 1px solid var(--sc, #00f0ff);
-            background: rgba(0, 0, 0, 0.45);
-            color: var(--sc, #00f0ff);
-            box-shadow: 0 0 12px color-mix(in srgb, var(--sc, #00f0ff) 30%, transparent);
-        }
-        .ship-nm {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: #fff;
-        }
-        .ship-wpn {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.56rem;
-            color: var(--gold);
-            background: rgba(255, 215, 0, 0.08);
-            padding: 2px 6px;
-            border-radius: 6px;
-        }
-        .ship-pas {
-            font-size: 0.68rem;
-            color: var(--text-dim);
-            line-height: 1.25;
-        }
+    .brand-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--gold);
+      letter-spacing: 1.5px;
+      display: block;
+      margin-top: -2px;
+    }
 
-        /* Selected Ship Preview Strip */
-        .ship-preview-strip {
-            display: grid;
-            grid-template-columns: 140px 1fr;
-            gap: 16px;
-            align-items: center;
-            padding: 14px 16px;
-            border-radius: 14px;
-            background: rgba(0, 0, 0, 0.45);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-        }
-        @media (max-width: 640px) {
-            .ship-preview-strip { grid-template-columns: 1fr; text-align: center; }
-        }
-        #hangarPreviewCanvas {
-            width: 140px;
-            height: 110px;
-            border-radius: 10px;
-            background: rgba(3, 8, 22, 0.75);
-            border: 1px dashed rgba(0, 240, 255, 0.3);
-            margin: 0 auto;
-        }
-        .sp-info h3 {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.95rem;
-            font-weight: 900;
-            margin-bottom: 4px;
-        }
-        .sp-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 6px;
-        }
-        .sp-tag {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.62rem;
-            padding: 3px 8px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-        /* ─── 3 MAPS SELECTION GRID ─── */
-        .maps-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-        @media (max-width: 820px) {
-            .maps-grid { grid-template-columns: 1fr; }
-        }
-        .map-card {
-            background: rgba(255, 255, 255, 0.025);
-            border: 1.5px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 14px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .map-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--mc, #00f0ff);
-        }
-        .map-card.active {
-            border-color: var(--mc, #00f0ff);
-            background: radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--mc, #00f0ff) 22%, transparent), rgba(8, 4, 24, 0.92));
-            box-shadow: 0 0 22px color-mix(in srgb, var(--mc, #00f0ff) 35%, transparent);
-        }
-        .map-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .map-nm {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.76rem;
-            font-weight: 800;
-            color: #fff;
-        }
-        .map-mult {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.58rem;
-            color: var(--gold);
-            border: 1px solid rgba(255, 215, 0, 0.4);
-            padding: 1px 6px;
-            border-radius: 6px;
-        }
-        .map-desc {
-            font-size: 0.76rem;
-            color: var(--text-dim);
-            line-height: 1.35;
-        }
+    .nav-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(0, 240, 255, 0.28);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-        /* ─── CALLSIGN, DIFFICULTY & LAUNCH ─── */
-        .pilot-bar {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 14px;
-            align-items: end;
-        }
-        @media (max-width: 720px) {
-            .pilot-bar { grid-template-columns: 1fr; }
-        }
-        .inp-box label {
-            display: block;
-            font-family: 'Orbitron', monospace;
-            font-size: 0.65rem;
-            color: var(--p1);
-            margin-bottom: 6px;
-            letter-spacing: 0.08em;
-        }
-        .inp-box input {
-            width: 100%;
-            padding: 11px 14px;
-            border-radius: 10px;
-            border: 1px solid rgba(0, 240, 255, 0.35);
-            background: rgba(0, 0, 0, 0.5);
-            color: #fff;
-            font-family: 'Orbitron', monospace;
-            font-size: 0.82rem;
-            outline: none;
-        }
-        .diff-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-        .diff-opt {
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.03);
-            color: rgba(255, 255, 255, 0.7);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.68rem;
-            font-weight: 700;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .diff-opt.easy.active { border-color: #00ff88; color: #00ff88; background: rgba(0, 255, 136, 0.12); }
-        .diff-opt.medium.active { border-color: #ffaa00; color: #ffaa00; background: rgba(255, 170, 0, 0.12); }
-        .diff-opt.hard.active { border-color: #ff006a; color: #ff006a; background: rgba(255, 0, 106, 0.14); }
+    .nav-btn:hover {
+      background: rgba(0, 240, 255, 0.14);
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.35);
+      transform: translateY(-1px);
+    }
 
-        .play-btn {
-            width: 100%;
-            padding: 16px 28px;
-            border-radius: 14px;
-            border: none;
-            background: linear-gradient(135deg, #00f0ff 0%, #bf00ff 55%, #ff006a 100%);
-            color: #fff;
-            font-family: 'Orbitron', monospace;
-            font-size: 1.1rem;
-            font-weight: 900;
-            letter-spacing: 0.14em;
-            cursor: pointer;
-            box-shadow: 0 10px 34px rgba(191, 0, 255, 0.45);
-            transition: all 0.25s ease;
-            text-transform: uppercase;
-        }
-        .play-btn:hover {
-            transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 14px 42px rgba(0, 240, 255, 0.55);
-        }
+    .nav-btn.tree-btn {
+      border-color: rgba(191, 0, 255, 0.55);
+      background: rgba(191, 0, 255, 0.12);
+      color: #eac2ff;
+    }
+    .nav-btn.tree-btn:hover {
+      background: rgba(191, 0, 255, 0.25);
+      border-color: #df80ff;
+      box-shadow: 0 0 18px rgba(191, 0, 255, 0.45);
+    }
 
-        /* ─── RIGHT COLUMN: LEADERBOARD & V7.0 FEATURE HIGHLIGHTS ─── */
-        .sb-tabs { display: flex; gap: 8px; }
-        .sb-tab {
-            padding: 5px 12px; border-radius: 8px; font-family: 'Orbitron', monospace;
-            font-size: 0.62rem; font-weight: 700; cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.03); color: var(--text-dim);
-        }
-        .sb-tab.active { border-color: var(--p1); color: var(--p1); background: rgba(0, 240, 255, 0.1); }
-        .sb-list {
-            display: flex; flex-direction: column; gap: 6px;
-            max-height: 290px; overflow-y: auto;
-        }
-        .sb-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 12px; border-radius: 10px;
-            background: rgba(255, 255, 255, 0.025); border: 1px solid rgba(255, 255, 255, 0.06);
-            font-size: 0.82rem;
-        }
-        .sb-rank { font-family: 'Orbitron', monospace; font-weight: 800; color: var(--gold); width: 28px; }
-        .sb-name { flex: 1; font-weight: 700; color: #fff; }
-        .sb-score { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--p1); }
+    .nav-btn.coffee-btn {
+      border-color: rgba(255, 215, 0, 0.55);
+      background: rgba(255, 215, 0, 0.12);
+      color: var(--gold);
+    }
+    .nav-btn.coffee-btn:hover {
+      background: rgba(255, 215, 0, 0.24);
+      box-shadow: 0 0 18px rgba(255, 215, 0, 0.45);
+    }
 
-        .v7-features-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .v7-feat {
-            padding: 12px;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .v7-feat h4 {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.7rem;
-            color: var(--gold);
-            margin-bottom: 4px;
-        }
-        .v7-feat p {
-            font-size: 0.76rem;
-            color: var(--text-dim);
-            line-height: 1.35;
-        }
+    /* ── MAIN ZERO-SCROLL LOBBY GRID ── */
+    .lobby-main {
+      position: relative;
+      z-index: 5;
+      flex: 1;
+      min-height: 0;
+      padding: 14px 24px 16px;
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+      gap: 20px;
+      max-width: 1680px;
+      width: 100%;
+      margin: 0 auto;
+    }
 
-        .site-footer {
-            position: relative; z-index: 5; text-align: center; padding: 30px 20px 42px;
-            border-top: 1px solid rgba(0, 240, 255, 0.12); background: rgba(3, 1, 9, 0.88);
-            font-size: 0.82rem; color: var(--text-dim); line-height: 1.8;
-        }
-        .site-footer img { height: 52px; margin-bottom: 8px; }
-        .site-footer a { color: var(--p1); text-decoration: none; border-bottom: 1px dashed rgba(0, 240, 255, 0.4); }
-        .site-footer a:hover { color: #fff; }
-    </style>
+    /* ── LEFT COLUMN: 5 SHIPS + 3 MAPS + PILOT CONFIG ── */
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+      justify-content: space-between;
+    }
+
+    .panel-box {
+      background: var(--bg-panel);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), inset 0 0 24px rgba(0, 240, 255, 0.03);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .section-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* 5 SHIP CARDS GRID */
+    .ships-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .ship-card {
+      position: relative;
+      background: rgba(14, 10, 34, 0.78);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 10px 9px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .ship-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 25%, var(--ship-color, #00f0ff), transparent 72%);
+      opacity: 0.08;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+
+    .ship-card:hover {
+      border-color: var(--ship-color, #00f0ff);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .ship-card.active {
+      border-color: var(--ship-color, #00f0ff);
+      background: rgba(20, 14, 48, 0.94);
+      box-shadow: 0 0 22px var(--ship-glow, rgba(0, 240, 255, 0.35)), inset 0 0 15px var(--ship-glow, rgba(0, 240, 255, 0.18));
+    }
+
+    .ship-card.active::before {
+      opacity: 0.22;
+    }
+
+    .ship-top-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--ship-color, #00f0ff);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ship-svg-wrap {
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 4px 0;
+    }
+
+    .ship-svg-wrap svg {
+      width: 50px;
+      height: 50px;
+      filter: drop-shadow(0 0 6px var(--ship-color, #00f0ff));
+      transition: transform 0.25s ease;
+    }
+
+    .ship-card:hover .ship-svg-wrap svg,
+    .ship-card.active .ship-svg-wrap svg {
+      transform: scale(1.12);
+    }
+
+    .ship-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 2px;
+    }
+
+    .ship-role {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .ship-meta-list {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 0.68rem;
+    }
+
+    .ship-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #cfe0ff;
+    }
+
+    .ship-root-pill {
+      margin-top: 4px;
+      padding: 3px 5px;
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--gold);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 3 MAPS GRID */
+    .maps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .map-card {
+      position: relative;
+      background: rgba(12, 9, 30, 0.78);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 11px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .map-card:hover {
+      border-color: var(--map-color, #00f0ff);
+      transform: translateY(-2px);
+    }
+
+    .map-card.active {
+      border-color: var(--map-color, #00f0ff);
+      background: rgba(22, 14, 52, 0.92);
+      box-shadow: 0 0 18px var(--map-glow, rgba(0, 240, 255, 0.3));
+    }
+
+    .map-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .map-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .map-mult {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 215, 0, 0.14);
+      color: var(--gold);
+      border: 1px solid rgba(255, 215, 0, 0.35);
+    }
+
+    .map-desc {
+      font-size: 0.73rem;
+      color: #b8cae8;
+      line-height: 1.25;
+    }
+
+    .map-hazard {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--map-color, #00f0ff);
+      margin-top: 2px;
+    }
+
+    /* PILOT & DIFFICULTY BAR */
+    .pilot-config-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 10px 16px;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .input-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--cyan);
+      white-space: nowrap;
+      letter-spacing: 1px;
+    }
+
+    .callsign-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      border-radius: 7px;
+      padding: 7px 12px;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      outline: none;
+    }
+
+    .callsign-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+    }
+
+    .diff-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .diff-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 7px 12px;
+      border-radius: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .diff-btn.active {
+      color: #03010a;
+      background: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.45);
+    }
+
+    .diff-btn[data-diff="hard"].active {
+      background: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 14px rgba(255, 215, 0, 0.45);
+    }
+
+    .diff-btn[data-diff="nightmare"].active {
+      background: var(--magenta);
+      border-color: var(--magenta);
+      color: #fff;
+      box-shadow: 0 0 14px rgba(255, 0, 106, 0.55);
+    }
+
+    /* ── RIGHT COLUMN: HOLOGRAM HANGAR + SIGNATURE TREE SUMMARY + LAUNCH CTA ── */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+      justify-content: space-between;
+    }
+
+    .hologram-bay {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: radial-gradient(circle at 50% 38%, rgba(0, 240, 255, 0.11), rgba(8, 5, 22, 0.9) 70%);
+      border: 1.5px solid rgba(0, 240, 255, 0.32);
+      border-radius: 16px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65), inset 0 0 35px rgba(0, 240, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .holo-top-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      z-index: 2;
+    }
+
+    .holo-ship-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #fff;
+      text-shadow: 0 0 16px rgba(0, 240, 255, 0.5);
+    }
+
+    .holo-ship-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--cyan);
+      letter-spacing: 1px;
+    }
+
+    .inspect-tree-link {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 7px 12px;
+      border-radius: 8px;
+      background: rgba(191, 0, 255, 0.18);
+      border: 1px solid #bf00ff;
+      color: #f0c8ff;
+      text-decoration: none;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .inspect-tree-link:hover {
+      background: rgba(191, 0, 255, 0.34);
+      box-shadow: 0 0 16px rgba(191, 0, 255, 0.55);
+      transform: translateY(-1px);
+    }
+
+    .holo-canvas-stage {
+      position: relative;
+      flex: 1;
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #shipPreviewCanvas {
+      width: 100%;
+      height: 100%;
+      max-height: 210px;
+      display: block;
+    }
+
+    /* SHIP SPECS & SIGNATURE EVOLUTION BRANCH SUMMARY */
+    .holo-specs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      z-index: 2;
+      margin-bottom: 8px;
+    }
+
+    .spec-box {
+      background: rgba(4, 3, 14, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 9px;
+      padding: 7px 10px;
+    }
+
+    .spec-lbl {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+      margin-bottom: 2px;
+    }
+
+    .spec-val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .spec-desc {
+      font-size: 0.7rem;
+      color: #bdd0ee;
+      margin-top: 1px;
+      line-height: 1.2;
+    }
+
+    .signature-branch-card {
+      z-index: 2;
+      background: linear-gradient(135deg, rgba(24, 10, 44, 0.88), rgba(8, 18, 38, 0.88));
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      border-radius: 10px;
+      padding: 9px 12px;
+    }
+
+    .sig-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .sig-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 1.2px;
+    }
+
+    .sig-formula-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      color: #00ff88;
+    }
+
+    .sig-chain-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+
+    .sig-node {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 6px;
+      padding: 5px 6px;
+      text-align: center;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sig-node.evo {
+      border-color: #00f0ff;
+      color: #00f0ff;
+    }
+
+    .sig-node.mega {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(255, 215, 0, 0.1);
+    }
+
+    .sig-arrow {
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    /* GIANT NEON LAUNCH BUTTON */
+    .launch-cta-btn {
+      position: relative;
+      width: 100%;
+      height: 68px;
+      border-radius: 14px;
+      border: 2px solid #00f0ff;
+      background: linear-gradient(90deg, rgba(0, 240, 255, 0.22) 0%, rgba(191, 0, 255, 0.28) 50%, rgba(255, 0, 106, 0.25) 100%);
+      color: #ffffff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.22rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.45), inset 0 0 25px rgba(0, 240, 255, 0.25);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .launch-cta-btn:hover {
+      transform: translateY(-2px) scale(1.01);
+      border-color: #ffffff;
+      background: linear-gradient(90deg, rgba(0, 240, 255, 0.38) 0%, rgba(191, 0, 255, 0.45) 50%, rgba(255, 0, 106, 0.4) 100%);
+      box-shadow: 0 0 45px rgba(0, 240, 255, 0.8), 0 0 85px rgba(191, 0, 255, 0.45);
+    }
+
+    .launch-cta-btn:active {
+      transform: translateY(1px);
+    }
+
+    .launch-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.66rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 1.5px;
+      margin-top: 2px;
+    }
+
+    @media (max-width: 1180px) {
+      html, body {
+        overflow-y: auto;
+        height: auto;
+      }
+      .lobby-main {
+        grid-template-columns: 1fr;
+      }
+      .ships-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
 </head>
 <body>
-    <canvas class="bg-canvas" id="bgCanvas"></canvas>
+  <canvas id="starfieldBg"></canvas>
 
-    <!-- SHARED NAVBAR -->
-    <nav class="navbar" aria-label="Ana Navigasyon">
-        <a href="index.html" class="nav-logo"><img class="nav-mark" src="assets/favicon.svg" alt="" width="34" height="34"> COSMIC SURVIVORS <span class="nav-ver">v7.0 VAMPIRE SURVIVORS</span></a>
-        <div class="nav-links">
-            <a href="index.html" class="nav-link active">ANA KOMUTA</a>
-            <a href="game.html" class="nav-link">SAVAŞ ARENASI</a>
-            <a href="tree.html" class="nav-link">FÜZYON AĞACI</a>
-            <a href="about.html" class="nav-link">SİMÜLASYON HAKKINDA</a>
-        </div>
+  <!-- ÜST MENÜ: SADECE EVRİM AĞACI, ARŞİV VE DESTEK -->
+  <header class="top-nav">
+    <a href="index.html" class="brand-box">
+      <img src="assets/logo.svg" alt="Cosmic Survivors Logo" class="brand-logo" />
+      <div>
+        <span class="brand-title">COSMIC SURVIVORS</span>
+        <span class="brand-sub">v7.0 VAMPIRE SURVIVORS &amp; MEGABONK EDITION</span>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <a href="tree.html" id="navTreeLink" class="nav-btn tree-btn">⚡ EVRİM AĞACI</a>
+      <a href="about.html" class="nav-btn">📖 ARŞİV</a>
+      <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener" class="nav-btn coffee-btn">☕ DESTEK</a>
     </nav>
+  </header>
 
-    <main class="hangar-wrap">
-        <div class="hangar-grid">
-            <!-- LEFT: 5 SHIP HANGAR + 3 MAP SELECTOR + LAUNCH -->
-            <section class="glass-card">
-                <div class="sec-hdr">
-                    <div class="sec-title"><span>🛸</span> 1. GEMİ (KARAKTER) SEÇİMİ — 5 ÖZGÜN SINIF</div>
-                    <span class="sec-badge">SAF 1P SURVIVORS MİMARİSİ</span>
-                </div>
-
-                <!-- 5 Ships Grid -->
-                <div class="ships-grid" id="shipsGrid">
-                    <div class="ship-card active" data-ship="interceptor" style="--sc:#00f0ff">
-                        <div class="ship-ico-box">⚡</div>
-                        <div class="ship-nm">AVCI</div>
-                        <div class="ship-wpn">⚔ Çift Lazer</div>
-                        <div class="ship-pas">+%20 Hız · +%15 Kritik</div>
-                    </div>
-                    <div class="ship-card" data-ship="dreadnought" style="--sc:#ffaa00">
-                        <div class="ship-ico-box">🛡️</div>
-                        <div class="ship-nm">KRUVAZÖR</div>
-                        <div class="ship-wpn">☄️ Ağır Plazma</div>
-                        <div class="ship-pas">+%30 Zırh · -%10 Hız</div>
-                    </div>
-                    <div class="ship-card" data-ship="aegis" style="--sc:#bf00ff">
-                        <div class="ship-ico-box">💿</div>
-                        <div class="ship-nm">AEGIS</div>
-                        <div class="ship-wpn">💿 Enerji Diski</div>
-                        <div class="ship-pas">Oto Kalkan Patlaması</div>
-                    </div>
-                    <div class="ship-card" data-ship="phantom" style="--sc:#ff006a">
-                        <div class="ship-ico-box">🗡️</div>
-                        <div class="ship-nm">GÖLGE</div>
-                        <div class="ship-wpn">🗡️ Kuantum Hançeri</div>
-                        <div class="ship-pas">10sn'de 1.5sn Görünmezlik</div>
-                    </div>
-                    <div class="ship-card" data-ship="solarflare" style="--sc:#ff6600">
-                        <div class="ship-ico-box">☀️</div>
-                        <div class="ship-nm">SOLAR FLARE</div>
-                        <div class="ship-wpn">🔥 Alev Hattı</div>
-                        <div class="ship-pas">Yakıcı Radyasyon Aurası</div>
-                    </div>
-                </div>
-
-                <!-- Live Ship Telemetry Preview -->
-                <div class="ship-preview-strip">
-                    <canvas id="hangarPreviewCanvas" width="140" height="110"></canvas>
-                    <div class="sp-info">
-                        <h3 id="previewShipTitle" style="color:#00f0ff">AVCI (INTERCEPTOR MK-IV)</h3>
-                        <p id="previewShipDesc" style="font-size:0.84rem;color:var(--text-dim);line-height:1.4;">
-                            Başlangıç Silahı: <strong>Çift Lazer</strong>. Pasif: <strong>+%20 Hareket Hızı ve +%15 Kritik Şans</strong>. Aktif Yetenek [SPACE]: 1.2 sn dokunulmaz Warp Dash.
-                        </p>
-                        <div class="sp-tags" id="previewShipTags">
-                            <span class="sp-tag" style="color:#00f0ff">HP: 100 · SH: 50</span>
-                            <span class="sp-tag" style="color:#ffd700">SİLAH: ÇİFT LAZER</span>
-                            <span class="sp-tag" style="color:#00ff88">EVRİM: GATLİNG FIRTINASI</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3 Maps Selector -->
-                <div class="sec-hdr" style="margin-top:4px;">
-                    <div class="sec-title"><span>🪐</span> 2. OPERASYON HARİTASI SEÇİMİ — 3 GERÇEK ARENA</div>
-                    <span class="sec-badge">SINIRLI ALAN & ÖZEL TEHLİKELER</span>
-                </div>
-
-                <div class="maps-grid" id="mapsGrid">
-                    <div class="map-card active" data-map="sector9" style="--mc:#00f0ff">
-                        <div class="map-top">
-                            <span class="map-nm">1. SEKTÖR 9 ENKAZI</span>
-                            <span class="map-mult">1.0x SKOR</span>
-                        </div>
-                        <p class="map-desc">Standart Arena: Uzayda dönen hurda metal plakaları ve dengeli parazit filosu.</p>
-                    </div>
-                    <div class="map-card" data-map="nebula" style="--mc:#bf00ff">
-                        <div class="map-top">
-                            <span class="map-nm">2. KUANTUM NEBULASI</span>
-                            <span class="map-mult">1.25x SKOR</span>
-                        </div>
-                        <p class="map-desc">Hız & Tehlike: Hızlandıran iyon akımları, yavaşlatan stasis bulutları ve ışınlanan hayaletler.</p>
-                    </div>
-                    <div class="map-card" data-map="blackhole" style="--mc:#ff5500">
-                        <div class="map-top">
-                            <span class="map-nm">3. KARA DELİK ÇEVRESİ</span>
-                            <span class="map-mult">1.50x SKOR</span>
-                        </div>
-                        <p class="map-desc">Zorlu Çekim: Merkeze çeken yerçekimi anomalisi, patlayan lav asteroidleri ve zırhlı elitler.</p>
-                    </div>
-                </div>
-
-                <!-- Callsign & Difficulty -->
-                <div class="pilot-bar">
-                    <div class="inp-box">
-                        <label for="p1Name">PİLOT ÇAĞRI KODU (CALLSIGN)</label>
-                        <input type="text" id="p1Name" placeholder="Pilot 1" maxlength="16" value="HaKING">
-                    </div>
-                    <div>
-                        <div style="font-family:'Orbitron',monospace;font-size:0.65rem;color:var(--p1);margin-bottom:6px;letter-spacing:0.08em;">SİMÜLASYON ZORLUK SEVİYESİ</div>
-                        <div class="diff-row">
-                            <div class="diff-opt easy active" data-diff="easy">🟢 KOLAY</div>
-                            <div class="diff-opt medium" data-diff="medium">🟡 ORTA</div>
-                            <div class="diff-opt hard" data-diff="hard">🔴 ZOR</div>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="play-btn" id="playBtn" type="button">🚀 REAKTÖRÜ ATEŞLE & ARENAYA İN!</button>
-            </section>
-
-            <!-- RIGHT: V7.0 ARCHITECTURE & LEADERBOARD -->
-            <div style="display:flex;flex-direction:column;gap:22px;">
-                <section class="glass-card">
-                    <div class="sec-hdr">
-                        <div class="sec-title"><span>⚡</span> v7.0 VAMPIRE SURVIVORS & MEGABONK SİSTEMİ</div>
-                        <a href="tree.html" style="font-family:'Orbitron',monospace;font-size:0.64rem;color:var(--gold);text-decoration:none;">AĞACI AÇ ➔</a>
-                    </div>
-                    <div class="v7-features-grid">
-                        <div class="v7-feat">
-                            <h4>⚔ 4 SİLAH + 🧲 4 ALET SLOTU</h4>
-                            <p>Silahlar ve Aletler (Mıknatıs, Soğutucu, İtici, Biyo-Reaktör) ayrı slotlarda taşınır.</p>
-                        </div>
-                        <div class="v7-feat">
-                            <h4>👑 EVRİM & SÜPER EVRİMLER</h4>
-                            <p>Silah Lv.5 + Alet Lv.5 = Evrim. İki Evrimleşmiş Silah birleşerek <strong>Kozmik Süper Evrim</strong> açar!</p>
-                        </div>
-                        <div class="v7-feat">
-                            <h4>🎁 MİNİ-BOSS & ŞANS SANDIĞI</h4>
-                            <p>Her 3 dalgada bir Elit Mini-Boss iner ve %50 ihtimalle anında evrim/seviye veren <strong>Altın Sandık</strong> düşürür.</p>
-                        </div>
-                        <div class="v7-feat">
-                            <h4>🎲 2 REROLL & 1 SKIP HAKKI</h4>
-                            <p>Seviye ekranında kartları değiştirebilir (Reroll) veya XP/Onarım telafisiyle pas geçebilirsiniz (Skip).</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="glass-card">
-                    <div class="sec-hdr">
-                        <div class="sec-title"><span>🏆</span> GALAKTİK SKOR TABLOSU</div>
-                        <div class="sb-tabs">
-                            <button class="sb-tab active" data-tab="global" type="button">🌐 GLOBAL</button>
-                            <button class="sb-tab" data-tab="local" type="button">💻 YEREL</button>
-                        </div>
-                    </div>
-                    <div class="sb-list" id="scoreboardBody">
-                        <div style="text-align:center;padding:24px;color:var(--text-dim);">Skor verileri yükleniyor...</div>
-                    </div>
-                </section>
-            </div>
+  <!-- ANA LOBİ EKRANI (SIFIR SCROLL, 2 SÜTUNLU KOMUTA MERKEZİ) -->
+  <main class="lobby-main">
+    <!-- SOL SÜTUN: 5 KARAKTER + 3 HARİTA + PİLOT AYARLARI -->
+    <section class="left-col">
+      <!-- 1. 5 ÖZGÜN GEMİ SEÇİMİ -->
+      <div class="panel-box" style="flex: 1.25;">
+        <div class="section-hdr">
+          <div class="section-title">🛸 1. YILDIZ GEMİSİ &amp; KARAKTER KÖKÜ SEÇİMİ</div>
+          <span class="section-badge">5 SINIF • HER GEMİYE ÖZEL 2 KÖK YETENEĞİ</span>
         </div>
-    </main>
 
-    <footer class="site-footer">
-        <img src="assets/logo.svg" alt="Cosmic Survivors logosu" width="185" height="52"><br>
-        <strong>Cosmic Survivors v7.0 VAMPIRE SURVIVORS EDITION</strong> — HTML5 Canvas · Vanilla JS · Web Audio API<br>
-        <a href="tree.html">⚡ Evrim & Süper Evrim Ağacı</a> ·
-        <a href="about.html">📜 Sektör 9 Arşivi & Künye</a> ·
-        <a href="mailto:cosmic@haking.tr">cosmic@haking.tr</a> ·
-        <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener">☕ Buy Me a Coffee</a> ·
-        <a href="https://github.com/HaKING06/COSMIC" target="_blank" rel="noopener">GitHub</a> · MIT License · © 2026 Halit Güneş (HaKING)
-    </footer>
+        <div class="ships-grid" id="shipCardsContainer">
+          <!-- JS ile 5 gemi kartı dinamik oluşturulur -->
+        </div>
+      </div>
 
-    <script src="leaderboard.js"></script>
-    <script>
-        const SHIP_META = {
-            interceptor: {
-                title: 'AVCI (INTERCEPTOR MK-IV)',
-                color: '#00f0ff',
-                desc: 'Başlangıç Silahı: <strong>Çift Lazer</strong>. Pasif: <strong>+%20 Hareket Hızı ve +%15 Kritik Şans</strong>. Aktif Yetenek [SPACE]: 1.2 sn dokunulmaz Warp Dash.',
-                tags: ['HP: 100 · SH: 50', 'SİLAH: ÇİFT LAZER', 'EVRİM: GATLİNG FIRTINASI']
-            },
-            dreadnought: {
-                title: 'KRUVAZÖR (DREADNOUGHT TX-9)',
-                color: '#ffaa00',
-                desc: 'Başlangıç Silahı: <strong>Ağır Plazma Topu</strong>. Pasif: <strong>+%30 Zırh Koruması ve -%10 Hız</strong>. Aktif Yetenek [SPACE]: 3 sn 360° Mikro Füze Salvosu.',
-                tags: ['HP: 175 · SH: 85', 'SİLAH: AĞIR PLAZMA TOPU', 'EVRİM: KAN HASADI']
-            },
-            aegis: {
-                title: 'AEGIS (KALKAN MUHAFIZI S-7)',
-                color: '#bf00ff',
-                desc: 'Başlangıç Silahı: <strong>Dönen Enerji Diski</strong>. Pasif: <strong>Otomatik Kalkan Patlaması</strong>. Aktif Yetenek [SPACE]: Düşman mermilerini kalkana çeviren EMP.',
-                tags: ['HP: 115 · SH: 125', 'SİLAH: DÖNEN ENERJİ DİSKİ', 'EVRİM: AEGIS REZONANSI']
-            },
-            phantom: {
-                title: 'GÖLGE (VOID PHANTOM X-0)',
-                color: '#ff006a',
-                desc: 'Başlangıç Silahı: <strong>Kuantum Hançeri</strong>. Pasif: <strong>Her 10 sn\'de 1.5 sn Görünmezlik ve Arkadan Vuruş Bonusu</strong>. Aktif Yetenek [SPACE]: Gölge Sıçraması.',
-                tags: ['HP: 95 · SH: 55', 'SİLAH: KUANTUM HANÇERİ', 'EVRİM: KOZMİK SÜPERNOVA']
-            },
-            solarflare: {
-                title: 'SOLAR FLARE (GÜNEŞ FIRTINASI)',
-                color: '#ff6600',
-                desc: 'Başlangıç Silahı: <strong>Sürekli Yanan Alev Hattı</strong>. Pasif: <strong>Düşmanları Yakan Radyasyon Aurası</strong>. Aktif Yetenek [SPACE]: Korona Güneş Patlaması.',
-                tags: ['HP: 125 · SH: 70', 'SİLAH: ALEV HATTI', 'EVRİM: TİTAN KORONASI']
-            }
-        };
+      <!-- 2. 3 HARİTA SEÇİMİ -->
+      <div class="panel-box">
+        <div class="section-hdr">
+          <div class="section-title">🗺️ 2. OPERASYON SEKTÖRÜ (HARİTA SEÇİMİ)</div>
+          <span class="section-badge">3 SINIRLI ARENA &amp; ÇEVRESEL ANOMALİ</span>
+        </div>
 
-        let selectedShip = 'interceptor';
-        let selectedMap = 'sector9';
-        let selectedDiff = 'easy';
+        <div class="maps-grid" id="mapCardsContainer">
+          <!-- JS ile 3 harita kartı dinamik oluşturulur -->
+        </div>
+      </div>
 
-        document.querySelectorAll('#shipsGrid .ship-card').forEach(card => {
-            card.addEventListener('click', () => {
-                document.querySelectorAll('#shipsGrid .ship-card').forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-                selectedShip = card.dataset.ship;
-                const m = SHIP_META[selectedShip];
-                const tEl = document.getElementById('previewShipTitle');
-                tEl.textContent = m.title;
-                tEl.style.color = m.color;
-                document.getElementById('previewShipDesc').innerHTML = m.desc;
-                document.getElementById('previewShipTags').innerHTML = m.tags.map(t => `<span class="sp-tag" style="color:${m.color}">${t}</span>`).join('');
-            });
+      <!-- 3. PİLOT ÇAĞRI KODU & ZORLUK -->
+      <div class="panel-box pilot-config-bar">
+        <div class="input-group">
+          <label for="p1NameInput" class="input-label">👨‍🚀 PİLOT KODU:</label>
+          <input type="text" id="p1NameInput" class="callsign-input" maxlength="16" value="KOMUTAN" placeholder="Çağrı Kodu..." />
+        </div>
+
+        <div class="diff-group" id="diffBtnsContainer">
+          <button type="button" class="diff-btn" data-diff="easy">KOLAY (0.8x)</button>
+          <button type="button" class="diff-btn active" data-diff="normal">NORMAL (1.0x)</button>
+          <button type="button" class="diff-btn" data-diff="hard">ZOR (1.35x)</button>
+          <button type="button" class="diff-btn" data-diff="nightmare">KABUS (1.75x)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAĞ SÜTUN: HOLOGRAM HANGAR & DEV BAŞLATMA BUTONU -->
+    <section class="right-col">
+      <div class="hologram-bay" id="holoBayBox">
+        <div class="holo-top-row">
+          <div>
+            <div class="holo-ship-title" id="holoShipName">AVCI (INTERCEPTOR)</div>
+            <div class="holo-ship-sub" id="holoShipRole">HİPER-ÇEVİK FOTON KESİCİ • +20% HIZ / +15% KRİTİK</div>
+          </div>
+          <a href="tree.html?ship=interceptor" id="holoTreeBtn" class="inspect-tree-link">🧬 ÖZEL AĞACI AÇ ➔</a>
+        </div>
+
+        <div class="holo-canvas-stage">
+          <canvas id="shipPreviewCanvas" width="520" height="210"></canvas>
+        </div>
+
+        <div class="holo-specs-grid">
+          <div class="spec-box">
+            <div class="spec-lbl">⚔ BAŞLANGIÇ SİLAHI &amp; AKTİF YETENEK [SPACE]</div>
+            <div class="spec-val" id="holoStarterWeapon">⚡ Çift Lazer + Warp Dash</div>
+            <div class="spec-desc" id="holoAbilityDesc">1.2 sn dokunulmaz takla atar ve arkasında yakıcı lazer izi bırakır.</div>
+          </div>
+          <div class="spec-box">
+            <div class="spec-lbl">🛡️ PASİF GÖVDE AVANTAJI</div>
+            <div class="spec-val" id="holoPassiveTitle">+%20 Hareket Hızı &amp; +%15 Kritik Şans</div>
+            <div class="spec-desc" id="holoPassiveDesc">Yüksek manevra kabiliyeti ve kritik foton odaklaması sağlar.</div>
+          </div>
+        </div>
+
+        <div class="signature-branch-card">
+          <div class="sig-hdr">
+            <span class="sig-title">🌿 KARAKTERE ÖZEL EVRİM DALI (SIGNATURE TREE)</span>
+            <span class="sig-formula-tag" id="holoBranchTag">KÖK_1 + KÖK_2 = ÖZEL EVRİM ➔ MEGA</span>
+          </div>
+          <div class="sig-chain-row" id="holoBranchChain">
+            <!-- JS ile doldurulur -->
+          </div>
+        </div>
+      </div>
+
+      <!-- PARLAYAN DEV NEON OYNA BUTONU -->
+      <button type="button" id="launchGameBtn" class="launch-cta-btn">
+        <span>🚀 HİPER SIÇRAMAYI BAŞLAT (OYNA)</span>
+        <span class="launch-sub" id="launchSubSummary">SEÇİLİ: AVCI (INTERCEPTOR) • SEKTÖR 9 ENKAZI • NORMAL</span>
+      </button>
+    </section>
+  </main>
+
+  <script>
+    const LOBBY_SHIPS = {
+      interceptor: {
+        id: 'interceptor',
+        name: 'AVCI',
+        fullName: 'AVCI (INTERCEPTOR)',
+        role: 'Hiper-Çevik Foton Kesici',
+        color: '#00f0ff',
+        glow: 'rgba(0, 240, 255, 0.38)',
+        starter: '⚡ Çift Lazer',
+        ability: 'Warp Dash (1.2s)',
+        abilityDesc: '1.2 sn dokunulmazlık taklası atar, arkasında hasar veren lazer hattı bırakır.',
+        passive: '+%20 Hız & +%15 Kritik',
+        passiveDesc: 'Tüm silahlarda +%15 baz kritik şansı ve yüksek manevra hızı kazandırır.',
+        rootNodes: ['🚄 Foton Raylı Top', '⚡ Hiper-İvme Çekirdeği'],
+        evoNode: '🔱 Takyon Mızrağı',
+        megaNode: '👑 Hyperion Işık Hükümdarı',
+        svg: `<svg viewBox="0 0 64 64"><polygon points="32,6 8,52 24,44 32,56 40,44 56,52" fill="#062232" stroke="#00f0ff" stroke-width="3"/><polygon points="32,18 22,40 32,34 42,40" fill="#00f0ff"/></svg>`
+      },
+      dreadnought: {
+        id: 'dreadnought',
+        name: 'KRUVAZÖR',
+        fullName: 'KRUVAZÖR (DREADNOUGHT)',
+        role: 'Ağır Balistik Zırhlı Kale',
+        color: '#ffaa00',
+        glow: 'rgba(255, 170, 0, 0.38)',
+        starter: '☄️ Ağır Plazma Topu',
+        ability: '360° Füze Salvosu',
+        abilityDesc: '3 saniye boyunca tüm yönlere güdümsüz mikro füze yağmuru ateşler.',
+        passive: '+%30 Zırh & -%10 Hız',
+        passiveDesc: 'Gelen tüm hasarı %30 azaltan ağır titanyum-plazma gövde zırhı.',
+        rootNodes: ['💣 Balistik Flak Topu', '🛡️ Reaktif Zırh Plakası'],
+        evoNode: '🌋 Kıyamet Bataryası',
+        megaNode: '👑 Zırhlı Kıyamet Kalesi',
+        svg: `<svg viewBox="0 0 64 64"><polygon points="20,8 44,8 56,24 50,54 14,54 8,24" fill="#281604" stroke="#ffaa00" stroke-width="3"/><rect x="22" y="20" width="20" height="22" rx="3" fill="#ffaa00"/></svg>`
+      },
+      aegis: {
+        id: 'aegis',
+        name: 'AEGIS',
+        fullName: 'AEGIS (KALKAN MUHAFIZI)',
+        role: 'Manyetik Kalkan & İyon Ustası',
+        color: '#bf00ff',
+        glow: 'rgba(191, 0, 255, 0.38)',
+        starter: '💿 Dönen Enerji Diski',
+        ability: 'EMP Şok Dalgası',
+        abilityDesc: 'Ekrandaki tüm düşman mermilerini anında siler ve kalkan enerjisine dönüştürür.',
+        passive: 'Otomatik Kalkan Patlaması',
+        passiveDesc: 'Her 6 saniyede bir kalkan enerjisinden elektro-şok halkası yayar.',
+        rootNodes: ['⚡ Tesla Kalkan Prizması', '🔋 Harmonik Kondansatör'],
+        evoNode: '🌀 Kutsal İyon Fırtınası',
+        megaNode: '👑 Olay Ufku Tekilliği',
+        svg: `<svg viewBox="0 0 64 64"><polygon points="32,6 54,20 48,50 32,58 16,50 10,20" fill="#1b062e" stroke="#bf00ff" stroke-width="3"/><circle cx="32" cy="32" r="10" fill="#00f0ff"/></svg>`
+      },
+      phantom: {
+        id: 'phantom',
+        name: 'GÖLGE',
+        fullName: 'GÖLGE (VOID PHANTOM)',
+        role: 'Kuantum Suikastçı & Boyut Avcısı',
+        color: '#ff006a',
+        glow: 'rgba(255, 0, 106, 0.38)',
+        starter: '🗡️ Kuantum Hançeri',
+        ability: 'Gölge Sıçraması',
+        abilityDesc: 'Baktığı yöne kuantum sıçraması yapar, 1.5 sn görünmezlik ve suikast gücü açar.',
+        passive: 'Görünmezlik & Arkadan Vuruş',
+        passiveDesc: 'Her 10 sn\'de 1.5 sn görünmez olur; arkadan vuruşlarda +%60 kritik hasar verir.',
+        rootNodes: ['🌙 Hiper-Uzay Tırpanı', '👻 Kuantum Gölge Pelerini'],
+        evoNode: '💀 Hiçlik Biçicisi',
+        megaNode: '👑 Tutulma Tanrısı',
+        svg: `<svg viewBox="0 0 64 64"><polygon points="32,6 6,52 24,38 32,54 40,38 58,52" fill="#290418" stroke="#ff006a" stroke-width="3"/><polygon points="32,16 20,38 32,30 44,38" fill="#ff006a"/></svg>`
+      },
+      solarflare: {
+        id: 'solarflare',
+        name: 'SOLAR FLARE',
+        fullName: 'SOLAR FLARE (GÜNEŞ FIRTINASI)',
+        role: 'Termonükleer Korona Kruvazörü',
+        color: '#ff6600',
+        glow: 'rgba(255, 102, 0, 0.38)',
+        starter: '🔥 Alev Hattı',
+        ability: 'Güneş Patlaması',
+        abilityDesc: 'Geniş çapta korona novası patlatarak tüm düşmanları ateşe verir.',
+        passive: 'Termal Radyasyon Aurası',
+        passiveDesc: 'Geminin yakınındaki tüm parazitleri sürekli yakan radyasyon alanı yayar.',
+        rootNodes: ['☄️ Plazma Havanı', '☀️ Termonükleer Kalp'],
+        evoNode: '🌞 Helios Güneş Kıyameti',
+        megaNode: '👑 Cehennem Gatling\'i',
+        svg: `<svg viewBox="0 0 64 64"><polygon points="32,6 4,34 18,54 32,42 46,54 60,34" fill="#2b0c02" stroke="#ff6600" stroke-width="3"/><circle cx="32" cy="30" r="10" fill="#ffd700"/></svg>`
+      }
+    };
+
+    const LOBBY_MAPS = {
+      sector9: {
+        id: 'sector9',
+        name: '1. SEKTÖR 9 ENKAZI',
+        mult: '1.0x SKOR',
+        color: '#00f0ff',
+        glow: 'rgba(0, 240, 255, 0.3)',
+        desc: 'Dönen dev titanyum hurda enkazları ve dengeli parazit filosu.',
+        hazard: '⚙ Anomali: Fiziksel Enkaz Saptırması'
+      },
+      nebula: {
+        id: 'nebula',
+        name: '2. KUANTUM NEBULASI',
+        mult: '1.25x SKOR',
+        color: '#bf00ff',
+        glow: 'rgba(191, 0, 255, 0.3)',
+        desc: 'Hızlandıran/yavaşlatan iyonize gaz bulutları ve ışınlanan hayalet parazitler.',
+        hazard: '🌫 Anomali: İyonize Hız & Yavaşlatma Bulutları'
+      },
+      blackhole: {
+        id: 'blackhole',
+        name: '3. KARA DELİK ÇEVRESİ',
+        mult: '1.50x SKOR',
+        color: '#ff5500',
+        glow: 'rgba(255, 85, 0, 0.3)',
+        desc: 'Merkeze çeken yerçekimi tekilliği, patlayan lav asteroidleri ve ağır elitler.',
+        hazard: '🌀 Anomali: Merkez Tekillik Çekimi & Lav Şarapneli'
+      }
+    };
+
+    let selectedShip = sessionStorage.getItem('cosmic_ship') || 'interceptor';
+    if (!LOBBY_SHIPS[selectedShip]) selectedShip = 'interceptor';
+
+    let selectedMap = sessionStorage.getItem('cosmic_map') || 'sector9';
+    if (!LOBBY_MAPS[selectedMap]) selectedMap = 'sector9';
+
+    let selectedDiff = sessionStorage.getItem('cosmic_diff') || 'normal';
+
+    function renderShipCards() {
+      const container = document.getElementById('shipCardsContainer');
+      container.innerHTML = '';
+      Object.values(LOBBY_SHIPS).forEach(ship => {
+        const card = document.createElement('div');
+        card.className = `ship-card ${ship.id === selectedShip ? 'active' : ''}`;
+        card.style.setProperty('--ship-color', ship.color);
+        card.style.setProperty('--ship-glow', ship.glow);
+        card.innerHTML = `
+          <div class="ship-top-tag">
+            <span>1P SINIF</span>
+            <span>★ ÖZEL AĞAÇ</span>
+          </div>
+          <div class="ship-svg-wrap">${ship.svg}</div>
+          <div>
+            <div class="ship-name">${ship.name}</div>
+            <div class="ship-role">${ship.role}</div>
+          </div>
+          <div class="ship-meta-list">
+            <div class="ship-meta-row"><span>Silah:</span><strong>${ship.starter}</strong></div>
+            <div class="ship-meta-row"><span>Pasif:</span><strong style="color:${ship.color}">${ship.passive}</strong></div>
+            <div class="ship-root-pill">🌿 ${ship.rootNodes[0]}</div>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          selectedShip = ship.id;
+          sessionStorage.setItem('cosmic_ship', selectedShip);
+          renderShipCards();
+          updateHologramPanel();
         });
+        container.appendChild(card);
+      });
+    }
 
-        document.querySelectorAll('#mapsGrid .map-card').forEach(card => {
-            card.addEventListener('click', () => {
-                document.querySelectorAll('#mapsGrid .map-card').forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-                selectedMap = card.dataset.map;
-            });
+    function renderMapCards() {
+      const container = document.getElementById('mapCardsContainer');
+      container.innerHTML = '';
+      Object.values(LOBBY_MAPS).forEach(m => {
+        const card = document.createElement('div');
+        card.className = `map-card ${m.id === selectedMap ? 'active' : ''}`;
+        card.style.setProperty('--map-color', m.color);
+        card.style.setProperty('--map-glow', m.glow);
+        card.innerHTML = `
+          <div class="map-hdr">
+            <span class="map-title">${m.name}</span>
+            <span class="map-mult">${m.mult}</span>
+          </div>
+          <div class="map-desc">${m.desc}</div>
+          <div class="map-hazard">${m.hazard}</div>
+        `;
+        card.addEventListener('click', () => {
+          selectedMap = m.id;
+          sessionStorage.setItem('cosmic_map', selectedMap);
+          renderMapCards();
+          updateHologramPanel();
         });
+        container.appendChild(card);
+      });
+    }
 
-        document.querySelectorAll('.diff-opt').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.diff-opt').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedDiff = btn.dataset.diff;
-            });
-        });
+    function updateHologramPanel() {
+      const ship = LOBBY_SHIPS[selectedShip];
+      const map = LOBBY_MAPS[selectedMap];
 
-        document.getElementById('playBtn').addEventListener('click', () => {
-            const p1Name = document.getElementById('p1Name').value.trim() || 'Pilot 1';
-            sessionStorage.setItem('cosmic_mode', '1p');
-            sessionStorage.setItem('cosmic_p1', p1Name);
-            sessionStorage.setItem('cosmic_p1_ship', selectedShip);
-            sessionStorage.setItem('cosmic_map', selectedMap);
-            sessionStorage.setItem('cosmic_diff', selectedDiff);
-            window.location.href = 'game.html';
-        });
+      document.getElementById('holoShipName').textContent = ship.fullName;
+      document.getElementById('holoShipName').style.color = ship.color;
+      document.getElementById('holoShipRole').textContent = `${ship.role.toUpperCase()} • ${ship.passive.toUpperCase()}`;
+      document.getElementById('holoStarterWeapon').textContent = `${ship.starter} + ${ship.ability}`;
+      document.getElementById('holoAbilityDesc').textContent = ship.abilityDesc;
+      document.getElementById('holoPassiveTitle').textContent = ship.passive;
+      document.getElementById('holoPassiveDesc').textContent = ship.passiveDesc;
 
-        // Live Ship Canvas Preview
-        const prevC = document.getElementById('hangarPreviewCanvas');
-        const prevCtx = prevC.getContext('2d');
-        let prevAng = 0;
-        function renderPreview() {
-            prevAng += 0.025;
-            prevCtx.clearRect(0, 0, prevC.width, prevC.height);
-            const m = SHIP_META[selectedShip] || SHIP_META.interceptor;
-            const cx = prevC.width / 2, cy = prevC.height / 2;
+      const treeUrl = `tree.html?ship=${ship.id}`;
+      document.getElementById('holoTreeBtn').href = treeUrl;
+      document.getElementById('navTreeLink').href = treeUrl;
 
-            prevCtx.save();
-            prevCtx.translate(cx, cy);
-            prevCtx.strokeStyle = m.color + '40';
-            prevCtx.beginPath(); prevCtx.arc(0, 0, 38, 0, Math.PI * 2); prevCtx.stroke();
-            prevCtx.rotate(Math.sin(prevAng) * 0.35 - Math.PI / 2);
-            prevCtx.strokeStyle = m.color;
-            prevCtx.fillStyle = m.color + '33';
-            prevCtx.lineWidth = 2.4;
-            prevCtx.shadowColor = m.color;
-            prevCtx.shadowBlur = 12;
+      document.getElementById('holoBranchChain').innerHTML = `
+        <div class="sig-node">${ship.rootNodes[0]}</div>
+        <span class="sig-arrow">+</span>
+        <div class="sig-node">${ship.rootNodes[1]}</div>
+        <span class="sig-arrow">➔</span>
+        <div class="sig-node evo">${ship.evoNode}</div>
+        <span class="sig-arrow">➔</span>
+        <div class="sig-node mega">${ship.megaNode}</div>
+      `;
 
-            const r = 20;
-            prevCtx.beginPath();
-            if (selectedShip === 'interceptor') {
-                prevCtx.moveTo(r * 1.35, 0); prevCtx.lineTo(-r * 0.8, -r * 0.95); prevCtx.lineTo(-r * 0.35, 0); prevCtx.lineTo(-r * 0.8, r * 0.95);
-            } else if (selectedShip === 'dreadnought') {
-                prevCtx.moveTo(r * 1.15, -r * 0.45); prevCtx.lineTo(r * 1.15, r * 0.45); prevCtx.lineTo(-r * 0.9, r * 0.95); prevCtx.lineTo(-r * 0.65, 0); prevCtx.lineTo(-r * 0.9, -r * 0.95);
-            } else if (selectedShip === 'aegis') {
-                for (let i = 0; i < 6; i++) {
-                    const a = (i / 6) * Math.PI * 2;
-                    prevCtx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * r, Math.sin(a) * r);
-                }
-            } else if (selectedShip === 'phantom') {
-                prevCtx.moveTo(r * 1.45, 0); prevCtx.lineTo(-r * 0.6, -r * 1.05); prevCtx.lineTo(-r * 0.15, 0); prevCtx.lineTo(-r * 0.6, r * 1.05);
-            } else {
-                for (let i = 0; i < 8; i++) {
-                    const a = (i / 8) * Math.PI * 2;
-                    const rad = i % 2 === 0 ? r * 1.3 : r * 0.68;
-                    prevCtx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * rad, Math.sin(a) * rad);
-                }
-            }
-            prevCtx.closePath();
-            prevCtx.fill();
-            prevCtx.stroke();
-            prevCtx.restore();
-            requestAnimationFrame(renderPreview);
+      const diffNames = { easy: 'KOLAY', normal: 'NORMAL', hard: 'ZOR', nightmare: 'KABUS' };
+      document.getElementById('launchSubSummary').textContent =
+        `SEÇİLİ: ${ship.fullName} • ${map.name} • ${diffNames[selectedDiff] || 'NORMAL'}`;
+    }
+
+    // Zorluk butonları
+    document.querySelectorAll('.diff-btn').forEach(btn => {
+      if (btn.dataset.diff === selectedDiff) {
+        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      btn.addEventListener('click', () => {
+        selectedDiff = btn.dataset.diff;
+        sessionStorage.setItem('cosmic_diff', selectedDiff);
+        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateHologramPanel();
+      });
+    });
+
+    // Pilot adı
+    const nameInput = document.getElementById('p1NameInput');
+    const savedName = sessionStorage.getItem('cosmic_p1');
+    if (savedName) nameInput.value = savedName;
+    nameInput.addEventListener('input', () => {
+      sessionStorage.setItem('cosmic_p1', nameInput.value.trim() || 'KOMUTAN');
+    });
+
+    // HİPER SIÇRAMAYI BAŞLAT (OYNA)
+    document.getElementById('launchGameBtn').addEventListener('click', () => {
+      const callsign = (nameInput.value || 'KOMUTAN').trim() || 'KOMUTAN';
+      sessionStorage.setItem('cosmic_p1', callsign);
+      sessionStorage.setItem('cosmic_ship', selectedShip);
+      sessionStorage.setItem('cosmic_map', selectedMap);
+      sessionStorage.setItem('cosmic_diff', selectedDiff);
+      window.location.href = `game.html?ship=${encodeURIComponent(selectedShip)}&map=${encodeURIComponent(selectedMap)}&diff=${encodeURIComponent(selectedDiff)}`;
+    });
+
+    // ── CANLI HOLOGRAM GEMİ CANVAS ANİMASYONU ──
+    const holoCanvas = document.getElementById('shipPreviewCanvas');
+    const hCtx = holoCanvas.getContext('2d');
+    let holoTime = 0;
+
+    function drawShipHologram() {
+      holoTime += 0.025;
+      const w = holoCanvas.width;
+      const h = holoCanvas.height;
+      hCtx.clearRect(0, 0, w, h);
+
+      const ship = LOBBY_SHIPS[selectedShip];
+      const cx = w * 0.5;
+      const cy = h * 0.52;
+
+      // Perspektif Hologram Halkaları
+      hCtx.save();
+      hCtx.translate(cx, cy);
+      for (let i = 1; i <= 3; i++) {
+        hCtx.strokeStyle = ship.color;
+        hCtx.globalAlpha = 0.14 + (i === 2 ? 0.15 : 0);
+        hCtx.lineWidth = i === 2 ? 1.8 : 1;
+        hCtx.setLineDash(i % 2 === 0 ? [8, 6] : [4, 8]);
+        hCtx.beginPath();
+        hCtx.arc(0, 0, 32 * i, holoTime * (i % 2 === 0 ? 1 : -1), holoTime * (i % 2 === 0 ? 1 : -1) + Math.PI * 1.8);
+        hCtx.stroke();
+      }
+      hCtx.setLineDash([]);
+
+      // Dönen Gemi Çizimi
+      const rot = Math.sin(holoTime * 0.85) * 0.35 - Math.PI / 2;
+      hCtx.rotate(rot);
+
+      // Motor İtici Alevi
+      const flameLen = 22 + Math.sin(holoTime * 14) * 7;
+      const grad = hCtx.createLinearGradient(-16, 0, -16 - flameLen, 0);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.4, ship.color);
+      grad.addColorStop(1, 'transparent');
+      hCtx.fillStyle = grad;
+      hCtx.globalAlpha = 0.9;
+      hCtx.beginPath();
+      hCtx.moveTo(-16, -8);
+      hCtx.lineTo(-18 - flameLen, 0);
+      hCtx.lineTo(-16, 8);
+      hCtx.closePath();
+      hCtx.fill();
+
+      // Gemi Gövdesi
+      hCtx.shadowColor = ship.color;
+      hCtx.shadowBlur = 18;
+      hCtx.strokeStyle = ship.color;
+      hCtx.fillStyle = '#090618';
+      hCtx.lineWidth = 2.6;
+
+      hCtx.beginPath();
+      if (selectedShip === 'interceptor') {
+        hCtx.moveTo(28, 0);
+        hCtx.lineTo(-18, -22);
+        hCtx.lineTo(-10, -6);
+        hCtx.lineTo(-22, 0);
+        hCtx.lineTo(-10, 6);
+        hCtx.lineTo(-18, 22);
+      } else if (selectedShip === 'dreadnought') {
+        hCtx.moveTo(24, -10);
+        hCtx.lineTo(24, 10);
+        hCtx.lineTo(6, 24);
+        hCtx.lineTo(-22, 20);
+        hCtx.lineTo(-22, -20);
+        hCtx.lineTo(6, -24);
+      } else if (selectedShip === 'aegis') {
+        for (let a = 0; a < 6; a++) {
+          const ang = (a * Math.PI) / 3;
+          const rx = Math.cos(ang) * 24;
+          const ry = Math.sin(ang) * 24;
+          if (a === 0) hCtx.moveTo(rx, ry);
+          else hCtx.lineTo(rx, ry);
         }
-        renderPreview();
+      } else if (selectedShip === 'phantom') {
+        hCtx.moveTo(30, 0);
+        hCtx.lineTo(-20, -24);
+        hCtx.lineTo(-6, -4);
+        hCtx.lineTo(-24, 0);
+        hCtx.lineTo(-6, 4);
+        hCtx.lineTo(-20, 24);
+      } else {
+        hCtx.moveTo(28, 0);
+        hCtx.lineTo(-4, -26);
+        hCtx.lineTo(-22, -12);
+        hCtx.lineTo(-12, 0);
+        hCtx.lineTo(-22, 12);
+        hCtx.lineTo(-4, 26);
+      }
+      hCtx.closePath();
+      hCtx.fill();
+      hCtx.stroke();
 
-        // Leaderboard rendering
-        let currentTab = 'global';
-        async function loadBoard() {
-            const box = document.getElementById('scoreboardBody');
-            if (typeof CosmicLeaderboard === 'undefined') return;
-            const rows = currentTab === 'global'
-                ? await CosmicLeaderboard.getGlobalScores()
-                : CosmicLeaderboard.getLocalScores();
-            if (!rows || rows.length === 0) {
-                box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);">Henüz kayıtlı skor yok. İlk rekoru sen kır!</div>';
-                return;
-            }
-            box.innerHTML = rows.slice(0, 8).map((r, idx) => `
-                <div class="sb-row">
-                    <span class="sb-rank">#${idx + 1}</span>
-                    <span class="sb-name">${r.players || 'Pilot'} <small style="color:var(--text-dim)">(Dalga ${r.wave || 1})</small></span>
-                    <span class="sb-score">${Number(r.score || 0).toLocaleString()}</span>
-                </div>
-            `).join('');
-        }
-        document.querySelectorAll('.sb-tab').forEach(t => {
-            t.addEventListener('click', () => {
-                document.querySelectorAll('.sb-tab').forEach(b => b.classList.remove('active'));
-                t.classList.add('active');
-                currentTab = t.dataset.tab;
-                loadBoard();
-            });
-        });
-        loadBoard();
+      // Çekirdek Işığı
+      hCtx.fillStyle = ship.color;
+      hCtx.beginPath();
+      hCtx.arc(2, 0, 6, 0, Math.PI * 2);
+      hCtx.fill();
 
-        // Ambient Starfield
-        const bgC = document.getElementById('bgCanvas');
-        const bgCtx = bgC.getContext('2d');
-        let stars = [];
-        function initStars() {
-            bgC.width = window.innerWidth; bgC.height = window.innerHeight;
-            stars = Array.from({ length: 70 }, () => ({ x: Math.random() * bgC.width, y: Math.random() * bgC.height, r: Math.random() * 1.5 + 0.4, s: Math.random() * 0.35 + 0.1 }));
+      // Aegis ise dönen disk önizlemesi
+      if (selectedShip === 'aegis') {
+        for (let d = 0; d < 3; d++) {
+          const da = holoTime * 2.5 + (d * Math.PI * 2) / 3;
+          hCtx.beginPath();
+          hCtx.arc(Math.cos(da) * 44, Math.sin(da) * 44, 5, 0, Math.PI * 2);
+          hCtx.fillStyle = '#00f0ff';
+          hCtx.fill();
         }
-        function animStars() {
-            bgCtx.clearRect(0, 0, bgC.width, bgC.height);
-            bgCtx.fillStyle = 'rgba(0, 240, 255, 0.5)';
-            for (const st of stars) {
-                st.y += st.s; if (st.y > bgC.height) st.y = 0;
-                bgCtx.beginPath(); bgCtx.arc(st.x, st.y, st.r, 0, Math.PI * 2); bgCtx.fill();
-            }
-            requestAnimationFrame(animStars);
-        }
-        initStars(); animStars();
-        window.addEventListener('resize', initStars);
-    </script>
+      }
+      hCtx.restore();
+
+      requestAnimationFrame(drawShipHologram);
+    }
+
+    // Arka Plan Yıldız Alanı
+    const bgCanvas = document.getElementById('starfieldBg');
+    const bgCtx = bgCanvas.getContext('2d');
+    let stars = [];
+    function resizeBg() {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+      stars = Array.from({ length: 75 }, () => ({
+        x: Math.random() * bgCanvas.width,
+        y: Math.random() * bgCanvas.height,
+        r: Math.random() * 1.6 + 0.4,
+        s: Math.random() * 0.4 + 0.1
+      }));
+    }
+    window.addEventListener('resize', resizeBg);
+    resizeBg();
+
+    function drawBg() {
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      bgCtx.fillStyle = '#ffffff';
+      for (const st of stars) {
+        st.x -= st.s;
+        if (st.x < 0) st.x = bgCanvas.width;
+        bgCtx.globalAlpha = 0.35 + (st.r / 2) * 0.4;
+        bgCtx.beginPath();
+        bgCtx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+        bgCtx.fill();
+      }
+      requestAnimationFrame(drawBg);
+    }
+
+    renderShipCards();
+    renderMapCards();
+    updateHologramPanel();
+    drawShipHologram();
+    drawBg();
+  </script>
 </body>
 </html>

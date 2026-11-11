@@ -625,21 +625,21 @@
             <button class="btn sm" id="resumeBtn" type="button">DEVAM ET (ESC)</button>
         </div>
 
-        <!-- Center CTA to Open Tree in New Tab -->
+        <!-- Center CTA to Open Character Tree in New Tab -->
         <div class="pause-center-cta">
             <div>
-                <div style="font-size:0.78rem;font-weight:800;color:#ffd700;">🌌 EVRİM & SÜPER EVRİM TARİFLERİNİ İNCELE</div>
-                <div style="font-family:'Rajdhani',sans-serif;font-size:0.8rem;color:rgba(255,255,255,0.7);">Hangi Silah + Alet çiftinin hangi Evrimi ve Süper Evrimi açtığını interaktif şemada görün.</div>
+                <div style="font-size:0.82rem;font-weight:800;color:#ffd700;">🌿 KARAKTER ÖZEL KÖK AĞACI & ÇAPRAZ EVRİM MATRİSİ ($X+Y=Z \rightarrow MEGA$)</div>
+                <div style="font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:rgba(255,255,255,0.78);">Seçili geminizin 2 Özel Kök Yeteneğini, çapraz silah-alet kombinasyonlarını ve Kozmik Mega Evrimlerini canlı inceleyin.</div>
             </div>
-            <button class="btn gold sm" id="openTreeBtn" type="button" onclick="window.open('tree.html', '_blank')">
-                ⚡ [FÜZYON & REHBER AĞACINI AÇ]
+            <button class="btn gold sm" id="openTreeBtn" type="button" onclick="window.open('tree.html?ship=' + encodeURIComponent(sessionStorage.getItem('cosmic_ship') || 'interceptor'), '_blank')">
+                ⚡ CANLI KARAKTER AĞACINI GÖRÜNTÜLE
             </button>
         </div>
 
         <div class="pause-grid">
-            <!-- Left: Weapons, Trinkets & Live DPS Stats -->
+            <!-- Left: Weapons, Trinkets & Evolution Possibility Matrix -->
             <div class="hud-sub-panel">
-                <div class="hud-sub-title">📊 SİLAH & ALET ENVANTERİ + ANLIK DPS TELEMETRİSİ</div>
+                <div class="hud-sub-title">📊 4 SİLAH + 4 ALET YUVALARI & OLASI EVRİMLEŞME MATRİSİ</div>
                 <div id="pauseStatsGrid"></div>
             </div>
 

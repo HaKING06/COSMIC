@@ -10,18 +10,26 @@
 // • 2 Reroll (Zar At) + 1 Skip (Pas Geç) · 3 Dalgada Bir Elit Mini-Boss & Şans Sandığı
 // ═══════════════════════════════════════════════════════════════════════════
 
+const _urlParams = (typeof window !== 'undefined' && window.location && window.location.search)
+    ? new URLSearchParams(window.location.search)
+    : { get: () => null };
 const P1_NAME = sessionStorage.getItem('cosmic_p1') || 'Pilot 1';
-const DIFFKEY = sessionStorage.getItem('cosmic_diff') || 'easy';
-const SELECTED_SHIP = sessionStorage.getItem('cosmic_p1_ship') || 'interceptor';
-const SELECTED_MAP = sessionStorage.getItem('cosmic_map') || 'sector9';
+const DIFFKEY = _urlParams.get('diff') || sessionStorage.getItem('cosmic_diff') || 'normal';
+const SELECTED_SHIP = _urlParams.get('ship') || sessionStorage.getItem('cosmic_ship') || sessionStorage.getItem('cosmic_p1_ship') || 'interceptor';
+const SELECTED_MAP = _urlParams.get('map') || sessionStorage.getItem('cosmic_map') || 'sector9';
+sessionStorage.setItem('cosmic_ship', SELECTED_SHIP);
+sessionStorage.setItem('cosmic_p1_ship', SELECTED_SHIP);
+sessionStorage.setItem('cosmic_map', SELECTED_MAP);
 const MODE = '1p'; // v7.0: Saf 1P Odaklı Mimari
 
 const DIFF = {
-    easy:   { label: 'KOLAY', cls: 'easy',   ehm: 0.82, esm: 0.85, edm: 0.78, sdm: 1.15, ecm: 0.85, bhm: 0.80, bsr: 0.75, pdm: 1.20, sm: 1.0, pr: 2.8, sr: 4.5 },
-    medium: { label: 'ORTA',  cls: 'medium', ehm: 1.00, esm: 1.00, edm: 1.00, sdm: 1.00, ecm: 1.00, bhm: 1.00, bsr: 1.00, pdm: 1.00, sm: 1.5, pr: 1.8, sr: 3.2 },
-    hard:   { label: 'ZOR',   cls: 'hard',   ehm: 1.65, esm: 1.32, edm: 1.45, sdm: 0.78, ecm: 1.35, bhm: 1.55, bsr: 1.30, pdm: 0.88, sm: 2.5, pr: 1.0, sr: 2.0 }
+    easy:      { label: 'KOLAY',  cls: 'easy',   ehm: 0.82, esm: 0.85, edm: 0.78, sdm: 1.15, ecm: 0.85, bhm: 0.80, bsr: 0.75, pdm: 1.20, sm: 1.0,  pr: 2.8, sr: 4.5 },
+    normal:    { label: 'NORMAL', cls: 'medium', ehm: 1.00, esm: 1.00, edm: 1.00, sdm: 1.00, ecm: 1.00, bhm: 1.00, bsr: 1.00, pdm: 1.00, sm: 1.35, pr: 2.0, sr: 3.5 },
+    medium:    { label: 'ORTA',   cls: 'medium', ehm: 1.00, esm: 1.00, edm: 1.00, sdm: 1.00, ecm: 1.00, bhm: 1.00, bsr: 1.00, pdm: 1.00, sm: 1.5,  pr: 1.8, sr: 3.2 },
+    hard:      { label: 'ZOR',    cls: 'hard',   ehm: 1.45, esm: 1.22, edm: 1.35, sdm: 0.82, ecm: 1.25, bhm: 1.40, bsr: 1.20, pdm: 0.90, sm: 2.0,  pr: 1.2, sr: 2.4 },
+    nightmare: { label: 'KABUS',  cls: 'hard',   ehm: 1.85, esm: 1.38, edm: 1.65, sdm: 0.72, ecm: 1.45, bhm: 1.75, bsr: 1.40, pdm: 0.80, sm: 2.75, pr: 0.9, sr: 1.8 }
 };
-const DC = DIFF[DIFFKEY] || DIFF.easy;
+const DC = DIFF[DIFFKEY] || DIFF.normal;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -203,81 +211,143 @@ const MAX_TRINKET_SLOTS = 4;
 const MAX_PERK_SLOTS = 8; // 4 Silah + 4 Alet toplamı
 const MAX_PERK_LEVEL = 5;
 
-// ── 6 Aktif Silah (Weapons - 4 Slot) ──
+// ── 6 Evrensel Silah + 5 Karaktere Özel Kök Silahı (Weapons - 4 Slot) ──
 const WEAPONS = {
     dualLaser: {
         id: 'dualLaser', kind: 'weapon', name: 'Çift Lazer', icon: '⚡', color: '#00f0ff',
-        pairTrinket: 'coolant', evoId: 'gatlingStorm',
-        desc: 'Paralel foton namlularından yüksek hızlı lazerler ateşler. (Lv+: Hasar ve namlu sayısı artar)'
+        pairTrinket: 'coolant', altTrinket: 'targetMatrix', evoId: 'gatlingStorm', altEvoId: 'prismOverload',
+        desc: 'Paralel foton namlularından yüksek hızlı lazerler ateşler. (+Soğutucu ➔ Gatling | +Nişangah ➔ Prizma)'
     },
     heavyPlasma: {
         id: 'heavyPlasma', kind: 'weapon', name: 'Ağır Plazma Topu', icon: '☄️', color: '#ff5500',
-        pairTrinket: 'bioreactor', evoId: 'bloodHarvest',
-        desc: 'Hedefe çarptığında alansal şok yaratan ağır plazma gülleleri fırlatır. (Lv+: Patlama çapı ve hasar)'
+        pairTrinket: 'bioreactor', altTrinket: 'magnet', evoId: 'bloodHarvest', altEvoId: 'gravitonImploder',
+        desc: 'Hedefe çarptığında alansal şok yaratan ağır plazma gülleleri. (+Reaktör ➔ Kan Hasadı | +Mıknatıs ➔ Graviton)'
     },
     energyDisc: {
         id: 'energyDisc', kind: 'weapon', name: 'Dönen Enerji Diski', icon: '💿', color: '#bf00ff',
-        pairTrinket: 'thruster', evoId: 'aegisResonance',
-        desc: 'Gemi yörüngesinde dönerek yaklaşan parazitleri biçen plazma testereleri. (Lv+: Disk sayısı 1→5)'
+        pairTrinket: 'thruster', altTrinket: 'coolant', evoId: 'aegisResonance', altEvoId: 'cryoVortex',
+        desc: 'Gemi yörüngesinde dönerek yaklaşan parazitleri biçen plazma testereleri. (+İtici ➔ Aegis | +Soğutucu ➔ Kriyo)'
     },
     quantumDagger: {
         id: 'quantumDagger', kind: 'weapon', name: 'Kuantum Hançeri', icon: '🗡️', color: '#ff006a',
-        pairTrinket: 'magnet', evoId: 'cosmicSupernova',
-        desc: 'En yüksek cana sahip tehditlere fırlatılan, yüksek kritik şanslı delici faz hançerleri.'
+        pairTrinket: 'magnet', altTrinket: 'targetMatrix', evoId: 'cosmicSupernova', altEvoId: 'phantomExecutioner',
+        desc: 'Yüksek kritik şanslı delici faz hançerleri. (+Mıknatıs ➔ Süpernova | +Nişangah ➔ Hayalet İnfazcı)'
     },
     flameLine: {
         id: 'flameLine', kind: 'weapon', name: 'Alev Hattı', icon: '🔥', color: '#ff8800',
-        pairTrinket: 'shieldMatrix', evoId: 'titanCore',
-        desc: 'Geminin önünde ve arkasında sürekli yanan termal plazma koridoru oluşturur.'
+        pairTrinket: 'shieldMatrix', altTrinket: 'bioreactor', evoId: 'titanCore', altEvoId: 'necroticNapalm',
+        desc: 'Geminin önünde ve arkasında yanan plazma koridoru. (+Deflektör ➔ Titan Koronası | +Reaktör ➔ Biyo-Napalm)'
     },
     swarmMissiles: {
         id: 'swarmMissiles', kind: 'weapon', name: 'Füze Sürüsü', icon: '🚀', color: '#00ff88',
-        pairTrinket: 'targetMatrix', evoId: 'quantumArbiter',
+        pairTrinket: 'targetMatrix', altTrinket: 'thruster', evoId: 'quantumArbiter',
         desc: 'En yakın hedeflere kilitlenen güdümlü mikro füze bataryası ateşler.'
+    },
+    // ── 5 KARAKTERE ÖZEL KÖK SİLAHI (SIGNATURE ROOT WEAPONS) ──
+    photonRailgun: {
+        id: 'photonRailgun', kind: 'weapon', shipExclusive: 'interceptor',
+        name: 'Foton Raylı Top', icon: '🚄', color: '#00f0ff',
+        pairTrinket: 'overdriveCore', evoId: 'tachyonLance',
+        desc: '[AVCI ÖZEL KÖK SİLAHI] Yüksek hızlı delici elektromanyetik foton rayı ateşler.'
+    },
+    flakArtillery: {
+        id: 'flakArtillery', kind: 'weapon', shipExclusive: 'dreadnought',
+        name: 'Balistik Flak Topu', icon: '💣', color: '#ffaa00',
+        pairTrinket: 'reactiveArmor', evoId: 'siegeBehemoth',
+        desc: '[KRUVAZÖR ÖZEL KÖK SİLAHI] Çarpışmada şarapnellere bölünen ağır zırh delici batarya.'
+    },
+    teslaPrism: {
+        id: 'teslaPrism', kind: 'weapon', shipExclusive: 'aegis',
+        name: 'Tesla Kalkan Prizması', icon: '⚡', color: '#bf00ff',
+        pairTrinket: 'harmonicCapacitor', evoId: 'sanctuaryMaelstrom',
+        desc: '[AEGIS ÖZEL KÖK SİLAHI] Kalkan enerjisine oranla zincirleme yıldırım arkları çakar.'
+    },
+    voidScythe: {
+        id: 'voidScythe', kind: 'weapon', shipExclusive: 'phantom',
+        name: 'Hiper-Uzay Tırpanı', icon: '🌙', color: '#ff006a',
+        pairTrinket: 'phaseCloak', evoId: 'abyssalReaper',
+        desc: '[GÖLGE ÖZEL KÖK SİLAHI] Boyut yarığı açarak arkadan vuruşlarda yüksek infaz hasarı verir.'
+    },
+    solarMortar: {
+        id: 'solarMortar', kind: 'weapon', shipExclusive: 'solarflare',
+        name: 'Plazma Havanı', icon: '☄️', color: '#ff6600',
+        pairTrinket: 'fusionHeart', evoId: 'heliosCataclysm',
+        desc: '[SOLAR FLARE ÖZEL KÖK SİLAHI] Düştüğü yerde yanan güneş kraterleri bırakan termal havan.'
     }
 };
 
-// ── 6 Pasif Alet / Mıknatıs (Trinkets - 4 Slot) ──
+// ── 6 Evrensel Alet + 5 Karaktere Özel Kök Aleti (Trinkets - 4 Slot) ──
 const TRINKETS = {
     magnet: {
         id: 'magnet', kind: 'trinket', name: 'Mıknatıs Çekirdeği', icon: '🧲', color: '#44ffaa',
         pairWeapon: 'quantumDagger', evoId: 'cosmicSupernova',
-        desc: 'XP/Ganimet çekim çapını +%35 ve silah menzilini +%15 artırır.'
+        desc: 'XP/Ganimet çekim çapını +%35 ve silah menzilini +%15 artırır. (Hançer veya Plazma ile Evrimleşir)'
     },
     coolant: {
         id: 'coolant', kind: 'trinket', name: 'Kriyo Soğutucu', icon: '❄️', color: '#00ccff',
         pairWeapon: 'dualLaser', evoId: 'gatlingStorm',
-        desc: 'Tüm silahların ateşleme süresini ve aktif yetenek Cooldown süresini -%14 azaltır.'
+        desc: 'Tüm silahların ateşleme süresini ve Cooldown süresini -%14 azaltır. (Lazer veya Disk ile Evrimleşir)'
     },
     thruster: {
         id: 'thruster', kind: 'trinket', name: 'Kinetik İtici', icon: '🛡️', color: '#aa66ff',
         pairWeapon: 'energyDisc', evoId: 'aegisResonance',
-        desc: 'Gemi hareket hızını +%12 ve zırh korumasını +%6 artırır.'
+        desc: 'Gemi hareket hızını +%12 ve zırh korumasını +%6 artırır. (Enerji Diski ile Evrimleşir)'
     },
     bioreactor: {
         id: 'bioreactor', kind: 'trinket', name: 'Biyo-Reaktör', icon: '🩸', color: '#ff2255',
         pairWeapon: 'heavyPlasma', evoId: 'bloodHarvest',
-        desc: 'Maksimum canı +30 HP artırır ve saniyede +2.5 HP pasif biyo-onarım sağlar.'
+        desc: 'Maksimum canı +30 HP artırır ve +2.5 HP/sn biyo-onarım sağlar. (Plazma veya Alev ile Evrimleşir)'
     },
     targetMatrix: {
         id: 'targetMatrix', kind: 'trinket', name: 'Kuantum Nişangah', icon: '🎯', color: '#ffd700',
         pairWeapon: 'swarmMissiles', evoId: 'quantumArbiter',
-        desc: 'Kritik vuruş şansını +%9 ve tüm silahların mermi hasarını +%15 artırır.'
+        desc: 'Kritik şansını +%9 ve mermi hasarını +%15 artırır. (Füze, Lazer veya Hançer ile Evrimleşir)'
     },
     shieldMatrix: {
         id: 'shieldMatrix', kind: 'trinket', name: 'Deflektör Matrisi', icon: '◆', color: '#00f0ff',
         pairWeapon: 'flameLine', evoId: 'titanCore',
-        desc: 'Maksimum kalkanı +35 SH ve kalkan dolum hızını +%20 artırır.'
+        desc: 'Maksimum kalkanı +35 SH ve kalkan dolum hızını +%20 artırır. (Alev Hattı ile Evrimleşir)'
+    },
+    // ── 5 KARAKTERE ÖZEL KÖK ALETİ (SIGNATURE ROOT TRINKETS) ──
+    overdriveCore: {
+        id: 'overdriveCore', kind: 'trinket', shipExclusive: 'interceptor',
+        name: 'Hiper-İvme Çekirdeği', icon: '⚡', color: '#00f0ff',
+        pairWeapon: 'photonRailgun', evoId: 'tachyonLance',
+        desc: '[AVCI ÖZEL KÖK ALETİ] Ateş hızını +%15 ve kritik çarpanını +%20 artırır. Takyon Mızrağı katalizörüdür.'
+    },
+    reactiveArmor: {
+        id: 'reactiveArmor', kind: 'trinket', shipExclusive: 'dreadnought',
+        name: 'Reaktif Zırh Plakası', icon: '🛡️', color: '#ffaa00',
+        pairWeapon: 'flakArtillery', evoId: 'siegeBehemoth',
+        desc: '[KRUVAZÖR ÖZEL KÖK ALETİ] Zırhı +%8 artırır ve alınan darbede karşı-şok patlatır. Kıyamet Bataryası katalizörüdür.'
+    },
+    harmonicCapacitor: {
+        id: 'harmonicCapacitor', kind: 'trinket', shipExclusive: 'aegis',
+        name: 'Harmonik Kondansatör', icon: '🔋', color: '#bf00ff',
+        pairWeapon: 'teslaPrism', evoId: 'sanctuaryMaelstrom',
+        desc: '[AEGIS ÖZEL KÖK ALETİ] Kalkanı +45 SH ve alan çapını +%12 büyütür. Kutsal İyon Fırtınası katalizörüdür.'
+    },
+    phaseCloak: {
+        id: 'phaseCloak', kind: 'trinket', shipExclusive: 'phantom',
+        name: 'Kuantum Gölge Pelerini', icon: '👻', color: '#ff006a',
+        pairWeapon: 'voidScythe', evoId: 'abyssalReaper',
+        desc: '[GÖLGE ÖZEL KÖK ALETİ] Görünmezlik süresini ve suikast kritiğini +%25 artırır. Hiçlik Biçicisi katalizörüdür.'
+    },
+    fusionHeart: {
+        id: 'fusionHeart', kind: 'trinket', shipExclusive: 'solarflare',
+        name: 'Termonükleer Kalp', icon: '☀️', color: '#ff6600',
+        pairWeapon: 'solarMortar', evoId: 'heliosCataclysm',
+        desc: '[SOLAR FLARE ÖZEL KÖK ALETİ] Yanma hasarını +%25 ve aura çapını artırır. Helios Kıyameti katalizörüdür.'
     }
 };
 
-// UPG birleşik referans tablosu (Geriye dönük uyumluluk dahil)
+// UPG birleşik referans tablosu
 const UPG = Object.assign({}, WEAPONS, TRINKETS);
 const WEAPON_KEYS = Object.keys(WEAPONS);
 const TRINKET_KEYS = Object.keys(TRINKETS);
 const UPG_KEYS = Object.keys(UPG);
 
-// ── 6 Standart Evrim (Silah Lv.5 + Alet Lv.5 = Evrimleşmiş Silah) ──
+// ── Çapraz Evrim Matrisi (Silah_A + Alet_B = Evrim_1 | Silah_A + Alet_C = Evrim_2 | Gemi Özel Evrimleri) ──
 const EVOLUTIONS = {
     gatlingStorm: {
         id: 'gatlingStorm', kind: 'evolution',
@@ -287,6 +357,14 @@ const EVOLUTIONS = {
         formula: 'Çift Lazer Lv.5 + Kriyo Soğutucu Lv.5',
         desc: 'Lazerler hiper-hızla yağar ve isabet ettiği düşmanlar arasında otomatik olarak 3 kez seker (Ricochet).'
     },
+    prismOverload: {
+        id: 'prismOverload', kind: 'evolution',
+        name: 'Prizma Kırılması', icon: '🌈', color: '#00f0ff',
+        weaponReq: 'dualLaser', trinketReq: 'targetMatrix',
+        req: ['dualLaser', 'targetMatrix'],
+        formula: 'Çift Lazer Lv.5 + Kuantum Nişangah Lv.5 (Çapraz Dal)',
+        desc: 'Çift Lazerin çapraz evrimi! Kritik lazer vuruşları 5 yöne kırılan gökkuşağı fotonlarına bölünür.'
+    },
     bloodHarvest: {
         id: 'bloodHarvest', kind: 'evolution',
         name: 'Kan Hasadı', icon: '🩸', color: '#ff1744',
@@ -294,6 +372,14 @@ const EVOLUTIONS = {
         req: ['heavyPlasma', 'bioreactor'],
         formula: 'Ağır Plazma Topu Lv.5 + Biyo-Reaktör Lv.5',
         desc: 'Her vuruş kızıl plazma patlaması yayar ve verilen hasarın %10\'unu doğrudan cana çevirir.'
+    },
+    gravitonImploder: {
+        id: 'gravitonImploder', kind: 'evolution',
+        name: 'Graviton Çökertici', icon: '🪐', color: '#ff8800',
+        weaponReq: 'heavyPlasma', trinketReq: 'magnet',
+        req: ['heavyPlasma', 'magnet'],
+        formula: 'Ağır Plazma Topu Lv.5 + Mıknatıs Çekirdeği Lv.5 (Çapraz Dal)',
+        desc: 'Ağır Plazmanın çapraz evrimi! Patlama noktasında düşmanları merkeze çekip birbirine çarptırır.'
     },
     aegisResonance: {
         id: 'aegisResonance', kind: 'evolution',
@@ -303,6 +389,14 @@ const EVOLUTIONS = {
         formula: 'Dönen Enerji Diski Lv.5 + Kinetik İtici Lv.5',
         desc: '6 adet dev kesici disk döner; hareket ettikçe kalkan hızla dolar, kalkan kırılınca tüm ekranı temizleyen EMP patlar.'
     },
+    cryoVortex: {
+        id: 'cryoVortex', kind: 'evolution',
+        name: 'Kriyo Kasırgası', icon: '❄️', color: '#80e5ff',
+        weaponReq: 'energyDisc', trinketReq: 'coolant',
+        req: ['energyDisc', 'coolant'],
+        formula: 'Dönen Enerji Diski Lv.5 + Kriyo Soğutucu Lv.5 (Çapraz Dal)',
+        desc: 'Enerji Diskinin çapraz evrimi! Sıfır-altı buz testereleri temas ettiği tüm düşmanları dondurur ve parçalar.'
+    },
     cosmicSupernova: {
         id: 'cosmicSupernova', kind: 'evolution',
         name: 'Kozmik Süpernova', icon: '🌌', color: '#bf00ff',
@@ -310,6 +404,14 @@ const EVOLUTIONS = {
         req: ['quantumDagger', 'magnet'],
         formula: 'Kuantum Hançeri Lv.5 + Mıknatıs Çekirdeği Lv.5',
         desc: 'Kritik hançer vuruşları alansal bir Kara Delik (Black Hole) açar ve çevredeki tüm parazitleri içine çekip ezer.'
+    },
+    phantomExecutioner: {
+        id: 'phantomExecutioner', kind: 'evolution',
+        name: 'Hayalet İnfazcı', icon: '⚔️', color: '#ff006a',
+        weaponReq: 'quantumDagger', trinketReq: 'targetMatrix',
+        req: ['quantumDagger', 'targetMatrix'],
+        formula: 'Kuantum Hançeri Lv.5 + Kuantum Nişangah Lv.5 (Çapraz Dal)',
+        desc: 'Kuantum Hançerinin çapraz evrimi! Hedefler arasında sıçrayan bıçaklar yaralı düşmanları anında infaz eder.'
     },
     titanCore: {
         id: 'titanCore', kind: 'evolution',
@@ -319,6 +421,14 @@ const EVOLUTIONS = {
         formula: 'Alev Hattı Lv.5 + Deflektör Matrisi Lv.5',
         desc: 'Alev koridoru devasa güneş halkasına dönüşür ve her 2.5 saniyede bir ekran çapında yakıcı Termal Nova yayar.'
     },
+    necroticNapalm: {
+        id: 'necroticNapalm', kind: 'evolution',
+        name: 'Biyo-Napalm Seli', icon: '🧪', color: '#00ff88',
+        weaponReq: 'flameLine', trinketReq: 'bioreactor',
+        req: ['flameLine', 'bioreactor'],
+        formula: 'Alev Hattı Lv.5 + Biyo-Reaktör Lv.5 (Çapraz Dal)',
+        desc: 'Alev Hattının çapraz evrimi! Yanan düşmanlar eriyerek pilota can veren biyo-plazma alanı bırakır.'
+    },
     quantumArbiter: {
         id: 'quantumArbiter', kind: 'evolution',
         name: 'Kuantum Yargıç', icon: '🔱', color: '#ffd700',
@@ -326,15 +436,57 @@ const EVOLUTIONS = {
         req: ['swarmMissiles', 'targetMatrix'],
         formula: 'Füze Sürüsü Lv.5 + Kuantum Nişangah Lv.5',
         desc: 'Füzeler düşmanları delip geçen kuantum mızraklarına dönüşür; her delmede +%25 güçlenir ve hedefleri yavaşlatır.'
+    },
+    // ── 5 KARAKTERE ÖZEL İMZA EVRİMİ (SIGNATURE EVOLUTIONS) ──
+    tachyonLance: {
+        id: 'tachyonLance', kind: 'evolution', shipExclusive: 'interceptor',
+        name: 'Takyon Mızrağı', icon: '🔱', color: '#00f0ff',
+        weaponReq: 'photonRailgun', altWeaponReq: 'dualLaser', trinketReq: 'overdriveCore',
+        req: ['photonRailgun', 'overdriveCore'],
+        formula: 'Foton Raylı Top (veya Çift Lazer) Lv.5 + Hiper-İvme Çekirdeği Lv.5',
+        desc: '[AVCI ÖZEL EVRİMİ] Ekranı boydan boya delen sonsuz hızlı takyon ışını ve patlayan foton izi!'
+    },
+    siegeBehemoth: {
+        id: 'siegeBehemoth', kind: 'evolution', shipExclusive: 'dreadnought',
+        name: 'Kıyamet Bataryası', icon: '🌋', color: '#ffaa00',
+        weaponReq: 'flakArtillery', altWeaponReq: 'heavyPlasma', trinketReq: 'reactiveArmor',
+        req: ['flakArtillery', 'reactiveArmor'],
+        formula: 'Balistik Flak Topu (veya Ağır Plazma) Lv.5 + Reaktif Zırh Plakası Lv.5',
+        desc: '[KRUVAZÖR ÖZEL EVRİMİ] Zırh delici nükleer havan yaylımı ve 12 yöne parça tesirli şarapnel patlaması!'
+    },
+    sanctuaryMaelstrom: {
+        id: 'sanctuaryMaelstrom', kind: 'evolution', shipExclusive: 'aegis',
+        name: 'Kutsal İyon Fırtınası', icon: '🌀', color: '#bf00ff',
+        weaponReq: 'teslaPrism', altWeaponReq: 'energyDisc', trinketReq: 'harmonicCapacitor',
+        req: ['teslaPrism', 'harmonicCapacitor'],
+        formula: 'Tesla Kalkan Prizması (veya Enerji Diski) Lv.5 + Harmonik Kondansatör Lv.5',
+        desc: '[AEGIS ÖZEL EVRİMİ] Yörüngedeki diskler arasında yıldırım ağları örer ve düşman mermilerini kalkana dönüştürür!'
+    },
+    abyssalReaper: {
+        id: 'abyssalReaper', kind: 'evolution', shipExclusive: 'phantom',
+        name: 'Hiçlik Biçicisi', icon: '💀', color: '#ff006a',
+        weaponReq: 'voidScythe', altWeaponReq: 'quantumDagger', trinketReq: 'phaseCloak',
+        req: ['voidScythe', 'phaseCloak'],
+        formula: 'Hiper-Uzay Tırpanı (veya Kuantum Hançeri) Lv.5 + Kuantum Gölge Pelerini Lv.5',
+        desc: '[GÖLGE ÖZEL EVRİMİ] Gölge klonları fırlatan boyutsal tırpan; yaralı düşmanları anında biçer!'
+    },
+    heliosCataclysm: {
+        id: 'heliosCataclysm', kind: 'evolution', shipExclusive: 'solarflare',
+        name: 'Helios Güneş Kıyameti', icon: '🌞', color: '#ff6600',
+        weaponReq: 'solarMortar', altWeaponReq: 'flameLine', trinketReq: 'fusionHeart',
+        req: ['solarMortar', 'fusionHeart'],
+        formula: 'Plazma Havanı (veya Alev Hattı) Lv.5 + Termonükleer Kalp Lv.5',
+        desc: '[SOLAR FLARE ÖZEL EVRİMİ] Dev güneş kraterleri açar ve yanan her düşmanı zincirleme süpernova gibi patlatır!'
     }
 };
 
-// ── 3 Kozmik Süper / Mega Evrim (2 Evrimleşmiş Silah Birleşir ➔ 1 Süper Evrim + 1 Boş Silah Slotu!) ──
+// ── 6 Kozmik Süper / Mega Evrim (2 Evrimleşmiş Silah Birleşir ➔ 1 Süper Evrim + 1 Boş Silah Slotu!) ──
 const SUPER_EVOLUTIONS = {
     infernoGatling: {
         id: 'infernoGatling', kind: 'superEvolution',
         name: 'Cehennem Gatling\'i', icon: '🔥', color: '#ff0055',
         evoReqs: ['bloodHarvest', 'gatlingStorm'],
+        evoPool: ['bloodHarvest', 'gatlingStorm', 'heliosCataclysm', 'necroticNapalm'],
         req: ['bloodHarvest', 'gatlingStorm'],
         formula: 'Kan Hasadı + Gatling Fırtınası (SÜPER EVRİM)',
         desc: 'Seken kızıl cehennem mermileri yağdırır; her sekmede plazma patlaması yaratır ve pilotu sürekli iyileştirir! (+1 Silah Slotu Açar)'
@@ -343,6 +495,7 @@ const SUPER_EVOLUTIONS = {
         id: 'eventHorizon', kind: 'superEvolution',
         name: 'Olay Ufku Tekilliği', icon: '🕳️', color: '#00f0ff',
         evoReqs: ['cosmicSupernova', 'aegisResonance'],
+        evoPool: ['cosmicSupernova', 'aegisResonance', 'sanctuaryMaelstrom', 'cryoVortex'],
         req: ['cosmicSupernova', 'aegisResonance'],
         formula: 'Kozmik Süpernova + Aegis Rezonansı (SÜPER EVRİM)',
         desc: 'Yörüngede olay ufku testereleri dönerken her kritikte EMP şoklu çifte Kara Delik açar! (+1 Silah Slotu Açar)'
@@ -351,9 +504,37 @@ const SUPER_EVOLUTIONS = {
         id: 'omegaJudgement', kind: 'superEvolution',
         name: 'Omega Kıyamet Reaktörü', icon: '👑', color: '#ffd700',
         evoReqs: ['titanCore', 'quantumArbiter'],
+        evoPool: ['titanCore', 'quantumArbiter', 'prismOverload'],
         req: ['titanCore', 'quantumArbiter'],
         formula: 'Titan Koronası + Kuantum Yargıç (SÜPER EVRİM)',
         desc: 'Sürekli güneş koronası yayarken tüm ekrana delici termonükleer kuantum mızrakları yağdırır! (+1 Silah Slotu Açar)'
+    },
+    hyperionApex: {
+        id: 'hyperionApex', kind: 'superEvolution',
+        name: 'Hyperion Işık Hükümdarı', icon: '🌟', color: '#00f0ff',
+        evoReqs: ['tachyonLance', 'gatlingStorm'],
+        evoPool: ['tachyonLance', 'gatlingStorm', 'prismOverload'],
+        req: ['tachyonLance', 'gatlingStorm'],
+        formula: 'Takyon Mızrağı + Gatling Fırtınası (AVCI MEGA EVRİMİ)',
+        desc: 'Ekranı 8 yönde kesen yörüngesel takyon lazer ağı ve sınırsız sekme kapasiteli ışık fırtınası! (+1 Silah Slotu Açar)'
+    },
+    ironDreadnought: {
+        id: 'ironDreadnought', kind: 'superEvolution',
+        name: 'Zırhlı Kıyamet Kalesi', icon: '🏰', color: '#ffaa00',
+        evoReqs: ['siegeBehemoth', 'titanCore'],
+        evoPool: ['siegeBehemoth', 'titanCore', 'gravitonImploder'],
+        req: ['siegeBehemoth', 'titanCore'],
+        formula: 'Kıyamet Bataryası + Titan Koronası (KRUVAZÖR MEGA EVRİMİ)',
+        desc: 'Reaktif kale zırhı ve 360° kesintisiz nükleer-graviton havan bombardımanı! (+1 Silah Slotu Açar)'
+    },
+    eclipseSingularity: {
+        id: 'eclipseSingularity', kind: 'superEvolution',
+        name: 'Tutulma Tanrısı', icon: '🌑', color: '#ff006a',
+        evoReqs: ['abyssalReaper', 'cosmicSupernova'],
+        evoPool: ['abyssalReaper', 'cosmicSupernova', 'phantomExecutioner'],
+        req: ['abyssalReaper', 'cosmicSupernova'],
+        formula: 'Hiçlik Biçicisi + Kozmik Süpernova (GÖLGE MEGA EVRİMİ)',
+        desc: 'Karanlık madde klonları ve boyutsal kara delik tırpanlarıyla ekran çapında mutlak suikast yıkımı! (+1 Silah Slotu Açar)'
     }
 };
 
@@ -667,15 +848,18 @@ class Player {
         const list = [];
         for (const ek of Object.keys(EVOLUTIONS)) {
             const ev = EVOLUTIONS[ek];
-            if (this.evolutions[ek] || this.superEvolutions.infernoGatling || this.superEvolutions.eventHorizon || this.superEvolutions.omegaJudgement) {
-                // Eğer bu evrim zaten yapıldıysa veya süper evrime dönüştüyse atla
-                if (this.evolutions[ek]) continue;
-                const usedInSuper = Object.keys(this.superEvolutions).some(sk => SUPER_EVOLUTIONS[sk].evoReqs.includes(ek));
-                if (usedInSuper) continue;
-            }
-            const wLv = this.weapons[ev.weaponReq] || 0;
+            if (ev.shipExclusive && ev.shipExclusive !== this.shipClass) continue;
+            if (this.evolutions[ek]) continue;
+            const usedInSuper = Object.keys(this.superEvolutions).some(sk => {
+                const pool = SUPER_EVOLUTIONS[sk].evoPool || SUPER_EVOLUTIONS[sk].evoReqs;
+                return pool.includes(ek);
+            });
+            if (usedInSuper) continue;
+
+            const wLv1 = this.weapons[ev.weaponReq] || 0;
+            const wLv2 = ev.altWeaponReq ? (this.weapons[ev.altWeaponReq] || 0) : 0;
             const tLv = this.trinkets[ev.trinketReq] || 0;
-            if (wLv >= MAX_PERK_LEVEL && tLv >= MAX_PERK_LEVEL) {
+            if ((wLv1 >= MAX_PERK_LEVEL || wLv2 >= MAX_PERK_LEVEL) && tLv >= MAX_PERK_LEVEL) {
                 list.push(ev);
             }
         }
@@ -687,7 +871,9 @@ class Player {
         for (const sk of Object.keys(SUPER_EVOLUTIONS)) {
             if (this.superEvolutions[sk]) continue;
             const sev = SUPER_EVOLUTIONS[sk];
-            if (this.evolutions[sev.evoReqs[0]] && this.evolutions[sev.evoReqs[1]]) {
+            const pool = sev.evoPool || sev.evoReqs;
+            const ownedFromPool = pool.filter(ek => !!this.evolutions[ek]);
+            if (ownedFromPool.length >= 2) {
                 list.push(sev);
             }
         }
@@ -717,7 +903,7 @@ class Player {
         if (!item) return false;
 
         if (item.kind === 'weapon') {
-            if (this.evolutions[item.evoId]) return false;
+            if (this.evolutions[item.evoId] || (item.altEvoId && this.evolutions[item.altEvoId])) return false;
             const cur = this.weapons[key] || 0;
             if (cur >= MAX_PERK_LEVEL) return false;
             if (cur === 0 && this.usedWeaponSlots() >= MAX_WEAPON_SLOTS) return false;
@@ -735,18 +921,28 @@ class Player {
     applyFusion(fKey) {
         if (SUPER_EVOLUTIONS[fKey]) {
             const sev = SUPER_EVOLUTIONS[fKey];
-            delete this.evolutions[sev.evoReqs[0]];
-            delete this.evolutions[sev.evoReqs[1]];
+            const pool = sev.evoPool || sev.evoReqs;
+            let removed = 0;
+            for (const ek of pool) {
+                if (this.evolutions[ek] && removed < 2) {
+                    delete this.evolutions[ek];
+                    removed++;
+                }
+            }
             this.superEvolutions[fKey] = true;
             this.recalcStats(false);
-            floatT(this.x, this.y - 45, `👑 SÜPER EVRİM: ${sev.name.toUpperCase()}!`, sev.color, 20);
+            floatT(this.x, this.y - 45, `👑 MEGA EVRİM: ${sev.name.toUpperCase()}!`, sev.color, 20);
             spawnExp(this.x, this.y, sev.color, 2.5);
             sfx.bKill();
             return true;
         }
         const ev = EVOLUTIONS[fKey];
         if (!ev) return false;
-        delete this.weapons[ev.weaponReq];
+        if (this.weapons[ev.weaponReq]) {
+            delete this.weapons[ev.weaponReq];
+        } else if (ev.altWeaponReq && this.weapons[ev.altWeaponReq]) {
+            delete this.weapons[ev.altWeaponReq];
+        }
         // Alet (Trinket) korunur, silah Evrimleşmiş Silaha dönüşür
         this.evolutions[fKey] = true;
         this.recalcStats(false);
@@ -1203,6 +1399,35 @@ class Player {
                         pierceLeft: (hasArbiter || hasOmega) ? 4 : 1,
                         arbiterBoost: hasArbiter || hasOmega,
                         crit
+                    });
+                }
+            }
+        }
+
+        // 7. Karaktere Özel Kök Silahları, Çapraz Evrimler ve Yeni Mega Evrimler
+        this.sigTimer = (this.sigTimer || 0) - dt;
+        if (this.sigTimer <= 0) {
+            this.sigTimer = 0.34 * this.cdMult;
+            const sigW = this.weapons.photonRailgun || this.weapons.flakArtillery || this.weapons.teslaPrism || this.weapons.voidScythe || this.weapons.solarMortar || 0;
+            const hasSigEvo = this.evolutions.tachyonLance || this.evolutions.siegeBehemoth || this.evolutions.sanctuaryMaelstrom || this.evolutions.abyssalReaper || this.evolutions.heliosCataclysm ||
+                              this.evolutions.prismOverload || this.evolutions.gravitonImploder || this.evolutions.cryoVortex || this.evolutions.phantomExecutioner || this.evolutions.necroticNapalm;
+            const hasNewMega = this.superEvolutions.hyperionApex || this.superEvolutions.ironDreadnought || this.superEvolutions.eclipseSingularity;
+            if (sigW > 0 || hasSigEvo || hasNewMega) {
+                const shots = hasNewMega ? 6 : hasSigEvo ? 4 : 1 + Math.floor(sigW / 2);
+                const baseD = (hasNewMega ? 65 : hasSigEvo ? 44 : 24 + sigW * 7) * this.dmgMult;
+                for (let i = 0; i < shots; i++) {
+                    const a = aimA + (i - (shots - 1) / 2) * 0.18;
+                    const { dmg, crit } = this.rollCrit(baseD, nearest);
+                    bullets.push({
+                        x: this.x + Math.cos(a) * 18, y: this.y + Math.sin(a) * 18,
+                        vx: Math.cos(a) * 620, vy: Math.sin(a) * 620,
+                        damage: dmg, size: hasNewMega ? 6.5 : 5,
+                        color: this.c,
+                        life: 1.45 * this.rangeMult,
+                        piercing: true, pierceLeft: hasNewMega ? 5 : 3,
+                        bounces: hasSigEvo || hasNewMega ? 2 : 0,
+                        splash: !!this.weapons.flakArtillery || !!this.weapons.solarMortar || !!this.evolutions.siegeBehemoth || !!this.evolutions.heliosCataclysm,
+                        crit: crit || !!hasNewMega
                     });
                 }
             }
@@ -1695,10 +1920,11 @@ function buildLevelUpChoices(player, lv) {
 
     const candidateKeys = UPG_KEYS.filter(k => {
         const item = UPG[k];
+        if (item.shipExclusive && item.shipExclusive !== player.shipClass) return false;
         const cur = player.pU[k] || 0;
         if (cur >= MAX_PERK_LEVEL) return false;
         if (item.kind === 'weapon') {
-            if (player.evolutions[item.evoId]) return false;
+            if (player.evolutions[item.evoId] || (item.altEvoId && player.evolutions[item.altEvoId])) return false;
             if (wFull && cur <= 0) return false;
         } else {
             if (tFull && cur <= 0) return false;
@@ -1706,19 +1932,26 @@ function buildLevelUpChoices(player, lv) {
         return true;
     });
 
-    const shuffled = candidateKeys.slice().sort(() => Math.random() - 0.5);
+    // Karakter Özel Kök Yeteneklerine (Signature Nodes) hafif öncelik ağırlığı ver
+    const shuffled = candidateKeys.slice().sort((a, b) => {
+        const aSig = UPG[a].shipExclusive === player.shipClass ? 0.35 : 0;
+        const bSig = UPG[b].shipExclusive === player.shipClass ? 0.35 : 0;
+        return (Math.random() - 0.5) - (aSig - bSig);
+    });
+
     for (const k of shuffled) {
         if (choices.length >= 3) break;
         const cur = player.pU[k] || 0;
         const item = UPG[k];
+        const isSig = item.shipExclusive === player.shipClass;
         const isPairOwned = item.kind === 'weapon'
-            ? (player.trinkets[item.pairTrinket] || 0) > 0
+            ? ((player.trinkets[item.pairTrinket] || 0) > 0 || (item.altTrinket && (player.trinkets[item.altTrinket] || 0) > 0))
             : ((player.weapons[item.pairWeapon] || 0) > 0 || !!player.evolutions[item.evoId]);
 
         choices.push({
             kind: 'perk',
             key: k,
-            rarity: (cur >= 4 || isPairOwned) ? 'epic' : 'common',
+            rarity: isSig ? 'legendary' : ((cur >= 4 || isPairOwned) ? 'epic' : 'common'),
             curLv: cur,
             nextLv: Math.min(MAX_PERK_LEVEL, cur + 1),
             lvAdd: 1
@@ -1764,15 +1997,24 @@ function renderLevelUpCards(player, lv) {
             descHtml = `<div style="color:#ffd700;font-weight:700;font-size:0.74rem;margin-bottom:4px;">[${f.formula}]</div>${f.desc}`;
         } else if (cItem.kind === 'perk') {
             const u = UPG[cItem.key];
-            const slotTypeLbl = u.kind === 'weapon' ? '⚔ SİLAH SLOTU' : '🧲 ALET SLOTU';
+            const isSig = u.shipExclusive === player.shipClass;
+            const slotTypeLbl = isSig
+                ? (u.kind === 'weapon' ? '★ ÖZEL KÖK SİLAH' : '★ ÖZEL KÖK ALET')
+                : (u.kind === 'weapon' ? '⚔ SİLAH SLOTU' : '🧲 ALET SLOTU');
             rarityBadge = cItem.curLv === 0
                 ? `YENİ ${slotTypeLbl}`
                 : `${slotTypeLbl} · LV.${cItem.curLv} ➔ LV.${cItem.nextLv}${cItem.nextLv >= 5 ? ' (MAKS ★)' : ''}`;
             iconHtml = `<div class="lu-card-icon" style="color:${u.color}">${u.icon}</div>`;
             titleHtml = u.name;
             const evo = EVOLUTIONS[u.evoId];
-            const partnerName = u.kind === 'weapon' ? TRINKETS[u.pairTrinket].name : WEAPONS[u.pairWeapon].name;
-            descHtml = `${u.desc}<br><span style="font-size:0.72rem;color:#00f0ff">🔗 Evrim: Lv.5 + ${partnerName} Lv.5 ➔ ${evo ? evo.name : ''}</span>`;
+            const partnerName = u.kind === 'weapon'
+                ? (TRINKETS[u.pairTrinket] ? TRINKETS[u.pairTrinket].name : '')
+                : (WEAPONS[u.pairWeapon] ? WEAPONS[u.pairWeapon].name : '');
+            let branchText = `<span style="font-size:0.70rem;color:#00f0ff">🔗 Dal 1: +${partnerName} Lv.5 ➔ ${evo ? evo.name : ''}</span>`;
+            if (u.kind === 'weapon' && u.altTrinket && u.altEvoId && TRINKETS[u.altTrinket] && EVOLUTIONS[u.altEvoId]) {
+                branchText += `<br><span style="font-size:0.70rem;color:#ffd700">🌿 Dal 2: +${TRINKETS[u.altTrinket].name} Lv.5 ➔ ${EVOLUTIONS[u.altEvoId].name}</span>`;
+            }
+            descHtml = `${u.desc}<br>${branchText}`;
         } else {
             rarityBadge = 'REAKTÖR OVERCLOCK';
             iconHtml = `<div class="lu-card-icon" style="color:#ffd700">✦</div>`;
@@ -2072,21 +2314,48 @@ function updatePauseStatsUI() {
         trinketCards.push(`<div class="pause-slot-card empty"><span class="psc-ico">◇</span><span class="psc-nm">Boş Alet</span><span class="psc-lv">-</span></div>`);
     }
 
+    // Olası Çapraz Evrim & Mega Evrim İhtimalleri Matrisi
+    const matrixRows = [];
+    for (const [ek, ev] of Object.entries(EVOLUTIONS)) {
+        if (ev.shipExclusive && ev.shipExclusive !== p1.shipClass) continue;
+        if (p1.evolutions[ek]) {
+            matrixRows.push(`<div class="stat-line"><span class="lbl" style="color:${ev.color}">${ev.icon} ${ev.name}</span><span class="val" style="color:#00ff88">✓ AKTİF EVRİM</span></div>`);
+            continue;
+        }
+        const wLv = p1.weapons[ev.weaponReq] || (ev.altWeaponReq ? p1.weapons[ev.altWeaponReq] : 0) || 0;
+        const tLv = p1.trinkets[ev.trinketReq] || 0;
+        if (wLv > 0 || tLv > 0) {
+            const wName = WEAPONS[ev.weaponReq] ? WEAPONS[ev.weaponReq].name : ev.weaponReq;
+            const tName = TRINKETS[ev.trinketReq] ? TRINKETS[ev.trinketReq].name : ev.trinketReq;
+            const ready = wLv >= 5 && tLv >= 5;
+            matrixRows.push(`
+                <div class="stat-line">
+                    <span class="lbl">${wName} (Lv.${wLv}/5) + ${tName} (Lv.${tLv}/5)</span>
+                    <span class="val" style="color:${ready ? '#ffd700' : ev.color}">${ev.icon} ${ev.name} ${ready ? '★ HAZIR!' : ''}</span>
+                </div>
+            `);
+        }
+    }
+
     grid.innerHTML = `
         <div style="font-size:0.78rem;font-weight:800;color:${p1.c};margin-bottom:6px;display:flex;justify-content:space-between;">
             <span>◈ ${p1.name.toUpperCase()} — ${shipCfg.name}</span>
             <span style="color:#ffd700">SEVİYE ${p1.lv}</span>
         </div>
         <div style="font-size:0.62rem;color:#00f0ff;margin-bottom:4px;">⚔ AKTİF SİLAH SLOTLARI (${p1.usedWeaponSlots()}/4)</div>
-        <div class="pause-loadout-grid" style="margin-bottom:10px;">${weaponCards.join('')}</div>
+        <div class="pause-loadout-grid" style="margin-bottom:8px;">${weaponCards.join('')}</div>
         <div style="font-size:0.62rem;color:#44ffaa;margin-bottom:4px;">🧲 AKTİF ALET / TRINKET SLOTLARI (${p1.usedTrinketSlots()}/4)</div>
-        <div class="pause-loadout-grid" style="margin-bottom:12px;">${trinketCards.join('')}</div>
+        <div class="pause-loadout-grid" style="margin-bottom:10px;">${trinketCards.join('')}</div>
+
+        <div style="font-size:0.64rem;font-weight:800;color:#ffd700;margin:6px 0 4px;letter-spacing:1px;">🧬 OLASI ÇAPRAZ EVRİM MATRİSİ ($X+Y=Z$)</div>
+        <div style="max-height:110px;overflow-y:auto;margin-bottom:8px;padding-right:4px;">
+            ${matrixRows.length > 0 ? matrixRows.join('') : '<div class="stat-line"><span class="lbl">Silah ve alet topladıkça evrim dalları burada listelenir.</span></div>'}
+        </div>
 
         <div class="stat-line"><span class="lbl">Anlık / Ortalama DPS</span><span class="val" style="color:#ffd700">${Math.floor(currentDps)} / ${avgDps} DPS</span></div>
         <div class="stat-line"><span class="lbl">Gövde Canı / Kalkan</span><span class="val">${Math.floor(p1.hp)}/${Math.floor(p1.mh)} HP · ${Math.floor(p1.sh)}/${Math.floor(p1.ms)} SH</span></div>
         <div class="stat-line"><span class="lbl">Hasar Çarpanı & Kritik Şans</span><span class="val">x${p1.dmgMult.toFixed(2)} · %${Math.floor(p1.crit * 100)}</span></div>
         <div class="stat-line"><span class="lbl">Zırh & Cooldown Azaltma</span><span class="val">%${Math.floor(p1.armor * 100)} Zırh · -%${Math.floor((1 - p1.cdMult) * 100)} CD</span></div>
-        <div class="stat-line"><span class="lbl">Mıknatıs Çekim Çapı & Hız</span><span class="val">${Math.floor(p1.magR)}m · ${Math.floor(p1.sp)} m/s</span></div>
         <div class="stat-line"><span class="lbl">Kalan Reroll / Skip Hakkı</span><span class="val">${p1.rerollsLeft} Reroll · ${p1.skipsLeft} Skip</span></div>
     `;
 }

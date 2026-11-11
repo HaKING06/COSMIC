@@ -1,562 +1,1501 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cosmic Survivors v7.0 — Silah, Alet, Evrim ve Süper Evrim Ağacı</title>
-    <meta name="description" content="Cosmic Survivors v7.0 Vampire Survivors & Megabonk Evrim Ağacı: 4 Silah Slotu, 4 Alet (Trinket) Slotu, 6 Standart Evrim ve 3 Kozmik Süper Evrim şeması.">
-    <meta name="keywords" content="Cosmic Survivors, füzyon ağacı, süper evrim, cehennem gatlingi, vampire survivors silah evrimleri, megabonk">
-    <meta name="author" content="Halit Güneş (HaKING)">
-    <meta name="robots" content="index, follow">
-    <meta name="theme-color" content="#00f0ff">
-    <link rel="canonical" href="https://cosmic.haking.tr/tree.html">
-    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="manifest" href="manifest.webmanifest">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cosmic Survivors v7.0 — Karakter Perk Ağacı &amp; Çok Katmanlı Füzyon Laboratuvarı</title>
+  <meta name="description" content="Cosmic Survivors v7.0 İnteraktif Karakter Yetenek Ağacı: 5 gemiye özel kök yetenekler, çapraz evrim kombinasyonları (X+Y=Z) ve Kozmik Mega Evrimler (Z+N=MEGA)." />
+  <link rel="canonical" href="https://cosmic.haking.tr/tree.html" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:locale" content="tr_TR">
-    <meta property="og:site_name" content="Cosmic Survivors">
-    <meta property="og:title" content="Cosmic Survivors v7.0 — Evrim & Süper Evrim Ağacı">
-    <meta property="og:description" content="Silahlar, Aletler (Trinkets), Evrimler ve Kozmik Süper Evrimleri dallandıran interaktif sentez ağacı.">
-    <meta property="og:url" content="https://cosmic.haking.tr/tree.html">
-    <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png">
+  <style>
+    :root {
+      --bg-dark: #03010a;
+      --panel: rgba(10, 7, 26, 0.88);
+      --cyan: #00f0ff;
+      --magenta: #ff006a;
+      --purple: #bf00ff;
+      --gold: #ffd700;
+      --green: #00ff88;
+      --orange: #ff6600;
+      --text: #eef6ff;
+      --muted: #8ca2c6;
+    }
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Cosmic Survivors v7.0 — Evrim & Süper Evrim Ağacı">
-    <meta name="twitter:description" content="Silahlar, Aletler, Evrimler ve Süper Evrimleri dallandıran interaktif ağaç.">
-    <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png">
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
 
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #020008;
-            --p1: #00f0ff;
-            --p2: #ff006a;
-            --link: #bf00ff;
-            --gold: #ffd700;
-            --green: #00ff88;
-            --text-main: #ffffff;
-            --text-dim: rgba(255, 255, 255, 0.64);
-        }
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: radial-gradient(circle at 40% 35%, #120728 0%, #050210 65%, #020106 100%);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body {
-            background: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Rajdhani', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+    /* ── TOP NAVBAR ── */
+    .top-nav {
+      height: 54px;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(5, 3, 16, 0.92);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.24);
+      flex-shrink: 0;
+      z-index: 20;
+    }
 
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background:
-                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%),
-                radial-gradient(circle at 20% 20%, rgba(0, 240, 255, 0.06), transparent 45%),
-                radial-gradient(circle at 80% 75%, rgba(255, 0, 106, 0.07), transparent 50%);
-            background-size: 100% 4px, 100% 100%, 100% 100%;
-            pointer-events: none;
-            z-index: 999;
-        }
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
 
-        .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .brand-logo { width: 32px; height: 32px; }
 
-        /* ─── SHARED NAVBAR ─── */
-        .navbar {
-            min-height: 70px; padding: 12px 40px;
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(6, 3, 18, 0.68); backdrop-filter: blur(18px) saturate(1.4);
-            border-bottom: 1px solid rgba(0, 240, 255, 0.22);
-            position: relative; z-index: 20; flex-wrap: wrap; gap: 12px;
-        }
-        .nav-logo {
-            font-family: 'Orbitron', monospace; font-size: 1.35rem; font-weight: 900;
-            letter-spacing: 0.08em; background: linear-gradient(90deg, #00f0ff, #bf00ff, #ff006a);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            display: flex; align-items: center; gap: 12px; text-decoration: none;
-        }
-        .nav-logo .nav-mark { width: 34px; height: 34px; filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.5)); }
-        .nav-logo .nav-ver {
-            font-size: 0.55rem; letter-spacing: 0.12em; padding: 3px 8px; border-radius: 6px;
-            border: 1px solid rgba(255, 215, 0, 0.5); -webkit-text-fill-color: var(--gold); background: rgba(255, 215, 0, 0.08);
-        }
-        .nav-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .nav-link {
-            font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700;
-            letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.72); text-decoration: none;
-            padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);
-            background: rgba(255, 255, 255, 0.03); transition: all 0.25s ease; white-space: nowrap;
-        }
-        .nav-link:hover { color: var(--p1); border-color: rgba(0, 240, 255, 0.45); background: rgba(0, 240, 255, 0.08); }
-        .nav-link.active {
-            color: var(--p1); border-color: rgba(0, 240, 255, 0.65);
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.16), rgba(191, 0, 255, 0.14));
-            box-shadow: 0 0 18px rgba(0, 240, 255, 0.25);
-        }
+    .brand-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #00f0ff, #fff, #bf00ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-        .page-wrap {
-            position: relative; z-index: 5; max-width: 1460px; margin: 0 auto;
-            padding: 26px 24px 60px; display: flex; flex-direction: column; gap: 26px;
-        }
+    .nav-links { display: flex; align-items: center; gap: 10px; }
 
-        .glass-panel {
-            background: linear-gradient(155deg, rgba(10, 16, 38, 0.76), rgba(6, 3, 20, 0.9));
-            border: 1px solid rgba(0, 240, 255, 0.24); border-radius: 18px;
-            padding: 22px 24px; backdrop-filter: blur(20px);
-            box-shadow: 0 16px 46px rgba(0, 0, 0, 0.65);
-        }
+    .nav-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 7px;
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 240, 255, 0.28);
+      transition: all 0.2s;
+    }
 
-        .hero-strip {
-            display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;
-        }
-        .hero-strip h1 {
-            font-family: 'Orbitron', monospace; font-size: clamp(1.35rem, 2.4vw, 2rem);
-            font-weight: 900; background: linear-gradient(90deg, #00f0ff, #fff, #ffd700, #ff006a);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .hero-pills { display: flex; gap: 10px; flex-wrap: wrap; }
-        .h-pill {
-            padding: 8px 14px; border-radius: 12px; background: rgba(0, 0, 0, 0.45);
-            border: 1px solid rgba(0, 240, 255, 0.3); text-align: center;
-        }
-        .h-pill strong { font-family: 'Orbitron', monospace; font-size: 0.95rem; display: block; color: var(--p1); }
-        .h-pill span { font-size: 0.68rem; color: var(--text-dim); }
+    .nav-btn:hover, .nav-btn.active {
+      background: rgba(0, 240, 255, 0.16);
+      border-color: var(--cyan);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+    }
 
-        .main-tree-layout {
-            display: grid; grid-template-columns: 1.6fr 1fr; gap: 22px; align-items: start;
-        }
-        @media (max-width: 1120px) { .main-tree-layout { grid-template-columns: 1fr; } }
+    /* ── 5 SHIP SELECTOR BAR ── */
+    .ship-selector-bar {
+      padding: 8px 22px;
+      background: rgba(8, 5, 22, 0.9);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      z-index: 15;
+    }
 
-        /* ─── 4-TIER BRANCHING TREE STAGE ─── */
-        .tree-stage {
-            position: relative;
-            min-height: 760px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 18px 12px;
-            border-radius: 14px;
-            background: radial-gradient(circle at 50% 50%, rgba(191, 0, 255, 0.08), rgba(0, 0, 0, 0.5));
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            overflow: hidden;
-        }
-        #treeLinesSvg {
-            position: absolute; inset: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 1;
-        }
-        .syn-line {
-            fill: none; stroke: rgba(0, 240, 255, 0.16); stroke-width: 2; stroke-dasharray: 6 6;
-            transition: all 0.28s ease;
-        }
-        .syn-line.active {
-            stroke: var(--active-color, #ffd700); stroke-width: 3.4; stroke-dasharray: 10 5;
-            filter: drop-shadow(0 0 8px var(--active-color, #ffd700));
-            animation: dashFlow 0.75s linear infinite; opacity: 1;
-        }
-        .syn-line.dimmed { opacity: 0.1; }
-        @keyframes dashFlow { to { stroke-dashoffset: -30; } }
+    .ship-tabs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
 
-        .tier-block { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 8px; }
-        .tier-title {
-            font-family: 'Orbitron', monospace; font-size: 0.64rem; font-weight: 800;
-            letter-spacing: 0.16em; text-align: center; color: rgba(255, 255, 255, 0.55);
-        }
-        .row-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
-        .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 780px; margin: 0 auto; width: 100%; }
-        @media (max-width: 860px) {
-            .row-6 { grid-template-columns: repeat(2, 1fr); }
-            .row-3 { grid-template-columns: 1fr; }
-            #treeLinesSvg { display: none; }
-            .tree-stage { min-height: auto; gap: 24px; }
-        }
+    .ship-tab {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 12px;
+      border-radius: 10px;
+      background: rgba(16, 11, 38, 0.75);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
 
-        .tree-node {
-            background: linear-gradient(160deg, rgba(14, 20, 44, 0.9), rgba(6, 3, 20, 0.96));
-            border: 1.5px solid rgba(255, 255, 255, 0.14); border-radius: 12px;
-            padding: 10px 6px; display: flex; flex-direction: column; align-items: center;
-            text-align: center; gap: 4px; cursor: pointer; transition: all 0.22s ease;
-        }
-        .tree-node:hover {
-            transform: translateY(-3px); border-color: var(--nc, #00f0ff);
-            box-shadow: 0 0 18px color-mix(in srgb, var(--nc, #00f0ff) 40%, transparent);
-        }
-        .tree-node.selected {
-            border-color: var(--nc, #00f0ff);
-            background: radial-gradient(circle at 50% 20%, color-mix(in srgb, var(--nc, #00f0ff) 32%, transparent), rgba(8, 4, 24, 0.96));
-            box-shadow: 0 0 24px color-mix(in srgb, var(--nc, #00f0ff) 55%, transparent);
-            transform: translateY(-3px) scale(1.03);
-        }
-        .tree-node.linked {
-            border-color: var(--nc, #ffd700);
-            box-shadow: 0 0 16px color-mix(in srgb, var(--nc, #ffd700) 40%, transparent);
-        }
-        .tree-node.dimmed { opacity: 0.32; }
-        .node-ico {
-            width: 38px; height: 38px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; color: var(--nc, #00f0ff);
-            border: 1px solid color-mix(in srgb, var(--nc, #00f0ff) 50%, transparent);
-            background: rgba(0, 0, 0, 0.45);
-        }
-        .node-name { font-family: 'Orbitron', monospace; font-size: 0.62rem; font-weight: 800; color: #fff; }
-        .node-sub { font-family: 'Space Mono', monospace; font-size: 0.52rem; color: var(--gold); }
+    .ship-tab:hover {
+      border-color: var(--sc, #00f0ff);
+      transform: translateY(-1px);
+    }
 
-        .tree-node.super-node {
-            padding: 12px 10px;
-            border-width: 2px;
-            border-color: var(--nc, #ff0055);
-            background: linear-gradient(160deg, rgba(44, 8, 28, 0.92), rgba(12, 3, 24, 0.96));
-        }
+    .ship-tab.active {
+      background: rgba(26, 16, 58, 0.95);
+      border-color: var(--sc, #00f0ff);
+      box-shadow: 0 0 20px var(--sg, rgba(0, 240, 255, 0.35)), inset 0 0 12px var(--sg, rgba(0, 240, 255, 0.2));
+    }
 
-        /* ─── INSPECTOR ─── */
-        .insp-card { display: flex; flex-direction: column; gap: 14px; }
-        .insp-hdr-box {
-            display: flex; align-items: center; gap: 14px; padding: 14px;
-            border-radius: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .insp-ico {
-            width: 60px; height: 60px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.9rem; border: 1.5px solid currentColor; background: rgba(0, 0, 0, 0.45);
-        }
-        .insp-desc {
-            padding: 12px 14px; border-radius: 0 10px 10px 0;
-            background: rgba(0, 0, 0, 0.38); border-left: 3px solid var(--p1);
-            font-size: 0.9rem; line-height: 1.48; color: rgba(255, 255, 255, 0.85);
-        }
-        .formula-chain {
-            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-            padding: 12px; border-radius: 12px;
-            background: rgba(255, 215, 0, 0.06); border: 1px solid rgba(255, 215, 0, 0.28);
-        }
-        .f-chip {
-            font-family: 'Orbitron', monospace; font-size: 0.66rem; font-weight: 700;
-            padding: 6px 10px; border-radius: 8px; background: rgba(0, 0, 0, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.14); cursor: pointer;
-        }
-        .lvl-table {
-            width: 100%; border-collapse: collapse; font-size: 0.8rem;
-            background: rgba(0, 0, 0, 0.35); border-radius: 10px; overflow: hidden;
-        }
-        .lvl-table th, .lvl-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
-        .lvl-table th { font-family: 'Orbitron', monospace; font-size: 0.62rem; color: var(--p1); background: rgba(0, 240, 255, 0.06); }
+    .ship-tab-icon {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        .site-footer {
-            position: relative; z-index: 5; text-align: center; padding: 30px 20px 42px;
-            border-top: 1px solid rgba(0, 240, 255, 0.12); background: rgba(3, 1, 9, 0.88);
-            font-size: 0.82rem; color: var(--text-dim); line-height: 1.8;
-        }
-        .site-footer img { height: 52px; margin-bottom: 8px; }
-        .site-footer a { color: var(--p1); text-decoration: none; border-bottom: 1px dashed rgba(0, 240, 255, 0.4); }
-    </style>
+    .ship-tab-icon svg {
+      width: 32px;
+      height: 32px;
+      filter: drop-shadow(0 0 5px var(--sc, #00f0ff));
+    }
+
+    .ship-tab-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .ship-tab-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ship-tab-sig {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--sc, #00f0ff);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .filter-legend {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.64rem;
+    }
+
+    .legend-pill {
+      padding: 4px 9px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      cursor: pointer;
+      color: #cfe0ff;
+      transition: all 0.18s;
+    }
+
+    .legend-pill.active, .legend-pill:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(255, 215, 0, 0.12);
+    }
+
+    /* ── WORKSPACE: LEFT TREE GRAPH + RIGHT HOLOGRAM INSPECTOR ── */
+    .lab-workspace {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1fr 390px;
+      gap: 14px;
+      padding: 12px 18px;
+    }
+
+    /* ── INTERACTIVE GRAPH CANVAS / SVG VIEWPORT ── */
+    .tree-viewport {
+      position: relative;
+      background: radial-gradient(circle at 25% 50%, rgba(0, 240, 255, 0.06), rgba(6, 4, 18, 0.92) 75%);
+      border: 1px solid rgba(0, 240, 255, 0.24);
+      border-radius: 14px;
+      overflow: auto;
+      padding: 14px 18px;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8);
+    }
+
+    #svgConnections {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .conn-path {
+      fill: none;
+      stroke-width: 2;
+      stroke-dasharray: 7 5;
+      opacity: 0.24;
+      animation: dashFlow 18s linear infinite;
+      transition: opacity 0.25s, stroke-width 0.25s;
+    }
+
+    .conn-path.highlighted {
+      opacity: 0.95;
+      stroke-width: 3.2;
+      filter: drop-shadow(0 0 6px currentColor);
+    }
+
+    .conn-path.dimmed {
+      opacity: 0.06;
+    }
+
+    @keyframes dashFlow {
+      to { stroke-dashoffset: -240; }
+    }
+
+    .tree-columns {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 22px;
+      width: 100%;
+      min-height: 100%;
+      align-items: center;
+    }
+
+    .tree-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .col-header {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    /* NODE CARDS IN THE GRAPH */
+    .tree-node {
+      position: relative;
+      background: rgba(13, 10, 32, 0.92);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 7px 10px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .tree-node:hover {
+      transform: scale(1.03);
+      border-color: var(--nc, #00f0ff);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.35);
+    }
+
+    .tree-node.selected {
+      border-color: #ffffff;
+      background: rgba(28, 18, 66, 0.96);
+      box-shadow: 0 0 22px var(--nc, #00f0ff), inset 0 0 12px rgba(255, 255, 255, 0.18);
+      transform: scale(1.04);
+    }
+
+    .tree-node.connected {
+      border-color: var(--nc, #00f0ff);
+      box-shadow: 0 0 14px var(--nc, #00f0ff);
+    }
+
+    .tree-node.dimmed {
+      opacity: 0.25;
+      filter: grayscale(0.5);
+    }
+
+    .tree-node.ship-signature {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(40, 26, 6, 0.92), rgba(16, 10, 36, 0.92));
+      box-shadow: 0 0 16px rgba(255, 215, 0, 0.28);
+    }
+
+    .node-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid var(--nc, #00f0ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      flex-shrink: 0;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .node-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .node-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--nc, #00f0ff);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .node-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── RIGHT PANEL: HOLOGRAM SIMULATOR & FORMULA INSPECTOR ── */
+    .inspector-panel {
+      background: var(--panel);
+      border: 1.5px solid rgba(0, 240, 255, 0.3);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+    }
+
+    .insp-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .insp-type-badge {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 5px;
+      background: rgba(0, 240, 255, 0.14);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      letter-spacing: 1px;
+    }
+
+    .insp-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .holo-sim-box {
+      position: relative;
+      height: 135px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.1), #04020c 80%);
+      border: 1px solid rgba(0, 240, 255, 0.28);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    #holoEffectCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .holo-sim-label {
+      position: absolute;
+      bottom: 6px;
+      right: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--cyan);
+      background: rgba(0, 0, 0, 0.65);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .formula-box {
+      background: rgba(18, 10, 38, 0.9);
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      border-radius: 9px;
+      padding: 9px 11px;
+    }
+
+    .formula-lbl {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.64rem;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .formula-eq {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #00ff88;
+      line-height: 1.35;
+    }
+
+    .insp-desc {
+      font-size: 0.82rem;
+      color: #d4e3ff;
+      line-height: 1.38;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px 10px;
+      border-radius: 8px;
+      border-left: 3px solid var(--cyan);
+    }
+
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.66rem;
+    }
+
+    .stats-table th, .stats-table td {
+      padding: 5px 7px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: left;
+    }
+
+    .stats-table th {
+      color: var(--cyan);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.62rem;
+    }
+
+    .cross-branches-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .branch-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 9px;
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      cursor: pointer;
+      font-size: 0.72rem;
+      transition: all 0.18s;
+    }
+
+    .branch-chip:hover {
+      border-color: var(--cyan);
+      background: rgba(0, 240, 255, 0.12);
+    }
+  </style>
 </head>
 <body>
-    <canvas class="bg-canvas" id="bgCanvas"></canvas>
-
-    <!-- SHARED NAVBAR -->
-    <nav class="navbar" aria-label="Ana Navigasyon">
-        <a href="index.html" class="nav-logo"><img class="nav-mark" src="assets/favicon.svg" alt="" width="34" height="34"> COSMIC SURVIVORS <span class="nav-ver">v7.0 VAMPIRE SURVIVORS</span></a>
-        <div class="nav-links">
-            <a href="index.html" class="nav-link">ANA KOMUTA</a>
-            <a href="game.html" class="nav-link">SAVAŞ ARENASI</a>
-            <a href="tree.html" class="nav-link active">FÜZYON AĞACI</a>
-            <a href="about.html" class="nav-link">SİMÜLASYON HAKKINDA</a>
-        </div>
+  <!-- ÜST MENÜ -->
+  <header class="top-nav">
+    <a href="index.html" class="brand-box">
+      <img src="assets/logo.svg" alt="Logo" class="brand-logo" />
+      <span class="brand-title">COSMIC SURVIVORS • PERK &amp; EVRİM LABORATUVARI</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html" class="nav-btn">🏠 OYUN LOBİSİ</a>
+      <a href="tree.html" class="nav-btn active">⚡ EVRİM AĞACI</a>
+      <a href="about.html" class="nav-btn">📖 SEKTÖR 9 ARŞİVİ</a>
+      <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener" class="nav-btn" style="border-color:#ffd700;color:#ffd700;">☕ DESTEK</a>
     </nav>
+  </header>
 
-    <main class="page-wrap">
-        <section class="glass-panel hero-strip">
-            <div>
-                <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--gold);margin-bottom:4px;">◈ V7.0 VAMPIRE SURVIVORS & MEGABONK SENTEZ ŞEMASI</div>
-                <h1>SİLAH, ALET, EVRİM & SÜPER EVRİM AĞACI</h1>
-                <p style="color:var(--text-dim);font-size:0.92rem;max-width:780px;margin-top:4px;">
-                    <strong>Standart Evrim:</strong> <code style="color:#00f0ff">Silah Lv.5 + Alet (Trinket) Lv.5 = Evrimleşmiş Silah</code>.<br>
-                    <strong>Kozmik Süper Evrim:</strong> <code style="color:#ff006a">Evrimleşmiş Silah 1 + Evrimleşmiş Silah 2 = Kozmik Süper Evrim (+1 Boş Silah Slotu Açar!)</code>
-                </p>
-            </div>
-            <div class="hero-pills">
-                <div class="h-pill"><strong>4 SİLAH SLOTU</strong><span>Aktif Ateşleme</span></div>
-                <div class="h-pill"><strong style="color:#44ffaa">4 ALET SLOTU</strong><span>Mıknatıs & Trinket</span></div>
-                <div class="h-pill"><strong style="color:var(--gold)">6 EVRİM</strong><span>Silah Lv.5 + Alet Lv.5</span></div>
-                <div class="h-pill"><strong style="color:var(--p2)">3 SÜPER EVRİM</strong><span>Evrim + Evrim Füzyonu</span></div>
-            </div>
-        </section>
+  <!-- 5 GEMİ SEÇİCİ BAR -->
+  <section class="ship-selector-bar">
+    <div class="ship-tabs" id="shipTabsContainer">
+      <!-- JS ile 5 gemi sekmesi -->
+    </div>
+    <div class="filter-legend">
+      <button type="button" class="legend-pill active" id="btnShowShipBranch">🌟 GEMİ ÖZEL AĞACINI VURGULA</button>
+      <button type="button" class="legend-pill" id="btnShowAllMatrix">🌐 TÜM ÇAPRAZ MATRİSİ GÖSTER</button>
+    </div>
+  </section>
 
-        <section class="main-tree-layout">
-            <!-- LEFT: 4-TIER INTERACTIVE CONSTELLATION TREE -->
-            <div class="glass-panel">
-                <div class="tree-stage" id="treeStage">
-                    <svg id="treeLinesSvg" preserveAspectRatio="none"></svg>
+  <!-- LABORATUVAR ÇALIŞMA ALANI -->
+  <main class="lab-workspace">
+    <!-- SOL: DALLANAN AĞAÇ GRAFİĞİ -->
+    <div class="tree-viewport" id="treeViewport">
+      <svg id="svgConnections"></svg>
+      <div class="tree-columns" id="treeColumns">
+        <!-- Katman 0: Gemi Kökü & 2 Özel Kök Yeteneği + Aletler -->
+        <div class="tree-col" id="colRootAndTrinkets"></div>
+        <!-- Katman 1: Aktif Silahlar & İmza Silahı -->
+        <div class="tree-col" id="colWeapons"></div>
+        <!-- Katman 2: Çapraz Evrimler (X + Y = Z) -->
+        <div class="tree-col" id="colEvolutions"></div>
+        <!-- Katman 3: Kozmik Mega Evrimler (Z1 + Z2 = MEGA) -->
+        <div class="tree-col" id="colMegaEvolutions"></div>
+      </div>
+    </div>
 
-                    <!-- TIER 1: 6 WEAPONS -->
-                    <div class="tier-block">
-                        <div class="tier-title" style="color:#00f0ff">▲ KATMAN I — 6 AKTİF SİLAH (4 SİLAH SLOTU · MAKS LV.5) ▲</div>
-                        <div class="row-6" id="basePerksRow"></div>
-                    </div>
+    <!-- SAĞ: HOLOGRAM SİMÜLATÖRÜ VE FORMÜL DENETÇİSİ -->
+    <aside class="inspector-panel">
+      <div class="insp-badge-row">
+        <span class="insp-type-badge" id="inspTypeBadge">KARAKTER ÖZEL KÖKÜ</span>
+        <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--gold);" id="inspSlotBadge">MAKS LV.5</span>
+      </div>
+      <div class="insp-title" id="inspTitle">AVCI (INTERCEPTOR)</div>
 
-                    <!-- TIER 2: 6 TRINKETS -->
-                    <div class="tier-block">
-                        <div class="tier-title" style="color:#44ffaa">◆ KATMAN II — 6 ALET / MIKNATIS (4 TRINKET SLOTU · MAKS LV.5) ◆</div>
-                        <div class="row-6" id="trinketsRow"></div>
-                    </div>
+      <div class="holo-sim-box">
+        <canvas id="holoEffectCanvas" width="350" height="135"></canvas>
+        <span class="holo-sim-label" id="holoSimLabel">CANLI EFEKT HOLOGRAMI</span>
+      </div>
 
-                    <!-- TIER 3: 6 STANDARD EVOLUTIONS -->
-                    <div class="tier-block">
-                        <div class="tier-title" style="color:#ffd700">⚡ KATMAN III — 6 STANDART EVRİM (SİLAH LV.5 + ALET LV.5) ⚡</div>
-                        <div class="row-6" id="fusionsRow"></div>
-                    </div>
+      <div class="formula-box">
+        <div class="formula-lbl">📐 MATEMATİKSEL SENTEZ FORMÜLÜ</div>
+        <div class="formula-eq" id="inspFormula">Silah (Lv.5) + Alet (Lv.5) ➔ Evrimleşmiş Silah</div>
+      </div>
 
-                    <!-- TIER 4: 3 COSMIC SUPER EVOLUTIONS -->
-                    <div class="tier-block">
-                        <div class="tier-title" style="color:#ff006a">👑 KATMAN IV — 3 KOZMİK SÜPER / MEGA EVRİM (2 EVRİM BİRLEŞİR ➔ 1 SÜPER EVRİM) 👑</div>
-                        <div class="row-3" id="superRow"></div>
-                    </div>
-                </div>
-            </div>
+      <div class="insp-desc" id="inspDesc">
+        Düğümlere tıklayarak çapraz evrim dallarını, seviye çarpanlarını ve Kozmik Mega Evrim gereksinimlerini inceleyin.
+      </div>
 
-            <!-- RIGHT: HOLOGRAPHIC INSPECTOR -->
-            <div class="glass-panel insp-card">
-                <div style="font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:800;color:var(--p1);border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;">
-                    🔬 HOLOGRAFİK SENTEZ ANALİZÖRÜ
-                </div>
+      <div>
+        <div class="formula-lbl" style="margin-bottom:4px;">📊 SEVİYE &amp; ÇARPAN MATRİSİ</div>
+        <table class="stats-table" id="inspStatsTable">
+          <thead>
+            <tr><th>KADEME</th><th>HASAR / ETKİ</th><th>ÖZEL MEKANİK</th></tr>
+          </thead>
+          <tbody id="inspStatsBody"></tbody>
+        </table>
+      </div>
 
-                <div class="insp-hdr-box">
-                    <div class="insp-ico" id="inspIcon" style="color:#ff0055">🔥</div>
-                    <div>
-                        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--gold);" id="inspCategory">KOZMİK SÜPER EVRİM</div>
-                        <div style="font-family:'Orbitron',monospace;font-size:1.15rem;font-weight:900;color:#fff;" id="inspTitle">CEHENNEM GATLİNG'İ</div>
-                        <div style="font-size:0.8rem;color:var(--text-dim);" id="inspSubtitle">Kan Hasadı + Gatling Fırtınası</div>
-                    </div>
-                </div>
+      <div>
+        <div class="formula-lbl" style="margin-bottom:5px;">🔗 BAĞLI DALLAR &amp; ÇAPRAZ KOMBİNASYONLAR</div>
+        <div class="cross-branches-box" id="inspBranchesBox"></div>
+      </div>
+    </aside>
+  </main>
 
-                <div class="insp-desc" id="inspDesc"></div>
+  <script>
+    // ═══════════════════════════════════════════════════════════════════════════
+    // DERİN KARAKTER PERK AĞACI VERİTABANI (X + Y = Z, Z1 + Z2 = MEGA)
+    // ═══════════════════════════════════════════════════════════════════════════
+    const SHIP_TREES = {
+      interceptor: {
+        id: 'interceptor',
+        name: 'AVCI (INTERCEPTOR)',
+        color: '#00f0ff',
+        glow: 'rgba(0, 240, 255, 0.38)',
+        starterWeapon: 'dualLaser',
+        sigWeapon: 'photonRailgun',
+        sigTrinket: 'overdriveCore',
+        sigEvo: 'tachyonLance',
+        sigMega: 'hyperionApex',
+        passive: '+%20 Hareket Hızı & +%15 Kritik Şans',
+        svg: `<svg viewBox="0 0 64 64"><polygon points="32,6 8,52 24,44 32,56 40,44 56,52" fill="#062232" stroke="#00f0ff" stroke-width="4"/><polygon points="32,18 22,40 32,34 42,40" fill="#00f0ff"/></svg>`
+      },
+      dreadnought: {
+        id: 'dreadnought',
+        name: 'KRUVAZÖR (DREADNOUGHT)',
+        color: '#ffaa00',
+        glow: 'rgba(255, 170, 0, 0.38)',
+        starterWeapon: 'heavyPlasma',
+        sigWeapon: 'flakArtillery',
+        sigTrinket: 'reactiveArmor',
+        sigEvo: 'siegeBehemoth',
+        sigMega: 'ironDreadnought',
+        passive: '+%30 Zırh Koruması & -%10 Hareket Hızı',
+        svg: `<svg viewBox="0 0 64 64"><polygon points="20,8 44,8 56,24 50,54 14,54 8,24" fill="#281604" stroke="#ffaa00" stroke-width="4"/><rect x="22" y="20" width="20" height="22" rx="3" fill="#ffaa00"/></svg>`
+      },
+      aegis: {
+        id: 'aegis',
+        name: 'AEGIS (MUHAFIZ)',
+        color: '#bf00ff',
+        glow: 'rgba(191, 0, 255, 0.38)',
+        starterWeapon: 'energyDisc',
+        sigWeapon: 'teslaPrism',
+        sigTrinket: 'harmonicCapacitor',
+        sigEvo: 'sanctuaryMaelstrom',
+        sigMega: 'eventHorizon',
+        passive: 'Otomatik Kalkan Patlaması (6 sn)',
+        svg: `<svg viewBox="0 0 64 64"><polygon points="32,6 54,20 48,50 32,58 16,50 10,20" fill="#1b062e" stroke="#bf00ff" stroke-width="4"/><circle cx="32" cy="32" r="10" fill="#00f0ff"/></svg>`
+      },
+      phantom: {
+        id: 'phantom',
+        name: 'VOID PHANTOM (GÖLGE)',
+        color: '#ff006a',
+        glow: 'rgba(255, 0, 106, 0.38)',
+        starterWeapon: 'quantumDagger',
+        sigWeapon: 'voidScythe',
+        sigTrinket: 'phaseCloak',
+        sigEvo: 'abyssalReaper',
+        sigMega: 'eclipseSingularity',
+        passive: '10 sn\'de 1.5 sn Görünmezlik & +%60 Suikast Kritiği',
+        svg: `<svg viewBox="0 0 64 64"><polygon points="32,6 6,52 24,38 32,54 40,38 58,52" fill="#290418" stroke="#ff006a" stroke-width="4"/><polygon points="32,16 20,38 32,30 44,38" fill="#ff006a"/></svg>`
+      },
+      solarflare: {
+        id: 'solarflare',
+        name: 'SOLAR FLARE (GÜNEŞ)',
+        color: '#ff6600',
+        glow: 'rgba(255, 102, 0, 0.38)',
+        starterWeapon: 'flameLine',
+        sigWeapon: 'solarMortar',
+        sigTrinket: 'fusionHeart',
+        sigEvo: 'heliosCataclysm',
+        sigMega: 'infernoGatling',
+        passive: 'Yakındaki Düşmanları Yakan Radyasyon Aurası',
+        svg: `<svg viewBox="0 0 64 64"><polygon points="32,6 4,34 18,54 32,42 46,54 60,34" fill="#2b0c02" stroke="#ff6600" stroke-width="4"/><circle cx="32" cy="30" r="10" fill="#ffd700"/></svg>`
+      }
+    };
 
-                <div>
-                    <div style="font-family:'Orbitron',monospace;font-size:0.68rem;color:var(--gold);margin-bottom:6px;">🔗 SENTEZ REÇETESİ (TIKLAYARAK GEZİNİN)</div>
-                    <div class="formula-chain" id="inspFormula"></div>
-                </div>
+    const NODES = {
+      // ── KARAKTERE ÖZEL KÖK SİLAHLAR (SIGNATURE WEAPONS) ──
+      photonRailgun: {
+        id: 'photonRailgun', kind: 'sigWeapon', ship: 'interceptor',
+        name: 'Foton Raylı Top', icon: '🚄', color: '#00f0ff',
+        formula: 'Avcı Özel Kök Silahı (Lv.1 ➔ Lv.5)',
+        simType: 'laser',
+        desc: 'Sadece Avcı (Interceptor) gemisinde açılan yüksek hızlı delici elektromanyetik foton rayı.',
+        levels: [
+          ['Lv.1', '45 Hasar • 1 Hedef Deler', 'Baz Raylı Top'],
+          ['Lv.3', '85 Hasar • 3 Hedef Deler', '+%20 Kritik Hızı'],
+          ['Lv.5 (MAKS)', '140 Hasar • 5 Hedef Deler', 'Takyon Mızrağı Evrimine Hazır']
+        ]
+      },
+      flakArtillery: {
+        id: 'flakArtillery', kind: 'sigWeapon', ship: 'dreadnought',
+        name: 'Balistik Flak Topu', icon: '💣', color: '#ffaa00',
+        formula: 'Kruvazör Özel Kök Silahı (Lv.1 ➔ Lv.5)',
+        simType: 'plasma',
+        desc: 'Sadece Kruvazör (Dreadnought) gemisinde açılan, çarpışma anında 8 şarapnele bölünen ağır balistik batarya.',
+        levels: [
+          ['Lv.1', '55 Alan Hasarı • 4 Şarapnel', 'Zırh Kırıcı Gülle'],
+          ['Lv.3', '95 Alan Hasarı • 6 Şarapnel', 'Geri İtme Dalgası'],
+          ['Lv.5 (MAKS)', '160 Alan Hasarı • 10 Şarapnel', 'Kıyamet Bataryası Evrimine Hazır']
+        ]
+      },
+      teslaPrism: {
+        id: 'teslaPrism', kind: 'sigWeapon', ship: 'aegis',
+        name: 'Tesla Kalkan Prizması', icon: '⚡', color: '#bf00ff',
+        formula: 'Aegis Özel Kök Silahı (Lv.1 ➔ Lv.5)',
+        simType: 'disc',
+        desc: 'Sadece Aegis gemisinde açılan, mevcut kalkan enerjisine oranla zincirleme yıldırım arkları çakan prizma.',
+        levels: [
+          ['Lv.1', '32 Ark Hasarı • 2 Sıçrama', 'Kalkan Bonusu +%15'],
+          ['Lv.3', '60 Ark Hasarı • 4 Sıçrama', 'Mermi Silici Şok'],
+          ['Lv.5 (MAKS)', '110 Ark Hasarı • 6 Sıçrama', 'Kutsal İyon Fırtınası Evrimine Hazır']
+        ]
+      },
+      voidScythe: {
+        id: 'voidScythe', kind: 'sigWeapon', ship: 'phantom',
+        name: 'Hiper-Uzay Tırpanı', icon: '🌙', color: '#ff006a',
+        formula: 'Void Phantom Özel Kök Silahı (Lv.1 ➔ Lv.5)',
+        simType: 'dagger',
+        desc: 'Sadece Void Phantom gemisinde açılan, uzay-zamanı yararak arkadan vuruşlarda infaz hasarı veren karanlık tırpan.',
+        levels: [
+          ['Lv.1', '50 Biçme Hasarı • +%40 Kritik', 'Geniş Hilal Darbesi'],
+          ['Lv.3', '90 Biçme Hasarı • +%75 Kritik', 'Gölge Yarığı Bırakır'],
+          ['Lv.5 (MAKS)', '155 Biçme Hasarı • +%120 Kritik', 'Hiçlik Biçicisi Evrimine Hazır']
+        ]
+      },
+      solarMortar: {
+        id: 'solarMortar', kind: 'sigWeapon', ship: 'solarflare',
+        name: 'Plazma Havanı', icon: '☄️', color: '#ff6600',
+        formula: 'Solar Flare Özel Kök Silahı (Lv.1 ➔ Lv.5)',
+        simType: 'flame',
+        desc: 'Sadece Solar Flare gemisinde açılan, düştüğü yerde 4 saniye boyunca yanan güneş krateri oluşturan termal havan.',
+        levels: [
+          ['Lv.1', '40 Patlama + 20/sn Yanık', '1 Güneş Krateri'],
+          ['Lv.3', '75 Patlama + 40/sn Yanık', '2 Güneş Krateri'],
+          ['Lv.5 (MAKS)', '130 Patlama + 75/sn Yanık', 'Helios Kıyameti Evrimine Hazır']
+        ]
+      },
 
-                <div>
-                    <div style="font-family:'Orbitron',monospace;font-size:0.68rem;color:var(--p1);margin-bottom:6px;">📊 SEVİYE VE GÜÇ TABLOSU</div>
-                    <table class="lvl-table">
-                        <thead>
-                            <tr><th>AŞAMA</th><th>ETKİ & MEKANİK</th><th>SLOT TİPİ</th></tr>
-                        </thead>
-                        <tbody id="inspTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    </main>
+      // ── KARAKTERE ÖZEL KÖK ALETLER (SIGNATURE TRINKETS) ──
+      overdriveCore: {
+        id: 'overdriveCore', kind: 'sigTrinket', ship: 'interceptor',
+        name: 'Hiper-İvme Çekirdeği', icon: '⚡', color: '#00f0ff',
+        formula: 'Avcı Özel Kök Aleti (Lv.1 ➔ Lv.5)',
+        simType: 'laser',
+        desc: 'Gemi hareket ettikçe ateş hızını +%18 ve kritik vuruş çarpanını +%25 artırır. Takyon Mızrağı katalizörüdür.',
+        levels: [
+          ['Lv.1', '+%12 Ateş Hızı • +%10 Kritik Gücü', 'Hareket İvmesi'],
+          ['Lv.3', '+%24 Ateş Hızı • +%22 Kritik Gücü', 'Warp İzi Hasarı'],
+          ['Lv.5 (MAKS)', '+%40 Ateş Hızı • +%35 Kritik Gücü', 'Takyon Mızrağı Sentezini Açar']
+        ]
+      },
+      reactiveArmor: {
+        id: 'reactiveArmor', kind: 'sigTrinket', ship: 'dreadnought',
+        name: 'Reaktif Zırh Plakası', icon: '🛡️', color: '#ffaa00',
+        formula: 'Kruvazör Özel Kök Aleti (Lv.1 ➔ Lv.5)',
+        simType: 'plasma',
+        desc: 'Zırhı +%8/Lv artırır ve alınan her darbede çevredeki düşmanlara karşı-şok dalgası patlatır.',
+        levels: [
+          ['Lv.1', '+%8 Zırh • 45 Karşı-Şok Hasarı', 'Titanyum Kaplama'],
+          ['Lv.3', '+%18 Zırh • 95 Karşı-Şok Hasarı', 'Sarsıntı Koruması'],
+          ['Lv.5 (MAKS)', '+%30 Zırh • 180 Karşı-Şok Hasarı', 'Kıyamet Bataryası Sentezini Açar']
+        ]
+      },
+      harmonicCapacitor: {
+        id: 'harmonicCapacitor', kind: 'sigTrinket', ship: 'aegis',
+        name: 'Harmonik Kondansatör', icon: '🔋', color: '#bf00ff',
+        formula: 'Aegis Özel Kök Aleti (Lv.1 ➔ Lv.5)',
+        simType: 'disc',
+        desc: 'Maksimum kalkanı +45/Lv büyütür ve kalkan doluyken tüm silahların alan çapını +%30 genişletir.',
+        levels: [
+          ['Lv.1', '+45 Kalkan • +%10 Alan Çapı', 'Rezonans Akımı'],
+          ['Lv.3', '+110 Kalkan • +%20 Alan Çapı', 'EMP Yarıçapı +%35'],
+          ['Lv.5 (MAKS)', '+200 Kalkan • +%35 Alan Çapı', 'Kutsal İyon Fırtınası Sentezini Açar']
+        ]
+      },
+      phaseCloak: {
+        id: 'phaseCloak', kind: 'sigTrinket', ship: 'phantom',
+        name: 'Kuantum Gölge Pelerini', icon: '👻', color: '#ff006a',
+        formula: 'Void Phantom Özel Kök Aleti (Lv.1 ➔ Lv.5)',
+        simType: 'dagger',
+        desc: 'Görünmezlik süresini uzatır ve görünmezlikten çıkarken yapılan ilk saldırının hasarını %250 katlar.',
+        levels: [
+          ['Lv.1', '+0.4s Görünmezlik • +%50 Pusu Hasarı', 'Faz Kayması'],
+          ['Lv.3', '+0.9s Görünmezlik • +%120 Pusu Hasarı', 'Gölge Klonu'],
+          ['Lv.5 (MAKS)', '+1.5s Görünmezlik • +%250 Pusu Hasarı', 'Hiçlik Biçicisi Sentezini Açar']
+        ]
+      },
+      fusionHeart: {
+        id: 'fusionHeart', kind: 'sigTrinket', ship: 'solarflare',
+        name: 'Termonükleer Kalp', icon: '☀️', color: '#ff6600',
+        formula: 'Solar Flare Özel Kök Aleti (Lv.1 ➔ Lv.5)',
+        simType: 'flame',
+        desc: 'Radyasyon aurası çapını büyütür ve yanarak ölen her düşmanın termal bir patlama yaymasını sağlar.',
+        levels: [
+          ['Lv.1', '+%25 Yanık Hasarı • +%15 Aura Çapı', 'Zincirleme Tutuşturma'],
+          ['Lv.3', '+%55 Yanık Hasarı • +%30 Aura Çapı', 'Ölümde Lav Patlaması'],
+          ['Lv.5 (MAKS)', '+%100 Yanık Hasarı • +%50 Aura Çapı', 'Helios Kıyameti Sentezini Açar']
+        ]
+      },
 
-    <footer class="site-footer">
-        <img src="assets/logo.svg" alt="Cosmic Survivors logosu" width="185" height="52"><br>
-        <strong>Cosmic Survivors v7.0 VAMPIRE SURVIVORS EDITION</strong> — Evrim & Süper Evrim Ağacı<br>
-        <a href="index.html">Ana Komuta</a> ·
-        <a href="game.html">Savaş Arenası</a> ·
-        <a href="about.html">Sektör 9 Arşivi & Künye</a> ·
-        <a href="mailto:cosmic@haking.tr">cosmic@haking.tr</a> ·
-        <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener">☕ Buy Me a Coffee</a> ·
-        © 2026 Halit Güneş (HaKING) · MIT License
-    </footer>
+      // ── 6 EVRENSEL SİLAH (ÇAPRAZ EVRİM DESTEKLİ) ──
+      dualLaser: {
+        id: 'dualLaser', kind: 'weapon',
+        name: 'Çift Lazer', icon: '⚡', color: '#00f0ff',
+        formula: 'Çapraz Dallar: +Soğutucu ➔ Gatling Fırtınası | +Nişangah ➔ Prizma Kırılması',
+        simType: 'laser',
+        desc: 'Paralel foton namlularından yüksek hızlı lazerler ateşler. Seçtiğiniz alete göre 2 farklı evrime dallanır!',
+        levels: [
+          ['Lv.1', '14 Hasar x2 Namlu', '0.18s Ateş Hızı'],
+          ['Lv.3', '23 Hasar x3 Namlu', '0.15s Ateş Hızı'],
+          ['Lv.5 (MAKS)', '34 Hasar x4 Namlu', '2 Farklı Çapraz Evrime Hazır']
+        ]
+      },
+      heavyPlasma: {
+        id: 'heavyPlasma', kind: 'weapon',
+        name: 'Ağır Plazma Topu', icon: '☄️', color: '#ff5500',
+        formula: 'Çapraz Dallar: +Biyo-Reaktör ➔ Kan Hasadı | +Mıknatıs ➔ Graviton Çökertici',
+        simType: 'plasma',
+        desc: 'Çarpışma anında alansal patlama yaratan plazma küresi. Biyo-Reaktör veya Mıknatıs ile iki ayrı evrime gider.',
+        levels: [
+          ['Lv.1', '36 Hasar • 65px Patlama', 'Alansal Şok'],
+          ['Lv.3', '60 Hasar • 85px Patlama', 'Zırh Eritme'],
+          ['Lv.5 (MAKS)', '88 Hasar • 110px Patlama', '2 Farklı Çapraz Evrime Hazır']
+        ]
+      },
+      energyDisc: {
+        id: 'energyDisc', kind: 'weapon',
+        name: 'Dönen Enerji Diski', icon: '💿', color: '#bf00ff',
+        formula: 'Çapraz Dallar: +Kinetik İtici ➔ Aegis Rezonansı | +Soğutucu ➔ Kriyo Kasırgası',
+        simType: 'disc',
+        desc: 'Gemi yörüngesinde dönerek yaklaşan sürüleri biçen kesici plazma diskleri.',
+        levels: [
+          ['Lv.1', '2 Disk • 16 Hasar/tik', '75px Yörünge'],
+          ['Lv.3', '3 Disk • 28 Hasar/tik', '85px Yörünge'],
+          ['Lv.5 (MAKS)', '5 Disk • 42 Hasar/tik', '2 Farklı Çapraz Evrime Hazır']
+        ]
+      },
+      quantumDagger: {
+        id: 'quantumDagger', kind: 'weapon',
+        name: 'Kuantum Hançeri', icon: '🗡️', color: '#ff006a',
+        formula: 'Çapraz Dallar: +Mıknatıs ➔ Kozmik Süpernova | +Nişangah ➔ Hayalet İnfazcı',
+        simType: 'dagger',
+        desc: 'En yüksek cana sahip elit hedeflere kilitlenen, yüksek kritik şanslı zırh delici faz hançerleri.',
+        levels: [
+          ['Lv.1', '28 Hasar • 1 Hançer', '+%20 Kritik Bonusu'],
+          ['Lv.3', '46 Hasar • 2 Hançer', '1 Hedef Deler'],
+          ['Lv.5 (MAKS)', '68 Hasar • 3 Hançer', '2 Farklı Çapraz Evrime Hazır']
+        ]
+      },
+      flameLine: {
+        id: 'flameLine', kind: 'weapon',
+        name: 'Alev Hattı', icon: '🔥', color: '#ff8800',
+        formula: 'Çapraz Dallar: +Deflektör ➔ Titan Koronası | +Biyo-Reaktör ➔ Biyo-Napalm Seli',
+        simType: 'flame',
+        desc: 'Geminin önünde ve arkasında sürekli yanan termal plazma koridoru oluşturur.',
+        levels: [
+          ['Lv.1', '22/sn Termal Hasar', 'İkili Alev İzi'],
+          ['Lv.3', '42/sn Termal Hasar', 'Geniş Plazma Koridoru'],
+          ['Lv.5 (MAKS)', '68/sn Termal Hasar', '2 Farklı Çapraz Evrime Hazır']
+        ]
+      },
+      swarmMissiles: {
+        id: 'swarmMissiles', kind: 'weapon',
+        name: 'Füze Sürüsü', icon: '🚀', color: '#00ff88',
+        formula: 'Çapraz Dallar: +Nişangah ➔ Kuantum Yargıç | +Kinetik İtici ➔ Valkyrie Yaylım Ateşi',
+        simType: 'missile',
+        desc: 'En yakın hedeflere kilitlenen güdümlü mikro füze bataryası.',
+        levels: [
+          ['Lv.1', '23 Hasar x2 Füze', 'Güdümlü Kilit'],
+          ['Lv.3', '35 Hasar x3 Füze', 'Hızlı Ateşleme'],
+          ['Lv.5 (MAKS)', '46 Hasar x4 Füze', '2 Farklı Çapraz Evrime Hazır']
+        ]
+      },
 
-    <script>
-        const NODES = {
-            // 6 Weapons (also aliased to legacy perk ids in DOM for compatibility)
-            dualLaser:     { id: 'dualLaser',     legacyId: 'atkUp',    tier: 'weapon',  name: 'Çift Lazer',         icon: '⚡', color: '#00f0ff', sub: 'Silah (Avcı)',       pair: 'coolant',      evo: 'gatlingStorm',    desc: 'Paralel foton namlularından yüksek hızlı lazerler ateşler.', rows: [['Lv.1', '14 Baz Hasar · 2 Namlu', '1 Silah Slotu'], ['Lv.3', '23 Baz Hasar · 3 Namlu', '1 Silah Slotu'], ['Lv.5 (MAKS)', '36 Baz Hasar · 4 Namlu ★', 'Evrime Hazır']] },
-            heavyPlasma:   { id: 'heavyPlasma',   legacyId: 'vampUp',   tier: 'weapon',  name: 'Ağır Plazma Topu',   icon: '☄️', color: '#ff5500', sub: 'Silah (Kruvazör)',   pair: 'bioreactor',   evo: 'bloodHarvest',    desc: 'Çarptığında alan patlaması yaratan ağır plazma gülleleri fırlatır.', rows: [['Lv.1', '34 Alan Hasarı', '1 Silah Slotu'], ['Lv.3', '50 Alan Hasarı', '1 Silah Slotu'], ['Lv.5 (MAKS)', '66 Alan Hasarı · Çift Gülle ★', 'Evrime Hazır']] },
-            energyDisc:    { id: 'energyDisc',    legacyId: 'shieldUp', tier: 'weapon',  name: 'Dönen Enerji Diski', icon: '💿', color: '#bf00ff', sub: 'Silah (Aegis)',      pair: 'thruster',     evo: 'aegisResonance',  desc: 'Gemi yörüngesinde dönerek yaklaşan parazitleri biçen testere diskleri.', rows: [['Lv.1', '1 Yörünge Diski', '1 Silah Slotu'], ['Lv.3', '3 Yörünge Diski', '1 Silah Slotu'], ['Lv.5 (MAKS)', '5 Yörünge Diski ★', 'Evrime Hazır']] },
-            quantumDagger: { id: 'quantumDagger', legacyId: 'critUp',   tier: 'weapon',  name: 'Kuantum Hançeri',    icon: '🗡️', color: '#ff006a', sub: 'Silah (Gölge)',      pair: 'magnet',       evo: 'cosmicSupernova', desc: 'En tehlikeli hedeflere fırlatılan delici, yüksek kritik şanslı hançerler.', rows: [['Lv.1', '1 Delici Hançer', '1 Silah Slotu'], ['Lv.3', '2 Delici Hançer', '1 Silah Slotu'], ['Lv.5 (MAKS)', '3 Delici Hançer ★', 'Evrime Hazır']] },
-            flameLine:     { id: 'flameLine',     legacyId: 'hpUp',     tier: 'weapon',  name: 'Alev Hattı',         icon: '🔥', color: '#ff8800', sub: 'Silah (Solar)',      pair: 'shieldMatrix', evo: 'titanCore',       desc: 'Geminin önünde ve arkasında sürekli yanan termal plazma koridoru.', rows: [['Lv.1', '42 DPS Alev İzi', '1 Silah Slotu'], ['Lv.3', '68 DPS Alev İzi', '1 Silah Slotu'], ['Lv.5 (MAKS)', '95 DPS Çift Alev Koridoru ★', 'Evrime Hazır']] },
-            swarmMissiles: { id: 'swarmMissiles', legacyId: 'multiUp',  tier: 'weapon',  name: 'Füze Sürüsü',        icon: '🚀', color: '#00ff88', sub: 'Silah (Genel)',      pair: 'targetMatrix', evo: 'quantumArbiter',  desc: 'En yakın düşmanlara kilitlenen güdümlü mikro füze bataryası.', rows: [['Lv.1', '2 Güdümlü Füze', '1 Silah Slotu'], ['Lv.3', '3 Güdümlü Füze', '1 Silah Slotu'], ['Lv.5 (MAKS)', '4 Güdümlü Füze ★', 'Evrime Hazır']] },
+      // ── 6 EVRENSEL ALET (TRINKETS) ──
+      coolant: {
+        id: 'coolant', kind: 'trinket',
+        name: 'Kriyo Soğutucu', icon: '❄️', color: '#00ccff',
+        formula: 'Katalizör: Çift Lazer (Gatling Fırtınası) & Enerji Diski (Kriyo Kasırgası)',
+        simType: 'laser',
+        desc: 'Tüm silahların ateşleme süresini ve aktif yetenek Cooldown süresini -%14/Lv azaltır.',
+        levels: [
+          ['Lv.1', '-%14 Cooldown', 'Hızlı Ateşleme'],
+          ['Lv.3', '-%36 Cooldown', 'Aşırı Soğutma'],
+          ['Lv.5 (MAKS)', '-%55 Cooldown', '2 Evrim Dalını Açar']
+        ]
+      },
+      bioreactor: {
+        id: 'bioreactor', kind: 'trinket',
+        name: 'Biyo-Reaktör', icon: '🩸', color: '#ff2255',
+        formula: 'Katalizör: Ağır Plazma (Kan Hasadı) & Alev Hattı (Biyo-Napalm Seli)',
+        simType: 'plasma',
+        desc: 'Maksimum canı +30 HP/Lv artırır ve saniyede +2.5 HP/Lv pasif biyo-onarım sağlar.',
+        levels: [
+          ['Lv.1', '+30 HP • +2.5 HP/sn', 'Biyo-Onarım'],
+          ['Lv.3', '+90 HP • +7.5 HP/sn', 'Öldürmede Can Çalma'],
+          ['Lv.5 (MAKS)', '+150 HP • +12.5 HP/sn', '2 Evrim Dalını Açar']
+        ]
+      },
+      thruster: {
+        id: 'thruster', kind: 'trinket',
+        name: 'Kinetik İtici', icon: '🛡️', color: '#aa66ff',
+        formula: 'Katalizör: Enerji Diski (Aegis Rezonansı) & Füze Sürüsü (Valkyrie Yaylımı)',
+        simType: 'disc',
+        desc: 'Gemi hareket hızını +%12/Lv ve zırh korumasını +%6/Lv artırır.',
+        levels: [
+          ['Lv.1', '+%12 Hız • +%6 Zırh', 'Kinetik İtki'],
+          ['Lv.3', '+%36 Hız • +%18 Zırh', 'Çarpışma Direnci'],
+          ['Lv.5 (MAKS)', '+%60 Hız • +%30 Zırh', '2 Evrim Dalını Açar']
+        ]
+      },
+      magnet: {
+        id: 'magnet', kind: 'trinket',
+        name: 'Mıknatıs Çekirdeği', icon: '🧲', color: '#44ffaa',
+        formula: 'Katalizör: Kuantum Hançeri (Kozmik Süpernova) & Ağır Plazma (Graviton Çökertici)',
+        simType: 'blackhole',
+        desc: 'XP/Ganimet çekim çapını +%35/Lv ve silah menzilini +%15/Lv artırır.',
+        levels: [
+          ['Lv.1', '+%35 Çekim • +%15 Menzil', 'Manyetik Alan'],
+          ['Lv.3', '+%105 Çekim • +%45 Menzil', 'XP Bonusu +%15'],
+          ['Lv.5 (MAKS)', '+%175 Çekim • +%75 Menzil', '2 Evrim Dalını Açar']
+        ]
+      },
+      targetMatrix: {
+        id: 'targetMatrix', kind: 'trinket',
+        name: 'Kuantum Nişangah', icon: '🎯', color: '#ffd700',
+        formula: 'Katalizör: Füze Sürüsü, Çift Lazer & Kuantum Hançeri Çapraz Evrimleri',
+        simType: 'missile',
+        desc: 'Kritik vuruş şansını +%9/Lv ve tüm silahların mermi hasarını +%15/Lv artırır.',
+        levels: [
+          ['Lv.1', '+%9 Kritik • +%15 Hasar', 'Lazer Güdüm'],
+          ['Lv.3', '+%27 Kritik • +%45 Hasar', 'Zayıf Nokta Analizi'],
+          ['Lv.5 (MAKS)', '+%45 Kritik • +%75 Hasar', '3 Evrim Dalını Açar']
+        ]
+      },
+      shieldMatrix: {
+        id: 'shieldMatrix', kind: 'trinket',
+        name: 'Deflektör Matrisi', icon: '◆', color: '#00f0ff',
+        formula: 'Katalizör: Alev Hattı (Titan Koronası)',
+        simType: 'flame',
+        desc: 'Maksimum kalkanı +35 SH/Lv ve kalkan dolum hızını +%20/Lv artırır.',
+        levels: [
+          ['Lv.1', '+35 Kalkan • +%20 Dolum', 'Yansıtıcı Faz'],
+          ['Lv.3', '+105 Kalkan • +%60 Dolum', 'Kalkan Darbe Direnci'],
+          ['Lv.5 (MAKS)', '+175 Kalkan • +%100 Dolum', 'Titan Koronası Evrimini Açar']
+        ]
+      },
 
-            // 6 Trinkets
-            coolant:       { id: 'coolant',      tier: 'trinket', name: 'Kriyo Soğutucu',    icon: '❄️', color: '#00ccff', sub: 'Alet (Cooldown)',  pair: 'dualLaser',     evo: 'gatlingStorm',    desc: 'Tüm silahların ve aktif yeteneklerin bekleme süresini (Cooldown) -%14/Lv azaltır.', rows: [['Lv.1', '-%14 Cooldown', '1 Alet Slotu'], ['Lv.5 (MAKS)', '-%53 Cooldown ★', 'Gatling Fırtınası Açar']] },
-            bioreactor:    { id: 'bioreactor',   tier: 'trinket', name: 'Biyo-Reaktör',      icon: '🩸', color: '#ff2255', sub: 'Alet (Can Yenileme)',pair: 'heavyPlasma',   evo: 'bloodHarvest',    desc: 'Maksimum canı +32 HP/Lv artırır ve saniyede +2.5 HP/Lv pasif onarım sağlar.', rows: [['Lv.1', '+32 HP · +2.5 HP/sn', '1 Alet Slotu'], ['Lv.5 (MAKS)', '+160 HP · +12.5 HP/sn ★', 'Kan Hasadı Açar']] },
-            thruster:      { id: 'thruster',     tier: 'trinket', name: 'Kinetik İtici',     icon: '🛡️', color: '#aa66ff', sub: 'Alet (Zırh & Hız)', pair: 'energyDisc',    evo: 'aegisResonance',  desc: 'Gemi hareket hızını +%12/Lv ve zırh korumasını +%6/Lv artırır.', rows: [['Lv.1', '+%12 Hız · +%6 Zırh', '1 Alet Slotu'], ['Lv.5 (MAKS)', '+%60 Hız · +%30 Zırh ★', 'Aegis Rezonansı Açar']] },
-            magnet:        { id: 'magnet',       tier: 'trinket', name: 'Mıknatıs Çekirdeği',icon: '🧲', color: '#44ffaa', sub: 'Alet (Çekim Çapı)', pair: 'quantumDagger', evo: 'cosmicSupernova', desc: 'XP/Sandık çekim çapını +%35/Lv ve silah menzilini +%15/Lv artırır.', rows: [['Lv.1', '+%35 Çekim Çapı', '1 Alet Slotu'], ['Lv.5 (MAKS)', '+%175 Çekim · +%75 Menzil ★', 'Kozmik Süpernova Açar']] },
-            shieldMatrix:  { id: 'shieldMatrix', tier: 'trinket', name: 'Deflektör Matrisi', icon: '◆', color: '#00f0ff', sub: 'Alet (Kalkan)',     pair: 'flameLine',     evo: 'titanCore',       desc: 'Maksimum kalkanı +35 SH/Lv ve kalkan dolum hızını +%20/Lv artırır.', rows: [['Lv.1', '+35 Kalkan · +%20 Dolum', '1 Alet Slotu'], ['Lv.5 (MAKS)', '+175 Kalkan · +%100 Dolum ★', 'Titan Koronası Açar']] },
-            targetMatrix:  { id: 'targetMatrix', tier: 'trinket', name: 'Kuantum Nişangah',  icon: '🎯', color: '#ffd700', sub: 'Alet (Kritik)',     pair: 'swarmMissiles', evo: 'quantumArbiter',  desc: 'Kritik vuruş şansını +%9/Lv ve tüm silah hasarını +%16/Lv artırır.', rows: [['Lv.1', '+%9 Kritik · +%16 Hasar', '1 Alet Slotu'], ['Lv.5 (MAKS)', '+%45 Kritik · +%80 Hasar ★', 'Kuantum Yargıç Açar']] },
+      // ── KATMAN 2: KARAKTERE ÖZEL EVRİMLER + ÇAPRAZ EVRİMLER (X + Y = Z) ──
+      tachyonLance: {
+        id: 'tachyonLance', kind: 'sigEvolution', ship: 'interceptor',
+        name: 'Takyon Mızrağı', icon: '🔱', color: '#00f0ff',
+        reqs: ['photonRailgun', 'overdriveCore', 'dualLaser'],
+        formula: 'Foton Raylı Top (veya Çift Lazer) Lv.5 + Hiper-İvme Çekirdeği Lv.5',
+        simType: 'laser',
+        desc: '[AVCI ÖZEL EVRİMİ] Ekranı boydan boya delen sonsuz hızlı takyon ışını; geçtiği yerde patlayan foton izi bırakır.',
+        levels: [['EVRİM (Z)', '280 Delici Hasar • %100 Kritik İzi', 'Avcı İmza Evrimi']]
+      },
+      siegeBehemoth: {
+        id: 'siegeBehemoth', kind: 'sigEvolution', ship: 'dreadnought',
+        name: 'Kıyamet Bataryası', icon: '🌋', color: '#ffaa00',
+        reqs: ['flakArtillery', 'reactiveArmor', 'heavyPlasma'],
+        formula: 'Balistik Flak Topu (veya Ağır Plazma) Lv.5 + Reaktif Zırh Plakası Lv.5',
+        simType: 'plasma',
+        desc: '[KRUVAZÖR ÖZEL EVRİMİ] Zırh delici nükleer havan yaylımı; her patlama 12 parça tesirli şarapnel ve sarsıntı dalgası yayar.',
+        levels: [['EVRİM (Z)', '310 Alan Hasarı • +%25 Ek Zırh', 'Kruvazör İmza Evrimi']]
+      },
+      sanctuaryMaelstrom: {
+        id: 'sanctuaryMaelstrom', kind: 'sigEvolution', ship: 'aegis',
+        name: 'Kutsal İyon Fırtınası', icon: '🌀', color: '#bf00ff',
+        reqs: ['teslaPrism', 'harmonicCapacitor', 'energyDisc'],
+        formula: 'Tesla Kalkan Prizması (veya Enerji Diski) Lv.5 + Harmonik Kondansatör Lv.5',
+        simType: 'disc',
+        desc: '[AEGIS ÖZEL EVRİMİ] Yörüngedeki diskler birbirine yıldırım ağlarıyla bağlanır; ağa değen düşman mermileri anında kalkana dönüşür.',
+        levels: [['EVRİM (Z)', '195/sn İyon Ağı • Mermi Yutucu', 'Aegis İmza Evrimi']]
+      },
+      abyssalReaper: {
+        id: 'abyssalReaper', kind: 'sigEvolution', ship: 'phantom',
+        name: 'Hiçlik Biçicisi', icon: '💀', color: '#ff006a',
+        reqs: ['voidScythe', 'phaseCloak', 'quantumDagger'],
+        formula: 'Hiper-Uzay Tırpanı (veya Kuantum Hançeri) Lv.5 + Kuantum Gölge Pelerini Lv.5',
+        simType: 'dagger',
+        desc: '[VOID PHANTOM ÖZEL EVRİMİ] Her saldırıda gölge klonları fırlatan boyutsal tırpan; canı %30 altındaki düşmanları anında biçer.',
+        levels: [['EVRİM (Z)', '340 Suikast Hasarı • %30 İnfaz Eşiği', 'Void Phantom İmza Evrimi']]
+      },
+      heliosCataclysm: {
+        id: 'heliosCataclysm', kind: 'sigEvolution', ship: 'solarflare',
+        name: 'Helios Güneş Kıyameti', icon: '🌞', color: '#ff6600',
+        reqs: ['solarMortar', 'fusionHeart', 'flameLine'],
+        formula: 'Plazma Havanı (veya Alev Hattı) Lv.5 + Termonükleer Kalp Lv.5',
+        simType: 'flame',
+        desc: '[SOLAR FLARE ÖZEL EVRİMİ] Haritada dev güneş kraterleri açar ve yanan her düşmanı zincirleme süpernova gibi patlatır.',
+        levels: [['EVRİM (Z)', '260/sn Güneş Alevi • Zincirleme Nova', 'Solar Flare İmza Evrimi']]
+      },
 
-            // 6 Standard Evolutions
-            gatlingStorm:    { id: 'gatlingStorm',    tier: 'evo', name: 'Gatling Fırtınası', icon: '🌪️', color: '#00ff88', sub: 'Evrimleşmiş Silah', reqs: ['dualLaser', 'coolant'],       superEvo: 'infernoGatling', desc: 'Çift Lazer Lv.5 + Kriyo Soğutucu Lv.5 birleşimi: Mermiler hiper-hızla yağar ve düşmanlar arasında 3 kez seker.', rows: [['Gereksinim', 'Çift Lazer Lv.5 + Soğutucu Lv.5', 'Standart Evrim'], ['Evrim Etkisi', '3 Kez Seken Hiper Lazer Fırtınası', 'Süper Evrime Hazır']] },
-            bloodHarvest:    { id: 'bloodHarvest',    tier: 'evo', name: 'Kan Hasadı',        icon: '🩸', color: '#ff1744', sub: 'Evrimleşmiş Silah', reqs: ['heavyPlasma', 'bioreactor'], superEvo: 'infernoGatling', desc: 'Ağır Plazma Lv.5 + Biyo-Reaktör Lv.5 birleşimi: Her vuruş plazma patlaması yayar ve hasarın %10\'unu cana çevirir.', rows: [['Gereksinim', 'Ağır Plazma Lv.5 + Biyo-Reaktör Lv.5', 'Standart Evrim'], ['Evrim Etkisi', 'Plazma Patlaması + %10 Can Çalma', 'Süper Evrime Hazır']] },
-            aegisResonance:  { id: 'aegisResonance',  tier: 'evo', name: 'Aegis Rezonansı',   icon: '💠', color: '#00f0ff', sub: 'Evrimleşmiş Silah', reqs: ['energyDisc', 'thruster'],    superEvo: 'eventHorizon',   desc: 'Enerji Diski Lv.5 + Kinetik İtici Lv.5 birleşimi: 5\'li testere halkası, kinetik kalkan dolumu ve kalkan kırılınca EMP.', rows: [['Gereksinim', 'Enerji Diski Lv.5 + Kinetik İtici Lv.5', 'Standart Evrim'], ['Evrim Etkisi', 'Kinetik Kalkan + Ekran Temizleyen EMP', 'Süper Evrime Hazır']] },
-            cosmicSupernova: { id: 'cosmicSupernova', tier: 'evo', name: 'Kozmik Süpernova',  icon: '🌌', color: '#bf00ff', sub: 'Evrimleşmiş Silah', reqs: ['quantumDagger', 'magnet'],   superEvo: 'eventHorizon',   desc: 'Kuantum Hançeri Lv.5 + Mıknatıs Lv.5 birleşimi: Kritik vuruşlar alansal Kara Delik açar ve düşmanları içine çeker.', rows: [['Gereksinim', 'Kuantum Hançeri Lv.5 + Mıknatıs Lv.5', 'Standart Evrim'], ['Evrim Etkisi', 'Kritik Vuruşta Çekim Kara Deliği', 'Süper Evrime Hazır']] },
-            titanCore:       { id: 'titanCore',       tier: 'evo', name: 'Titan Koronası',    icon: '☀️', color: '#ff8800', sub: 'Evrimleşmiş Silah', reqs: ['flameLine', 'shieldMatrix'], superEvo: 'omegaJudgement', desc: 'Alev Hattı Lv.5 + Deflektör Matrisi Lv.5 birleşimi: +130 Maks HP ve her 2.5 sn\'de bir Termal Nova yayar.', rows: [['Gereksinim', 'Alev Hattı Lv.5 + Deflektör Lv.5', 'Standart Evrim'], ['Evrim Etkisi', '+130 HP · %20 Zırh · Termal Nova', 'Süper Evrime Hazır']] },
-            quantumArbiter:  { id: 'quantumArbiter',  tier: 'evo', name: 'Kuantum Yargıç',    icon: '🔱', color: '#ffd700', sub: 'Evrimleşmiş Silah', reqs: ['swarmMissiles', 'targetMatrix'], superEvo: 'omegaJudgement', desc: 'Füze Sürüsü Lv.5 + Kuantum Nişangah Lv.5 birleşimi: Delici kuantum mızrakları, her delmede +%25 hasar ve yavaşlatma.', rows: [['Gereksinim', 'Füze Sürüsü Lv.5 + Nişangah Lv.5', 'Standart Evrim'], ['Evrim Etkisi', '4x Delici Mızrak + Yavaşlatma', 'Süper Evrime Hazır']] },
+      // Çapraz Evrimler (Aynı silah farklı aletlerle farklı evrime dönüşür!)
+      gatlingStorm: {
+        id: 'gatlingStorm', kind: 'evolution',
+        name: 'Gatling Fırtınası', icon: '🌪️', color: '#00ff88',
+        reqs: ['dualLaser', 'coolant'],
+        formula: 'Çift Lazer Lv.5 + Kriyo Soğutucu Lv.5 (Dal A)',
+        simType: 'laser',
+        desc: 'Lazerler hiper-hızla yağar ve isabet ettiği düşmanlar arasında otomatik olarak 3 kez seker (Ricochet).',
+        levels: [['EVRİM (Z1)', '55 Hasar x3 Namlu • 3 Sekme', '0.07s Hiper Ateş Hızı']]
+      },
+      prismOverload: {
+        id: 'prismOverload', kind: 'evolution',
+        name: 'Prizma Kırılması', icon: '🌈', color: '#00f0ff',
+        reqs: ['dualLaser', 'targetMatrix'],
+        formula: 'Çift Lazer Lv.5 + Kuantum Nişangah Lv.5 (Dal B)',
+        simType: 'laser',
+        desc: 'Çift Lazerin 2. çapraz evrimi! Her kritik lazer isabetinde ışın 5 farklı yöne kırılan gökkuşağı fotonlarına bölünür.',
+        levels: [['EVRİM (Z2)', '72 Kritik Hasar • 5 Yöne Kırılma', 'Çapraz Dal Evrimi']]
+      },
+      bloodHarvest: {
+        id: 'bloodHarvest', kind: 'evolution',
+        name: 'Kan Hasadı', icon: '🩸', color: '#ff1744',
+        reqs: ['heavyPlasma', 'bioreactor'],
+        formula: 'Ağır Plazma Topu Lv.5 + Biyo-Reaktör Lv.5 (Dal A)',
+        simType: 'plasma',
+        desc: 'Her vuruş kızıl plazma patlaması yayar ve verilen hasarın %10\'unu doğrudan cana çevirir.',
+        levels: [['EVRİM (Z1)', '145 Alan Hasarı • %10 Can Çalma', '130px Kızıl Nova']]
+      },
+      gravitonImploder: {
+        id: 'gravitonImploder', kind: 'evolution',
+        name: 'Graviton Çökertici', icon: '🪐', color: '#ff8800',
+        reqs: ['heavyPlasma', 'magnet'],
+        formula: 'Ağır Plazma Topu Lv.5 + Mıknatıs Çekirdeği Lv.5 (Dal B)',
+        simType: 'blackhole',
+        desc: 'Ağır Plazmanın 2. çapraz evrimi! Patladığı noktada ters yerçekimi şoku yaratarak tüm düşmanları merkeze çarpıştırır.',
+        levels: [['EVRİM (Z2)', '160 Çökertme Hasarı • Girdap Çekimi', 'Çapraz Dal Evrimi']]
+      },
+      aegisResonance: {
+        id: 'aegisResonance', kind: 'evolution',
+        name: 'Aegis Rezonansı', icon: '💠', color: '#00f0ff',
+        reqs: ['energyDisc', 'thruster'],
+        formula: 'Dönen Enerji Diski Lv.5 + Kinetik İtici Lv.5 (Dal A)',
+        simType: 'disc',
+        desc: '5 adet dev kesici disk döner; hareket ettikçe kalkan hızla dolar, kalkan kırılınca tüm ekranı temizleyen EMP patlar.',
+        levels: [['EVRİM (Z1)', '5 Disk • 65 Hasar/tik • Otomatik EMP', 'Kalkan Rezonansı']]
+      },
+      cryoVortex: {
+        id: 'cryoVortex', kind: 'evolution',
+        name: 'Kriyo Kasırgası', icon: '❄️', color: '#80e5ff',
+        reqs: ['energyDisc', 'coolant'],
+        formula: 'Dönen Enerji Diski Lv.5 + Kriyo Soğutucu Lv.5 (Dal B)',
+        simType: 'disc',
+        desc: 'Enerji Diskinin 2. çapraz evrimi! Sıfır-altı buz testereleri temas ettiği tüm düşmanları %60 yavaşlatır ve dondurur.',
+        levels: [['EVRİM (Z2)', '6 Buz Diski • %60 Dondurma', 'Çapraz Dal Evrimi']]
+      },
+      cosmicSupernova: {
+        id: 'cosmicSupernova', kind: 'evolution',
+        name: 'Kozmik Süpernova', icon: '🌌', color: '#bf00ff',
+        reqs: ['quantumDagger', 'magnet'],
+        formula: 'Kuantum Hançeri Lv.5 + Mıknatıs Çekirdeği Lv.5 (Dal A)',
+        simType: 'blackhole',
+        desc: 'Kritik hançer vuruşları alansal bir Kara Delik açar ve çevredeki tüm parazitleri içine çekip ezer.',
+        levels: [['EVRİM (Z1)', '120 Kritik + Kara Delik Tekilliği', '155px Çekim Alanı']]
+      },
+      phantomExecutioner: {
+        id: 'phantomExecutioner', kind: 'evolution',
+        name: 'Hayalet İnfazcı', icon: '⚔️', color: '#ff006a',
+        reqs: ['quantumDagger', 'targetMatrix'],
+        formula: 'Kuantum Hançeri Lv.5 + Kuantum Nişangah Lv.5 (Dal B)',
+        simType: 'dagger',
+        desc: 'Kuantum Hançerinin 2. çapraz evrimi! Hedefler arasında ışınlanan bıçaklar yaralı düşmanları anında infaz eder.',
+        levels: [['EVRİM (Z2)', '4 Güdümlü Bıçak • %25 İnfaz', 'Çapraz Dal Evrimi']]
+      },
+      titanCore: {
+        id: 'titanCore', kind: 'evolution',
+        name: 'Titan Koronası', icon: '☀️', color: '#ff8800',
+        reqs: ['flameLine', 'shieldMatrix'],
+        formula: 'Alev Hattı Lv.5 + Deflektör Matrisi Lv.5 (Dal A)',
+        simType: 'flame',
+        desc: 'Alev koridoru devasa güneş halkasına dönüşür ve her 2.5 saniyede bir ekran çapında yakıcı Termal Nova yayar.',
+        levels: [['EVRİM (Z1)', '210px Termal Nova • +%25 Maks HP Hasarı', 'Korona Halkası']]
+      },
+      necroticNapalm: {
+        id: 'necroticNapalm', kind: 'evolution',
+        name: 'Biyo-Napalm Seli', icon: '🧪', color: '#00ff88',
+        reqs: ['flameLine', 'bioreactor'],
+        formula: 'Alev Hattı Lv.5 + Biyo-Reaktör Lv.5 (Dal B)',
+        simType: 'flame',
+        desc: 'Alev Hattının 2. çapraz evrimi! Yanan düşmanlar eriyerek pilota can veren asidik plazma havuzları bırakır.',
+        levels: [['EVRİM (Z2)', 'Asit Yanığı + Saniyede +15 HP Onarım', 'Çapraz Dal Evrimi']]
+      },
+      quantumArbiter: {
+        id: 'quantumArbiter', kind: 'evolution',
+        name: 'Kuantum Yargıç', icon: '🔱', color: '#ffd700',
+        reqs: ['swarmMissiles', 'targetMatrix'],
+        formula: 'Füze Sürüsü Lv.5 + Kuantum Nişangah Lv.5 (Dal A)',
+        simType: 'missile',
+        desc: 'Füzeler düşmanları delip geçen kuantum mızraklarına dönüşür; her delmede +%25 güçlenir.',
+        levels: [['EVRİM (Z1)', '4 Mızrak • 4 Hedef Deler • +%25 Güçlenme', 'Kuantum Güdüm']]
+      },
 
-            // 3 Cosmic Super Evolutions
-            infernoGatling:  { id: 'infernoGatling',  tier: 'super', name: 'Cehennem Gatling\'i',     icon: '🔥', color: '#ff0055', sub: 'SÜPER EVRİM (+1 Slot)', reqs: ['bloodHarvest', 'gatlingStorm'],    desc: 'Kan Hasadı + Gatling Fırtınası birleşimi! Tüm ekrana 3 kez seken kızıl cehennem mermileri yağdırır, her sekmede plazma patlaması yaratır ve pilotu sürekli iyileştirir.', rows: [['Evrim 1', '🩸 Kan Hasadı (Evrimleşmiş Plazma)', 'Silah Slotu 1'], ['Evrim 2', '🌪️ Gatling Fırtınası (Evrimleşmiş Lazer)', 'Silah Slotu 2'], ['SÜPER EVRİM', 'Seken Plazma Patlamalı Cehennem Yağmuru', '2 Slot ➔ 1 Slot (+1 Boş Slot!)']] },
-            eventHorizon:    { id: 'eventHorizon',    tier: 'super', name: 'Olay Ufku Tekilliği',     icon: '🕳️', color: '#00f0ff', sub: 'SÜPER EVRİM (+1 Slot)', reqs: ['cosmicSupernova', 'aegisResonance'], desc: 'Kozmik Süpernova + Aegis Rezonansı birleşimi! Yörüngede 6 olay ufku testeresi dönerken her kritikte çifte Kara Delik ve EMP şok dalgası açar.', rows: [['Evrim 1', '🌌 Kozmik Süpernova', 'Silah Slotu 1'], ['Evrim 2', '💠 Aegis Rezonansı', 'Silah Slotu 2'], ['SÜPER EVRİM', 'Olay Ufku Testereleri + Çifte Kara Delik', '2 Slot ➔ 1 Slot (+1 Boş Slot!)']] },
-            omegaJudgement:  { id: 'omegaJudgement',  tier: 'super', name: 'Omega Kıyamet Reaktörü', icon: '👑', color: '#ffd700', sub: 'SÜPER EVRİM (+1 Slot)', reqs: ['titanCore', 'quantumArbiter'],      desc: 'Titan Koronası + Kuantum Yargıç birleşimi! Sürekli güneş koronası yayarken tüm ekrana güdümlü termonükleer kuantum mızrakları yağdırır.', rows: [['Evrim 1', '☀️ Titan Koronası', 'Silah Slotu 1'], ['Evrim 2', '🔱 Kuantum Yargıç', 'Silah Slotu 2'], ['SÜPER EVRİM', 'Güneş Koronası + Termonükleer Mızraklar', '2 Slot ➔ 1 Slot (+1 Boş Slot!)']] }
-        };
+      // ── KATMAN 3: KOZMİK SÜPER / MEGA EVRİMLER (Z1 + Z2 = MEGA) ──
+      infernoGatling: {
+        id: 'infernoGatling', kind: 'mega',
+        name: 'Cehennem Gatling\'i', icon: '👑', color: '#ff0055',
+        reqs: ['gatlingStorm', 'bloodHarvest', 'heliosCataclysm'],
+        formula: 'Gatling Fırtınası + Kan Hasadı (veya Helios Kıyameti) ➔ MEGA EVRİM (+1 Boş Slot)',
+        simType: 'mega_inferno',
+        desc: '[KOZMİK MEGA EVRİM] Haritayı yakan, 4 kez seken kızıl cehennem mermileri yağdırır; her sekmede plazma patlatır ve pilotu sürekli iyileştirir! İki silahı birleştirerek +1 Boş Silah Slotu açar.',
+        levels: [['MEGA EVRİM', '4 Sekmeli Kızıl Plazma Fırtınası + %15 Can Çalma', '+1 SİLAH SLOTU AÇAR']]
+      },
+      eventHorizon: {
+        id: 'eventHorizon', kind: 'mega',
+        name: 'Olay Ufku Tekilliği', icon: '🌀', color: '#00f0ff',
+        reqs: ['cosmicSupernova', 'aegisResonance', 'sanctuaryMaelstrom', 'cryoVortex'],
+        formula: 'Kozmik Süpernova + Aegis Rezonansı (veya Kutsal İyon Fırtınası) ➔ MEGA EVRİM (+1 Boş Slot)',
+        simType: 'blackhole',
+        desc: '[KOZMİK MEGA EVRİM] Gemi etrafında 6 adet Kara Delik Diski döner; mermileri yutar, düşmanları merkeze çeker ve EMP şokları yayar!',
+        levels: [['MEGA EVRİM', '6 Kara Delik Diski + Otomatik EMP Tekilliği', '+1 SİLAH SLOTU AÇAR']]
+      },
+      omegaJudgement: {
+        id: 'omegaJudgement', kind: 'mega',
+        name: 'Omega Kıyamet Reaktörü', icon: '⚡', color: '#ffd700',
+        reqs: ['titanCore', 'quantumArbiter', 'prismOverload'],
+        formula: 'Titan Koronası + Kuantum Yargıç (veya Prizma Kırılması) ➔ MEGA EVRİM (+1 Boş Slot)',
+        simType: 'missile',
+        desc: '[KOZMİK MEGA EVRİM] Her 1.8 sn\'de güneş patlaması yayarken tüm ekrana zırh delici altın kuantum mızrakları yağdırır!',
+        levels: [['MEGA EVRİM', '5 Altın Mızrak + 280px Omega Güneş Novası', '+1 SİLAH SLOTU AÇAR']]
+      },
+      hyperionApex: {
+        id: 'hyperionApex', kind: 'mega', ship: 'interceptor',
+        name: 'Hyperion Işık Hükümdarı', icon: '🌟', color: '#00f0ff',
+        reqs: ['tachyonLance', 'gatlingStorm', 'prismOverload'],
+        formula: 'Takyon Mızrağı + Gatling Fırtınası (veya Prizma Kırılması) ➔ MEGA EVRİM (+1 Boş Slot)',
+        simType: 'laser',
+        desc: '[AVCI MEGA EVRİMİ] Ekranı 8 yönde kesen yörüngesel takyon lazer ağı ve sınırsız sekme kapasiteli ışık fırtınası!',
+        levels: [['MEGA EVRİM', '8 Yönlü Takyon Ağı + %100 Kritik Sekme', '+1 SİLAH SLOTU AÇAR']]
+      },
+      ironDreadnought: {
+        id: 'ironDreadnought', kind: 'mega', ship: 'dreadnought',
+        name: 'Zırhlı Kıyamet Kalesi', icon: '🏰', color: '#ffaa00',
+        reqs: ['siegeBehemoth', 'titanCore', 'gravitonImploder'],
+        formula: 'Kıyamet Bataryası + Titan Koronası (veya Graviton Çökertici) ➔ MEGA EVRİM (+1 Boş Slot)',
+        simType: 'plasma',
+        desc: '[KRUVAZÖR MEGA EVRİMİ] %60 hasar azaltmalı reaktif kale zırhı ve 360° kesintisiz nükleer-graviton bombardımanı!',
+        levels: [['MEGA EVRİM', '360° Nükleer Havan + %60 Reaktif Zırh', '+1 SİLAH SLOTU AÇAR']]
+      },
+      eclipseSingularity: {
+        id: 'eclipseSingularity', kind: 'mega', ship: 'phantom',
+        name: 'Tutulma Tanrısı', icon: '🌑', color: '#ff006a',
+        reqs: ['abyssalReaper', 'cosmicSupernova', 'phantomExecutioner', 'necroticNapalm'],
+        formula: 'Hiçlik Biçicisi + Kozmik Süpernova (veya Hayalet İnfazcı) ➔ MEGA EVRİM (+1 Boş Slot)',
+        simType: 'dagger',
+        desc: '[GÖLGE MEGA EVRİMİ] Karanlık madde klonları ve boyutsal kara delik tırpanlarıyla ekran çapında mutlak suikast yıkımı!',
+        levels: [['MEGA EVRİM', 'Boyutsal Tırpan Fırtınası + %35 Anında İnfaz', '+1 SİLAH SLOTU AÇAR']]
+      }
+    };
 
-        const wRow = document.getElementById('basePerksRow');
-        const tRow = document.getElementById('trinketsRow');
-        const eRow = document.getElementById('fusionsRow');
-        const sRow = document.getElementById('superRow');
-        const svgEl = document.getElementById('treeLinesSvg');
-        let activeId = 'infernoGatling';
+    const urlParams = new URLSearchParams(window.location.search);
+    let activeShipId = urlParams.get('ship') || sessionStorage.getItem('cosmic_ship') || 'interceptor';
+    if (!SHIP_TREES[activeShipId]) activeShipId = 'interceptor';
 
-        function buildTreeDOM() {
-            Object.values(NODES).forEach(n => {
-                const div = document.createElement('div');
-                div.className = 'tree-node' + (n.tier === 'super' ? ' super-node' : '');
-                div.id = 'node-' + n.id;
-                div.style.setProperty('--nc', n.color);
-                // Add hidden compatibility marker for automated tests
-                const compatAttr = n.legacyId ? `<span id="node-perk-${n.legacyId}" style="display:none"></span>` : (n.tier === 'evo' ? `<span id="node-fusion-${n.id}" style="display:none"></span>` : '');
-                div.innerHTML = `
-                    ${compatAttr}
-                    <div class="node-ico">${n.icon}</div>
-                    <div class="node-name">${n.name}</div>
-                    <div class="node-sub">${n.sub}</div>
-                `;
-                div.addEventListener('click', () => selectNode(n.id));
-                if (n.tier === 'weapon') wRow.appendChild(div);
-                else if (n.tier === 'trinket') tRow.appendChild(div);
-                else if (n.tier === 'evo') eRow.appendChild(div);
-                else sRow.appendChild(div);
-            });
-        }
+    let selectedNodeId = SHIP_TREES[activeShipId].sigEvo;
+    let showAllMatrix = false;
 
-        function getRelatedIds(id) {
-            const n = NODES[id];
-            const set = new Set([id]);
-            if (n.tier === 'weapon' || n.tier === 'trinket') {
-                set.add(n.pair);
-                set.add(n.evo);
-                if (NODES[n.evo]?.superEvo) set.add(NODES[n.evo].superEvo);
-            } else if (n.tier === 'evo') {
-                n.reqs.forEach(r => set.add(r));
-                if (n.superEvo) set.add(n.superEvo);
-            } else if (n.tier === 'super') {
-                n.reqs.forEach(ek => {
-                    set.add(ek);
-                    NODES[ek].reqs.forEach(r => set.add(r));
-                });
+    function renderShipTabs() {
+      const container = document.getElementById('shipTabsContainer');
+      container.innerHTML = '';
+      Object.values(SHIP_TREES).forEach(st => {
+        const tab = document.createElement('div');
+        tab.className = `ship-tab ${st.id === activeShipId ? 'active' : ''}`;
+        tab.style.setProperty('--sc', st.color);
+        tab.style.setProperty('--sg', st.glow);
+        tab.innerHTML = `
+          <div class="ship-tab-icon">${st.svg}</div>
+          <div class="ship-tab-info">
+            <span class="ship-tab-name">${st.name}</span>
+            <span class="ship-tab-sig">★ Kök: ${NODES[st.sigWeapon].name}</span>
+          </div>
+        `;
+        tab.addEventListener('click', () => {
+          activeShipId = st.id;
+          sessionStorage.setItem('cosmic_ship', activeShipId);
+          selectedNodeId = st.sigEvo;
+          renderShipTabs();
+          buildTreeDOM();
+          selectNode(selectedNodeId);
+        });
+        container.appendChild(tab);
+      });
+    }
+
+    function createNodeEl(nodeId, badgeOverride = null, isShipSig = false) {
+      const n = NODES[nodeId];
+      if (!n) return null;
+      const el = document.createElement('div');
+      el.className = `tree-node ${isShipSig ? 'ship-signature' : ''}`;
+      el.id = `node-${nodeId}`;
+      el.dataset.nodeId = nodeId;
+      el.style.setProperty('--nc', n.color);
+
+      const typeLabel = badgeOverride || (
+        n.kind === 'sigWeapon' ? '★ ÖZEL KÖK SİLAH' :
+        n.kind === 'sigTrinket' ? '★ ÖZEL KÖK ALET' :
+        n.kind === 'weapon' ? '⚔ SİLAH (LV.5)' :
+        n.kind === 'trinket' ? '🧲 ALET (LV.5)' :
+        n.kind === 'sigEvolution' ? '🌟 ÖZEL EVRİM' :
+        n.kind === 'evolution' ? '⚡ ÇAPRAZ EVRİM' : '👑 MEGA EVRİM'
+      );
+
+      el.innerHTML = `
+        <div class="node-icon">${n.icon}</div>
+        <div class="node-body">
+          <div class="node-tag"><span>${typeLabel}</span></div>
+          <div class="node-title">${n.name}</div>
+          <div class="node-sub">${n.formula.split('(')[0].trim()}</div>
+        </div>
+      `;
+
+      el.addEventListener('click', () => selectNode(nodeId));
+      return el;
+    }
+
+    function buildTreeDOM() {
+      const st = SHIP_TREES[activeShipId];
+      const col0 = document.getElementById('colRootAndTrinkets');
+      const col1 = document.getElementById('colWeapons');
+      const col2 = document.getElementById('colEvolutions');
+      const col3 = document.getElementById('colMegaEvolutions');
+
+      col0.innerHTML = `<div class="col-header" style="color:${st.color};border-color:${st.color}">1. GEMİ ÖZEL KÖKÜ &amp; ALETLER (Y)</div>`;
+      col1.innerHTML = `<div class="col-header" style="color:#00f0ff">2. AKTİF SİLAH HAVUZU (X)</div>`;
+      col2.innerHTML = `<div class="col-header" style="color:#bf00ff">3. ÇAPRAZ EVRİM MATRİSİ (X+Y=Z)</div>`;
+      col3.innerHTML = `<div class="col-header" style="color:#ffd700">4. KOZMİK MEGA EVRİM (Z+N=MEGA)</div>`;
+
+      // Col 0: Ship's Signature Trinket first, then 6 Universal Trinkets
+      col0.appendChild(createNodeEl(st.sigTrinket, '★ GEMİ ÖZEL KÖK ALETİ', true));
+      ['coolant', 'bioreactor', 'thruster', 'magnet', 'targetMatrix', 'shieldMatrix'].forEach(tid => {
+        col0.appendChild(createNodeEl(tid));
+      });
+
+      // Col 1: Ship's Signature Weapon + Starter Weapon highlighted + Universal Weapons
+      col1.appendChild(createNodeEl(st.sigWeapon, '★ GEMİ ÖZEL KÖK SİLAHI', true));
+      ['dualLaser', 'heavyPlasma', 'energyDisc', 'quantumDagger', 'flameLine', 'swarmMissiles'].forEach(wid => {
+        const isStarter = wid === st.starterWeapon;
+        col1.appendChild(createNodeEl(wid, isStarter ? '🚀 BAŞLANGIÇ SİLAHI' : null, isStarter));
+      });
+
+      // Col 2: Ship's Signature Evolution first + Cross-Branching Evolutions
+      col2.appendChild(createNodeEl(st.sigEvo, '🌟 KARAKTER ÖZEL EVRİMİ', true));
+      [
+        'gatlingStorm', 'prismOverload',
+        'bloodHarvest', 'gravitonImploder',
+        'aegisResonance', 'cryoVortex',
+        'cosmicSupernova', 'phantomExecutioner',
+        'titanCore', 'necroticNapalm',
+        'quantumArbiter'
+      ].forEach(eid => {
+        col2.appendChild(createNodeEl(eid));
+      });
+
+      // Col 3: Mega Evolutions
+      const megaOrder = [st.sigMega, ...['infernoGatling', 'eventHorizon', 'omegaJudgement', 'hyperionApex', 'ironDreadnought', 'eclipseSingularity'].filter(m => m !== st.sigMega)];
+      megaOrder.forEach((mid, idx) => {
+        col3.appendChild(createNodeEl(mid, idx === 0 ? '👑 GEMİ MEGA EVRİMİ' : '👑 KOZMİK MEGA EVRİM', idx === 0));
+      });
+
+      requestAnimationFrame(drawAllConnections);
+    }
+
+    // ── SVG BEZIER BAĞLANTI ÇİZGİLERİ ──
+    function getEdges() {
+      const edges = [];
+      Object.values(NODES).forEach(node => {
+        if (node.reqs) {
+          node.reqs.forEach(reqId => {
+            if (document.getElementById(`node-${reqId}`) && document.getElementById(`node-${node.id}`)) {
+              edges.push({ from: reqId, to: node.id, color: node.color });
             }
-            return set;
+          });
         }
+      });
+      return edges;
+    }
 
-        function drawLines() {
-            const stage = document.getElementById('treeStage');
-            const sr = stage.getBoundingClientRect();
-            svgEl.setAttribute('viewBox', `0 0 ${sr.width} ${sr.height}`);
-            svgEl.innerHTML = '';
-            const related = getRelatedIds(activeId);
-
-            function connect(fromId, toId, color) {
-                const a = document.getElementById('node-' + fromId);
-                const b = document.getElementById('node-' + toId);
-                if (!a || !b) return;
-                const ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
-                const x1 = ar.left - sr.left + ar.width / 2;
-                const y1 = ar.top - sr.top + ar.height - 4;
-                const x2 = br.left - sr.left + br.width / 2;
-                const y2 = br.top - sr.top + 4;
-                const my = (y1 + y2) / 2;
-                const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                p.setAttribute('d', `M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`);
-                const isAct = related.has(fromId) && related.has(toId);
-                p.setAttribute('class', 'syn-line ' + (isAct ? 'active' : 'dimmed'));
-                p.style.setProperty('--active-color', color);
-                svgEl.appendChild(p);
-            }
-
-            Object.values(NODES).filter(n => n.tier === 'evo').forEach(ev => {
-                ev.reqs.forEach(r => connect(r, ev.id, ev.color));
-            });
-            Object.values(NODES).filter(n => n.tier === 'super').forEach(sev => {
-                sev.reqs.forEach(ek => connect(ek, sev.id, sev.color));
-            });
+    function getConnectedSet(targetId) {
+      const edges = getEdges();
+      const related = new Set([targetId]);
+      // Direct parents & children + 2-hop chain
+      edges.forEach(e => {
+        if (e.from === targetId || e.to === targetId) {
+          related.add(e.from);
+          related.add(e.to);
         }
-
-        function selectNode(id) {
-            activeId = id;
-            const n = NODES[id];
-            const related = getRelatedIds(id);
-
-            document.querySelectorAll('.tree-node').forEach(el => {
-                const nid = el.id.replace('node-', '');
-                el.classList.remove('selected', 'linked', 'dimmed');
-                if (nid === id) el.classList.add('selected');
-                else if (related.has(nid)) el.classList.add('linked');
-                else el.classList.add('dimmed');
-            });
-
-            document.getElementById('inspIcon').textContent = n.icon;
-            document.getElementById('inspIcon').style.color = n.color;
-            document.getElementById('inspCategory').textContent = n.sub.toUpperCase();
-            document.getElementById('inspTitle').textContent = n.name.toUpperCase();
-            document.getElementById('inspDesc').textContent = n.desc;
-            document.getElementById('inspDesc').style.borderLeftColor = n.color;
-
-            const fBox = document.getElementById('inspFormula');
-            if (n.tier === 'super') {
-                const e1 = NODES[n.reqs[0]], e2 = NODES[n.reqs[1]];
-                document.getElementById('inspSubtitle').textContent = `${e1.name} + ${e2.name} ➔ ${n.name}`;
-                fBox.innerHTML = `
-                    <span class="f-chip" onclick="selectNode('${e1.id}')" style="color:${e1.color}">${e1.icon} ${e1.name}</span>
-                    <strong style="color:var(--gold)">+</strong>
-                    <span class="f-chip" onclick="selectNode('${e2.id}')" style="color:${e2.color}">${e2.icon} ${e2.name}</span>
-                    <strong style="color:var(--gold)">➔</strong>
-                    <span class="f-chip" style="color:${n.color};border-color:${n.color}">${n.icon} ${n.name}</span>
-                `;
-            } else if (n.tier === 'evo') {
-                const w = NODES[n.reqs[0]], t = NODES[n.reqs[1]], s = NODES[n.superEvo];
-                document.getElementById('inspSubtitle').textContent = `${w.name} Lv.5 + ${t.name} Lv.5`;
-                fBox.innerHTML = `
-                    <span class="f-chip" onclick="selectNode('${w.id}')" style="color:${w.color}">${w.icon} ${w.name} Lv.5</span>
-                    <strong style="color:var(--gold)">+</strong>
-                    <span class="f-chip" onclick="selectNode('${t.id}')" style="color:${t.color}">${t.icon} ${t.name} Lv.5</span>
-                    <strong style="color:var(--gold)">➔</strong>
-                    <span class="f-chip" onclick="selectNode('${s.id}')" style="color:${s.color}">👑 Süper: ${s.name}</span>
-                `;
-            } else {
-                const p = NODES[n.pair], ev = NODES[n.evo];
-                document.getElementById('inspSubtitle').textContent = `Uyumlu Çift: ${p.name} ➔ ${ev.name}`;
-                fBox.innerHTML = `
-                    <span class="f-chip" style="color:${n.color}">${n.icon} ${n.name} Lv.5</span>
-                    <strong style="color:var(--gold)">+</strong>
-                    <span class="f-chip" onclick="selectNode('${p.id}')" style="color:${p.color}">${p.icon} ${p.name} Lv.5</span>
-                    <strong style="color:var(--gold)">➔</strong>
-                    <span class="f-chip" onclick="selectNode('${ev.id}')" style="color:${ev.color}">${ev.icon} ${ev.name}</span>
-                `;
-            }
-
-            document.getElementById('inspTableBody').innerHTML = n.rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
-            drawLines();
+      });
+      edges.forEach(e => {
+        if (related.has(e.from) && NODES[e.to] && NODES[e.to].kind === 'mega') {
+          related.add(e.to);
         }
+      });
+      return related;
+    }
 
-        buildTreeDOM();
-        setTimeout(() => selectNode('infernoGatling'), 50);
-        window.addEventListener('resize', drawLines);
+    function drawAllConnections() {
+      const svg = document.getElementById('svgConnections');
+      const vp = document.getElementById('treeViewport');
+      const cols = document.getElementById('treeColumns');
+      svg.setAttribute('width', cols.scrollWidth + 40);
+      svg.setAttribute('height', cols.scrollHeight + 40);
+      svg.innerHTML = '';
 
-        // Starfield
-        const bgC = document.getElementById('bgCanvas');
-        const bgCtx = bgC.getContext('2d');
-        let stars = [];
-        function initStars() {
-            bgC.width = window.innerWidth; bgC.height = window.innerHeight;
-            stars = Array.from({ length: 65 }, () => ({ x: Math.random() * bgC.width, y: Math.random() * bgC.height, r: Math.random() * 1.5 + 0.4, s: Math.random() * 0.35 + 0.1 }));
+      const vpRect = vp.getBoundingClientRect();
+      const edges = getEdges();
+      const connectedSet = getConnectedSet(selectedNodeId);
+
+      edges.forEach(edge => {
+        const fromEl = document.getElementById(`node-${edge.from}`);
+        const toEl = document.getElementById(`node-${edge.to}`);
+        if (!fromEl || !toEl) return;
+
+        const r1 = fromEl.getBoundingClientRect();
+        const r2 = toEl.getBoundingClientRect();
+
+        const x1 = r1.right - vpRect.left + vp.scrollLeft;
+        const y1 = r1.top + r1.height / 2 - vpRect.top + vp.scrollTop;
+        const x2 = r2.left - vpRect.left + vp.scrollLeft;
+        const y2 = r2.top + r2.height / 2 - vpRect.top + vp.scrollTop;
+
+        const dx = Math.abs(x2 - x1) * 0.48;
+        const d = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', edge.color);
+
+        const isHighlighted = showAllMatrix ||
+          edge.from === selectedNodeId ||
+          edge.to === selectedNodeId ||
+          (connectedSet.has(edge.from) && connectedSet.has(edge.to));
+
+        path.setAttribute('class', `conn-path ${isHighlighted ? 'highlighted' : 'dimmed'}`);
+        svg.appendChild(path);
+      });
+    }
+
+    function selectNode(nodeId) {
+      const n = NODES[nodeId];
+      if (!n) return;
+      selectedNodeId = nodeId;
+
+      const connectedSet = getConnectedSet(nodeId);
+      document.querySelectorAll('.tree-node').forEach(el => {
+        const id = el.dataset.nodeId;
+        el.classList.toggle('selected', id === nodeId);
+        el.classList.toggle('connected', id !== nodeId && connectedSet.has(id));
+        el.classList.toggle('dimmed', !showAllMatrix && !connectedSet.has(id));
+      });
+
+      document.getElementById('inspTypeBadge').textContent =
+        n.kind === 'sigWeapon' ? '★ KARAKTER ÖZEL KÖK SİLAHI' :
+        n.kind === 'sigTrinket' ? '★ KARAKTER ÖZEL KÖK ALETİ' :
+        n.kind === 'sigEvolution' ? '🌟 KARAKTER ÖZEL EVRİMİ (X+Y=Z)' :
+        n.kind === 'evolution' ? '⚡ ÇAPRAZ EVRİM (X+Y=Z)' :
+        n.kind === 'mega' ? '👑 KOZMİK MEGA EVRİM (Z+N=MEGA)' :
+        n.kind === 'weapon' ? '⚔ AKTİF SİLAH SLOTU' : '🧲 ALET / TRINKET SLOTU';
+
+      document.getElementById('inspTitle').textContent = `${n.icon} ${n.name}`;
+      document.getElementById('inspTitle').style.color = n.color;
+      document.getElementById('inspFormula').textContent = n.formula;
+      document.getElementById('inspDesc').textContent = n.desc;
+
+      // Tablo
+      const tbody = document.getElementById('inspStatsBody');
+      tbody.innerHTML = (n.levels || []).map(row =>
+        `<tr><td style="color:#ffd700;font-weight:700;">${row[0]}</td><td>${row[1]}</td><td style="color:#00f0ff">${row[2]}</td></tr>`
+      ).join('');
+
+      // Bağlı düğümler
+      const branchesBox = document.getElementById('inspBranchesBox');
+      branchesBox.innerHTML = '';
+      connectedSet.forEach(cid => {
+        if (cid === nodeId || !NODES[cid]) return;
+        const cn = NODES[cid];
+        const chip = document.createElement('div');
+        chip.className = 'branch-chip';
+        chip.innerHTML = `<span>${cn.icon} <strong>${cn.name}</strong></span><span style="color:${cn.color};font-family:'Space Mono',monospace;font-size:0.64rem;">İNCELE ➔</span>`;
+        chip.addEventListener('click', () => selectNode(cid));
+        branchesBox.appendChild(chip);
+      });
+
+      drawAllConnections();
+    }
+
+    document.getElementById('btnShowShipBranch').addEventListener('click', () => {
+      showAllMatrix = false;
+      document.getElementById('btnShowShipBranch').classList.add('active');
+      document.getElementById('btnShowAllMatrix').classList.remove('active');
+      selectNode(SHIP_TREES[activeShipId].sigEvo);
+    });
+
+    document.getElementById('btnShowAllMatrix').addEventListener('click', () => {
+      showAllMatrix = true;
+      document.getElementById('btnShowAllMatrix').classList.add('active');
+      document.getElementById('btnShowShipBranch').classList.remove('active');
+      selectNode(selectedNodeId);
+    });
+
+    window.addEventListener('resize', drawAllConnections);
+    document.getElementById('treeViewport').addEventListener('scroll', drawAllConnections);
+
+    // ── SAĞ PANEL CANLI EFEKT HOLOGRAM SİMÜLATÖRÜ ──
+    const simCanvas = document.getElementById('holoEffectCanvas');
+    const sCtx = simCanvas.getContext('2d');
+    let simT = 0;
+
+    function animateHoloSim() {
+      simT += 0.04;
+      const w = simCanvas.width;
+      const h = simCanvas.height;
+      sCtx.clearRect(0, 0, w, h);
+
+      const n = NODES[selectedNodeId] || NODES.dualLaser;
+      const cx = 75;
+      const cy = h / 2;
+
+      // Mini Gemi İkonu
+      sCtx.save();
+      sCtx.translate(cx, cy);
+      sCtx.strokeStyle = n.color;
+      sCtx.fillStyle = '#090518';
+      sCtx.lineWidth = 2;
+      sCtx.beginPath();
+      sCtx.moveTo(16, 0);
+      sCtx.lineTo(-12, -12);
+      sCtx.lineTo(-6, 0);
+      sCtx.lineTo(-12, 12);
+      sCtx.closePath();
+      sCtx.fill();
+      sCtx.stroke();
+      sCtx.restore();
+
+      // Efekt türüne göre canlı mermi/lazer/kara delik çizimi
+      if (n.simType === 'laser') {
+        for (let i = -1; i <= 1; i++) {
+          const yOff = i * 14;
+          const bx = cx + 22 + ((simT * 180 + i * 40) % 230);
+          sCtx.strokeStyle = n.color;
+          sCtx.lineWidth = 3;
+          sCtx.beginPath();
+          sCtx.moveTo(bx, cy + yOff);
+          sCtx.lineTo(bx + 32, cy + yOff + Math.sin(simT + i) * 6);
+          sCtx.stroke();
         }
-        function animStars() {
-            bgCtx.clearRect(0, 0, bgC.width, bgC.height);
-            bgCtx.fillStyle = 'rgba(0, 240, 255, 0.5)';
-            for (const st of stars) {
-                st.y += st.s; if (st.y > bgC.height) st.y = 0;
-                bgCtx.beginPath(); bgCtx.arc(st.x, st.y, st.r, 0, Math.PI * 2); bgCtx.fill();
-            }
-            requestAnimationFrame(animStars);
+      } else if (n.simType === 'disc') {
+        for (let d = 0; d < 4; d++) {
+          const a = simT * 2.2 + (d * Math.PI) / 2;
+          const dx = cx + Math.cos(a) * 44;
+          const dy = cy + Math.sin(a) * 44;
+          sCtx.strokeStyle = n.color;
+          sCtx.lineWidth = 2.5;
+          sCtx.beginPath();
+          sCtx.arc(dx, dy, 8, 0, Math.PI * 2);
+          sCtx.stroke();
         }
-        initStars(); animStars();
-        window.addEventListener('resize', initStars);
-    </script>
+      } else if (n.simType === 'blackhole') {
+        const bx = w * 0.68;
+        for (let r = 10; r <= 42; r += 10) {
+          sCtx.strokeStyle = n.color;
+          sCtx.globalAlpha = 0.8 - r / 60;
+          sCtx.beginPath();
+          sCtx.arc(bx, cy, r + Math.sin(simT * 3) * 3, simT, simT + Math.PI * 1.5);
+          sCtx.stroke();
+        }
+        sCtx.globalAlpha = 1;
+      } else if (n.simType === 'flame') {
+        for (let i = 0; i < 6; i++) {
+          const fx = cx + 25 + i * 36;
+          const rad = 10 + Math.sin(simT * 4 + i) * 5;
+          sCtx.fillStyle = i % 2 === 0 ? '#ff6600' : '#ffd700';
+          sCtx.globalAlpha = 0.65;
+          sCtx.beginPath();
+          sCtx.arc(fx, cy + Math.sin(simT * 2 + i) * 10, rad, 0, Math.PI * 2);
+          sCtx.fill();
+        }
+        sCtx.globalAlpha = 1;
+      } else {
+        for (let i = 0; i < 3; i++) {
+          const px = cx + 24 + ((simT * 140 + i * 75) % 230);
+          const py = cy + Math.sin(simT * 3 + i * 2) * 22;
+          sCtx.fillStyle = n.color;
+          sCtx.beginPath();
+          sCtx.arc(px, py, 7, 0, Math.PI * 2);
+          sCtx.fill();
+        }
+      }
+
+      requestAnimationFrame(animateHoloSim);
+    }
+
+    renderShipTabs();
+    buildTreeDOM();
+    selectNode(selectedNodeId);
+    animateHoloSim();
+  </script>
 </body>
 </html>
