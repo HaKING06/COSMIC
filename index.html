@@ -1120,6 +1120,30 @@
         .site-footer img { height: 54px; margin-bottom: 8px; }
         .site-footer a { color: var(--p1); text-decoration: none; border-bottom: 1px dashed rgba(0, 240, 255, 0.4); }
         .site-footer a:hover { color: #fff; }
+        .nav-links {
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        }
+        .nav-link {
+            font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.72); text-decoration: none;
+            padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03); transition: all 0.25s ease; white-space: nowrap;
+        }
+        .nav-link:hover {
+            color: var(--p1); border-color: rgba(0, 240, 255, 0.45);
+            background: rgba(0, 240, 255, 0.08); box-shadow: 0 0 14px rgba(0, 240, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        .nav-link.active {
+            color: var(--p1); border-color: rgba(0, 240, 255, 0.65);
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.16), rgba(191, 0, 255, 0.14));
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.25);
+        }
+        @media (max-width: 900px) {
+            .navbar { height: auto; padding: 10px 14px; flex-wrap: wrap; gap: 10px; justify-content: center; }
+            .nav-links { justify-content: center; gap: 6px; }
+            .nav-link { font-size: 0.58rem; padding: 6px 10px; }
+        }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
     </style>
 </head>
@@ -1129,10 +1153,14 @@
     <canvas class="bg-canvas" id="bgCanvas"></canvas>
 
     <!-- NAVBAR -->
-    <nav class="navbar">
-        <h1 class="nav-logo"><img class="nav-mark" src="assets/favicon.svg" alt="" width="36" height="36"> COSMIC SURVIVORS <span class="nav-ver">v5.5 PRO</span></h1>
-        <button class="nav-btn" onclick="document.getElementById('wikiSection').scrollIntoView({behavior: 'smooth'})">🔍
-            DETAYLI SİMÜLASYON KILAVUZU</button>
+    <nav class="navbar" aria-label="Ana Navigasyon">
+        <a href="index.html" class="nav-logo"><img class="nav-mark" src="assets/favicon.svg" alt="" width="36" height="36"> COSMIC SURVIVORS <span class="nav-ver">v6.0 MEGAPONK</span></a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link active">ANA KOMUTA</a>
+            <a href="game.html" class="nav-link">SAVAŞ ARENASI</a>
+            <a href="tree.html" class="nav-link">FÜZYON AĞACI</a>
+            <a href="about.html" class="nav-link">SİMÜLASYON HAKKINDA</a>
+        </div>
     </nav>
 
     <!-- MAIN VIEWPORT LAYOUT -->
@@ -1651,8 +1679,12 @@
 
     <footer class="site-footer">
         <img src="assets/logo.svg" alt="Cosmic Survivors logosu" width="190" height="54"><br>
-        <strong>Cosmic Survivors v5.5 PRO</strong> — HTML5 Canvas · Vanilla JS · Web Audio API<br>
-        <a href="https://github.com/HaKING06/COSMIC" target="_blank" rel="noopener">GitHub'da Aç</a> · MIT License · © 2026 Halit Güneş (HaKING)
+        <strong>Cosmic Survivors v6.0 MEGAPONK EDITION</strong> — HTML5 Canvas · Vanilla JS · Web Audio API<br>
+        <a href="tree.html">⚡ Perk & Füzyon Sentez Laboratuvarı</a> ·
+        <a href="about.html">📜 Sektör 9 Arşivi & Bestiary</a> ·
+        <a href="mailto:cosmic@haking.tr">cosmic@haking.tr</a> ·
+        <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener">☕ Buy Me a Coffee</a> ·
+        <a href="https://github.com/HaKING06/COSMIC" target="_blank" rel="noopener">GitHub</a> · MIT License · © 2026 Halit Güneş (HaKING)
     </footer>
 
     <!-- Load Leaderboard Module -->

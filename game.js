@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════
-//  COSMIC SURVIVORS v5.5 Pro — Premium Roguelike Engine
+//  COSMIC SURVIVORS v6.0 Megaponk Edition — Fusion & Endgame Engine
 // ═══════════════════════════════════════════════════════
 
 const canvas = document.getElementById('gameCanvas');
@@ -304,6 +304,74 @@ const UPG = {
 };
 const UPG_KEYS = Object.keys(UPG);
 
+// ── Megaponk 5-Slot & Perk Füzyon (Evrim) Mimarisi ──
+const MAX_PERK_SLOTS = 5;
+const MAX_PERK_LEVEL = 5;
+
+const FUSIONS = {
+    bloodHarvest: {
+        id: 'bloodHarvest',
+        name: 'Kan Hasadı',
+        icon: '🩸',
+        color: '#ff1744',
+        req: ['vampUp', 'atkUp'],
+        formula: 'Vampir Lv.5 + Hasar+ Lv.5',
+        desc: 'Her vuruş plazma patlaması yayar, verilen hasarın %10\'unu cana çevirir (+%85 Hasar).'
+    },
+    gatlingStorm: {
+        id: 'gatlingStorm',
+        name: 'Gatling Fırtınası',
+        icon: '🌩️',
+        color: '#00ff88',
+        req: ['fireUp', 'multiUp'],
+        formula: 'Ateş Hızı+ Lv.5 + Çoklu Atış Lv.5',
+        desc: 'Mermiler aşırı hızla yağar (+%90 Ateş Hızı, +3 Namlu) ve düşmanlar arasında 3 kez seker.'
+    },
+    aegisResonance: {
+        id: 'aegisResonance',
+        name: 'Aegis Rezonansı',
+        icon: '💠',
+        color: '#00f0ff',
+        req: ['shieldUp', 'spdUp'],
+        formula: 'Kalkan+ Lv.5 + Hız+ Lv.5',
+        desc: 'Hareket ettikçe kalkan hızla dolar; kalkan kırılınca tüm ekranı temizleyen EMP patlar.'
+    },
+    cosmicSupernova: {
+        id: 'cosmicSupernova',
+        name: 'Kozmik Süpernova',
+        icon: '🕳️',
+        color: '#bf00ff',
+        req: ['critUp', 'rangeUp'],
+        formula: 'Kritik+ Lv.5 + Menzil+ Lv.5',
+        desc: 'Kritik vuruşlar %100 alansal kara delik açarak düşmanları içine çeker ve ezer.'
+    },
+    titanCore: {
+        id: 'titanCore',
+        name: 'Titan Çekirdeği',
+        icon: '☀️',
+        color: '#ff8800',
+        req: ['hpUp', 'atkUp'],
+        formula: 'Can+ Lv.5 + Hasar+ Lv.5',
+        desc: '+140 Maks Can, %25 Zırh Direnci ve her 3 saniyede bir Maks Canın %25\'i gücünde termal şok halkası.'
+    },
+    quantumArbiter: {
+        id: 'quantumArbiter',
+        name: 'Kuantum Yargıç',
+        icon: '🔱',
+        color: '#ffd700',
+        req: ['hpUp', 'multiUp'],
+        formula: 'Can+ Lv.5 + Çoklu Atış Lv.5',
+        desc: 'Mermiler delici kuantum mızraklarına dönüşür; deldiği her düşmana +%25 zincirleme hasar verir.'
+    }
+};
+const FUSION_KEYS = Object.keys(FUSIONS);
+
+// ── Dalga 25+ Kozmik Çürüme / Radyasyon Katsayısı ──
+function getCosmicDecay() {
+    if (wave < 25) return 1.0;
+    return Math.max(0.12, 1.0 - (wave - 24) * 0.04);
+}
+
 // ── Aktif Yetenekler (P1: SPACE / P2: ENTER / Mobil: dokunmatik buton) ──
 const ABILITY = {
     interceptor: { name: 'WARP DASH', cd: 8, color: '#00f0ff' },
@@ -320,7 +388,7 @@ let linkDT = 0, screenFl = 0, screenFC = '#fff';
 let bossActive = null, slowT = 0, slowF = 1;
 let bossRewardTimer = 0, bossRewardActive = false;
 let beamOverloadTimer = 0;
-const bullets = [], eBullets = [], enemies = [], pickups = [], dangerZones = [];
+const bullets = [], eBullets = [], enemies = [], pickups = [], dangerZones = [], blackHoles = [], gravityRifts = [];
 
 // Seviye Atlama Kuyruğu ve Aktif Seçim Durumu
 let levelUpQueue = [];
@@ -354,11 +422,13 @@ class Player {
         this.alive = true; this.respT = 0; this.invT = 0;
         this.fac = 0; this.trail = []; this.aA = rand(0, Math.PI * 2); this.gl = 0;
         this.sT = 0; this.xp = 0; this.lv = 1; this.xpN = 50;
-        this.pU = {}; this.tP = {};
+        this.pU = {}; this.fusions = {}; this.slotOrder = []; this.tP = {};
         this.extraS = 0; this.vamp = 0; this.magR = 80;
         this.abMax = (ABILITY[this.shipClass] || ABILITY.interceptor).cd; this.abCd = 3;
         this.dashT = 0; this.salvoT = 0; this.salvoTick = 0; this.salvoA = 0;
         this.shieldHit = 0; this.abFlash = 0; this.trailTick = 0; this.lightT = rand(0, 6);
+        this.empNovaCd = 0; this.blackHoleCd = 0; this.titanPulseT = 3.0;
+        this.healBudget = 20; this.shRegenDelay = 0;
     }
     reset(x, y) {
         this.x = x; this.y = y; this.vx = 0; this.vy = 0;
@@ -367,22 +437,96 @@ class Player {
         this.trail = [];
         this.recalc();
     }
+    usedSlots() {
+        return Object.keys(this.pU).length + Object.keys(this.fusions).length;
+    }
+    syncSlotOrder() {
+        const next = [];
+        for (const item of this.slotOrder) {
+            if (item.type === 'fusion' && this.fusions[item.key]) next.push(item);
+            else if (item.type === 'perk' && this.pU[item.key] > 0) next.push(item);
+        }
+        for (const fk of Object.keys(this.fusions)) {
+            if (!next.some(x => x.type === 'fusion' && x.key === fk)) next.push({ type: 'fusion', key: fk });
+        }
+        for (const pk of Object.keys(this.pU)) {
+            if (this.pU[pk] > 0 && !next.some(x => x.type === 'perk' && x.key === pk)) next.push({ type: 'perk', key: pk });
+        }
+        this.slotOrder = next.slice(0, MAX_PERK_SLOTS);
+    }
+    getReadyFusions() {
+        const list = [];
+        for (const fk of FUSION_KEYS) {
+            if (this.fusions[fk]) continue;
+            const f = FUSIONS[fk];
+            if ((this.pU[f.req[0]] || 0) >= MAX_PERK_LEVEL && (this.pU[f.req[1]] || 0) >= MAX_PERK_LEVEL) {
+                list.push(f);
+            }
+        }
+        return list;
+    }
+    getPairedPerks() {
+        const paired = new Set();
+        for (const fk of FUSION_KEYS) {
+            if (this.fusions[fk]) continue;
+            const [a, b] = FUSIONS[fk].req;
+            if ((this.pU[a] || 0) > 0 && (this.pU[b] || 0) > 0) {
+                paired.add(a); paired.add(b);
+            }
+        }
+        return paired;
+    }
     recalc() {
-        const c = k => (this.pU[k] || 0);
-        this.bd = this.bbd * (1 + c('atkUp') * 0.15);
-        this.sp = this.bsp * (1 + c('spdUp') * 0.10);
-        this.sr = this.bsr / (1 + c('fireUp') * 0.12);
-        this.mh = this.bmh + c('hpUp') * 20;
-        this.ms = this.bms + c('shieldUp') * 15;
-        this.bl = this.bbl * (1 + c('rangeUp') * 0.15);
-        this.extraS = Math.floor(c('multiUp'));
-        this.vamp = c('vampUp') * 3;
-        this.crit = (this.shipClass === 'interceptor' ? 0.15 : 0.05) + c('critUp') * 0.10;
-        this.magR = 80 + c('spdUp') * 15; // Hız kartları mıknatısı da etkiler
+        const c = k => Math.min(MAX_PERK_LEVEL, this.pU[k] || 0);
+        const f = k => !!this.fusions[k];
+        const atkBonus = c('atkUp') * 0.15 + (f('bloodHarvest') ? 0.85 : 0) + (f('titanCore') ? 0.85 : 0);
+        const spdBonus = c('spdUp') * 0.10 + (f('aegisResonance') ? 0.60 : 0);
+        const fireBonus = c('fireUp') * 0.12 + (f('gatlingStorm') ? 0.95 : 0);
+        const hpBonus = c('hpUp') * 20 + (f('titanCore') ? 140 : 0) + (f('quantumArbiter') ? 130 : 0);
+        const shBonus = c('shieldUp') * 15 + (f('aegisResonance') ? 90 : 0);
+        const rngBonus = c('rangeUp') * 0.15 + (f('cosmicSupernova') ? 0.85 : 0) + (f('quantumArbiter') ? 0.45 : 0);
+
+        this.bd = this.bbd * (1 + atkBonus);
+        this.sp = this.bsp * (1 + spdBonus);
+        this.sr = Math.max(0.055, this.bsr / (1 + fireBonus));
+        this.mh = this.bmh + hpBonus;
+        this.ms = this.bms + shBonus;
+        this.bl = this.bbl * (1 + rngBonus);
+        this.extraS = Math.floor(c('multiUp')) + (f('gatlingStorm') ? 3 : 0) + (f('quantumArbiter') ? 3 : 0);
+        this.vamp = c('vampUp') * 2.5 + (f('bloodHarvest') ? 6 : 0);
+        this.crit = Math.min(0.85, (this.shipClass === 'interceptor' ? 0.15 : 0.05) + c('critUp') * 0.10 + (f('cosmicSupernova') ? 0.55 : 0));
+        this.magR = 80 + c('spdUp') * 15 + (f('aegisResonance') ? 90 : 0);
         this.hp = Math.min(this.hp, this.mh);
         this.sh = Math.min(this.sh, this.ms);
+        this.syncSlotOrder();
     }
-    addUpg(k) { this.pU[k] = (this.pU[k] || 0) + 1; this.recalc(); }
+    addUpg(k, lvAdd = 1) {
+        if (!this.pU[k] && this.usedSlots() >= MAX_PERK_SLOTS) return false;
+        this.pU[k] = Math.min(MAX_PERK_LEVEL, Math.floor((this.pU[k] || 0) + lvAdd));
+        this.recalc();
+        return true;
+    }
+    applyFusion(fk) {
+        const f = FUSIONS[fk];
+        if (!f || this.fusions[fk]) return false;
+        delete this.pU[f.req[0]];
+        delete this.pU[f.req[1]];
+        this.fusions[fk] = true;
+        this.recalc();
+        spawnExp(this.x, this.y, f.color, 2.2);
+        floatT(this.x, this.y - 42, '⚡ FÜZYON: ' + f.name.toUpperCase() + '!', f.color, 22);
+        shake(16); sfx.bKill();
+        return true;
+    }
+    healLeech(amount) {
+        if (!this.alive || amount <= 0 || this.healBudget <= 0) return;
+        const decay = getCosmicDecay();
+        const actual = Math.min(this.healBudget, amount * decay);
+        if (actual > 0) {
+            this.hp = Math.min(this.mh, this.hp + actual);
+            this.healBudget -= actual;
+        }
+    }
     gainXP(a) {
         if (!this.alive) return;
         this.xp += a * DC.xm;
@@ -436,11 +580,39 @@ class Player {
         this.tickAbility(dt);
         for (const k in this.tP) { this.tP[k] -= dt; if (this.tP[k] <= 0) delete this.tP[k]; }
         
-        // Kalkan yenilenmesi (Aegis %50 ekstra kalkan şarjı alır)
-        if (this.sh < this.ms) {
-            let regenFactor = activeSynergy ? 1.40 : 1.0;
+        // Can çalma bütçesi ve Füzyon zamanlayıcıları (Kozmik Çürüme dengeli)
+        const decay = getCosmicDecay();
+        const maxBudget = this.mh * 0.11 * decay;
+        this.healBudget = Math.min(maxBudget, this.healBudget + maxBudget * dt);
+        if (this.empNovaCd > 0) this.empNovaCd -= dt;
+        if (this.blackHoleCd > 0) this.blackHoleCd -= dt;
+        if (this.shRegenDelay > 0) this.shRegenDelay -= dt;
+
+        // Titan Çekirdeği Füzyonu: Her 3sn'de termal şok halkası
+        if (this.fusions.titanCore) {
+            this.titanPulseT -= dt;
+            if (this.titanPulseT <= 0) {
+                this.titanPulseT = 3.0;
+                const pulseDmg = this.mh * 0.25 + this.bd * 1.8;
+                particles.push(new Particle(this.x, this.y, 0, 0, '#ff8800', 0.45, 70, 'shockwave'));
+                for (const e of enemies) {
+                    if (e.alive && dist(this, e) < 210 + e.r) {
+                        e.takeDmg(pulseDmg, false);
+                        spawnP(e.x, e.y, '#ff8800', 3, 120, 0.25, 2.5);
+                    }
+                }
+            }
+        }
+
+        // Kalkan yenilenmesi (Dalga 25+ Kozmik Çürüme ve Aegis Rezonansı dahil)
+        if (this.sh < this.ms && this.shRegenDelay <= 0) {
+            let regenFactor = (activeSynergy ? 1.40 : 1.0) * decay;
             if (this.shipClass === 'aegis') regenFactor *= 1.5;
-            this.sh = Math.min(this.ms, this.sh + DC.sr * regenFactor * dt);
+            let kineticBonus = 0;
+            if (this.fusions.aegisResonance && Math.hypot(this.vx, this.vy) > 45) {
+                kineticBonus = 14 * decay;
+            }
+            this.sh = Math.min(this.ms, this.sh + (DC.sr * regenFactor + kineticBonus) * dt);
         }
         
         for (const pu of pickups) {
@@ -479,6 +651,10 @@ class Player {
             let dmg = dmgB, cr = false;
             if (Math.random() < this.crit) { dmg *= 2.5; cr = true; }
             
+            const bounces = this.fusions.gatlingStorm ? 3 : 0;
+            const pierceCount = this.fusions.quantumArbiter ? 4 : (pi ? 99 : 0);
+            const bCol = this.fusions.bloodHarvest ? '#ff1744' : this.fusions.gatlingStorm ? '#00ff88' : this.fusions.quantumArbiter ? '#ffd700' : this.c;
+
             // Kruvazör Çift Namlulu Ateş Eder
             if (this.shipClass === 'dreadnought') {
                 const dx1 = Math.cos(sh.a + Math.PI/2) * 5;
@@ -489,18 +665,21 @@ class Player {
                 bullets.push({
                     x: this.x + Math.cos(sh.a) * 20 + dx1, y: this.y + Math.sin(sh.a) * 20 + dy1,
                     vx: Math.cos(sh.a) * this.bsp2, vy: Math.sin(sh.a) * this.bsp2,
-                    damage: dmg * 0.65, size: sz, color: this.c, owner: this.id, life: li, piercing: pi, crit: cr
+                    damage: dmg * 0.65, size: sz, color: bCol, owner: this.id, life: li,
+                    piercing: pi || pierceCount > 0, pierceLeft: pierceCount, bounces, crit: cr, hitIds: null
                 });
                 bullets.push({
                     x: this.x + Math.cos(sh.a) * 20 + dx2, y: this.y + Math.sin(sh.a) * 20 + dy2,
                     vx: Math.cos(sh.a) * this.bsp2, vy: Math.sin(sh.a) * this.bsp2,
-                    damage: dmg * 0.65, size: sz, color: this.c, owner: this.id, life: li, piercing: pi, crit: cr
+                    damage: dmg * 0.65, size: sz, color: bCol, owner: this.id, life: li,
+                    piercing: pi || pierceCount > 0, pierceLeft: pierceCount, bounces, crit: cr, hitIds: null
                 });
             } else {
                 bullets.push({
                     x: this.x + Math.cos(sh.a) * 20, y: this.y + Math.sin(sh.a) * 20,
                     vx: Math.cos(sh.a) * this.bsp2, vy: Math.sin(sh.a) * this.bsp2,
-                    damage: dmg, size: sz, color: this.c, owner: this.id, life: li, piercing: pi, crit: cr
+                    damage: dmg, size: sz, color: bCol, owner: this.id, life: li,
+                    piercing: pi || pierceCount > 0, pierceLeft: pierceCount, bounces, crit: cr, hitIds: null
                 });
             }
         }
@@ -591,15 +770,45 @@ class Player {
         }
         ctx.restore();
     }
-    takeDmg(d) {
+    takeDmg(d, truePct = 0) {
         if (!this.alive || this.invT > 0) return;
+        this.shRegenDelay = this.fusions.aegisResonance ? 0.45 : 1.15;
         
-        // Dreadnought %15 zırh hasar azaltma alır
-        if (this.shipClass === 'dreadnought') {
-            d *= 0.85;
+        // Dreadnought %15, Titan Çekirdeği %25 zırh hasar azaltma alır
+        if (this.shipClass === 'dreadnought') d *= 0.85;
+        if (this.fusions.titanCore) d *= 0.75;
+        
+        // Dalga 25+ Kozmik Radyasyon ve Elit Gerçek Yüzdelik Hasar (Ölümsüzlük Kırıcı)
+        let bonusTrue = truePct > 0 ? this.mh * truePct : 0;
+        if (wave >= 25) {
+            bonusTrue += this.mh * Math.min(0.14, (wave - 24) * 0.006);
         }
+        d += bonusTrue;
         
-        if (this.sh > 0) { const ab = Math.min(this.sh, d); this.sh -= ab; d -= ab; this.shieldHit = 0.4; spawnP(this.x, this.y, LINK, 5, 100, 0.3, 2); if (this.sh <= 0.01) { spawnExp(this.x, this.y, LINK, 0.8); floatT(this.x, this.y - 28, 'KALKAN KIRILDI', LINK, 13); } }
+        if (this.sh > 0) {
+            const ab = Math.min(this.sh, d);
+            this.sh -= ab; d -= ab; this.shieldHit = 0.4;
+            spawnP(this.x, this.y, LINK, 5, 100, 0.3, 2);
+            if (this.sh <= 0.01) {
+                this.sh = 0;
+                spawnExp(this.x, this.y, LINK, 0.8);
+                floatT(this.x, this.y - 28, 'KALKAN KIRILDI', LINK, 13);
+                // Aegis Rezonansı Füzyonu: Kalkan kırıldığında tüm ekranı temizleyen EMP patlar
+                if (this.fusions.aegisResonance && this.empNovaCd <= 0) {
+                    this.empNovaCd = 6.0;
+                    eBullets.length = 0;
+                    particles.push(new Particle(this.x, this.y, 0, 0, '#00f0ff', 0.65, 320, 'shockwave'));
+                    screenFl = 0.35; screenFC = '#00f0ff'; sfx.emp(); shake(14);
+                    floatT(this.x, this.y - 48, '💠 AEGIS EMP REZONANSI!', '#00f0ff', 18);
+                    const empDmg = 95 + wave * 5;
+                    for (const e of enemies) {
+                        if (!e.alive) continue;
+                        if (!e.isBoss) e.takeDmg(empDmg, false, true);
+                        else e.takeDmg(empDmg * 0.6, false, true);
+                    }
+                }
+            }
+        }
         this.hp -= d; shake(4); spawnP(this.x, this.y, this.c, 8, 120, 0.4, 3);
         if (this.hp <= 0) this.die();
     }
@@ -629,6 +838,8 @@ class Player {
         } else { // 'hard'
             this.respT = 10;
             this.pU = {};
+            this.fusions = {};
+            this.slotOrder = [];
             this.lv = 1;
             this.xp = 0;
             this.xpN = 50;
@@ -772,6 +983,10 @@ class Enemy {
         
         this.shHp = type === 'shielder' ? 30 * DC.ehm : 0;
         this.isBoss = false;
+        this.eid = Math.random();
+        this.slowT = 0;
+        this.isElite = !this.isBoss && wave >= 15 && Math.random() < Math.min(0.35, 0.08 + (wave - 15) * 0.015);
+        this.truePctDmg = this.isElite ? Math.min(0.14, 0.05 + Math.max(0, wave - 15) * 0.003) : 0;
         
         // Yeni Düşman Tanımları Aşamaları
         if (type === 'phantom') {
@@ -908,22 +1123,44 @@ class Enemy {
                 }
                 break;
         }
-        this.x += this.vx * dt; this.y += this.vy * dt;
+        const sm = this.slowT > 0 ? 0.65 : 1.0;
+        if (this.slowT > 0) this.slowT -= dt;
+        this.x += this.vx * sm * dt; this.y += this.vy * sm * dt;
         
         for (const p of lp) {
             if (dist(this, p) < this.r + p.r) {
-                p.takeDmg(this.damage);
+                p.takeDmg(this.damage, this.truePctDmg || 0);
                 if (this.type !== 'tank' && this.type !== 'sweeper' && this.type !== 'healer' && !this.isBoss) { this.hp = 0; this.die(); return false; }
             }
         }
         return true;
     }
-    takeDmg(d, cr) {
+    takeDmg(d, cr, ignoreArmor = false, hitAngle = null) {
         // Ekran dışındaki düşmanlar ve giriş aşamasındaki bosslar hasar almaz
         if (this.isBoss) {
-            if (this.y < 80 || this.x < 0 || this.x > canvas.width || this.y > canvas.height) return;
+            if (this.y < 80 || this.x < 0 || this.x > canvas.width || this.y > canvas.height) return false;
+            // OBLIVION BEHEMOTH Ön Zırh Plakası Kontrolü (Mermi geçirmeyen ön kalkan, arkadaki açık reaktör zayıf noktası)
+            if (this.bossType === 'behemoth' && !ignoreArmor && hitAngle !== null) {
+                let ad = hitAngle - this.armorAngle;
+                while (ad > Math.PI) ad -= Math.PI * 2;
+                while (ad < -Math.PI) ad += Math.PI * 2;
+                if (Math.abs(ad) < 1.75) { // ~200 derece ön zırh plakası
+                    const bx = this.x + Math.cos(hitAngle) * this.r;
+                    const by = this.y + Math.sin(hitAngle) * this.r;
+                    spawnP(bx, by, '#ffaa00', 4, 190, 0.22, 2.2, 'spark');
+                    if (this.deflectTextCd <= 0) {
+                        this.deflectTextCd = 0.45;
+                        floatT(bx, by - 12, '🛡️ ZIRH ENGELLEDİ!', '#ffaa00', 13);
+                    }
+                    return false;
+                } else {
+                    // Arkadaki açık reaktöre vuruş (%75 ekstra zayıf nokta hasarı!)
+                    d *= 1.75;
+                    cr = true;
+                }
+            }
         } else {
-            if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) return;
+            if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) return false;
         }
 
         if (this.shHp > 0) {
@@ -967,7 +1204,7 @@ class Enemy {
             }
         }
         
-        livePlayers().filter(p => p.vamp > 0).forEach(p => { p.hp = Math.min(p.mh, p.hp + p.vamp); });
+        livePlayers().filter(p => p.vamp > 0).forEach(p => { p.healLeech(p.vamp); });
     }
     draw(ctx) {
         if (!this.alive) return;
@@ -976,6 +1213,12 @@ class Enemy {
         grd.addColorStop(0, this.color + '12'); grd.addColorStop(1, this.color + '00');
         ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(this.x, this.y, this.r * 2.2, 0, Math.PI * 2); ctx.fill();
         
+        if (this.isElite && !this.isBoss) {
+            ctx.save();
+            ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 1.6; ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.r + 7, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]); ctx.restore();
+        }
         ctx.save(); ctx.translate(this.x, this.y);
         ctx.fillStyle = fl ? '#fff' : this.color + '40'; ctx.strokeStyle = fl ? '#fff' : this.color; ctx.lineWidth = 2;
         switch (this.type) {
@@ -1089,27 +1332,41 @@ class Boss extends Enemy {
         
         this.bossName = BOSS_NAMES[Math.min(bw - 1, BOSS_NAMES.length - 1)] || 'COSMIC BOSS';
         
-        // Özel Boss Çeşitleri: chaser (Void Phantom), bullethell (Nova Blaster), gravity (Entropy Star)
+        // Özel Boss Çeşitleri: chaser, bullethell, gravity, chronos (Dalga 20), behemoth (Dalga 30)
         this.bossType = bossType || ['chaser', 'bullethell', 'gravity'][randInt(0, 2)];
+        this.armorAngle = Math.PI / 2;
+        this.deflectTextCd = 0;
         
         if (this.bossType === 'chaser') {
             this.bossName = 'VOID PHANTOM ◈ ' + this.bossName;
-            this.color = '#ff006a'; // Pembe/Kırmızı
+            this.color = '#ff006a';
             this.spd *= 1.35;
             this.dashTimer = 3.5;
-            this.dashState = 'normal'; // 'normal', 'charging', 'dashing'
+            this.dashState = 'normal';
             this.chargeTimer = 0;
             this.dashDuration = 0;
             this.dashAngle = 0;
         } else if (this.bossType === 'bullethell') {
             this.bossName = 'NOVA BLASTER ◈ ' + this.bossName;
-            this.color = '#bf00ff'; // Mor
+            this.color = '#bf00ff';
             this.spd *= 0.85;
         } else if (this.bossType === 'gravity') {
             this.bossName = 'ENTROPY STAR ◈ ' + this.bossName;
-            this.color = '#00f0ff'; // Turkuaz
+            this.color = '#00f0ff';
             this.spd *= 0.95;
             this.dzTimer = 2.0;
+        } else if (this.bossType === 'chronos') {
+            this.bossName = 'CHRONOS WEAVER ◈ ZAMAN DOKUYUCU';
+            this.color = '#00ffcc';
+            this.spd *= 1.05;
+            this.riftTimer = 2.4;
+        } else if (this.bossType === 'behemoth') {
+            this.bossName = 'OBLIVION BEHEMOTH ◈ ZIRHLI YIKICI';
+            this.color = '#ff5500';
+            this.r += 10;
+            this.hp *= 1.35; this.maxHp = this.hp;
+            this.spd *= 0.78;
+            this.mortarTimer = 3.2;
         }
     }
     update(dt) {
@@ -1270,6 +1527,81 @@ class Boss extends Enemy {
                     eBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * 150, vy: Math.sin(sa) * 150, damage: 12 * DC.edm, size: 8, color: this.color, life: 5.0 });
                 }
             }
+        } else if (this.bossType === 'chronos') {
+            // CHRONOS WEAVER (Dalga 20): Zamanı büken yerçekimi yarıkları açar ve oyuncuyu ters yöne iter
+            const orbitX = canvas.width / 2 + Math.cos(this.pT * 0.65) * (canvas.width * 0.28);
+            const orbitY = canvas.height * 0.35 + Math.sin(this.pT * 1.3) * (canvas.height * 0.16);
+            this.vx = lerp(this.vx, (orbitX - this.x) * 1.4, 0.05);
+            this.vy = lerp(this.vy, (orbitY - this.y) * 1.4, 0.05);
+
+            this.riftTimer -= dt;
+            if (this.riftTimer <= 0) {
+                this.riftTimer = this.enraged ? 2.1 : 3.2;
+                for (const p of lp) {
+                    if (gravityRifts.length < 4) {
+                        gravityRifts.push({
+                            x: clamp(p.x + rand(-90, 90), 90, canvas.width - 90),
+                            y: clamp(p.y + rand(-90, 90), 90, canvas.height - 90),
+                            r: 150,
+                            life: 4.2,
+                            maxLife: 4.2,
+                            a: rand(0, Math.PI * 2),
+                            dmgTick: 0
+                        });
+                    }
+                }
+                floatT(this.x, this.y - 48, '⏳ ZAMAN YARIĞI AÇILDI!', '#00ffcc', 16);
+                sfx.emp();
+            }
+
+            this.sT -= dt * DC.bsr * (this.enraged ? 1.55 : 1.0);
+            if (this.sT <= 0) {
+                this.sT = 0.95;
+                const arms = this.enraged ? 10 : 6;
+                for (let i = 0; i < arms; i++) {
+                    const sa = this.pT * 1.8 + (i * Math.PI * 2 / arms);
+                    const sp = (i % 2 === 0) ? 290 : 185;
+                    eBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * sp, vy: Math.sin(sa) * sp, damage: 11 * DC.edm, size: 5, color: '#00ffcc', life: 3.8, truePct: 0.04 });
+                }
+            }
+        } else if (this.bossType === 'behemoth') {
+            // OBLIVION BEHEMOTH (Dalga 30): Ön gövdesinde mermi geçirmeyen dönen zırh plakaları taşır
+            if (this.deflectTextCd > 0) this.deflectTextCd -= dt;
+            const turnRate = (this.enraged ? 1.55 : 1.12) * dt;
+            let diff = a - this.armorAngle;
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            this.armorAngle += clamp(diff, -turnRate, turnRate);
+
+            this.vx = lerp(this.vx, Math.cos(this.armorAngle) * this.spd, 0.04);
+            this.vy = lerp(this.vy, Math.sin(this.armorAngle) * this.spd, 0.04);
+
+            // Ön ağır plazma bataryası
+            this.sT -= dt * DC.bsr * (this.enraged ? 1.5 : 1.0);
+            if (this.sT <= 0) {
+                this.sT = 1.1;
+                for (let k = -2; k <= 2; k++) {
+                    const sa = this.armorAngle + k * 0.16;
+                    eBullets.push({
+                        x: this.x + Math.cos(this.armorAngle) * (this.r * 0.8),
+                        y: this.y + Math.sin(this.armorAngle) * (this.r * 0.8),
+                        vx: Math.cos(sa) * 310, vy: Math.sin(sa) * 310,
+                        damage: 14 * DC.edm, size: 6, color: '#ff5500', life: 3.5, truePct: 0.06
+                    });
+                }
+            }
+
+            // Havan topu tehlike alanları
+            this.mortarTimer -= dt;
+            if (this.mortarTimer <= 0) {
+                this.mortarTimer = this.enraged ? 2.2 : 3.4;
+                for (const p of lp) {
+                    dangerZones.push({
+                        x: p.x + rand(-40, 40), y: p.y + rand(-40, 40),
+                        r: 105, timer: 1.4, maxTimer: 1.4, damage: 32 * DC.edm, color: '#ff5500'
+                    });
+                }
+            }
         }
         
         this.x += this.vx * dt; this.y += this.vy * dt;
@@ -1390,10 +1722,108 @@ class Boss extends Enemy {
         ctx.fillStyle = this.enraged ? '#ff0000' : '#fff'; 
         ctx.beginPath(); ctx.arc(0, 0, 7, 0, Math.PI * 2); ctx.fill();
         ctx.restore();
+
+        // OBLIVION BEHEMOTH Ön Zırh Plakaları & Arka Açık Reaktör Çizimi
+        if (this.bossType === 'behemoth') {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.armorAngle);
+            // Ön kurşun geçirmez zırh kalkanı (Kalın altın/turuncu yay)
+            ctx.strokeStyle = '#ffaa00';
+            ctx.lineWidth = 8;
+            ctx.shadowColor = '#ffaa00';
+            ctx.shadowBlur = perfMode ? 0 : 12;
+            ctx.beginPath();
+            ctx.arc(0, 0, this.r + 10, -1.72, 1.72);
+            ctx.stroke();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(0, 0, this.r + 14, -1.55, 1.55);
+            ctx.stroke();
+
+            // Arka açık reaktör çekirdeği (Parlayan camgöbeği/kırmızı zayıf nokta)
+            const pulse = 0.6 + 0.4 * Math.sin(this.pT * 8);
+            ctx.fillStyle = '#00f0ff';
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = perfMode ? 0 : 16;
+            ctx.beginPath();
+            ctx.arc(-this.r * 0.85, 0, 9 * pulse + 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
     }
 }
 
-// ── Roguelike Yetenek Kartı Seçim Sistemi (Level Up & Klavye Seçimi) ──
+// ── Megaponk 5-Slot & Füzyon Sentez Seçim Sistemi (Level Up & Klavye Seçimi) ──
+function buildLevelUpChoices(player, lv) {
+    const choices = [];
+    const readyFusions = player.getReadyFusions();
+    const pairedSet = player.getPairedPerks();
+
+    // 1. Hazır Füzyon Sentezi varsa ilk sıraya Efsanevi Füzyon Kartı olarak koy!
+    for (const f of readyFusions) {
+        if (choices.length < 3) {
+            choices.push({
+                kind: 'fusion',
+                key: f.id,
+                fusion: f,
+                rarity: 'legendary',
+                lvAdd: 1
+            });
+        }
+    }
+
+    // 2. Normal Perk Havuzu (5 Slot sınırı ve Maks Lv.5 kuralı)
+    const slotsFull = player.usedSlots() >= MAX_PERK_SLOTS;
+    const pool = UPG_KEYS.filter(k => {
+        const cur = player.pU[k] || 0;
+        if (cur >= MAX_PERK_LEVEL) return false;
+        if (slotsFull && cur <= 0) return false;
+        return true;
+    });
+
+    // Karıştır ve en fazla 3 seçeneği tamamla
+    const shuffled = pool.slice().sort(() => Math.random() - 0.5);
+    for (const k of shuffled) {
+        if (choices.length >= 3) break;
+        const cur = player.pU[k] || 0;
+        const roll = Math.random();
+        const forceHigh = (lv % 5 === 0 && choices.length === 0);
+        let rarity = 'common';
+        let lvAdd = 1;
+        if (forceHigh || roll < 0.08) {
+            rarity = 'legendary';
+            lvAdd = Math.min(2, MAX_PERK_LEVEL - cur);
+        } else if (roll < 0.25) {
+            rarity = 'epic';
+            lvAdd = Math.min(2, MAX_PERK_LEVEL - cur);
+        } else if (roll < 0.55 || pairedSet.has(k)) {
+            rarity = 'rare';
+            lvAdd = 1;
+        }
+        choices.push({
+            kind: 'perk',
+            key: k,
+            rarity,
+            curLv: cur,
+            nextLv: Math.min(MAX_PERK_LEVEL, cur + lvAdd),
+            lvAdd
+        });
+    }
+
+    // 3. Tüm 5 slot dolu ve tüm perkler Lv.5 ise Reaktör Aşırı Yükleme (Overclock) seçeneği sun
+    while (choices.length < 3) {
+        choices.push({
+            kind: 'overclock',
+            key: 'overclock_' + choices.length,
+            rarity: 'epic',
+            lvAdd: 1
+        });
+    }
+    return choices;
+}
+
 function triggerLevelUpChoice(info) {
     gameState = 'levelChoice';
     levelingPlayer = info.player;
@@ -1402,7 +1832,6 @@ function triggerLevelUpChoice(info) {
     sfx.lvl();
     document.body.classList.remove('playing-mode');
     
-    // Basılı kalmış tuşları sıfırla
     for (const k in keys) delete keys[k];
     
     const overlay = document.getElementById('levelUpOv');
@@ -1410,7 +1839,7 @@ function triggerLevelUpChoice(info) {
     overlay.classList.add(levelingPlayer.id === 1 ? 'p1-active' : 'p2-active');
     
     const subt = document.getElementById('luPlayerSubtitle');
-    subt.textContent = `◈ ${levelingPlayer.name.toUpperCase()} SEVİYE ATLADI (SEVİYE ${info.lv}) ◈`;
+    subt.textContent = `◈ ${levelingPlayer.name.toUpperCase()} SEVİYE ATLADI (SEVİYE ${info.lv} · SLOT ${levelingPlayer.usedSlots()}/${MAX_PERK_SLOTS}) ◈`;
     subt.style.color = levelingPlayer.c;
     
     const banner = document.getElementById('luPilotBanner');
@@ -1435,58 +1864,54 @@ function triggerLevelUpChoice(info) {
     container.innerHTML = '';
     levelUpActiveChoices = [];
     
-    // Rastgele 3 eşsiz yetenek kartı seç
-    const selectedKeys = [];
-    while (selectedKeys.length < 3) {
-        const k = UPG_KEYS[randInt(0, UPG_KEYS.length - 1)];
-        if (!selectedKeys.includes(k)) selectedKeys.push(k);
-    }
-    
-    // Tuş atamaları:
-    // P1: A (sol), W (orta), D (sağ)
-    // P2: ← (sol), ↑ (orta), → (sağ)
+    const generated = buildLevelUpChoices(levelingPlayer, info.lv);
     const keyConfigs = [
         { p1Key: 'KeyA', p1Label: 'A', p2Key: 'ArrowLeft', p2Label: '←' },
         { p1Key: 'KeyW', p1Label: 'W', p2Key: 'ArrowUp', p2Label: '↑' },
         { p1Key: 'KeyD', p1Label: 'D', p2Key: 'ArrowRight', p2Label: '→' }
     ];
     
-    selectedKeys.forEach((k, index) => {
-        const u = UPG[k];
+    generated.forEach((cItem, index) => {
         const cfg = keyConfigs[index];
         const assignedKeyLabel = levelingPlayer.id === 1 ? cfg.p1Label : cfg.p2Label;
-        
-        // Nadirlik Belirleme Şansı (Common, Rare, Epic, Legendary)
-        const roll = Math.random();
-        let rarity = 'common';
-        let title = u.name;
-        let mult = 1.0;
-        
-        const forceLegendary = (info.lv % 5 === 0 && index === 0);
-        
-        if (forceLegendary || roll < 0.05) {
-            rarity = 'legendary';
-            title = '🌌 EFSANEVİ ' + u.name.toUpperCase();
-            mult = 2.5;
-        } else if (roll < 0.20) {
-            rarity = 'epic';
-            title = '🔮 DESTANSI ' + u.name;
-            mult = 1.7;
-        } else if (roll < 0.50) {
-            rarity = 'rare';
-            title = '✨ SEÇKİN ' + u.name;
-            mult = 1.3;
+        let rarityBadge = '';
+        let iconHtml = '';
+        let titleHtml = '';
+        let descHtml = '';
+
+        if (cItem.kind === 'fusion') {
+            const f = cItem.fusion;
+            rarityBadge = '⚡ FÜZYON SENTEZİ (+1 BOŞ SLOT AÇAR)';
+            iconHtml = `<div class="lu-card-icon" style="color:${f.color}; border-color:${f.color}80; box-shadow:0 0 24px ${f.color}50">${f.icon}</div>`;
+            titleHtml = '🌌 ' + f.name.toUpperCase();
+            descHtml = `<div style="color:#ffd700;font-weight:700;font-size:0.74rem;margin-bottom:4px;">[${f.formula}]</div>${f.desc}`;
+        } else if (cItem.kind === 'perk') {
+            const u = UPG[cItem.key];
+            const isMaxNext = cItem.nextLv >= MAX_PERK_LEVEL;
+            rarityBadge = cItem.curLv === 0
+                ? `YENİ PERK SLOTU (${levelingPlayer.usedSlots() + 1}/${MAX_PERK_SLOTS})`
+                : `SEVİYE ${cItem.curLv} → ${cItem.nextLv}${isMaxNext ? ' (MAKS ★)' : ''}`;
+            iconHtml = `<div class="lu-card-icon" style="color:${u.color}; border-color:${u.color}30">${u.icon}</div>`;
+            titleHtml = (cItem.lvAdd > 1 ? '⚡ HIZLI SENTEZ: ' : '') + u.name;
+            // Füzyon ipucu göster
+            const partnerHint = FUSION_KEYS.map(fk => FUSIONS[fk]).find(f => f.req.includes(cItem.key));
+            const partnerKey = partnerHint ? (partnerHint.req[0] === cItem.key ? partnerHint.req[1] : partnerHint.req[0]) : null;
+            const partnerName = partnerKey ? UPG[partnerKey].name : '';
+            descHtml = `${u.desc}${cItem.lvAdd > 1 ? ' <strong style="color:#ffd700">(+2 Seviye Birden!)</strong>' : ''}<br><span style="font-size:0.7rem;color:rgba(0,240,255,0.75)">🔗 Füzyon: Lv.5 + ${partnerName} Lv.5 → ${partnerHint ? partnerHint.name : ''}</span>`;
+        } else {
+            rarityBadge = 'REAKTÖR AŞIRI YÜKLEME';
+            iconHtml = `<div class="lu-card-icon" style="color:#ffd700; border-color:#ffd70050">✦</div>`;
+            titleHtml = 'KOZMİK OVERCLOCK';
+            descHtml = 'Tüm slotlar maksimumda! Gövde ve kalkanı +%40 onarır, +500 bonus skor ve geçici aşırı güç verir.';
         }
         
-        const rarityLabel = rarity === 'common' ? 'Sıradan Yetenek' : rarity === 'rare' ? 'Seçkin (+%30)' : rarity === 'epic' ? 'Destansı (+%70)' : 'Efsanevi (+%150)';
-        
         const card = document.createElement('div');
-        card.className = `lu-card ${rarity}`;
+        card.className = `lu-card ${cItem.rarity}`;
         card.innerHTML = `
-            <div class="lu-card-rarity-badge">${rarityLabel.toUpperCase()}</div>
-            <div class="lu-card-icon" style="color:${u.color}; border-color:${u.color}30">${u.icon}</div>
-            <div class="lu-card-name">${title}</div>
-            <div class="lu-card-desc">${u.desc}</div>
+            <div class="lu-card-rarity-badge">${rarityBadge}</div>
+            ${iconHtml}
+            <div class="lu-card-name">${titleHtml}</div>
+            <div class="lu-card-desc">${descHtml}</div>
             <div class="lu-key-hint-box">
                 <div class="lu-keycap-row">
                     <div class="lu-keycap" style="border-color:${levelingPlayer.c}60;">${assignedKeyLabel}</div>
@@ -1503,8 +1928,7 @@ function triggerLevelUpChoice(info) {
         
         const choiceItem = {
             index,
-            key: k,
-            mult,
+            choice: cItem,
             cfg,
             cardEl: card,
             fillEl: card.querySelector('.lu-hold-fill'),
@@ -1515,11 +1939,7 @@ function triggerLevelUpChoice(info) {
         };
         
         levelUpActiveChoices.push(choiceItem);
-        
-        card.addEventListener('click', () => {
-            selectUpgradeCard(choiceItem);
-        });
-        
+        card.addEventListener('click', () => selectUpgradeCard(choiceItem));
         container.appendChild(card);
     });
     
@@ -1534,7 +1954,7 @@ function selectUpgradeCard(choiceItem) {
     sfx.pow();
     
     setTimeout(() => {
-        applyCardUpgrade(levelingPlayer, choiceItem.key, choiceItem.mult);
+        applyCardUpgrade(levelingPlayer, choiceItem.choice);
         
         document.getElementById('levelUpOv').classList.add('hidden');
         setCursorMode(false);
@@ -1549,7 +1969,6 @@ function selectUpgradeCard(choiceItem) {
 let holdToneTimer = 0;
 function updateLevelChoice(dt) {
     if (gameState !== 'levelChoice' || levelUpActiveChoices.length === 0) return;
-    
     holdToneTimer -= dt;
     
     for (let i = 0; i < levelUpActiveChoices.length; i++) {
@@ -1564,7 +1983,6 @@ function updateLevelChoice(dt) {
                 isHeld = !!(keys[item.cfg.p2Key] || (item.cfg.p2AltKey && keys[item.cfg.p2AltKey]));
             }
         } else {
-            // 1P modunda hem WASD hem Yön tuşları kabul edilir
             isHeld = !!(keys[item.cfg.p1Key] || (item.cfg.p1AltKey && keys[item.cfg.p1AltKey]) ||
                         keys[item.cfg.p2Key] || (item.cfg.p2AltKey && keys[item.cfg.p2AltKey]));
         }
@@ -1572,49 +1990,49 @@ function updateLevelChoice(dt) {
         if (isHeld) {
             item.holdTimer = Math.min(item.requiredHold, item.holdTimer + dt);
             item.cardEl.classList.add('holding');
-            
             const progress = item.holdTimer / item.requiredHold;
             if (item.fillEl) item.fillEl.style.width = (progress * 100).toFixed(1) + '%';
             if (item.timerTextEl) item.timerTextEl.textContent = `${item.holdTimer.toFixed(1)}s / 2.0s`;
-            
             if (holdToneTimer <= 0) {
                 holdToneTimer = 0.22;
                 tone(280 + progress * 500, 0.07, 'sine', 0.035);
             }
-            
             if (item.holdTimer >= item.requiredHold) {
                 selectUpgradeCard(item);
                 break;
             }
+        } else if (item.holdTimer > 0) {
+            item.holdTimer = Math.max(0, item.holdTimer - dt * 3.5);
+            const progress = item.holdTimer / item.requiredHold;
+            if (item.fillEl) item.fillEl.style.width = (progress * 100).toFixed(1) + '%';
+            if (item.timerTextEl) item.timerTextEl.textContent = `${item.holdTimer.toFixed(1)}s / 2.0s`;
+            if (item.holdTimer === 0) item.cardEl.classList.remove('holding');
         } else {
-            if (item.holdTimer > 0) {
-                item.holdTimer = Math.max(0, item.holdTimer - dt * 3.5);
-                const progress = item.holdTimer / item.requiredHold;
-                if (item.fillEl) item.fillEl.style.width = (progress * 100).toFixed(1) + '%';
-                if (item.timerTextEl) item.timerTextEl.textContent = `${item.holdTimer.toFixed(1)}s / 2.0s`;
-                if (item.holdTimer === 0) {
-                    item.cardEl.classList.remove('holding');
-                }
-            } else {
-                item.cardEl.classList.remove('holding');
-            }
+            item.cardEl.classList.remove('holding');
         }
     }
 }
 
-function applyCardUpgrade(player, key, multiplier) {
-    player.pU[key] = (player.pU[key] || 0) + multiplier;
-    player.recalc();
-    
-    // Geliştirme alındığında oyuncunun can/kalkan barını hafif doldur
-    player.hp = Math.min(player.mh, player.hp + player.mh * 0.2);
-    player.sh = Math.min(player.ms, player.sh + player.ms * 0.15);
-    
-    spawnP(player.x, player.y, UPG[key].color, 25, 200, 0.5, 4);
+function applyCardUpgrade(player, cItem) {
+    if (!cItem) return;
+    const decay = getCosmicDecay();
+    if (cItem.kind === 'fusion') {
+        player.applyFusion(cItem.key);
+    } else if (cItem.kind === 'perk') {
+        player.addUpg(cItem.key, cItem.lvAdd || 1);
+        spawnP(player.x, player.y, UPG[cItem.key].color, 25, 200, 0.5, 4);
+    } else {
+        score += 500;
+        player.tP.damage = 6;
+        player.tP.rapidfire = 6;
+        spawnP(player.x, player.y, GOLD, 25, 200, 0.5, 4);
+    }
+    player.hp = Math.min(player.mh, player.hp + player.mh * 0.18 * decay);
+    player.sh = Math.min(player.ms, player.sh + player.ms * 0.15 * decay);
     sfx.pow();
 }
 
-// ── Boss Ödülü Ekranı (5 Saniye Duraklatma) ──
+// ── Boss Ödülü Ekranı (5 Saniye Duraklatma - 5 Slot & Füzyon Uyumlu) ──
 function showBossReward(bossName) {
     bossRewardActive = true; bossRewardTimer = 5;
     gameState = 'bossReward';
@@ -1624,17 +2042,37 @@ function showBossReward(bossName) {
     
     const rewards = [];
     const alivePlayers = livePlayers();
-    const upgradeCount = 2;
+    const decay = getCosmicDecay();
     
     for (const pl of alivePlayers) {
         const given = [];
-        for (let i = 0; i < upgradeCount; i++) {
-            let k = UPG_KEYS[randInt(0, UPG_KEYS.length - 1)];
-            pl.pU[k] = (pl.pU[k] || 0) + 2.5; // Efsanevi geliştirme (+2.5)
-            pl.recalc();
-            given.push(k);
+        for (let i = 0; i < 2; i++) {
+            const readyF = pl.getReadyFusions();
+            if (readyF.length > 0) {
+                const f = readyF[0];
+                pl.applyFusion(f.id);
+                given.push({ label: '🌌 FÜZYON: ' + f.name.toUpperCase(), icon: f.icon, color: f.color });
+                continue;
+            }
+            const slotsFull = pl.usedSlots() >= MAX_PERK_SLOTS;
+            const candidates = UPG_KEYS.filter(k => {
+                const cur = pl.pU[k] || 0;
+                if (cur >= MAX_PERK_LEVEL) return false;
+                if (slotsFull && cur <= 0) return false;
+                return true;
+            });
+            if (candidates.length > 0) {
+                const k = candidates[randInt(0, candidates.length - 1)];
+                pl.addUpg(k, 1);
+                const u = UPG[k];
+                given.push({ label: `${u.name} (Lv.${pl.pU[k]}/${MAX_PERK_LEVEL})`, icon: u.icon, color: u.color });
+            } else {
+                score += 750;
+                given.push({ label: 'REAKTÖR OVERCLOCK (+750 SKOR)', icon: '✦', color: '#ffd700' });
+            }
         }
-        pl.hp = pl.mh; pl.sh = pl.ms;
+        pl.hp = Math.min(pl.mh, pl.hp + pl.mh * 0.65 * decay);
+        pl.sh = Math.min(pl.ms, pl.sh + pl.ms * 0.8 * decay);
         rewards.push({ player: pl, given });
     }
     
@@ -1648,7 +2086,7 @@ function showBossReward(bossName) {
     
     for (const rw of rewards) {
         const pl = rw.player;
-        let html = `<div class="br-player-box"><div class="br-pname" style="color:${pl.c}">◈ ${pl.name.toUpperCase()}</div>`;
+        let html = `<div class="br-player-box"><div class="br-pname" style="color:${pl.c}">◈ ${pl.name.toUpperCase()} (SLOT ${pl.usedSlots()}/${MAX_PERK_SLOTS})</div>`;
         html += `<div class="br-stats-grid">`;
         html += `<div class="br-stat">Can: <span>${Math.floor(pl.mh)}</span></div>`;
         html += `<div class="br-stat">Kalkan: <span>${Math.floor(pl.ms)}</span></div>`;
@@ -1658,23 +2096,22 @@ function showBossReward(bossName) {
         html += `<div class="br-stat">Kritik: <span>%${Math.floor(pl.crit * 100)}</span></div>`;
         html += `</div>`;
         
-        html += `<div class="br-new-title">YENİ EFSANEVİ STATLARINIZ</div><div class="br-new-list">`;
-        for (const k of rw.given) {
-            const u = UPG[k];
-            html += `<div class="br-upg-chip legendary" style="color:#ffd700; border-color:#ffd700; background:rgba(255,215,0,0.1); font-weight:bold; box-shadow: 0 0 10px rgba(255,215,0,0.25);">${u.icon} EFSANEVİ ${u.name.toUpperCase()}</div>`;
+        html += `<div class="br-new-title">BOSS SENTEZ ÖDÜLLERİ</div><div class="br-new-list">`;
+        for (const g of rw.given) {
+            html += `<div class="br-upg-chip legendary" style="color:${g.color}; border-color:${g.color}; background:rgba(255,215,0,0.08); font-weight:bold;">${g.icon} ${g.label}</div>`;
         }
         html += `</div>`;
         
-        const entries = Object.entries(pl.pU);
-        if (entries.length > 0) {
-            html += `<div class="br-all-title">TÜM KALICI STATLAR</div><div class="br-all-list">`;
-            for (const [k, v] of entries) {
-                const u = UPG[k];
-                if (u) html += `<div class="br-all-chip" style="color:${u.color}">${u.icon} ${u.name} x${v.toFixed(1)}</div>`;
-            }
-            html += `</div>`;
+        html += `<div class="br-all-title">AKTİF 5-SLOT DİZİLİMİ</div><div class="br-all-list">`;
+        for (const fk of Object.keys(pl.fusions)) {
+            const f = FUSIONS[fk];
+            if (f) html += `<div class="br-all-chip" style="color:${f.color};border-color:${f.color}80;font-weight:700;">${f.icon} ${f.name} [FÜZYON]</div>`;
         }
-        html += `</div>`;
+        for (const [k, v] of Object.entries(pl.pU)) {
+            const u = UPG[k];
+            if (u) html += `<div class="br-all-chip" style="color:${u.color}">${u.icon} ${u.name} Lv.${Math.floor(v)}/${MAX_PERK_LEVEL}</div>`;
+        }
+        html += `</div></div>`;
         cont.innerHTML += html;
     }
     
@@ -1758,16 +2195,86 @@ function livePlayers() {
 
 function updateUpgDisplay() {
     const players = MODE === '2p' ? [p1, p2] : [p1];
+    const p2Dock = document.getElementById('p2PerkDock');
+    if (p2Dock) p2Dock.style.display = MODE === '2p' ? 'flex' : 'none';
+
     for (const pl of players) {
+        pl.syncSlotOrder();
         const c = document.getElementById(pl.id === 1 ? 'p1Upgs' : 'p2Upgs');
-        c.innerHTML = '';
-        for (const [k, v] of Object.entries(pl.pU)) {
-            const d = UPG[k]; if (!d) continue;
-            const el = document.createElement('div'); el.className = 'hud-ui';
-            el.style.color = d.color; el.style.borderColor = d.color + '40';
-            el.title = `${d.name} x${v.toFixed(1)}\n${d.desc}`;
-            el.innerHTML = d.icon + (v >= 1 ? `<span class="uc">${Math.floor(v)}</span>` : '');
-            c.appendChild(el);
+        if (c) {
+            c.innerHTML = '';
+            for (const fk of Object.keys(pl.fusions)) {
+                const f = FUSIONS[fk]; if (!f) continue;
+                const el = document.createElement('div'); el.className = 'hud-ui fusion';
+                el.style.color = f.color; el.style.borderColor = f.color;
+                el.title = `[FÜZYON] ${f.name}\n${f.desc}`;
+                el.innerHTML = f.icon + `<span class="uc" style="color:#ffd700;border-color:#ffd700">★</span>`;
+                c.appendChild(el);
+            }
+            for (const [k, v] of Object.entries(pl.pU)) {
+                const d = UPG[k]; if (!d) continue;
+                const el = document.createElement('div'); el.className = 'hud-ui';
+                el.style.color = d.color; el.style.borderColor = d.color + '50';
+                el.title = `${d.name} Lv.${Math.floor(v)}/${MAX_PERK_LEVEL}\n${d.desc}`;
+                el.innerHTML = d.icon + `<span class="uc">${Math.floor(v)}</span>`;
+                c.appendChild(el);
+            }
+        }
+
+        // 5-Slot Neon Perk & Füzyon Dock Render
+        const dock = document.getElementById(pl.id === 1 ? 'p1PerkDockSlots' : 'p2PerkDockSlots');
+        const dockMeta = document.getElementById(pl.id === 1 ? 'p1DockMeta' : 'p2DockMeta');
+        if (!dock) continue;
+        const readyFusions = pl.getReadyFusions();
+        const readyReqSet = new Set();
+        readyFusions.forEach(f => { readyReqSet.add(f.req[0]); readyReqSet.add(f.req[1]); });
+        const pairedSet = pl.getPairedPerks();
+
+        if (dockMeta) {
+            dockMeta.textContent = readyFusions.length > 0
+                ? `⚡ FÜZYON HAZIR: ${readyFusions.map(f => f.name).join(', ')}`
+                : `SLOT ${pl.usedSlots()}/${MAX_PERK_SLOTS}`;
+            dockMeta.classList.toggle('ready', readyFusions.length > 0);
+        }
+
+        dock.innerHTML = '';
+        for (let idx = 0; idx < MAX_PERK_SLOTS; idx++) {
+            const item = pl.slotOrder[idx];
+            const slotEl = document.createElement('div');
+            if (!item) {
+                slotEl.className = 'perk-slot empty';
+                slotEl.innerHTML = `<span class="ps-idx">${idx + 1}</span><span class="ps-empty-ico">◇</span><span class="ps-lbl">BOŞ SLOT</span>`;
+            } else if (item.type === 'fusion') {
+                const f = FUSIONS[item.key];
+                slotEl.className = 'perk-slot fused';
+                slotEl.style.setProperty('--sc', f.color);
+                slotEl.title = `${f.name} (${f.formula})\n${f.desc}`;
+                slotEl.innerHTML = `
+                    <span class="ps-ring"></span>
+                    <span class="ps-ico" style="color:${f.color}">${f.icon}</span>
+                    <span class="ps-lbl" style="color:${f.color}">${f.name}</span>
+                    <span class="ps-pips fused-badge">★ FÜZYON</span>
+                `;
+            } else {
+                const u = UPG[item.key];
+                const lv = Math.min(MAX_PERK_LEVEL, Math.floor(pl.pU[item.key] || 1));
+                const isReady = readyReqSet.has(item.key);
+                const isPaired = pairedSet.has(item.key);
+                slotEl.className = `perk-slot filled${lv >= MAX_PERK_LEVEL ? ' maxed' : ''}${isReady ? ' fusion-ready' : isPaired ? ' fusion-paired' : ''}`;
+                slotEl.style.setProperty('--sc', u.color);
+                let pips = '';
+                for (let p = 1; p <= MAX_PERK_LEVEL; p++) {
+                    pips += `<i class="${p <= lv ? 'on' : ''}"></i>`;
+                }
+                slotEl.title = `${u.name} (Lv.${lv}/${MAX_PERK_LEVEL})\n${u.desc}`;
+                slotEl.innerHTML = `
+                    ${(isReady || isPaired) ? '<span class="ps-ring"></span>' : ''}
+                    <span class="ps-ico" style="color:${u.color}">${u.icon}</span>
+                    <span class="ps-lbl">${u.name}</span>
+                    <span class="ps-pips">${pips}</span>
+                `;
+            }
+            dock.appendChild(slotEl);
         }
     }
 }
@@ -1857,14 +2364,16 @@ function startWave(w) {
     
     if (wave > 1 && wave % 5 === 0) {
         const bn = wave / 5;
-        const types = ['chaser', 'bullethell', 'gravity'];
-        // Boss sayısı artış formülü, boss çeşit sayısıyla (types.length) sınırlandırılmıştır
-        const numBosses = Math.min(types.length, Math.floor((wave - 5) / 10) + 1);
+        const types = ['chaser', 'bullethell', 'gravity', 'chronos', 'behemoth'];
+        const numBosses = Math.min(3, Math.floor((wave - 5) / 10) + 1);
         
         for (let i = 0; i < numBosses; i++) {
             const bx = canvas.width / (numBosses + 1) * (i + 1);
-            const by = -100 - (i * 60); // Hafif kademeli giriş
-            const bType = types[(bn - 1 + i) % types.length];
+            const by = -100 - (i * 60);
+            let bType = types[(bn - 1 + i) % 3];
+            if (i === 0 && wave % 30 === 0) bType = 'behemoth';
+            else if (i === 0 && wave % 20 === 0) bType = 'chronos';
+            else if (wave >= 25 && i === 1) bType = (wave % 2 === 0) ? 'chronos' : 'behemoth';
             const b = new Boss(bn, bx, by, bType);
             enemies.push(b);
             if (i === 0) bossActive = b;
@@ -2036,12 +2545,17 @@ function renderPlayerStatPanel(pl) {
     const upgEntries = Object.entries(pl.pU);
     const shipLabels = { interceptor: 'Avcı', dreadnought: 'Kruvazör', aegis: 'Destek' };
     
+    const fEntries = Object.keys(pl.fusions || {});
     let upgradeHtml = '<div style="color: rgba(255,255,255,0.35); font-size:0.7rem; margin-top:6px;">Yükseltme Kartı Yok</div>';
-    if (upgEntries.length > 0) {
+    if (upgEntries.length > 0 || fEntries.length > 0) {
         upgradeHtml = `<div class="br-all-list" style="margin-top:6px;">`;
+        for (const fk of fEntries) {
+            const f = FUSIONS[fk];
+            if (f) upgradeHtml += `<div class="br-all-chip" style="color:${f.color}; border-color:${f.color}; font-size:0.55rem; padding: 2px 6px; font-weight:700;">${f.icon} ${f.name} [FÜZYON]</div>`;
+        }
         for (const [k, v] of upgEntries) {
             const u = UPG[k];
-            if (u) upgradeHtml += `<div class="br-all-chip" style="color:${u.color}; border-color:${u.color}30; font-size:0.55rem; padding: 2px 6px;">${u.icon} ${u.name} x${v.toFixed(1)}</div>`;
+            if (u) upgradeHtml += `<div class="br-all-chip" style="color:${u.color}; border-color:${u.color}30; font-size:0.55rem; padding: 2px 6px;">${u.icon} ${u.name} Lv.${Math.floor(v)}/${MAX_PERK_LEVEL}</div>`;
         }
         upgradeHtml += `</div>`;
     }
@@ -2082,7 +2596,7 @@ function initGame() {
         p2.alive = false; p2.respT = 99999;
     }
     
-    bullets.length = 0; enemies.length = 0; eBullets.length = 0; pickups.length = 0; particles.length = 0; floats.length = 0; dangerZones.length = 0; laserTrails.length = 0;
+    bullets.length = 0; enemies.length = 0; eBullets.length = 0; pickups.length = 0; particles.length = 0; floats.length = 0; dangerZones.length = 0; laserTrails.length = 0; blackHoles.length = 0; gravityRifts.length = 0;
     levelUpQueue = [];
     score = 0; wave = 0; comboC = 0; comboTm = 0; comboM = 1; gameTime = 0; totalKills = 0;
     shakeI = 0; screenFl = 0; linkDT = 0; bossActive = null; slowT = 0; slowF = 1;
@@ -2151,10 +2665,15 @@ function endGame() {
     const sum = document.getElementById('goUsum'); let html = '';
     const players = MODE === '2p' ? [p1, p2] : [p1];
     for (const pl of players) {
-        const ent = Object.entries(pl.pU); if (ent.length === 0) continue;
-        html += `<div class="go-ut" style="color:${pl.c}">${pl.name.toUpperCase()} PİLOT KARTLARI</div><div class="go-ul">`;
+        const ent = Object.entries(pl.pU);
+        const fEnt = Object.keys(pl.fusions || {});
+        if (ent.length === 0 && fEnt.length === 0) continue;
+        html += `<div class="go-ut" style="color:${pl.c}">${pl.name.toUpperCase()} PİLOT KARTLARI (SLOT ${pl.usedSlots()}/${MAX_PERK_SLOTS})</div><div class="go-ul">`;
+        for (const fk of fEnt) {
+            const f = FUSIONS[fk]; if (f) html += `<div class="go-uc" style="color:${f.color};border-color:${f.color};font-weight:700;">${f.icon} ${f.name} [FÜZYON]</div>`;
+        }
         for (const [k, v] of ent) {
-            const u = UPG[k]; if (u) html += `<div class="go-uc" style="color:${u.color};border-color:${u.color}40">${u.icon} ${u.name} x${v.toFixed(1)}</div>`;
+            const u = UPG[k]; if (u) html += `<div class="go-uc" style="color:${u.color};border-color:${u.color}40">${u.icon} ${u.name} Lv.${Math.floor(v)}/${MAX_PERK_LEVEL}</div>`;
         }
         html += '</div>';
     }
@@ -2194,6 +2713,54 @@ function update(dt) {
     
     updateLaserTrails(eDt);
     
+    // Kozmik Süpernova Kara Delikleri (Black Holes)
+    for (let i = blackHoles.length - 1; i >= 0; i--) {
+        const bh = blackHoles[i];
+        bh.life -= eDt; bh.a += eDt * 6;
+        if (bh.life <= 0) {
+            spawnExp(bh.x, bh.y, '#bf00ff', 1.4);
+            blackHoles.splice(i, 1);
+            continue;
+        }
+        bh.dmgT -= eDt;
+        const doTick = bh.dmgT <= 0;
+        if (doTick) bh.dmgT = 0.2;
+        for (const e of enemies) {
+            if (!e.alive) continue;
+            const d = dist(bh, e);
+            if (d < bh.r && d > 4) {
+                const pull = (1 - d / bh.r) * (e.isBoss ? 85 : 240) * eDt;
+                const pa = ang(e, bh);
+                e.x += Math.cos(pa) * pull;
+                e.y += Math.sin(pa) * pull;
+                if (doTick) e.takeDmg(bh.dps * 0.2, false, true);
+            }
+        }
+    }
+
+    // Chronos Weaver Zaman/Yerçekimi Yarıkları (Oyuncuyu ters yöne iter)
+    for (let i = gravityRifts.length - 1; i >= 0; i--) {
+        const rf = gravityRifts[i];
+        rf.life -= eDt; rf.a -= eDt * 4; rf.dmgTick -= eDt;
+        if (rf.life <= 0) { gravityRifts.splice(i, 1); continue; }
+        for (const p of livePlayers()) {
+            const d = dist(rf, p);
+            if (d < rf.r) {
+                const pushAngle = ang(rf, p);
+                const pushForce = (1 - d / rf.r) * 260 * eDt;
+                // Oyuncunun hareket vektörünü tersine bük ve dışarı it
+                p.x += (Math.cos(pushAngle) * pushForce) - p.vx * 1.45 * eDt;
+                p.y += (Math.sin(pushAngle) * pushForce) - p.vy * 1.45 * eDt;
+                p.x = clamp(p.x, 25, canvas.width - 25);
+                p.y = clamp(p.y, 25, canvas.height - 25);
+                if (d < rf.r * 0.38 && rf.dmgTick <= 0) {
+                    rf.dmgTick = 0.45;
+                    p.takeDmg(12 * DC.edm, 0.03);
+                }
+            }
+        }
+    }
+
     // Tehlike alanları güncellemesi (Danger Zones)
     for (let i = dangerZones.length - 1; i >= 0; i--) {
         const dz = dangerZones[i];
@@ -2253,17 +2820,74 @@ function update(dt) {
         if (b.life <= 0 || b.x < -50 || b.x > canvas.width + 50 || b.y < -50 || b.y > canvas.height + 50) { bullets.splice(i, 1); continue; }
         
         let hit = false;
+        const shooter = b.owner === 1 ? p1 : p2;
         for (let j = 0; j < enemies.length; j++) {
             const e = enemies[j];
             if (!e.alive) continue;
+            if (b.hitIds && b.hitIds.includes(e.eid)) continue;
             
             const rad = e.r + b.size;
             const dx = b.x - e.x, dy = b.y - e.y;
             if (Math.abs(dx) <= rad && Math.abs(dy) <= rad && (dx * dx + dy * dy < rad * rad)) {
-                e.takeDmg(b.damage, b.crit);
-                if (!b.piercing) hit = true;
+                const impactAngle = Math.atan2(dy, dx);
+                const dealt = e.takeDmg(b.damage, b.crit, false, impactAngle);
                 spawnP(b.x, b.y, b.color, 4, 220, 0.25, 2.2, 'spark'); spawnP(b.x, b.y, '#fff', 2, 140, 0.15, 1.5); sfx.hit();
-                if (!b.piercing) break;
+
+                if (dealt !== false && shooter && shooter.alive) {
+                    // Füzyon 1: Kan Hasadı -> Plazma patlaması + hasarın %10'unu cana çevirir
+                    if (shooter.fusions.bloodHarvest) {
+                        shooter.healLeech(b.damage * 0.10);
+                        particles.push(new Particle(b.x, b.y, 0, 0, '#ff1744', 0.22, 18, 'shockwave'));
+                        for (let k = 0; k < enemies.length; k++) {
+                            const ne = enemies[k];
+                            if (ne !== e && ne.alive && dist(b, ne) < 58 + ne.r) {
+                                ne.takeDmg(b.damage * 0.35, false, true);
+                            }
+                        }
+                    }
+                    // Füzyon 4: Kozmik Süpernova -> Kritik vuruşlarda kara delik açar
+                    if (shooter.fusions.cosmicSupernova && b.crit && shooter.blackHoleCd <= 0 && blackHoles.length < 3) {
+                        shooter.blackHoleCd = 1.1;
+                        blackHoles.push({ x: e.x, y: e.y, r: 165, life: 2.2, maxLife: 2.2, dps: shooter.bd * 2.2, a: 0, dmgT: 0 });
+                    }
+                    // Füzyon 6: Kuantum Yargıç -> Yavaşlatma ve deldikçe +%25 hasar artışı
+                    if (shooter.fusions.quantumArbiter) {
+                        e.slowT = 1.5;
+                        b.damage *= 1.25;
+                    }
+                }
+
+                // Füzyon 2: Gatling Fırtınası -> Düşmanlar arasında 3 kez sekme (Ricochet)
+                if (b.bounces && b.bounces > 0) {
+                    b.bounces--;
+                    if (!b.hitIds) b.hitIds = [];
+                    b.hitIds.push(e.eid);
+                    let nextTarget = null, bestD = 260;
+                    for (let k = 0; k < enemies.length; k++) {
+                        const ce = enemies[k];
+                        if (!ce.alive || ce === e || (b.hitIds && b.hitIds.includes(ce.eid))) continue;
+                        const cd = dist(e, ce);
+                        if (cd < bestD) { bestD = cd; nextTarget = ce; }
+                    }
+                    if (nextTarget) {
+                        const ra = ang(b, nextTarget);
+                        const sp = Math.hypot(b.vx, b.vy);
+                        b.vx = Math.cos(ra) * sp; b.vy = Math.sin(ra) * sp;
+                        b.life = Math.max(b.life, 0.55);
+                        hit = false;
+                        break;
+                    }
+                }
+
+                if (b.pierceLeft && b.pierceLeft > 0) {
+                    b.pierceLeft--;
+                    if (!b.hitIds) b.hitIds = [];
+                    b.hitIds.push(e.eid);
+                    if (b.pierceLeft <= 0) hit = true;
+                } else if (!b.piercing) {
+                    hit = true;
+                }
+                if (hit || !b.piercing) break;
             }
         }
         if (hit) bullets.splice(i, 1);
@@ -2280,7 +2904,7 @@ function update(dt) {
             const rad = p.r + b.size;
             const dx = b.x - p.x, dy = b.y - p.y;
             if (Math.abs(dx) <= rad && Math.abs(dy) <= rad && (dx * dx + dy * dy < rad * rad)) {
-                p.takeDmg(b.damage); spawnP(b.x, b.y, b.color, 5, 100, 0.3, 2);
+                p.takeDmg(b.damage, b.truePct || 0); spawnP(b.x, b.y, b.color, 5, 100, 0.3, 2);
                 eBullets.splice(i, 1); break;
             }
         }
@@ -2353,6 +2977,16 @@ function updateHUD() {
         cEl.classList.add('active'); cEl.textContent = `COMBO x${comboM.toFixed(1)}`;
     } else {
         cEl.classList.remove('active');
+    }
+    const radEl = document.getElementById('hudRad');
+    if (radEl) {
+        if (wave >= 25) {
+            const pct = Math.round((1 - getCosmicDecay()) * 100);
+            radEl.style.display = 'block';
+            radEl.textContent = `☢ KOZMİK ÇÜRÜME: -%${pct}`;
+        } else {
+            radEl.style.display = 'none';
+        }
     }
     
     // Çoklu boss can barı ve ismi güncellemesi (Yüksek Performanslı DOM Önbellekleme)
@@ -2449,6 +3083,45 @@ function draw() {
             ctx.fillText(d.i, pu.x, pu.y); ctx.globalAlpha = 1;
         }
         
+        // Kara Delikleri Çiz (Kozmik Süpernova)
+        for (const bh of blackHoles) {
+            const k = clamp(bh.life / bh.maxLife, 0, 1);
+            ctx.save();
+            ctx.translate(bh.x, bh.y);
+            ctx.rotate(bh.a);
+            const g = ctx.createRadialGradient(0, 0, 6, 0, 0, bh.r * 0.75);
+            g.addColorStop(0, '#000000');
+            g.addColorStop(0.35, 'rgba(191, 0, 255, 0.55)');
+            g.addColorStop(1, 'rgba(191, 0, 255, 0)');
+            ctx.fillStyle = g;
+            ctx.beginPath(); ctx.arc(0, 0, bh.r * 0.75, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#bf00ff'; ctx.lineWidth = 2.2 * k; ctx.setLineDash([8, 6]);
+            ctx.beginPath(); ctx.arc(0, 0, bh.r * 0.45, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#000'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(0, 0, 14 * k, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.restore();
+        }
+
+        // Chronos Weaver Zaman Yarıklarını Çiz (Gravity Rifts)
+        for (const rf of gravityRifts) {
+            const k = clamp(rf.life / rf.maxLife, 0, 1);
+            ctx.save();
+            ctx.translate(rf.x, rf.y);
+            ctx.rotate(rf.a);
+            ctx.strokeStyle = '#00ffcc';
+            ctx.lineWidth = 2.5 * k;
+            ctx.setLineDash([10, 8]);
+            ctx.beginPath(); ctx.arc(0, 0, rf.r, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(0, 0, rf.r * 0.55, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(0, 255, 204, 0.08)';
+            ctx.beginPath(); ctx.arc(0, 0, rf.r, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px Orbitron'; ctx.textAlign = 'center';
+            ctx.fillText('⏳ TERS ÇEKİM', 0, 4);
+            ctx.restore();
+        }
+
         // Tehlike Alanlarını Çiz (Danger Zones)
         for (const dz of dangerZones) {
             const progress = Math.max(0, dz.timer / dz.maxTimer);

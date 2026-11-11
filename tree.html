@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cosmic Survivors — Perk & Füzyon Sentez Laboratuvarı (Megaponk Ağacı)</title>
+    <meta name="description" content="Cosmic Survivors 5-Slot Megaponk Perk Ağacı ve Füzyon Sentez Laboratuvarı. 9 temel perki Seviye 5'e ulaştırıp 6 Gizli Efsanevi Füzyon Yeteneğini keşfedin.">
+    <meta name="keywords" content="Cosmic Survivors, füzyon ağacı, perk sentez laboratuvarı, megaponk perk tree, uzay roguelike, html5 oyun">
+    <meta name="author" content="Halit Güneş (HaKING)">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#00f0ff">
+    <link rel="canonical" href="https://cosmic.haking.tr/tree.html">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="tr_TR">
+    <meta property="og:site_name" content="Cosmic Survivors">
+    <meta property="og:title" content="Cosmic Survivors — Perk & Füzyon Sentez Laboratuvarı">
+    <meta property="og:description" content="9 temel perk, 5 reaktör slotu ve Seviye 5'te birleşen 6 Gizli Efsanevi Füzyon Yeteneği. Sentez formüllerini interaktif olarak inceleyin.">
+    <meta property="og:url" content="https://cosmic.haking.tr/tree.html">
+    <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Cosmic Survivors — Perk & Füzyon Sentez Laboratuvarı">
+    <meta name="twitter:description" content="9 temel perk, 5 reaktör slotu ve 6 Gizli Efsanevi Füzyon Yeteneği.">
+    <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #030109;
+            --bg-panel: rgba(10, 14, 34, 0.72);
+            --p1: #00f0ff;
+            --p2: #ff006a;
+            --link: #bf00ff;
+            --gold: #ffd700;
+            --green: #00ff88;
+            --text-main: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.62);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            background: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%),
+                radial-gradient(circle at 20% 20%, rgba(0, 240, 255, 0.06), transparent 45%),
+                radial-gradient(circle at 80% 70%, rgba(191, 0, 255, 0.07), transparent 50%);
+            background-size: 100% 4px, 100% 100%, 100% 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ─── SHARED GLASSMORPHISM NAVBAR ─── */
+        .navbar {
+            min-height: 70px;
+            padding: 12px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(6, 3, 18, 0.65);
+            backdrop-filter: blur(18px) saturate(1.4);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(191, 0, 255, 0.2);
+            position: relative;
+            z-index: 20;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .nav-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.35rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            background: linear-gradient(90deg, #00f0ff, #bf00ff, #ff006a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .nav-logo .nav-mark { width: 34px; height: 34px; filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.5)); }
+        .nav-logo .nav-ver {
+            font-size: 0.55rem; letter-spacing: 0.12em; padding: 3px 8px; border-radius: 6px;
+            border: 1px solid rgba(255, 215, 0, 0.5); -webkit-text-fill-color: var(--gold); background: rgba(255, 215, 0, 0.08);
+        }
+        .nav-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .nav-link {
+            font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.72); text-decoration: none;
+            padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03); transition: all 0.25s ease; white-space: nowrap;
+        }
+        .nav-link:hover {
+            color: var(--p1); border-color: rgba(0, 240, 255, 0.45);
+            background: rgba(0, 240, 255, 0.08); box-shadow: 0 0 14px rgba(0, 240, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        .nav-link.active {
+            color: var(--p1); border-color: rgba(0, 240, 255, 0.65);
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.16), rgba(191, 0, 255, 0.14));
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.25);
+        }
+
+        /* ─── PAGE CONTAINER ─── */
+        .page-wrap {
+            position: relative;
+            z-index: 5;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 28px 24px 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        /* Hero Banner */
+        .lab-hero {
+            background: linear-gradient(145deg, rgba(12, 18, 44, 0.72), rgba(8, 4, 24, 0.85));
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            border-radius: 18px;
+            padding: 26px 32px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.65), inset 0 0 30px rgba(0, 240, 255, 0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .lab-hero-tag {
+            display: inline-block;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--gold);
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 8px;
+            letter-spacing: 0.12em;
+        }
+        .lab-hero h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            background: linear-gradient(90deg, #ffffff, #00f0ff, #bf00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+        .lab-hero p {
+            color: var(--text-dim);
+            font-size: 0.98rem;
+            max-width: 780px;
+            line-height: 1.45;
+        }
+        .lab-rules-badges {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .rule-pill {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 12px;
+            padding: 10px 16px;
+            text-align: center;
+            min-width: 130px;
+        }
+        .rule-pill .rp-val {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: var(--p1);
+            display: block;
+        }
+        .rule-pill .rp-lbl {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* ─── MAIN TREE + INSPECTOR GRID ─── */
+        .lab-main-grid {
+            display: grid;
+            grid-template-columns: 1.55fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (max-width: 1120px) {
+            .lab-main-grid { grid-template-columns: 1fr; }
+        }
+
+        .glass-panel {
+            background: linear-gradient(155deg, rgba(10, 16, 38, 0.74), rgba(6, 3, 18, 0.86));
+            border: 1px solid rgba(0, 240, 255, 0.22);
+            border-radius: 18px;
+            padding: 22px;
+            backdrop-filter: blur(18px);
+            box-shadow: 0 16px 44px rgba(0, 0, 0, 0.65);
+            position: relative;
+        }
+        .panel-hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .panel-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            color: var(--p1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel-hint {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+        }
+
+        /* ─── INTERACTIVE SVG + NODE CONSTELLATION BOARD ─── */
+        .tree-stage {
+            position: relative;
+            min-height: 620px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px 10px;
+            background: radial-gradient(circle at 50% 50%, rgba(191, 0, 255, 0.07), rgba(0, 0, 0, 0.45));
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+        #treeLinesSvg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .syn-line {
+            fill: none;
+            stroke: rgba(0, 240, 255, 0.18);
+            stroke-width: 2;
+            stroke-dasharray: 6 6;
+            transition: stroke 0.3s, stroke-width 0.3s, opacity 0.3s;
+        }
+        .syn-line.active {
+            stroke: var(--active-color, #ffd700);
+            stroke-width: 3.5;
+            stroke-dasharray: 10 5;
+            filter: drop-shadow(0 0 8px var(--active-color, #ffd700));
+            animation: dashFlow 0.8s linear infinite;
+            opacity: 1;
+        }
+        .syn-line.dimmed {
+            opacity: 0.12;
+        }
+        @keyframes dashFlow {
+            to { stroke-dashoffset: -30; }
+        }
+
+        .tier-section {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .tier-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.18em;
+            color: rgba(255, 255, 255, 0.48);
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .perks-row {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 8px;
+        }
+        .fusions-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 900px) {
+            .perks-row { grid-template-columns: repeat(3, 1fr); }
+            .fusions-row { grid-template-columns: repeat(2, 1fr); }
+            #treeLinesSvg { display: none; }
+            .tree-stage { min-height: auto; gap: 28px; }
+        }
+
+        .tree-node {
+            background: linear-gradient(160deg, rgba(14, 20, 46, 0.88), rgba(6, 3, 20, 0.94));
+            border: 1.5px solid rgba(255, 255, 255, 0.14);
+            border-radius: 12px;
+            padding: 12px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            user-select: none;
+        }
+        .tree-node:hover {
+            transform: translateY(-4px);
+            border-color: var(--nc, #00f0ff);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.7), 0 0 18px color-mix(in srgb, var(--nc, #00f0ff) 40%, transparent);
+        }
+        .tree-node.selected {
+            border-color: var(--nc, #00f0ff);
+            background: radial-gradient(circle at 50% 20%, color-mix(in srgb, var(--nc, #00f0ff) 28%, transparent), rgba(8, 4, 24, 0.95));
+            box-shadow: 0 0 26px color-mix(in srgb, var(--nc, #00f0ff) 55%, transparent), inset 0 0 14px color-mix(in srgb, var(--nc, #00f0ff) 25%, transparent);
+            transform: translateY(-4px) scale(1.03);
+        }
+        .tree-node.linked {
+            border-color: var(--nc, #ffd700);
+            box-shadow: 0 0 18px color-mix(in srgb, var(--nc, #ffd700) 45%, transparent);
+        }
+        .tree-node.dimmed {
+            opacity: 0.35;
+        }
+        .node-ico {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--nc, #00f0ff);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid color-mix(in srgb, var(--nc, #00f0ff) 50%, transparent);
+            box-shadow: 0 0 12px color-mix(in srgb, var(--nc, #00f0ff) 25%, transparent);
+        }
+        .node-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.04em;
+        }
+        .node-sub {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.56rem;
+            color: var(--text-dim);
+        }
+
+        .tree-node.fusion-node {
+            padding: 14px 8px;
+            border-width: 1.5px;
+            border-color: color-mix(in srgb, var(--nc, #ffd700) 55%, transparent);
+            background: linear-gradient(165deg, rgba(28, 12, 48, 0.88), rgba(8, 3, 22, 0.95));
+        }
+        .tree-node.fusion-node .node-ico {
+            width: 48px;
+            height: 48px;
+            font-size: 1.45rem;
+        }
+        .fusion-formula-tag {
+            font-size: 0.62rem;
+            color: var(--gold);
+            font-weight: 700;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.28);
+            padding: 2px 7px;
+            border-radius: 8px;
+        }
+
+        /* ─── INSPECTOR PANEL ─── */
+        .inspector-card {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .insp-top {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .insp-ico {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            border: 1.5px solid currentColor;
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 22px currentColor;
+        }
+        .insp-badge {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.64rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .insp-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #fff;
+        }
+        .insp-desc {
+            font-size: 0.92rem;
+            color: rgba(255, 255, 255, 0.82);
+            line-height: 1.5;
+            padding: 12px 14px;
+            background: rgba(0, 0, 0, 0.35);
+            border-left: 3px solid var(--p1);
+            border-radius: 0 10px 10px 0;
+        }
+
+        .insp-section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.14em;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .lvl-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .lvl-table th, .lvl-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .lvl-table th {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.64rem;
+            color: var(--p1);
+            background: rgba(0, 240, 255, 0.06);
+            letter-spacing: 0.08em;
+        }
+        .lvl-table tr:last-child td {
+            border-bottom: none;
+            color: var(--gold);
+            font-weight: 700;
+            background: rgba(255, 215, 0, 0.06);
+        }
+
+        .formula-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.07), rgba(191, 0, 255, 0.09));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            flex-wrap: wrap;
+        }
+        .formula-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            cursor: pointer;
+        }
+        .formula-op {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            color: var(--gold);
+            font-size: 0.95rem;
+        }
+
+        /* ─── INTERACTIVE 5-SLOT SIMULATOR ─── */
+        .sim-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 24px;
+            align-items: center;
+        }
+        @media (max-width: 960px) {
+            .sim-grid { grid-template-columns: 1fr; }
+        }
+        .sim-slots-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 14px;
+            border-radius: 14px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+        .sim-slot {
+            width: 96px;
+            height: 108px;
+            border-radius: 12px;
+            border: 1.5px dashed rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 8px;
+            position: relative;
+            transition: all 0.25s;
+        }
+        .sim-slot.filled {
+            border-style: solid;
+            border-color: var(--sc, #00f0ff);
+            background: radial-gradient(circle at 50% 25%, color-mix(in srgb, var(--sc, #00f0ff) 22%, transparent), rgba(8, 4, 22, 0.9));
+            cursor: pointer;
+        }
+        .sim-slot.fused {
+            border-style: solid;
+            border-width: 2px;
+            border-color: var(--gold);
+            box-shadow: 0 0 22px rgba(255, 215, 0, 0.35);
+            background: radial-gradient(circle at 50% 25%, rgba(255, 215, 0, 0.25), rgba(22, 6, 38, 0.95));
+        }
+        .sim-slot .ss-ico { font-size: 1.45rem; }
+        .sim-slot .ss-name { font-family: 'Orbitron', monospace; font-size: 0.62rem; font-weight: 700; text-align: center; }
+        .sim-slot .ss-lv { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--gold); }
+        .sim-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sim-btn {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-radius: 9px;
+            border: 1px solid rgba(0, 240, 255, 0.35);
+            background: rgba(0, 240, 255, 0.07);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sim-btn:hover {
+            background: rgba(0, 240, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .sim-btn.fuse-action {
+            background: linear-gradient(135deg, #ffd700, #ff8800);
+            color: #000;
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: pulseGlow 0.9s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .site-footer {
+            position: relative; z-index: 5; text-align: center; padding: 34px 20px 46px;
+            border-top: 1px solid rgba(0, 240, 255, 0.12); background: rgba(3, 1, 9, 0.85);
+            font-size: 0.82rem; color: var(--text-dim); line-height: 1.8;
+        }
+        .site-footer img { height: 54px; margin-bottom: 8px; }
+        .site-footer a { color: var(--p1); text-decoration: none; border-bottom: 1px dashed rgba(0, 240, 255, 0.4); }
+        .site-footer a:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <canvas class="bg-canvas" id="bgCanvas"></canvas>
+
+    <!-- SHARED NAVBAR -->
+    <nav class="navbar" aria-label="Ana Navigasyon">
+        <a href="index.html" class="nav-logo"><img class="nav-mark" src="assets/favicon.svg" alt="" width="34" height="34"> COSMIC SURVIVORS <span class="nav-ver">v6.0 MEGAPONK</span></a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">ANA KOMUTA</a>
+            <a href="game.html" class="nav-link">SAVAŞ ARENASI</a>
+            <a href="tree.html" class="nav-link active">FÜZYON AĞACI</a>
+            <a href="about.html" class="nav-link">SİMÜLASYON HAKKINDA</a>
+        </div>
+    </nav>
+
+    <main class="page-wrap">
+        <!-- HERO -->
+        <section class="lab-hero">
+            <div>
+                <span class="lab-hero-tag">◈ SEKTÖR 9 AR-GE · MEGAPONK REAKTÖR MİMARİSİ</span>
+                <h1>PERK & FÜZYON SENTEZ LABORATUVARI</h1>
+                <p>
+                    Sonsuz kart birikimi sona erdi. Her pilot aynı anda yalnızca <strong>5 pasif reaktör slotu</strong> taşıyabilir ve her perk en fazla <strong>Seviye 5</strong>'e ulaşabilir. Uyumlu iki perk <strong>Lv.5 (MAKS)</strong> olduğunda <strong>Füzyon Sentezi</strong> tetiklenir: 2 perk birleşerek <strong>1 Efsanevi Füzyon Yeteneğine</strong> dönüşür ve <strong>+1 yeni boş slot</strong> açılır!
+                </p>
+            </div>
+            <div class="lab-rules-badges">
+                <div class="rule-pill">
+                    <span class="rp-val">5 SLOT</span>
+                    <span class="rp-lbl">Maks Pasif Kapasite</span>
+                </div>
+                <div class="rule-pill">
+                    <span class="rp-val" style="color:var(--gold)">MAKS LV.5</span>
+                    <span class="rp-lbl">Perk Seviye Sınırı</span>
+                </div>
+                <div class="rule-pill">
+                    <span class="rp-val" style="color:var(--link)">2 → 1 SLOT</span>
+                    <span class="rp-lbl">Füzyon +1 Slot Açar</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONSTELLATION TREE + INSPECTOR -->
+        <section class="lab-main-grid">
+            <!-- LEFT: INTERACTIVE TREE -->
+            <div class="glass-panel">
+                <div class="panel-hdr">
+                    <div class="panel-title"><span>⚡</span> İNTERAKTİF SENTEZ AĞACI (9 TEMEL PERK → 6 GİZLİ FÜZYON)</div>
+                    <div class="panel-hint">Bir perke veya füzyona tıklayarak neon sentez hatlarını ve seviye çarpanlarını inceleyin</div>
+                </div>
+
+                <div class="tree-stage" id="treeStage">
+                    <svg id="treeLinesSvg" preserveAspectRatio="none"></svg>
+
+                    <!-- TIER 1: 9 BASE PERKS -->
+                    <div class="tier-section">
+                        <div class="tier-label">▲ KATMAN I — 9 TEMEL REAKTÖR PERKÜ (MAKS SEVİYE 5) ▲</div>
+                        <div class="perks-row" id="basePerksRow"></div>
+                    </div>
+
+                    <!-- TIER 2: 6 SECRET LEGENDARY FUSIONS -->
+                    <div class="tier-section">
+                        <div class="tier-label" style="color:var(--gold)">▼ KATMAN II — 6 GİZLİ EFSANEVİ FÜZYON YETENEĞİ (LV.5 + LV.5 SENTEZİ) ▼</div>
+                        <div class="fusions-row" id="fusionsRow"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: HOLOGRAPHIC INSPECTOR -->
+            <div class="glass-panel inspector-card" id="inspectorPanel">
+                <div class="panel-hdr">
+                    <div class="panel-title"><span>🔬</span> HOLOGRAFİK TEKNİK ANALİZÖR</div>
+                    <div class="panel-hint" id="inspTypeTag">FÜZYON SENTEZİ</div>
+                </div>
+
+                <div class="insp-top">
+                    <div class="insp-ico" id="inspIcon" style="color:#ff1744">🩸</div>
+                    <div>
+                        <span class="insp-badge" id="inspBadge" style="background:rgba(255,215,0,0.12);color:#ffd700;border:1px solid rgba(255,215,0,0.4)">EFSANEVİ FÜZYON</span>
+                        <div class="insp-title" id="inspTitle">KAN HASADI</div>
+                        <div style="font-size:0.8rem;color:var(--text-dim)" id="inspSubtitle">Sentez Formülü: Vampir Lv.5 + Hasar+ Lv.5</div>
+                    </div>
+                </div>
+
+                <div class="insp-desc" id="inspDesc">
+                    Her mermi vuruşu hedef etrafında kızıl plazma patlaması yayar ve verilen hasarın %10'unu doğrudan cana çevirir.
+                </div>
+
+                <div>
+                    <div class="insp-section-title">🔗 SENTEZ BAĞLANTISI & FORMÜLÜ</div>
+                    <div class="formula-box" id="inspFormulaBox"></div>
+                </div>
+
+                <div>
+                    <div class="insp-section-title" id="inspTableHeading">📊 SEVİYE ARTIŞ İSTATİSTİKLERİ & ÇARPANLAR</div>
+                    <table class="lvl-table">
+                        <thead>
+                            <tr>
+                                <th>AŞAMA / SEVİYE</th>
+                                <th>ETKİ & ÇARPAN</th>
+                                <th>SLOT DURUMU</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inspTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTERACTIVE 5-SLOT BUILD SIMULATOR -->
+        <section class="glass-panel">
+            <div class="panel-hdr">
+                <div class="panel-title"><span>🧪</span> CANLI 5-SLOT REAKTÖR & FÜZYON SİMÜLATÖRÜ</div>
+                <div class="panel-hint">Aşağıdan perk ekleyip Lv.5'e yükseltin ve Füzyon Sentezinin 2 slotu tek slota indirip +1 boş slot açmasını test edin!</div>
+            </div>
+
+            <div class="sim-grid">
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span style="font-family:'Orbitron',monospace;font-size:0.75rem;color:var(--p1)" id="simStatusText">AKTİF REAKTÖR: 0 / 5 SLOT DOLU</span>
+                        <button class="sim-btn" id="simResetBtn" style="border-color:rgba(255,0,106,0.5);color:#ff006a">↺ SİMÜLATÖRÜ SIFIRLA</button>
+                    </div>
+                    <div class="sim-slots-row" id="simSlotsContainer"></div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    <div style="font-family:'Orbitron',monospace;font-size:0.72rem;color:var(--gold);letter-spacing:0.1em;">
+                        ➕ PERK EKLE / SEVİYE YÜKSELT (HER TIKLAMA +1 LV, MAKS LV.5):
+                    </div>
+                    <div class="sim-picker" id="simPerkButtons"></div>
+                    <div id="simFusionActions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <img src="assets/logo.svg" alt="Cosmic Survivors logosu" width="190" height="54"><br>
+        <strong>Cosmic Survivors v6.0 MEGAPONK EDITION</strong> — Perk & Füzyon Sentez Laboratuvarı<br>
+        <a href="index.html">Ana Komuta</a> ·
+        <a href="game.html">Savaş Arenası</a> ·
+        <a href="about.html">Sektör 9 Arşivi & Künye</a> ·
+        <a href="mailto:cosmic@haking.tr">cosmic@haking.tr</a> ·
+        <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener">☕ Buy Me a Coffee</a> ·
+        © 2026 Halit Güneş (HaKING) · MIT License
+    </footer>
+
+    <script>
+        const PERKS = {
+            atkUp:    { id: 'atkUp',    name: 'Hasar+',      icon: '⚔', color: '#ff4444', unit: '+%25 Mermi Hasarı / Lv', levels: ['+%25 Hasar (x1.25)', '+%56 Hasar (x1.56)', '+%95 Hasar (x1.95)', '+%144 Hasar (x2.44)', 'MAKS: +%205 Hasar (x3.05) ★'], desc: 'Reaktör plazma yoğunluğunu artırarak her seviyede mermi başına net hasarı +%25 katlar.' },
+            spdUp:    { id: 'spdUp',    name: 'Hız+',        icon: '⚡', color: '#00ccff', unit: '+%15 İtici Hızı / Lv', levels: ['+%15 Hız (x1.15)', '+%32 Hız (x1.32)', '+%52 Hız (x1.52)', '+%75 Hız (x1.75)', 'MAKS: +%101 Hız (x2.01) ★'], desc: 'İyon motorlarına aşırı güç pompalayarak manevra ve kaçış hızını her seviyede +%15 artırır.' },
+            fireUp:   { id: 'fireUp',   name: 'Ateş Hızı+',  icon: '🔥', color: '#ffaa00', unit: '+%20 Atış Hızı / Lv', levels: ['+%20 Atış Hızı', '+%44 Atış Hızı', '+%73 Atış Hızı', '+%107 Atış Hızı', 'MAKS: +%148 Atış Hızı ★'], desc: 'Namlu soğutma döngüsünü kısaltarak saniyedeki mermi atış frekansını her seviyede +%20 hızlandırır.' },
+            hpUp:     { id: 'hpUp',     name: 'Can+',        icon: '♥', color: '#ff6688', unit: '+35 Maks Can / Lv', levels: ['+35 Maks HP', '+70 Maks HP', '+105 Maks HP', '+140 Maks HP', 'MAKS: +175 Maks HP ★'], desc: 'Titanyum gövde plakalarını güçlendirerek maksimum can kapasitesini her seviyede +35 artırır.' },
+            shieldUp: { id: 'shieldUp', name: 'Kalkan+',     icon: '◆', color: '#aa44ff', unit: '+30 Maks Kalkan / Lv', levels: ['+30 Kalkan', '+60 Kalkan', '+90 Kalkan', '+120 Kalkan', 'MAKS: +150 Kalkan ★'], desc: 'Deflektör enerji matrisini genişleterek maksimum kalkan kapasitesini her seviyede +30 yükseltir.' },
+            rangeUp:  { id: 'rangeUp',  name: 'Menzil+',     icon: '◎', color: '#44ffaa', unit: '+55 Çekim & Menzil / Lv', levels: ['+55 Çekim / +%18 Menzil', '+110 Çekim / +%36 Menzil', '+165 Çekim / +%54 Menzil', '+220 Çekim / +%72 Menzil', 'MAKS: +275 Çekim / +%90 Menzil ★'], desc: 'Manyetik drop toplama alanını ve plazma mermilerinin uzayda kat ettiği menzili artırır.' },
+            multiUp:  { id: 'multiUp',  name: 'Çoklu Atış',  icon: '⋮', color: '#00ff88', unit: '+1 Ekstra Namlu / Lv', levels: ['+2 Yan Mermi (3 Namlu)', '+4 Yan Mermi (5 Namlu)', '+6 Yan Mermi (7 Namlu)', '+8 Yan Mermi (9 Namlu)', 'MAKS: +10 Yan Mermi (11 Namlu) ★'], desc: 'Gemiye paralel faz namluları ekleyerek her atışta yayılan mermi sayısını katlar.' },
+            vampUp:   { id: 'vampUp',   name: 'Vampir',      icon: '🩸', color: '#ff2255', unit: '+2.5 HP/Kill / Lv', levels: ['+2.5 HP / İmha', '+5.0 HP / İmha', '+7.5 HP / İmha', '+10.0 HP / İmha', 'MAKS: +12.5 HP / İmha ★'], desc: 'Yok edilen her kozmik parazitin biyokütlesini emerek gemi gövdesini onarır (Saniyelik biyo-tavan ile dengelenmiştir).' },
+            critUp:   { id: 'critUp',   name: 'Kritik+',     icon: '💥', color: '#ffff00', unit: '+%10 Kritik Şans / Lv', levels: ['+%10 Kritik (2.5x Hasar)', '+%20 Kritik (2.5x Hasar)', '+%30 Kritik (2.5x Hasar)', '+%40 Kritik (2.5x Hasar)', 'MAKS: +%50 Kritik (2.5x Hasar) ★'], desc: 'Zayıf nokta hedefleme algoritmasını geliştirerek 2.5 kat hasar veren kritik vuruş ihtimalini artırır.' }
+        };
+
+        const FUSIONS = {
+            bloodHarvest: {
+                id: 'bloodHarvest',
+                name: 'Kan Hasadı',
+                icon: '🩸',
+                color: '#ff1744',
+                req: ['vampUp', 'atkUp'],
+                formula: 'Vampir Lv.5 + Hasar+ Lv.5',
+                desc: 'Her mermi vuruşu hedef etrafında kızıl bir plazma patlaması yayar (%35 alan hasarı) ve verilen hasarın %10\'unu doğrudan cana çevirir.',
+                stats: [
+                    ['Gereksinim 1', 'Vampir Lv.5 (+12.5 HP/Kill)', 'Slot 1'],
+                    ['Gereksinim 2', 'Hasar+ Lv.5 (+%205 Mermi Hasarı)', 'Slot 2'],
+                    ['Füzyon Sentezi', 'Plazma Alan Patlaması + %10 Can Çalma + %35 Ek Hasar', '2 Slot → 1 Slot (+1 Boş Slot!)']
+                ]
+            },
+            gatlingStorm: {
+                id: 'gatlingStorm',
+                name: 'Gatling Fırtınası',
+                icon: '🌪️',
+                color: '#00ff88',
+                req: ['fireUp', 'multiUp'],
+                formula: 'Ateş Hızı+ Lv.5 + Çoklu Atış Lv.5',
+                desc: 'Mermiler hiper-hızla (x2.15 ateş hızı) yağar ve isabet ettiği düşmanlar arasında otomatik olarak 3 kez seker (Ricochet).',
+                stats: [
+                    ['Gereksinim 1', 'Ateş Hızı+ Lv.5 (+%148 Ateş Hızı)', 'Slot 1'],
+                    ['Gereksinim 2', 'Çoklu Atış Lv.5 (+10 Yan Mermi)', 'Slot 2'],
+                    ['Füzyon Sentezi', 'x2.15 Hiper Ateş Hızı + Düşmanlar Arası 3 Kez Sekme', '2 Slot → 1 Slot (+1 Boş Slot!)']
+                ]
+            },
+            aegisResonance: {
+                id: 'aegisResonance',
+                name: 'Aegis Rezonansı',
+                icon: '💠',
+                color: '#00f0ff',
+                req: ['shieldUp', 'spdUp'],
+                formula: 'Kalkan+ Lv.5 + Hız+ Lv.5',
+                desc: 'Gemi hareket ettikçe kinetik enerjiyle kalkan hızla dolar; kalkan kırıldığında tüm ekranı temizleyen devasa bir EMP şok dalgası patlar.',
+                stats: [
+                    ['Gereksinim 1', 'Kalkan+ Lv.5 (+150 Maks Kalkan)', 'Slot 1'],
+                    ['Gereksinim 2', 'Hız+ Lv.5 (+%101 İtici Hızı)', 'Slot 2'],
+                    ['Füzyon Sentezi', '+90 Ek Kalkan + Kinetik Dolum + Kalkan Kırılma EMP Novası', '2 Slot → 1 Slot (+1 Boş Slot!)']
+                ]
+            },
+            cosmicSupernova: {
+                id: 'cosmicSupernova',
+                name: 'Kozmik Süpernova',
+                icon: '🌌',
+                color: '#bf00ff',
+                req: ['critUp', 'rangeUp'],
+                formula: 'Kritik+ Lv.5 + Menzil+ Lv.5',
+                desc: 'Kritik vuruşlar %100 ihtimalle alansal bir kara delik (Black Hole) açar, çevredeki tüm parazitleri merkeze çeker ve ezer.',
+                stats: [
+                    ['Gereksinim 1', 'Kritik+ Lv.5 (+%50 Kritik Şans)', 'Slot 1'],
+                    ['Gereksinim 2', 'Menzil+ Lv.5 (+275 Çekim & Menzil)', 'Slot 2'],
+                    ['Füzyon Sentezi', '%65 Kritik Şans + Kritik Vuruşta Çekim Kara Deliği', '2 Slot → 1 Slot (+1 Boş Slot!)']
+                ]
+            },
+            titanCore: {
+                id: 'titanCore',
+                name: 'Titan Çekirdeği',
+                icon: '☀️',
+                color: '#ff8800',
+                req: ['hpUp', 'atkUp'],
+                formula: 'Can+ Lv.5 + Hasar+ Lv.5',
+                desc: '+140 Maks Can ve %25 Hasar Azaltma sağlar. Her 3 saniyede bir Maks Canın %25\'i kadar yakıcı termal şok dalgası yayar.',
+                stats: [
+                    ['Gereksinim 1', 'Can+ Lv.5 (+175 Maks HP)', 'Slot 1'],
+                    ['Gereksinim 2', 'Hasar+ Lv.5 (+%205 Mermi Hasarı)', 'Slot 2'],
+                    ['Füzyon Sentezi', '+140 HP + %25 Zırh + 3 Saniyede Bir Termal Reaktör Novası', '2 Slot → 1 Slot (+1 Boş Slot!)']
+                ]
+            },
+            quantumArbiter: {
+                id: 'quantumArbiter',
+                name: 'Kuantum Yargıç',
+                icon: '🔱',
+                color: '#ffd700',
+                req: ['hpUp', 'multiUp'],
+                formula: 'Can+ Lv.5 + Çoklu Atış Lv.5',
+                desc: 'Mermiler düşmanları delip geçen kuantum mızraklarına dönüşür; deldiği her düşmanda +%25 hasar kazanır ve hedefleri yavaşlatır.',
+                stats: [
+                    ['Gereksinim 1', 'Can+ Lv.5 (+175 Maks HP)', 'Slot 1'],
+                    ['Gereksinim 2', 'Çoklu Atış Lv.5 (+10 Yan Mermi)', 'Slot 2'],
+                    ['Füzyon Sentezi', '4x Delici Kuantum Mızrağı + Deldikçe +%25 Artan Hasar + Yavaşlatma', '2 Slot → 1 Slot (+1 Boş Slot!)']
+                ]
+            }
+        };
+
+        const perksRowEl = document.getElementById('basePerksRow');
+        const fusionsRowEl = document.getElementById('fusionsRow');
+        const svgEl = document.getElementById('treeLinesSvg');
+        let selectedKind = 'fusion';
+        let selectedKey = 'bloodHarvest';
+
+        function renderTreeNodes() {
+            perksRowEl.innerHTML = '';
+            Object.values(PERKS).forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'tree-node perk-node';
+                el.id = 'node-perk-' + p.id;
+                el.style.setProperty('--nc', p.color);
+                el.innerHTML = `
+                    <div class="node-ico">${p.icon}</div>
+                    <div class="node-name">${p.name}</div>
+                    <div class="node-sub">Lv.1 → Lv.5</div>
+                `;
+                el.addEventListener('click', () => selectNode('perk', p.id));
+                perksRowEl.appendChild(el);
+            });
+
+            fusionsRowEl.innerHTML = '';
+            Object.values(FUSIONS).forEach(f => {
+                const el = document.createElement('div');
+                el.className = 'tree-node fusion-node';
+                el.id = 'node-fusion-' + f.id;
+                el.style.setProperty('--nc', f.color);
+                el.innerHTML = `
+                    <div class="node-ico">${f.icon}</div>
+                    <div class="node-name">${f.name}</div>
+                    <div class="fusion-formula-tag">${PERKS[f.req[0]].icon} + ${PERKS[f.req[1]].icon} Lv.5</div>
+                `;
+                el.addEventListener('click', () => selectNode('fusion', f.id));
+                fusionsRowEl.appendChild(el);
+            });
+        }
+
+        function drawConnectionLines() {
+            const stageRect = document.getElementById('treeStage').getBoundingClientRect();
+            svgEl.setAttribute('viewBox', `0 0 ${stageRect.width} ${stageRect.height}`);
+            svgEl.innerHTML = '';
+
+            Object.values(FUSIONS).forEach(f => {
+                const fEl = document.getElementById('node-fusion-' + f.id);
+                if (!fEl) return;
+                const fRect = fEl.getBoundingClientRect();
+                const fx = fRect.left - stageRect.left + fRect.width / 2;
+                const fy = fRect.top - stageRect.top + 8;
+
+                f.req.forEach(pk => {
+                    const pEl = document.getElementById('node-perk-' + pk);
+                    if (!pEl) return;
+                    const pRect = pEl.getBoundingClientRect();
+                    const px = pRect.left - stageRect.left + pRect.width / 2;
+                    const py = pRect.top - stageRect.top + pRect.height - 6;
+
+                    const midY = (py + fy) / 2;
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', `M ${px} ${py} C ${px} ${midY}, ${fx} ${midY}, ${fx} ${fy}`);
+                    path.dataset.perk = pk;
+                    path.dataset.fusion = f.id;
+
+                    const isActive = (selectedKind === 'fusion' && selectedKey === f.id) ||
+                                     (selectedKind === 'perk' && selectedKey === pk);
+                    path.setAttribute('class', 'syn-line ' + (isActive ? 'active' : 'dimmed'));
+                    path.style.setProperty('--active-color', isActive ? f.color : '#00f0ff');
+                    svgEl.appendChild(path);
+                });
+            });
+        }
+
+        function selectNode(kind, key) {
+            selectedKind = kind;
+            selectedKey = key;
+
+            document.querySelectorAll('.tree-node').forEach(el => {
+                el.classList.remove('selected', 'linked', 'dimmed');
+            });
+
+            if (kind === 'fusion') {
+                const f = FUSIONS[key];
+                document.querySelectorAll('.tree-node').forEach(el => el.classList.add('dimmed'));
+                const fEl = document.getElementById('node-fusion-' + key);
+                if (fEl) { fEl.classList.remove('dimmed'); fEl.classList.add('selected'); }
+                f.req.forEach(pk => {
+                    const pEl = document.getElementById('node-perk-' + pk);
+                    if (pEl) { pEl.classList.remove('dimmed'); pEl.classList.add('linked'); }
+                });
+
+                document.getElementById('inspTypeTag').textContent = 'GİZLİ EFSANEVİ FÜZYON';
+                const ico = document.getElementById('inspIcon');
+                ico.textContent = f.icon;
+                ico.style.color = f.color;
+                const badge = document.getElementById('inspBadge');
+                badge.textContent = '⚡ FÜZYON SENTEZİ (+1 BOŞ SLOT AÇAR)';
+                badge.style.color = '#ffd700';
+                document.getElementById('inspTitle').textContent = f.name.toUpperCase();
+                document.getElementById('inspSubtitle').textContent = 'Sentez Formülü: ' + f.formula;
+                document.getElementById('inspDesc').textContent = f.desc;
+                document.getElementById('inspDesc').style.borderLeftColor = f.color;
+
+                const p1 = PERKS[f.req[0]], p2 = PERKS[f.req[1]];
+                document.getElementById('inspFormulaBox').innerHTML = `
+                    <div class="formula-step" onclick="selectNode('perk','${p1.id}')" style="color:${p1.color}">${p1.icon} ${p1.name} Lv.5</div>
+                    <span class="formula-op">+</span>
+                    <div class="formula-step" onclick="selectNode('perk','${p2.id}')" style="color:${p2.color}">${p2.icon} ${p2.name} Lv.5</div>
+                    <span class="formula-op">➔</span>
+                    <div class="formula-step" style="color:${f.color};border-color:${f.color}">${f.icon} ${f.name}</div>
+                `;
+
+                const tbody = document.getElementById('inspTableBody');
+                tbody.innerHTML = f.stats.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+            } else {
+                const p = PERKS[key];
+                document.querySelectorAll('.tree-node').forEach(el => el.classList.add('dimmed'));
+                const pEl = document.getElementById('node-perk-' + key);
+                if (pEl) { pEl.classList.remove('dimmed'); pEl.classList.add('selected'); }
+
+                const relatedFusions = Object.values(FUSIONS).filter(f => f.req.includes(key));
+                relatedFusions.forEach(f => {
+                    const fEl = document.getElementById('node-fusion-' + f.id);
+                    if (fEl) { fEl.classList.remove('dimmed'); fEl.classList.add('linked'); }
+                });
+
+                document.getElementById('inspTypeTag').textContent = 'TEMEL REAKTÖR PERKÜ';
+                const ico = document.getElementById('inspIcon');
+                ico.textContent = p.icon;
+                ico.style.color = p.color;
+                const badge = document.getElementById('inspBadge');
+                badge.textContent = 'PASİF PERK · MAKS SEVİYE 5';
+                badge.style.color = p.color;
+                document.getElementById('inspTitle').textContent = p.name.toUpperCase();
+                document.getElementById('inspSubtitle').textContent = 'Artış Birimi: ' + p.unit;
+                document.getElementById('inspDesc').textContent = p.desc;
+                document.getElementById('inspDesc').style.borderLeftColor = p.color;
+
+                const fBox = document.getElementById('inspFormulaBox');
+                fBox.innerHTML = relatedFusions.map(f => {
+                    const partnerKey = f.req[0] === key ? f.req[1] : f.req[0];
+                    const partner = PERKS[partnerKey];
+                    return `
+                        <div class="formula-step" style="color:${p.color}">${p.icon} Lv.5</div>
+                        <span class="formula-op">+</span>
+                        <div class="formula-step" onclick="selectNode('perk','${partner.id}')" style="color:${partner.color}">${partner.icon} ${partner.name} Lv.5</div>
+                        <span class="formula-op">➔</span>
+                        <div class="formula-step" onclick="selectNode('fusion','${f.id}')" style="color:${f.color}">${f.icon} ${f.name}</div>
+                    `;
+                }).join('<div style="width:100%;height:4px;"></div>');
+
+                const tbody = document.getElementById('inspTableBody');
+                tbody.innerHTML = p.levels.map((lvDesc, i) => `
+                    <tr>
+                        <td>Seviye ${i + 1}${i === 4 ? ' (MAKS)' : ''}</td>
+                        <td>${lvDesc}</td>
+                        <td>${i === 4 ? '⚡ Füzyon Sentezine Hazır!' : '1 Reaktör Slotu'}</td>
+                    </tr>
+                `).join('');
+            }
+
+            drawConnectionLines();
+        }
+
+        // ─── 5-SLOT INTERACTIVE SIMULATOR ───
+        const simState = {
+            perks: {},   // key -> lv (1..5)
+            fusions: {}, // fKey -> true
+            order: []    // [{type:'perk'|'fusion', key}]
+        };
+
+        function usedSimSlots() {
+            return simState.order.length;
+        }
+
+        function addSimPerk(k) {
+            const cur = simState.perks[k] || 0;
+            if (cur >= 5) return;
+            if (cur === 0 && usedSimSlots() >= 5) return;
+            if (cur === 0) simState.order.push({ type: 'perk', key: k });
+            simState.perks[k] = cur + 1;
+            renderSimulator();
+        }
+
+        function triggerSimFusion(fId) {
+            const f = FUSIONS[fId];
+            if (!f) return;
+            const [r1, r2] = f.req;
+            if ((simState.perks[r1] || 0) < 5 || (simState.perks[r2] || 0) < 5) return;
+            delete simState.perks[r1];
+            delete simState.perks[r2];
+            simState.order = simState.order.filter(it => !(it.type === 'perk' && (it.key === r1 || it.key === r2)));
+            simState.fusions[fId] = true;
+            simState.order.unshift({ type: 'fusion', key: fId });
+            selectNode('fusion', fId);
+            renderSimulator();
+        }
+
+        function renderSimulator() {
+            const slotsCont = document.getElementById('simSlotsContainer');
+            slotsCont.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const item = simState.order[i];
+                const div = document.createElement('div');
+                if (!item) {
+                    div.className = 'sim-slot';
+                    div.innerHTML = `<span style="font-size:1.3rem;color:rgba(255,255,255,0.18)">◇</span><span class="ss-name" style="color:rgba(255,255,255,0.28)">BOŞ SLOT ${i + 1}</span>`;
+                } else if (item.type === 'fusion') {
+                    const f = FUSIONS[item.key];
+                    div.className = 'sim-slot fused';
+                    div.innerHTML = `<span class="ss-ico" style="color:${f.color}">${f.icon}</span><span class="ss-name" style="color:${f.color}">${f.name}</span><span class="ss-lv">★ FÜZYON</span>`;
+                    div.addEventListener('click', () => selectNode('fusion', f.id));
+                } else {
+                    const p = PERKS[item.key];
+                    const lv = simState.perks[item.key] || 1;
+                    div.className = 'sim-slot filled';
+                    div.style.setProperty('--sc', p.color);
+                    div.innerHTML = `<span class="ss-ico" style="color:${p.color}">${p.icon}</span><span class="ss-name">${p.name}</span><span class="ss-lv">Lv.${lv}/5 ${lv === 5 ? '★' : '(+1)'}</span>`;
+                    div.addEventListener('click', () => addSimPerk(p.id));
+                }
+                slotsCont.appendChild(div);
+            }
+
+            const readyFusions = Object.values(FUSIONS).filter(f =>
+                !simState.fusions[f.id] &&
+                (simState.perks[f.req[0]] || 0) >= 5 &&
+                (simState.perks[f.req[1]] || 0) >= 5
+            );
+
+            document.getElementById('simStatusText').textContent =
+                readyFusions.length > 0
+                    ? `⚡ FÜZYON SENTEZİ HAZIR! (${usedSimSlots()}/5 SLOT)`
+                    : `AKTİF REAKTÖR: ${usedSimSlots()} / 5 SLOT DOLU`;
+
+            const picker = document.getElementById('simPerkButtons');
+            picker.innerHTML = '';
+            Object.values(PERKS).forEach(p => {
+                const lv = simState.perks[p.id] || 0;
+                const btn = document.createElement('button');
+                btn.className = 'sim-btn';
+                btn.style.borderColor = p.color + '80';
+                btn.innerHTML = `<span style="color:${p.color}">${p.icon}</span> ${p.name} <span style="color:var(--gold)">${lv > 0 ? 'Lv.' + lv : ''}</span>`;
+                if (lv >= 5 || (lv === 0 && usedSimSlots() >= 5)) {
+                    btn.style.opacity = '0.38';
+                }
+                btn.addEventListener('click', () => addSimPerk(p.id));
+                picker.appendChild(btn);
+            });
+
+            const fAct = document.getElementById('simFusionActions');
+            fAct.innerHTML = '';
+            readyFusions.forEach(f => {
+                const btn = document.createElement('button');
+                btn.className = 'sim-btn fuse-action';
+                btn.innerHTML = `⚡ SENTEZLE: ${f.icon} ${f.name.toUpperCase()} (2 Slotu 1 Slota İndir!)`;
+                btn.addEventListener('click', () => triggerSimFusion(f.id));
+                fAct.appendChild(btn);
+            });
+        }
+
+        document.getElementById('simResetBtn').addEventListener('click', () => {
+            simState.perks = {};
+            simState.fusions = {};
+            simState.order = [];
+            renderSimulator();
+        });
+
+        // Pre-populate simulator with a ready fusion example so user sees it immediately
+        renderTreeNodes();
+        simState.perks = { vampUp: 5, atkUp: 5, fireUp: 3 };
+        simState.order = [
+            { type: 'perk', key: 'vampUp' },
+            { type: 'perk', key: 'atkUp' },
+            { type: 'perk', key: 'fireUp' }
+        ];
+        renderSimulator();
+        setTimeout(() => selectNode('fusion', 'bloodHarvest'), 50);
+        window.addEventListener('resize', drawConnectionLines);
+
+        // Background ambient starfield
+        const bgC = document.getElementById('bgCanvas');
+        const bgCtx = bgC.getContext('2d');
+        let stars = [];
+        function initStars() {
+            bgC.width = window.innerWidth;
+            bgC.height = window.innerHeight;
+            stars = Array.from({ length: 70 }, () => ({
+                x: Math.random() * bgC.width,
+                y: Math.random() * bgC.height,
+                r: Math.random() * 1.6 + 0.4,
+                s: Math.random() * 0.4 + 0.1
+            }));
+        }
+        function animStars() {
+            bgCtx.clearRect(0, 0, bgC.width, bgC.height);
+            bgCtx.fillStyle = 'rgba(0, 240, 255, 0.55)';
+            for (const st of stars) {
+                st.y += st.s;
+                if (st.y > bgC.height) st.y = 0;
+                bgCtx.beginPath();
+                bgCtx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+                bgCtx.fill();
+            }
+            requestAnimationFrame(animStars);
+        }
+        initStars();
+        animStars();
+        window.addEventListener('resize', initStars);
+    </script>
+</body>
+</html>
