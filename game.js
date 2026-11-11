@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════
-//  COSMIC SURVIVORS v5.0 — Premium Roguelike Engine
+//  COSMIC SURVIVORS v5.5 Pro — Premium Roguelike Engine
 // ═══════════════════════════════════════════════════════
 
 const canvas = document.getElementById('gameCanvas');
@@ -122,6 +122,9 @@ const sfx = {
     kill() { tone(480, 0.1, 'square', 0.04); tone(780, 0.06, 'sine', 0.025); },
     pow() { tone(523, 0.06, 'sine', 0.05); setTimeout(() => tone(659, 0.06, 'sine', 0.05), 60); setTimeout(() => tone(784, 0.08, 'sine', 0.05), 120); },
     exp() { tone(70, 0.3, 'sawtooth', 0.07); tone(30, 0.35, 'square', 0.05); },
+    dash() { tone(320, 0.35, 'sawtooth', 0.06); tone(960, 0.25, 'sine', 0.05); },
+    salvo() { tone(240, 0.07, 'square', 0.025); },
+    emp() { tone(120, 0.5, 'sawtooth', 0.08); tone(1200, 0.4, 'sine', 0.05); },
     wave() { tone(392, 0.08, 'sine', 0.05); setTimeout(() => tone(587, 0.08, 'sine', 0.05), 90); setTimeout(() => tone(784, 0.15, 'sine', 0.05), 180); },
     bWarn() { for (let i = 0; i < 4; i++) setTimeout(() => tone(130, 0.25, 'sawtooth', 0.07), i * 160); },
     bKill() { tone(523, 0.1, 'sine', 0.08); setTimeout(() => tone(659, 0.1, 'sine', 0.08), 80); setTimeout(() => tone(784, 0.1, 'sine', 0.08), 160); setTimeout(() => tone(1047, 0.2, 'sine', 0.1), 240); },
@@ -155,6 +158,11 @@ class Particle {
         ctx.fillStyle = this.c;
         if (this.t === 'circle') {
             ctx.beginPath(); ctx.arc(this.x, this.y, this.s * a, 0, Math.PI * 2); ctx.fill();
+        } else if (this.t === 'shard') {
+            ctx.save(); ctx.translate(this.x, this.y); ctx.rotate((this.ml - this.l) * 9 + this.s);
+            ctx.strokeStyle = this.c; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.moveTo(-this.s, 0); ctx.lineTo(this.s * 0.6, -this.s * 0.7); ctx.lineTo(this.s * 0.6, this.s * 0.7); ctx.closePath(); ctx.stroke();
+            ctx.restore();
         } else if (this.t === 'shockwave') {
             ctx.strokeStyle = this.c; ctx.lineWidth = 3 * a;
             ctx.beginPath(); ctx.arc(this.x, this.y, this.s * (1 - a) * 3, 0, Math.PI * 2); ctx.stroke();
@@ -186,6 +194,74 @@ function spawnExp(x, y, c, sc = 1) {
     spawnP(x, y, c, Math.floor((perfMode ? 12 : 20) * clampedSc), 220 * clampedSc, 0.7, 3.5 * clampedSc);
     spawnP(x, y, '#fff', Math.floor((perfMode ? 4 : 8) * clampedSc), 130 * clampedSc, 0.3, 2);
     particles.push(new Particle(x, y, 0, 0, c, 0.35, 35 * clampedSc, 'shockwave'));
+}
+
+// Neon motor itki partikülleri (geminin hareket yönünün tersine)
+function spawnThrust(x, y, facing, color, power = 1) {
+    const max = perfMode ? 80 : 250;
+    if (particles.length >= max) return;
+    const back = facing + Math.PI, a = back + rand(-0.35, 0.35), sp = rand(60, 140) * power;
+    particles.push(new Particle(x + Math.cos(back) * 10, y + Math.sin(back) * 10, Math.cos(a) * sp, Math.sin(a) * sp,
+        Math.random() < 0.3 ? '#ffffff' : color, rand(0.18, 0.4), rand(1.6, 3.2) * power));
+}
+
+// Warp Dash lazer izi
+const laserTrails = [];
+let trailDmgT = 0;
+function updateLaserTrails(dt) {
+    for (let i = laserTrails.length - 1; i >= 0; i--) { laserTrails[i].l -= dt; if (laserTrails[i].l <= 0) laserTrails.splice(i, 1); }
+    trailDmgT -= dt;
+    if (trailDmgT > 0) return;
+    trailDmgT = 0.1;
+    if (laserTrails.length === 0) return;
+    for (const e of enemies) {
+        if (!e.alive) continue;
+        for (const t of laserTrails) {
+            const rr = e.r + 20;
+            if (Math.abs(t.x - e.x) < rr && Math.abs(t.y - e.y) < rr && dist(t, e) < rr) {
+                const owner = t.owner === 1 ? p1 : p2;
+                e.takeDmg(Math.max(8, owner.bd * 2.4 * t.l), false);
+                spawnP(e.x, e.y, t.c, 3, 160, 0.25, 2, 'spark');
+                break;
+            }
+        }
+    }
+}
+function drawLaserTrails(ctx) {
+    if (laserTrails.length < 2) return;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+    for (let i = 1; i < laserTrails.length; i++) {
+        const a = laserTrails[i - 1], b = laserTrails[i];
+        if (a.owner !== b.owner || Math.hypot(a.x - b.x, a.y - b.y) > 90) continue;
+        ctx.globalAlpha = 0.55 * b.l; ctx.strokeStyle = b.c; ctx.lineWidth = 12 * b.l + 2;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        ctx.globalAlpha = 0.9 * b.l; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5 * b.l + 0.5;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    ctx.restore();
+}
+
+// Düşmanlar için dinamik neon çekirdek, yörünge ışıkları ve hız izi
+function drawEnemyFx(ctx, e) {
+    if (!e.alive) return;
+    const t = performance.now() / 1000 + e.aA, pulse = 0.5 + 0.5 * Math.sin(t * 5);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.3 + pulse * 0.35; ctx.fillStyle = e.color;
+    ctx.beginPath(); ctx.arc(e.x, e.y, e.r * 0.28, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.8; ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(e.x, e.y, e.r * 0.1, 0, Math.PI * 2); ctx.fill();
+    if (!perfMode) {
+        ctx.globalAlpha = 0.85; ctx.fillStyle = e.color;
+        for (let i = 0; i < 2; i++) {
+            const a = t * 2.2 + i * Math.PI;
+            ctx.beginPath(); ctx.arc(e.x + Math.cos(a) * (e.r + 4), e.y + Math.sin(a) * (e.r + 4), 1.8, 0, Math.PI * 2); ctx.fill();
+        }
+    }
+    if (Math.hypot(e.vx, e.vy) > 90) {
+        ctx.globalAlpha = 0.25; ctx.strokeStyle = e.color; ctx.lineWidth = e.r * 0.7; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x - e.vx * 0.07, e.y - e.vy * 0.07); ctx.stroke();
+    }
+    ctx.restore();
 }
 
 let shakeI = 0;
@@ -227,6 +303,13 @@ const UPG = {
     critUp: { icon: '✶', name: 'Kritik+', color: '#ffffff', desc: '%10 kritik şansı' },
 };
 const UPG_KEYS = Object.keys(UPG);
+
+// ── Aktif Yetenekler (P1: SPACE / P2: ENTER / Mobil: dokunmatik buton) ──
+const ABILITY = {
+    interceptor: { name: 'WARP DASH', cd: 8, color: '#00f0ff' },
+    dreadnought: { name: 'MİKRO FÜZE SALVOSU', cd: 11, color: '#ffaa00' },
+    aegis: { name: 'EMP ŞOK DALGASI', cd: 12, color: '#bf00ff' }
+};
 
 // ── Global Oyun Durumu ──
 let gameState = 'playing';
@@ -273,11 +356,14 @@ class Player {
         this.sT = 0; this.xp = 0; this.lv = 1; this.xpN = 50;
         this.pU = {}; this.tP = {};
         this.extraS = 0; this.vamp = 0; this.magR = 80;
+        this.abMax = (ABILITY[this.shipClass] || ABILITY.interceptor).cd; this.abCd = 3;
+        this.dashT = 0; this.salvoT = 0; this.salvoTick = 0; this.salvoA = 0;
+        this.shieldHit = 0; this.abFlash = 0; this.trailTick = 0; this.lightT = rand(0, 6);
     }
     reset(x, y) {
         this.x = x; this.y = y; this.vx = 0; this.vy = 0;
         this.hp = this.mh; this.sh = 0; this.alive = true;
-        this.respT = 0; this.invT = 2.5; this.sT = 0;
+        this.respT = 0; this.invT = 2.5; this.sT = 0; this.dashT = 0; this.salvoT = 0;
         this.trail = [];
         this.recalc();
     }
@@ -329,14 +415,17 @@ class Player {
         const mag = Math.hypot(mx, my);
         if (mag > 0) { mx /= mag; my /= mag; this.fac = Math.atan2(my, mx); }
         
-        const spd = this.tP.speed ? this.sp * 1.45 : this.sp;
-        this.vx = lerp(this.vx, mx * spd, 0.14); this.vy = lerp(this.vy, my * spd, 0.14);
+        let spd = this.tP.speed ? this.sp * 1.45 : this.sp;
+        if (this.dashT > 0) { spd = this.sp * 3.4; mx = Math.cos(this.fac); my = Math.sin(this.fac); }
+        const lf = this.dashT > 0 ? 0.45 : 0.14;
+        this.vx = lerp(this.vx, mx * spd, lf); this.vy = lerp(this.vy, my * spd, lf);
         this.x += this.vx * dt; this.y += this.vy * dt;
         
         this.x = clamp(this.x, 25, canvas.width - 25);
         this.y = clamp(this.y, 25, canvas.height - 25);
         
         if (Math.hypot(this.vx, this.vy) > 25) this.trail.push({ x: this.x, y: this.y, a: 1 });
+        if (Math.hypot(this.vx, this.vy) > 40 && Math.random() < (perfMode ? 0.25 : 0.7)) spawnThrust(this.x, this.y, Math.atan2(this.vy, this.vx), this.c);
         this.trail = this.trail.filter(t => { t.a -= dt * 3; return t.a > 0; });
         
         this.sT -= dt;
@@ -344,6 +433,7 @@ class Player {
         if (this.sT <= 0) { this.sT = rate; this.shoot(); }
         
         if (this.invT > 0) this.invT -= dt;
+        this.tickAbility(dt);
         for (const k in this.tP) { this.tP[k] -= dt; if (this.tP[k] <= 0) delete this.tP[k]; }
         
         // Kalkan yenilenmesi (Aegis %50 ekstra kalkan şarjı alır)
@@ -416,6 +506,91 @@ class Player {
         }
         sfx.shoot();
     }
+    activate() {
+        if (!this.alive || this.abCd > 0 || gameState !== 'playing') return;
+        const A = ABILITY[this.shipClass] || ABILITY.interceptor;
+        this.abCd = this.abMax; this.abFlash = 0.5;
+        floatT(this.x, this.y - 36, A.name + '!', A.color, 16);
+        if (this.shipClass === 'interceptor') {
+            this.dashT = 1.2; this.invT = Math.max(this.invT, 1.3); this.trailTick = 0;
+            spawnExp(this.x, this.y, this.c, 0.8); sfx.dash(); shake(6);
+        } else if (this.shipClass === 'dreadnought') {
+            this.salvoT = 3; this.salvoTick = 0; sfx.salvo(); shake(5);
+        } else {
+            const n = eBullets.length;
+            for (let i = 0; i < Math.min(n, 40); i++) spawnP(eBullets[i].x, eBullets[i].y, A.color, 2, 90, 0.3, 2);
+            eBullets.length = 0;
+            this.sh = Math.min(this.ms, this.sh + 10 + n * 2);
+            if (MODE === '2p') { const o = this.id === 1 ? p2 : p1; if (o && o.alive) o.sh = Math.min(o.ms, o.sh + n); }
+            particles.push(new Particle(this.x, this.y, 0, 0, A.color, 0.6, 260, 'shockwave'));
+            screenFl = 0.35; screenFC = A.color; sfx.emp(); shake(10);
+            if (n > 0) floatT(this.x, this.y - 54, '+' + Math.floor(10 + n * 2) + ' KALKAN', A.color, 13);
+        }
+    }
+    tickAbility(dt) {
+        if (this.abCd > 0) this.abCd -= dt;
+        if (this.abFlash > 0) this.abFlash -= dt;
+        if (this.shieldHit > 0) this.shieldHit -= dt;
+        if (this.dashT > 0) {
+            this.dashT -= dt; this.trailTick -= dt;
+            if (this.trailTick <= 0) { this.trailTick = 0.025; laserTrails.push({ x: this.x, y: this.y, l: 1, c: this.c, owner: this.id }); }
+            spawnThrust(this.x, this.y, this.fac, '#ffffff', 1.4);
+        }
+        if (this.salvoT > 0) {
+            this.salvoT -= dt; this.salvoTick -= dt;
+            if (this.salvoTick <= 0) { this.salvoTick = 0.12; this.fireSalvo(); }
+        }
+    }
+    fireSalvo() {
+        const n = 10; this.salvoA += 0.21;
+        const dmg = this.bd * 0.7 * (this.tP.damage ? 1.8 : 1);
+        for (let i = 0; i < n; i++) {
+            const a = this.salvoA + i * Math.PI * 2 / n;
+            bullets.push({ x: this.x + Math.cos(a) * 18, y: this.y + Math.sin(a) * 18, vx: Math.cos(a) * 430, vy: Math.sin(a) * 430,
+                damage: dmg, size: 3, color: '#ffaa00', owner: this.id, life: 1.1, piercing: false, crit: false });
+        }
+        sfx.salvo(); shake(1.5);
+    }
+    drawFx(ctx) {
+        const t = this.lightT + this.aA, blink = (Math.sin(t * 6) + 1) / 2, r = this.r;
+        ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.fac);
+        const L = this.shipClass === 'interceptor' ? [[-r * 0.6, -r * 0.9], [-r * 0.6, r * 0.9]]
+            : this.shipClass === 'dreadnought' ? [[-r * 0.8, -r * 0.8], [-r * 0.8, r * 0.8]]
+            : [[(r + 2) * 0.5, (r + 2) * 0.866], [(r + 2) * 0.5, -(r + 2) * 0.866]];
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < 2; i++) {
+            const col = i === 0 ? '#ff2a6d' : '#2aff9d', on = i === 0 ? blink : 1 - blink;
+            ctx.fillStyle = col; ctx.globalAlpha = 0.15 + on * 0.25;
+            ctx.beginPath(); ctx.arc(L[i][0], L[i][1], 6, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = 0.35 + on * 0.65;
+            ctx.beginPath(); ctx.arc(L[i][0], L[i][1], 2.2, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 0.5 + blink * 0.4; ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(r * 0.35, 0, 2.4, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+        ctx.save(); ctx.globalCompositeOperation = 'lighter';
+        if (this.shieldHit > 0) {
+            const k = 1 - this.shieldHit / 0.4;
+            ctx.strokeStyle = LINK; ctx.globalAlpha = (1 - k) * 0.9; ctx.lineWidth = 3 * (1 - k) + 1;
+            ctx.beginPath(); ctx.arc(this.x, this.y, r + 10 + k * 18, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = '#fff'; ctx.globalAlpha = (1 - k) * 0.5; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(this.x, this.y, r + 10 + k * 8, 0, Math.PI * 2); ctx.stroke();
+        }
+        if (this.dashT > 0) {
+            ctx.strokeStyle = this.c; ctx.globalAlpha = 0.75; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(this.x, this.y, r + 14 + Math.sin(t * 20) * 3, 0, Math.PI * 2); ctx.stroke();
+        }
+        if (this.salvoT > 0) {
+            ctx.strokeStyle = '#ffaa00'; ctx.globalAlpha = 0.8; ctx.lineWidth = 2; ctx.setLineDash([6, 8]); ctx.lineDashOffset = -t * 40;
+            ctx.beginPath(); ctx.arc(this.x, this.y, r + 16, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        if (this.abFlash > 0) {
+            const k = 1 - this.abFlash / 0.5, col = (ABILITY[this.shipClass] || ABILITY.interceptor).color;
+            ctx.strokeStyle = col; ctx.globalAlpha = (1 - k) * 0.9; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(this.x, this.y, r + 6 + k * 40, 0, Math.PI * 2); ctx.stroke();
+        }
+        ctx.restore();
+    }
     takeDmg(d) {
         if (!this.alive || this.invT > 0) return;
         
@@ -424,7 +599,7 @@ class Player {
             d *= 0.85;
         }
         
-        if (this.sh > 0) { const ab = Math.min(this.sh, d); this.sh -= ab; d -= ab; spawnP(this.x, this.y, LINK, 5, 100, 0.3, 2); }
+        if (this.sh > 0) { const ab = Math.min(this.sh, d); this.sh -= ab; d -= ab; this.shieldHit = 0.4; spawnP(this.x, this.y, LINK, 5, 100, 0.3, 2); if (this.sh <= 0.01) { spawnExp(this.x, this.y, LINK, 0.8); floatT(this.x, this.y - 28, 'KALKAN KIRILDI', LINK, 13); } }
         this.hp -= d; shake(4); spawnP(this.x, this.y, this.c, 8, 120, 0.4, 3);
         if (this.hp <= 0) this.die();
     }
@@ -471,7 +646,7 @@ class Player {
             ctx.beginPath(); ctx.arc(t.x, t.y, this.r * t.a * 0.5, 0, Math.PI * 2); ctx.fill();
         }
         ctx.globalAlpha = 1;
-        if (this.invT > 0 && Math.floor(this.invT * 10) % 2 === 0) return;
+        if (this.invT > 0 && !(this.dashT > 0) && Math.floor(this.invT * 10) % 2 === 0) return;
         
         if (!perfMode) {
             ctx.save();
@@ -554,6 +729,7 @@ class Player {
         
         ctx.restore();
         
+        this.drawFx(ctx);
         // Halka kalkan efekti
         if (this.sh > 0) {
             ctx.globalAlpha = (this.sh / this.ms) * 0.3; ctx.strokeStyle = LINK; ctx.lineWidth = 2;
@@ -756,14 +932,14 @@ class Enemy {
         }
         this.hp -= d; this.fl = 0.1;
         if (cr) {
-            floatT(this.x, this.y - 15, 'KRİTİK!', '#fff', 14);
+            floatT(this.x + rand(-8, 8), this.y - 18, 'CRIT!', '#ffe600', 20); spawnP(this.x, this.y, '#ffe600', 6, 240, 0.3, 2.4, 'spark');
             shake(3);
         }
         if (this.hp <= 0) this.die();
     }
     die() {
         this.alive = false; 
-        spawnExp(this.x, this.y, this.color, this.isBoss ? 4.5 : 1.2); 
+        spawnExp(this.x, this.y, this.color, this.isBoss ? 4.5 : 1.2); spawnP(this.x, this.y, this.color, perfMode ? 3 : (this.isBoss ? 18 : 6), 280, 0.8, this.r * 0.35 + 2, 'shard'); 
         sfx.kill();
         shake(this.isBoss ? 25 : 5);
         
@@ -1125,7 +1301,7 @@ class Boss extends Enemy {
     }
     die() {
         this.alive = false; 
-        spawnExp(this.x, this.y, this.color, 4.5); 
+        spawnExp(this.x, this.y, this.color, 4.5); spawnP(this.x, this.y, this.color, perfMode ? 8 : 30, 340, 1.1, 14, 'shard'); 
         sfx.bKill(); 
         shake(28);
         slowT = 1.6; 
@@ -1906,7 +2082,7 @@ function initGame() {
         p2.alive = false; p2.respT = 99999;
     }
     
-    bullets.length = 0; enemies.length = 0; eBullets.length = 0; pickups.length = 0; particles.length = 0; floats.length = 0; dangerZones.length = 0;
+    bullets.length = 0; enemies.length = 0; eBullets.length = 0; pickups.length = 0; particles.length = 0; floats.length = 0; dangerZones.length = 0; laserTrails.length = 0;
     levelUpQueue = [];
     score = 0; wave = 0; comboC = 0; comboTm = 0; comboM = 1; gameTime = 0; totalKills = 0;
     shakeI = 0; screenFl = 0; linkDT = 0; bossActive = null; slowT = 0; slowF = 1;
@@ -2016,6 +2192,8 @@ function update(dt) {
     p1.update(eDt, coopState.synergy);
     if (MODE === '2p') p2.update(eDt, coopState.synergy);
     
+    updateLaserTrails(eDt);
+    
     // Tehlike alanları güncellemesi (Danger Zones)
     for (let i = dangerZones.length - 1; i >= 0; i--) {
         const dz = dangerZones[i];
@@ -2084,7 +2262,7 @@ function update(dt) {
             if (Math.abs(dx) <= rad && Math.abs(dy) <= rad && (dx * dx + dy * dy < rad * rad)) {
                 e.takeDmg(b.damage, b.crit);
                 if (!b.piercing) hit = true;
-                spawnP(b.x, b.y, b.color, 3, 80, 0.2, 2); sfx.hit();
+                spawnP(b.x, b.y, b.color, 4, 220, 0.25, 2.2, 'spark'); spawnP(b.x, b.y, '#fff', 2, 140, 0.15, 1.5); sfx.hit();
                 if (!b.piercing) break;
             }
         }
@@ -2126,12 +2304,37 @@ function update(dt) {
     updateHUD();
 }
 
+function updateAbilityHUD() {
+    const set = (pl, pre, keyLabel) => {
+        const lbl = document.getElementById(pre + 'AbLbl'), fill = document.getElementById(pre + 'AbFill'), box = document.getElementById(pre + 'Ab');
+        if (!lbl) return;
+        const A = ABILITY[pl.shipClass] || ABILITY.interceptor;
+        const ready = pl.alive && pl.abCd <= 0;
+        const txt = !pl.alive ? A.name + ' · DEVRE DIŞI' : ready ? '[' + keyLabel + '] ' + A.name + ' · HAZIR' : A.name + ' · ' + Math.max(0, pl.abCd).toFixed(1) + 's';
+        if (lbl.textContent !== txt) lbl.textContent = txt;
+        fill.style.width = (pl.alive ? (1 - Math.max(0, pl.abCd) / pl.abMax) * 100 : 0) + '%';
+        fill.style.background = A.color; box.classList.toggle('ready', ready);
+        box.style.setProperty('--ab', A.color);
+    };
+    set(p1, 'p1', isMobile ? 'DOKUN' : 'SPACE');
+    if (MODE === '2p') set(p2, 'p2', 'ENTER');
+    if (isMobile) {
+        const mb = document.getElementById('mobileAbilityBtn');
+        if (mb) {
+            const A = ABILITY[p1.shipClass] || ABILITY.interceptor, pct = p1.alive ? (1 - Math.max(0, p1.abCd) / p1.abMax) * 100 : 0;
+            mb.style.setProperty('--pct', pct + '%'); mb.style.setProperty('--ab', A.color);
+            mb.classList.toggle('ready', p1.alive && p1.abCd <= 0);
+        }
+    }
+}
+
 let cachedBossElements = [];
 function updateHUD() {
     document.getElementById('p1Hp').style.width = (p1.alive ? p1.hp / p1.mh * 100 : 0) + '%';
     document.getElementById('p1Sh').style.width = (p1.alive ? p1.sh / p1.ms * 100 : 0) + '%';
     document.getElementById('p1Xp').style.width = (p1.xp / p1.xpN * 100) + '%';
     document.getElementById('p1Lv').textContent = 'Lv.' + p1.lv;
+    updateAbilityHUD();
     
     if (MODE === '2p') {
         document.getElementById('p2Hp').style.width = (p2.alive ? p2.hp / p2.mh * 100 : 0) + '%';
@@ -2269,7 +2472,8 @@ function draw() {
             ctx.restore();
         }
         
-        for (const e of enemies) e.draw(ctx);
+        drawLaserTrails(ctx);
+        for (const e of enemies) { e.draw(ctx); if (!e.isBoss) drawEnemyFx(ctx, e); }
         
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
@@ -2305,7 +2509,7 @@ function draw() {
         for (const f of floats) {
             ctx.globalAlpha = clamp(f.l / f.ml, 0, 1);
             ctx.fillStyle = f.c; ctx.font = `bold ${f.s}px Orbitron`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(f.t, f.x, f.y);
+            ctx.shadowColor = f.c; ctx.shadowBlur = perfMode ? 0 : 14; ctx.fillText(f.t, f.x, f.y); ctx.shadowBlur = 0;
         }
         ctx.globalAlpha = 1;
         
@@ -2552,6 +2756,11 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 const keys = {};
 addEventListener('keydown', e => {
     keys[e.code] = true;
+    if (e.code === 'Space') e.preventDefault();
+    if (gameState === 'playing' && !e.repeat) {
+        if (e.code === 'Space') p1.activate();
+        else if (MODE === '2p' && (e.code === 'Enter' || e.code === 'ShiftRight' || e.code === 'Numpad0')) p2.activate();
+    }
     if (e.code === 'Enter' && gameState === 'gameover') startGame();
     if (e.code === 'Escape') {
         if (gameState === 'playing') {
@@ -2613,6 +2822,11 @@ if (isMobile) {
     const joyOuter = document.getElementById('joystickOuter');
     const joyKnob = document.getElementById('joystickKnob');
     const pauseBtn = document.getElementById('mobilePauseBtn');
+    const abBtn = document.getElementById('mobileAbilityBtn');
+    if (abBtn) {
+        abBtn.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); if (gameState === 'playing') p1.activate(); }, { passive: false });
+        abBtn.addEventListener('click', e => { e.stopPropagation(); if (gameState === 'playing') p1.activate(); });
+    }
 
     pauseBtn.addEventListener('touchstart', e => {
         e.preventDefault();
@@ -2646,7 +2860,7 @@ if (isMobile) {
             const touch = e.changedTouches[i];
             // Allow triggering anywhere on the screen
             if (joystickTouchId === null) {
-                if (e.target.closest('#mobilePauseBtn')) continue;
+                if (e.target.closest('#mobilePauseBtn') || e.target.closest('#mobileAbilityBtn')) continue;
 
                 e.preventDefault(); // Prevent default touch actions like zooming/scrolling
                 joystickTouchId = touch.identifier;

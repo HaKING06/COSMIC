@@ -2,11 +2,70 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC</title>
-    <meta name="description" content="COSMIC resmi web sitesine hoş geldiniz.">
-    <meta name="keywords" content="cosmic, COSMIC,cosmictr, GAME, OYUN, multiplayer, space, uzay, shooter, battle, arena, online, free, play, oyun, oyunlar, ücretsiz, oyna , uzay savaşı, uzay oyunu, çok oyunculu, aksiyon, macera, strateji">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Cosmic Survivors — Oyun Arenası | Sektör 9 Uzay Hayatta Kalma Simülasyonu</title>
+    <meta name="description" content="Cosmic Survivors: ücretsiz, web tabanlı uzay roguelike arena oyunu. Tek başına ya da 2 kişilik co-op oyna, aktif yeteneklerle parazit filolarını ve boss'ları yok et. İndirme yok!">
+    <meta name="keywords" content="Cosmic Survivors, uzay oyunu, web tabanlı roguelike, 2 kişilik uzay oyunu, html5 arena oyunu, vampire survivors benzeri uzay oyunu, ücretsiz tarayıcı oyunu, co-op uzay shooter, bullet heaven, roguelike, çok oyunculu uzay savaşı, cosmic haking">
+    <meta name="author" content="Halit Güneş (HaKING)">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="language" content="Turkish">
+    <link rel="canonical" href="https://cosmic.haking.tr/">
+
+    <!-- Tema / PWA -->
+    <meta name="theme-color" content="#00f0ff">
+    <meta name="color-scheme" content="dark">
+    <meta name="application-name" content="Cosmic Survivors">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cosmic">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Cosmic Survivors">
+    <meta property="og:title" content="Cosmic Survivors — Ücretsiz 2 Kişilik Uzay Roguelike Arena Oyunu">
+    <meta property="og:description" content="Cosmic Survivors: ücretsiz, web tabanlı uzay roguelike arena oyunu. Tek başına ya da 2 kişilik co-op oyna, aktif yeteneklerle parazit filolarını ve boss'ları yok et. İndirme yok!">
+    <meta property="og:url" content="https://cosmic.haking.tr/">
+    <meta property="og:locale" content="tr_TR">
+    <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png">
+    <meta property="og:image:secure_url" content="https://cosmic.haking.tr/assets/og-banner.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Cosmic Survivors — neon uzay roguelike arena oyunu afişi">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Cosmic Survivors — Ücretsiz 2 Kişilik Uzay Roguelike">
+    <meta name="twitter:description" content="Cosmic Survivors: ücretsiz, web tabanlı uzay roguelike arena oyunu. Tek başına ya da 2 kişilik co-op oyna, aktif yeteneklerle parazit filolarını ve boss'ları yok et. İndirme yok!">
+    <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png">
+    <meta name="twitter:image:alt" content="Cosmic Survivors — neon uzay roguelike arena oyunu afişi">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "Cosmic Survivors",
+      "url": "https://cosmic.haking.tr/",
+      "image": "https://cosmic.haking.tr/assets/og-banner.png",
+      "description": "Cosmic Survivors: ücretsiz, web tabanlı uzay roguelike arena oyunu. Tek başına ya da 2 kişilik co-op oyna, aktif yeteneklerle parazit filolarını ve boss'ları yok et. İndirme yok!",
+      "genre": ["Roguelike", "Arena Shooter", "Bullet Heaven"],
+      "gamePlatform": "Web Browser",
+      "applicationCategory": "Game",
+      "operatingSystem": "Any",
+      "inLanguage": "tr",
+      "playMode": ["SinglePlayer", "CoOp"],
+      "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
+      "author": { "@type": "Person", "name": "Halit Güneş", "alternateName": "HaKING" },
+      "license": "https://opensource.org/licenses/MIT",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" }
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -747,6 +806,77 @@
                 margin: 0 auto;
             }
         }
+    
+        /* ═══════════ v5.5 PRO — Cyberpunk HUD / Glass / Hologram ═══════════ */
+        .hud-p {
+            padding: 10px 12px; border-radius: 12px;
+            background: linear-gradient(145deg, rgba(10, 16, 40, 0.5), rgba(8, 4, 22, 0.55));
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            backdrop-filter: blur(12px) saturate(1.4);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        .hud-p.right { border-color: rgba(255, 0, 106, 0.25); box-shadow: 0 0 20px rgba(255, 0, 106, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+        .hud-c { padding: 6px 18px; border-radius: 12px; background: rgba(8, 4, 22, 0.35); backdrop-filter: blur(10px); border: 1px solid rgba(191, 0, 255, 0.18); }
+        .hud-bw { border: 1px solid rgba(255, 255, 255, 0.05); }
+
+        .hud-ab { margin-top: 6px; align-self: stretch; }
+        .hud-ab-lbl { font-family: 'Rajdhani', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; color: rgba(255, 255, 255, 0.5); text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; }
+        .hud-p.right .hud-ab-lbl { text-align: right; }
+        .hud-ab-track { height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); }
+        .hud-ab-fill { height: 100%; width: 0; border-radius: 3px; box-shadow: 0 0 8px currentColor; }
+        .hud-ab.ready .hud-ab-lbl { color: var(--ab, #fff); text-shadow: 0 0 10px var(--ab, #fff); animation: abPulse 0.9s ease-in-out infinite alternate; }
+        .hud-ab.ready .hud-ab-track { border-color: var(--ab, #fff); box-shadow: 0 0 10px var(--ab, #fff); }
+        @keyframes abPulse { from { opacity: 0.65; } to { opacity: 1; } }
+
+        .pause-panel { background: linear-gradient(145deg, rgba(10, 16, 40, 0.7), rgba(8, 4, 22, 0.8)); backdrop-filter: blur(20px) saturate(1.4); border-color: rgba(0, 240, 255, 0.28); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 240, 255, 0.08), inset 0 0 30px rgba(191, 0, 255, 0.05); }
+        .br-player-box { backdrop-filter: blur(14px); background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)); border-color: rgba(255, 215, 0, 0.18); }
+        .btn { backdrop-filter: blur(8px); }
+
+        /* Hologram seviye kartları */
+        .lu-card {
+            background: linear-gradient(170deg, rgba(10, 22, 46, 0.7), rgba(8, 4, 26, 0.82));
+            backdrop-filter: blur(16px) saturate(1.5);
+            border: 1px solid rgba(0, 240, 255, 0.35);
+        }
+        .lu-card::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; border-radius: inherit;
+            background:
+                repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.055) 0 1px, transparent 1px 3px),
+                linear-gradient(115deg, transparent 32%, rgba(255, 255, 255, 0.16) 48%, transparent 64%);
+            background-size: 100% 100%, 260% 100%;
+            animation: holoSweep 3.6s linear infinite;
+        }
+        @keyframes holoSweep { from { background-position: 0 0, 170% 0; } to { background-position: 0 0, -90% 0; } }
+        .lu-card-icon { animation: holoFloat 3s ease-in-out infinite; filter: drop-shadow(0 0 10px currentColor); }
+        @keyframes holoFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .lu-card.rare { box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 22px rgba(0, 240, 255, 0.14); }
+        .lu-card.epic { box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 26px rgba(191, 0, 255, 0.2); }
+
+        /* Mobil yetenek butonu */
+        #mobileAbilityBtn {
+            position: fixed; right: 22px; bottom: 30px; width: 80px; height: 80px; border-radius: 50%;
+            border: 2px solid var(--ab, #00f0ff); color: #fff; z-index: 150; display: none;
+            flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 0;
+            background: conic-gradient(var(--ab, #00f0ff) var(--pct, 0%), rgba(255, 255, 255, 0.08) 0);
+            font-family: 'Orbitron', monospace; touch-action: none; outline: none; cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        #mobileAbilityBtn::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: rgba(6, 3, 14, 0.9); }
+        #mobileAbilityBtn .mab-ico, #mobileAbilityBtn .mab-lbl { position: relative; z-index: 1; }
+        #mobileAbilityBtn .mab-ico { font-size: 1.5rem; color: var(--ab, #00f0ff); }
+        #mobileAbilityBtn .mab-lbl { font-size: 0.45rem; letter-spacing: 0.1em; opacity: 0.7; }
+        #mobileAbilityBtn.ready { box-shadow: 0 0 22px var(--ab, #00f0ff); animation: abBtnPulse 0.9s ease-in-out infinite alternate; }
+        #mobileAbilityBtn.ready .mab-lbl { opacity: 1; }
+        @keyframes abBtnPulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+        @media (max-width: 1024px) and (pointer: coarse) {
+            body.is-mobile.playing-mode #mobileAbilityBtn { display: flex !important; }
+        }
+        @media (max-width: 768px) {
+            .hud-ab { margin-top: 3px; }
+            .hud-ab-lbl { font-size: 0.5rem; }
+            .hud-p { padding: 6px 8px; }
+        }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
     </style>
 </head>
 <body class="playing-cursor">
@@ -759,6 +889,7 @@
     </div>
 </div>
 <button id="mobilePauseBtn" class="mobile-only">⏸</button>
+<button id="mobileAbilityBtn" type="button" aria-label="Aktif yetenek"><span class="mab-ico">✦</span><span class="mab-lbl">YETENEK</span></button>
 
 <!-- HUD -->
 <div id="hud" class="hidden">
@@ -769,6 +900,7 @@
         <div class="hud-bw" style="height:4px"><div class="hud-b xpb" id="p1Xp"></div></div>
         <div class="hud-lv" id="p1Lv">Lv.1</div>
         <div class="hud-upgs" id="p1Upgs"></div>
+        <div class="hud-ab" id="p1Ab"><div class="hud-ab-lbl" id="p1AbLbl">YETENEK</div><div class="hud-ab-track"><div class="hud-ab-fill" id="p1AbFill"></div></div></div>
     </div>
     <div class="hud-c">
         <div class="hud-sc" id="hudSc">0</div>
@@ -784,6 +916,7 @@
         <div class="hud-bw" style="height:4px"><div class="hud-b xpb" id="p2Xp"></div></div>
         <div class="hud-lv" id="p2Lv">Lv.1</div>
         <div class="hud-upgs right" id="p2Upgs"></div>
+        <div class="hud-ab" id="p2Ab"><div class="hud-ab-lbl" id="p2AbLbl">YETENEK</div><div class="hud-ab-track"><div class="hud-ab-fill" id="p2AbFill"></div></div></div>
     </div>
 </div>
 
@@ -883,6 +1016,17 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Active Abilities -->
+                <div class="hud-sub-panel">
+                    <div class="hud-sub-title">✦ AKTİF YETENEKLER</div>
+                    <div class="drop-guide-grid" style="grid-template-columns: 1fr;">
+                        <div class="mini-drop"><span class="mini-drop-ico" style="color:#00f0ff">⚡</span><div class="mini-drop-info"><span class="mini-drop-name" style="color:#00f0ff">AVCI · Warp Dash</span><span class="mini-drop-desc">1.2sn dokunulmaz taklaya atılır, arkasında hasar veren lazer hattı bırakır</span></div></div>
+                        <div class="mini-drop"><span class="mini-drop-ico" style="color:#ffaa00">🛡</span><div class="mini-drop-info"><span class="mini-drop-name" style="color:#ffaa00">KRUVAZÖR · Mikro Füze Salvosu</span><span class="mini-drop-desc">3sn boyunca her yöne 360° füze yağdırır</span></div></div>
+                        <div class="mini-drop"><span class="mini-drop-ico" style="color:#bf00ff">🌀</span><div class="mini-drop-info"><span class="mini-drop-name" style="color:#bf00ff">DESTEK · EMP Şok Dalgası</span><span class="mini-drop-desc">Tüm düşman mermilerini siler, kalkan enerjisine çevirir</span></div></div>
+                    </div>
+                    <div class="mini-drop-desc" style="font-family:'Rajdhani',sans-serif; font-size:0.7rem; color:rgba(255,255,255,0.5)">Pilot 1: <b>SPACE</b> · Pilot 2: <b>ENTER</b> · Mobil: sağ alttaki yetenek butonu</div>
                 </div>
 
                 <!-- Settings / Widgets -->
