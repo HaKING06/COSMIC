@@ -1086,29 +1086,29 @@
 
                 rowsHtml += '<tr>' +
                     '<td>' +
-                        '<div class="db-item-cell">' +
-                            '<div class="db-item-icon">' + item.icon + '</div>' +
-                            '<div>' +
-                                '<div class="db-item-title">' + item.name + '</div>' +
-                                '<div class="db-item-sub">' + item.ship + '</div>' +
-                            '</div>' +
-                        '</div>' +
+                    '<div class="db-item-cell">' +
+                    '<div class="db-item-icon">' + item.icon + '</div>' +
+                    '<div>' +
+                    '<div class="db-item-title">' + item.name + '</div>' +
+                    '<div class="db-item-sub">' + item.ship + '</div>' +
+                    '</div>' +
+                    '</div>' +
                     '</td>' +
                     '<td><span class="badge ' + getBadgeClass(item.category) + '">' + item.categoryLabel + '</span></td>' +
                     '<td><span class="badge ' + getTierBadgeClass(item.tier) + '">' + item.tier + ' TIER</span></td>' +
                     '<td>' +
-                        '<div class="db-dps-bar-wrap">' +
-                            '<span class="db-dps-val">' + item.dpsScore + ' Puan (' + dmgText + ')</span>' +
-                            '<div class="db-dps-track"><div class="db-dps-fill" style="width:' + dpsPct + '%;"></div></div>' +
-                        '</div>' +
+                    '<div class="db-dps-bar-wrap">' +
+                    '<span class="db-dps-val">' + item.dpsScore + ' Puan (' + dmgText + ')</span>' +
+                    '<div class="db-dps-track"><div class="db-dps-fill" style="width:' + dpsPct + '%;"></div></div>' +
+                    '</div>' +
                     '</td>' +
                     '<td style="font-family:var(--font-mono); color:var(--cyan);">' + cdText + '</td>' +
                     '<td>' +
-                        '<div class="db-recipe-pill">' + item.recipe + '</div>' +
-                        '<div style="font-size:0.84rem; color:var(--text-secondary); margin-top:4px;">' + item.desc + '</div>' +
+                    '<div class="db-recipe-pill">' + item.recipe + '</div>' +
+                    '<div style="font-size:0.84rem; color:var(--text-secondary); margin-top:4px;">' + item.desc + '</div>' +
                     '</td>' +
                     '<td>' + calcBtn + '</td>' +
-                '</tr>';
+                    '</tr>';
             });
             tableBody.innerHTML = rowsHtml;
         } else {
@@ -1127,29 +1127,29 @@
                 var cdText = item.cooldown > 0 ? (item.cooldown.toFixed(2) + 's') : 'Pasif';
                 cardsHtml += '<article class="pro-card">' +
                     '<div class="pro-card-header">' +
-                        '<div class="pro-card-title-group">' +
-                            '<div class="pro-card-icon">' + item.icon + '</div>' +
-                            '<div>' +
-                                '<div class="pro-card-title">' + item.name + '</div>' +
-                                '<div class="pro-card-subtitle">' + item.ship + '</div>' +
-                            '</div>' +
-                        '</div>' +
-                        '<span class="badge ' + getTierBadgeClass(item.tier) + '">' + item.tier + '</span>' +
+                    '<div class="pro-card-title-group">' +
+                    '<div class="pro-card-icon">' + item.icon + '</div>' +
+                    '<div>' +
+                    '<div class="pro-card-title">' + item.name + '</div>' +
+                    '<div class="pro-card-subtitle">' + item.ship + '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '<span class="badge ' + getTierBadgeClass(item.tier) + '">' + item.tier + '</span>' +
                     '</div>' +
                     '<div class="pro-card-body">' + item.desc + '</div>' +
                     '<div class="db-recipe-pill">' + item.recipe + '</div>' +
                     '<div class="pro-card-stats">' +
-                        '<div class="stat-bar-row">' +
-                            '<span class="stat-bar-label">GÜÇ ENDEKSİ</span>' +
-                            '<div class="stat-bar-track"><div class="stat-bar-fill" style="width:' + dpsPct + '%;"></div></div>' +
-                            '<span class="stat-bar-val">' + item.dpsScore + '</span>' +
-                        '</div>' +
+                    '<div class="stat-bar-row">' +
+                    '<span class="stat-bar-label">GÜÇ ENDEKSİ</span>' +
+                    '<div class="stat-bar-track"><div class="stat-bar-fill" style="width:' + dpsPct + '%;"></div></div>' +
+                    '<span class="stat-bar-val">' + item.dpsScore + '</span>' +
+                    '</div>' +
                     '</div>' +
                     '<div class="pro-card-footer">' +
-                        '<span class="badge ' + getBadgeClass(item.category) + '">' + item.categoryLabel + '</span>' +
-                        '<span style="font-family:var(--font-mono); font-size:0.78rem; color:var(--cyan);">Hasar: ' + dmgText + ' | CD: ' + cdText + '</span>' +
+                    '<span class="badge ' + getBadgeClass(item.category) + '">' + item.categoryLabel + '</span>' +
+                    '<span style="font-family:var(--font-mono); font-size:0.78rem; color:var(--cyan);">Hasar: ' + dmgText + ' | CD: ' + cdText + '</span>' +
                     '</div>' +
-                '</article>';
+                    '</article>';
             });
             gridContainer.innerHTML = cardsHtml;
         }
@@ -1221,15 +1221,15 @@
             SECTOR_MAPS.forEach(function (m) {
                 sHtml += '<div class="sector-overview-card" style="--sector-color:' + m.color + ';">' +
                     '<div class="sector-card-top">' +
-                        '<img src="' + m.img + '" alt="' + m.name + '" class="sector-card-thumb">' +
-                        '<div>' +
-                            '<div class="sector-card-name">' + m.name + '</div>' +
-                            '<div class="sector-card-mult">' + m.mult + '</div>' +
-                        '</div>' +
+                    '<img src="' + m.img + '" alt="' + m.name + '" class="sector-card-thumb">' +
+                    '<div>' +
+                    '<div class="sector-card-name">' + m.name + '</div>' +
+                    '<div class="sector-card-mult">' + m.mult + '</div>' +
+                    '</div>' +
                     '</div>' +
                     '<div style="font-family:var(--font-mono); font-size:0.76rem; color:var(--cyan);">⚠️ ' + m.hazard + '</div>' +
                     '<p class="sector-card-desc">' + m.desc + '</p>' +
-                '</div>';
+                    '</div>';
             });
             sectorGrid.innerHTML = sHtml;
         }
@@ -1246,19 +1246,19 @@
         rows.forEach(function (r) {
             html += '<tr>' +
                 '<td>' +
-                    '<div class="synergy-ship-col">' +
-                        '<img src="' + r.img + '" alt="' + r.name + '" class="synergy-ship-avatar">' +
-                        '<div>' +
-                            '<div class="db-item-title">' + r.name + '</div>' +
-                            '<div class="db-item-sub">' + r.roleLabel + ' // ' + r.rootPerk + '</div>' +
-                        '</div>' +
-                    '</div>' +
+                '<div class="synergy-ship-col">' +
+                '<img src="' + r.img + '" alt="' + r.name + '" class="synergy-ship-avatar">' +
+                '<div>' +
+                '<div class="db-item-title">' + r.name + '</div>' +
+                '<div class="db-item-sub">' + r.roleLabel + ' // ' + r.rootPerk + '</div>' +
+                '</div>' +
+                '</div>' +
                 '</td>' +
                 '<td><div class="synergy-cell-box"><span class="synergy-grade ' + r.sector9.cls + '">' + r.sector9.grade + ' UYUM</span><span class="synergy-note">' + r.sector9.note + '</span></div></td>' +
                 '<td><div class="synergy-cell-box"><span class="synergy-grade ' + r.nebula.cls + '">' + r.nebula.grade + ' UYUM</span><span class="synergy-note">' + r.nebula.note + '</span></div></td>' +
                 '<td><div class="synergy-cell-box"><span class="synergy-grade ' + r.blackhole.cls + '">' + r.blackhole.grade + ' UYUM</span><span class="synergy-note">' + r.blackhole.note + '</span></div></td>' +
                 '<td><div class="synergy-cell-box"><span class="synergy-grade ' + r.dyson.cls + '">' + r.dyson.grade + ' UYUM</span><span class="synergy-note">' + r.dyson.note + '</span></div></td>' +
-            '</tr>';
+                '</tr>';
         });
         matrixBody.innerHTML = html;
     }
@@ -1306,27 +1306,27 @@
             filteredBosses.forEach(function (b) {
                 bHtml += '<article class="boss-dossier-card" style="--boss-color:' + b.color + ';">' +
                     '<div class="boss-dossier-top">' +
-                        '<img src="' + b.img + '" alt="' + b.name + '" class="boss-svg-preview">' +
-                        '<div>' +
-                            '<div class="boss-dossier-wave">' + b.wave + '</div>' +
-                            '<h3 class="boss-dossier-name">' + b.name + '</h3>' +
-                            '<div style="display:flex; gap:8px; margin-top:4px;">' +
-                                '<span class="badge tier-s">' + b.hpBase + '</span>' +
-                                '<span class="badge weapon">' + b.armor + '</span>' +
-                            '</div>' +
-                        '</div>' +
+                    '<img src="' + b.img + '" alt="' + b.name + '" class="boss-svg-preview">' +
+                    '<div>' +
+                    '<div class="boss-dossier-wave">' + b.wave + '</div>' +
+                    '<h3 class="boss-dossier-name">' + b.name + '</h3>' +
+                    '<div style="display:flex; gap:8px; margin-top:4px;">' +
+                    '<span class="badge tier-s">' + b.hpBase + '</span>' +
+                    '<span class="badge weapon">' + b.armor + '</span>' +
+                    '</div>' +
+                    '</div>' +
                     '</div>' +
                     '<div class="boss-weakspot-box">' +
-                        '<strong>🎯 ZAYIF NOKTA (WEAK SPOT):</strong>' +
-                        b.weakSpot +
+                    '<strong>🎯 ZAYIF NOKTA (WEAK SPOT):</strong>' +
+                    b.weakSpot +
                     '</div>' +
                     '<div style="font-size:0.88rem; color:var(--text-secondary);">' +
-                        '<strong style="color:#fff;">Saldırı Kalıpları:</strong> ' + b.attacks +
+                    '<strong style="color:#fff;">Saldırı Kalıpları:</strong> ' + b.attacks +
                     '</div>' +
                     '<div style="font-size:0.88rem; color:var(--cyan); border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">' +
-                        '<strong>💡 Taktiksel İmha Rehberi:</strong> ' + b.counter +
+                    '<strong>💡 Taktiksel İmha Rehberi:</strong> ' + b.counter +
                     '</div>' +
-                '</article>';
+                    '</article>';
             });
             bossGrid.innerHTML = bHtml || '<div style="color:var(--text-muted); padding:16px;">Aranan kriterde Boss kaydı bulunamadı.</div>';
         }
@@ -1345,15 +1345,15 @@
                 var badgeCls = e.type === 'elite' ? 'evo' : 'weapon';
                 eHtml += '<article class="enemy-unit-card">' +
                     '<div class="enemy-unit-top">' +
-                        '<img src="' + e.img + '" alt="' + e.name + '" class="enemy-svg-preview">' +
-                        '<div>' +
-                            '<span class="badge ' + badgeCls + '">' + e.typeLabel + '</span>' +
-                            '<h4 class="db-item-title" style="margin-top:4px;">' + e.name + '</h4>' +
-                            '<div class="db-item-sub">Can: ' + e.hp + ' // Hız: ' + e.spd + '</div>' +
-                        '</div>' +
+                    '<img src="' + e.img + '" alt="' + e.name + '" class="enemy-svg-preview">' +
+                    '<div>' +
+                    '<span class="badge ' + badgeCls + '">' + e.typeLabel + '</span>' +
+                    '<h4 class="db-item-title" style="margin-top:4px;">' + e.name + '</h4>' +
+                    '<div class="db-item-sub">Can: ' + e.hp + ' // Hız: ' + e.spd + '</div>' +
+                    '</div>' +
                     '</div>' +
                     '<p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.45;">' + e.desc + '</p>' +
-                '</article>';
+                    '</article>';
             });
             enemyGrid.innerHTML = eHtml || '<div style="color:var(--text-muted); padding:16px;">Aranan kriterde düşman birimi bulunamadı.</div>';
         }
@@ -1544,28 +1544,6 @@
     }
 
     // -------------------------------------------------------------------------
-    // 10. ABOUT.HTML IBAN COPY SUPPORT
-    // -------------------------------------------------------------------------
-    function initAboutPageInteractions() {
-        var copyBtn = document.getElementById('btnCopyIban');
-        var ibanEl = document.getElementById('ibanText');
-        if (!copyBtn || !ibanEl) return;
-
-        copyBtn.addEventListener('click', function () {
-            var rawIban = ibanEl.textContent.replace(/\s+/g, '');
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(rawIban).catch(function () {});
-            }
-            copyBtn.classList.add('copied');
-            copyBtn.textContent = '✓ KOPYALANDI!';
-            setTimeout(function () {
-                copyBtn.classList.remove('copied');
-                copyBtn.textContent = '📋 IBAN KOPYALA';
-            }, 2500);
-        });
-    }
-
-    // -------------------------------------------------------------------------
     // BOOTSTRAP ON DOM READY
     // -------------------------------------------------------------------------
     document.addEventListener('DOMContentLoaded', function () {
@@ -1575,6 +1553,5 @@
         initTab2Synergy();
         initTab4Bestiary();
         initTab5Calculator();
-        initAboutPageInteractions();
     });
 })();
