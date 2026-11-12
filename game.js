@@ -23,13 +23,47 @@ sessionStorage.setItem('cosmic_map', SELECTED_MAP);
 const MODE = '1p'; // v7.0: Saf 1P Odaklı Mimari
 
 const DIFF = {
-    easy: { label: 'KOLAY', cls: 'easy', ehm: 0.82, esm: 0.85, edm: 0.78, sdm: 1.15, ecm: 0.85, bhm: 0.80, bsr: 0.75, pdm: 1.20, sm: 1.0, pr: 2.8, sr: 4.5 },
-    normal: { label: 'NORMAL', cls: 'medium', ehm: 1.00, esm: 1.00, edm: 1.00, sdm: 1.00, ecm: 1.00, bhm: 1.00, bsr: 1.00, pdm: 1.00, sm: 1.35, pr: 2.0, sr: 3.5 },
-    medium: { label: 'ORTA', cls: 'medium', ehm: 1.00, esm: 1.00, edm: 1.00, sdm: 1.00, ecm: 1.00, bhm: 1.00, bsr: 1.00, pdm: 1.00, sm: 1.5, pr: 1.8, sr: 3.2 },
-    hard: { label: 'ZOR', cls: 'hard', ehm: 1.45, esm: 1.22, edm: 1.35, sdm: 0.82, ecm: 1.25, bhm: 1.40, bsr: 1.20, pdm: 0.90, sm: 2.0, pr: 1.2, sr: 2.4 },
-    nightmare: { label: 'KABUS', cls: 'hard', ehm: 1.85, esm: 1.38, edm: 1.65, sdm: 0.72, ecm: 1.45, bhm: 1.75, bsr: 1.40, pdm: 0.80, sm: 2.75, pr: 0.9, sr: 1.8 }
+    easy: { label: 'KOLAY', cls: 'easy', ehm: 0.90, esm: 0.90, edm: 0.80, sdm: 1.12, ecm: 0.90, bhm: 0.85, bsr: 0.85, pdm: 1.15, sm: 1.0, pr: 2.4, sr: 4.0 },
+    normal: { label: 'NORMAL', cls: 'medium', ehm: 1.20, esm: 1.05, edm: 1.08, sdm: 0.98, ecm: 1.08, bhm: 1.18, bsr: 1.08, pdm: 1.00, sm: 1.4, pr: 1.7, sr: 3.1 },
+    medium: { label: 'ORTA', cls: 'medium', ehm: 1.20, esm: 1.05, edm: 1.08, sdm: 0.98, ecm: 1.08, bhm: 1.18, bsr: 1.08, pdm: 1.00, sm: 1.5, pr: 1.7, sr: 3.1 },
+    hard: { label: 'ZOR', cls: 'hard', ehm: 1.65, esm: 1.25, edm: 1.45, sdm: 0.80, ecm: 1.32, bhm: 1.70, bsr: 1.35, pdm: 0.88, sm: 2.1, pr: 1.1, sr: 2.2 },
+    nightmare: { label: 'KABUS', cls: 'hard', ehm: 2.30, esm: 1.42, edm: 1.85, sdm: 0.70, ecm: 1.55, bhm: 2.45, bsr: 1.65, pdm: 0.75, sm: 3.0, pr: 0.8, sr: 1.6 }
 };
 const DC = DIFF[DIFFKEY] || DIFF.normal;
+
+const WORLD_W = 2800;
+const WORLD_H = 2100;
+const CAMERA_ZOOM = 0.78;
+let camX = WORLD_W / 2;
+let camY = WORLD_H / 2;
+
+function getViewBounds() {
+    const halfW = canvas.width / (2 * CAMERA_ZOOM);
+    const halfH = canvas.height / (2 * CAMERA_ZOOM);
+    return {
+        left: camX - halfW,
+        right: camX + halfW,
+        top: camY - halfH,
+        bottom: camY + halfH,
+        halfW,
+        halfH
+    };
+}
+
+function updateCamera(dt) {
+    if (!p1) return;
+    const halfW = canvas.width / (2 * CAMERA_ZOOM);
+    const halfH = canvas.height / (2 * CAMERA_ZOOM);
+    let tx = p1.x;
+    let ty = p1.y;
+    if (halfW * 2 >= WORLD_W) tx = WORLD_W / 2;
+    else tx = clamp(tx, halfW - 60, WORLD_W - halfW + 60);
+    if (halfH * 2 >= WORLD_H) ty = WORLD_H / 2;
+    else ty = clamp(ty, halfH - 60, WORLD_H - halfH + 60);
+    const k = Math.min(1, dt * 8.5);
+    camX = lerp(camX, tx, k);
+    camY = lerp(camY, ty, k);
+}
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -782,41 +816,41 @@ function floatT(x, y, txt, c = '#fff', sz = 14) {
 
 function shake(v) { shakeI = Math.max(shakeI, v); }
 
-// ── Harita Çevre Kurulumu (3 Harita) ──
+// ── Harita Çevre Kurulumu (4 Geniş Sektör Haritası) ──
 function initMapEnvironment() {
     mapDebris.length = 0;
     gasClouds.length = 0;
     lavaAsteroids.length = 0;
 
     if (SELECTED_MAP === 'sector9') {
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 16; i++) {
             mapDebris.push({
-                x: rand(140, canvas.width - 140),
-                y: rand(120, canvas.height - 120),
-                r: rand(26, 40),
+                x: rand(140, WORLD_W - 140),
+                y: rand(140, WORLD_H - 140),
+                r: rand(28, 44),
                 a: rand(0, Math.PI * 2),
                 va: rand(-0.8, 0.8) || 0.5,
-                vx: rand(-18, 18),
-                vy: rand(-18, 18),
+                vx: rand(-22, 22),
+                vy: rand(-22, 22),
                 sides: randInt(5, 7)
             });
         }
     } else if (SELECTED_MAP === 'nebula') {
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 12; i++) {
             const isBoost = i % 2 === 0;
             gasClouds.push({
-                x: rand(120, canvas.width - 120),
-                y: rand(120, canvas.height - 120),
-                r: rand(95, 135),
-                vx: rand(-22, 22),
-                vy: rand(-22, 22),
+                x: rand(180, WORLD_W - 180),
+                y: rand(180, WORLD_H - 180),
+                r: rand(120, 170),
+                vx: rand(-26, 26),
+                vy: rand(-26, 26),
                 type: isBoost ? 'boost' : 'slow',
                 color: isBoost ? '#00f0ff' : '#bf00ff',
                 label: isBoost ? '⚡ İYON AKIMI (+%35 HIZ)' : '🌫️ STASİS SİSİ (-%30 HIZ)'
             });
         }
     } else if (SELECTED_MAP === 'blackhole') {
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 10; i++) {
             spawnLavaAsteroid();
         }
     }
@@ -824,17 +858,17 @@ function initMapEnvironment() {
 
 function spawnLavaAsteroid() {
     const side = randInt(0, 3);
-    let x = rand(80, canvas.width - 80), y = rand(80, canvas.height - 80);
+    let x = rand(80, WORLD_W - 80), y = rand(80, WORLD_H - 80);
     if (side === 0) y = 40;
-    else if (side === 1) y = canvas.height - 40;
+    else if (side === 1) y = WORLD_H - 40;
     else if (side === 2) x = 40;
-    else x = canvas.width - 40;
+    else x = WORLD_W - 40;
     lavaAsteroids.push({
         x, y,
-        vx: rand(-45, 45),
-        vy: rand(-45, 45),
-        r: rand(22, 32),
-        hp: 45 + wave * 8,
+        vx: rand(-65, 65),
+        vy: rand(-65, 65),
+        r: rand(22, 34),
+        hp: 55 + wave * 10,
         a: rand(0, Math.PI * 2)
     });
 }
@@ -1171,8 +1205,8 @@ class Player {
         } else if (this.shipClass === 'phantom') {
             // Gölge Sıçraması (Shadow Blink) + 1.8sn Görünmezlik
             const jumpDist = 185;
-            this.x = clamp(this.x + Math.cos(this.fac) * jumpDist, 45, canvas.width - 45);
-            this.y = clamp(this.y + Math.sin(this.fac) * jumpDist, 45, canvas.height - 45);
+            this.x = clamp(this.x + Math.cos(this.fac) * jumpDist, 45, WORLD_W - 45);
+            this.y = clamp(this.y + Math.sin(this.fac) * jumpDist, 45, WORLD_H - 45);
             this.stealthT = 1.8;
             this.invT = 1.8;
             spawnExp(this.x, this.y, '#ff006a', 1.4);
@@ -1326,18 +1360,18 @@ class Player {
 
         // Harita 3 Kara Delik Çekim Anomalisi
         if (SELECTED_MAP === 'blackhole') {
-            const cx = canvas.width / 2, cy = canvas.height / 2;
+            const cx = WORLD_W / 2, cy = WORLD_H / 2;
             const dCenter = Math.hypot(cx - this.x, cy - this.y);
-            if (dCenter > 30 && dCenter < 460) {
-                const pull = (1 - dCenter / 460) * 95 * dt;
+            if (dCenter > 45 && dCenter < 680) {
+                const pull = (1 - dCenter / 680) * 115 * dt;
                 const pa = Math.atan2(cy - this.y, cx - this.x);
                 this.x += Math.cos(pa) * pull;
                 this.y += Math.sin(pa) * pull;
             }
         }
 
-        this.x = clamp(this.x + this.vx * dt, 36, canvas.width - 36);
-        this.y = clamp(this.y + this.vy * dt, 36, canvas.height - 36);
+        this.x = clamp(this.x + this.vx * dt, 36, WORLD_W - 36);
+        this.y = clamp(this.y + this.vy * dt, 36, WORLD_H - 36);
 
         // Aktif Yetenek Süreleri
         if (this.dashT > 0) {
@@ -1388,10 +1422,10 @@ class Player {
         }
     }
 
-    findNearestEnemy(maxDist = 850) {
+    findNearestEnemy(maxDist = 1150) {
         let best = null, bestD = maxDist;
         for (const e of enemies) {
-            if (!e.alive || e.x < 0 || e.x > canvas.width || e.y < 0 || e.y > canvas.height) continue;
+            if (!e.alive || e.x < 0 || e.x > WORLD_W || e.y < 0 || e.y > WORLD_H) continue;
             const d = dist(this, e);
             if (d < bestD) { bestD = d; best = e; }
         }
@@ -1745,8 +1779,9 @@ class Enemy {
         this.isMiniBoss = isMiniBoss;
         this.eid = Math.random();
 
-        const wScale = 1 + (wave - 1) * 0.16;
-        this.hp = cfg.hp * wScale * DC.ehm * (isMiniBoss ? 6.5 : 1);
+        const wScale = 1 + (wave - 1) * 0.22 + (wave >= 8 ? Math.pow(wave - 7, 1.25) * 0.08 : 0);
+        const miniMult = isMiniBoss ? (9.5 + wave * 0.35) : 1;
+        this.hp = cfg.hp * wScale * DC.ehm * miniMult;
         this.maxHp = this.hp;
         this.spd = cfg.spd * DC.esm * (isMiniBoss ? 0.88 : 1);
         this.r = cfg.r * (isMiniBoss ? 1.85 : 1);
@@ -1837,14 +1872,18 @@ class Enemy {
         if ((this.type === 'shooter' || this.type === 'sniper' || this.isMiniBoss) && p1.stealthT <= 0) {
             this.sT -= dt;
             if (this.sT <= 0) {
-                this.sT = this.isMiniBoss ? 1.2 : 2.1;
-                const sp = this.type === 'sniper' ? 340 : 210;
-                eBullets.push({
-                    x: this.x, y: this.y,
-                    vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
-                    damage: this.damage * 0.7, size: this.isMiniBoss ? 6 : 4.5,
-                    color: this.color, life: 3.5, truePct: this.truePctDmg
-                });
+                this.sT = (this.isMiniBoss ? 1.15 : 2.1) / Math.max(0.8, DC.bsr * 0.9);
+                const sp = this.type === 'sniper' ? 360 : (this.isMiniBoss ? 260 : 215);
+                const shotCount = this.isMiniBoss ? 3 : 1;
+                for (let sIdx = 0; sIdx < shotCount; sIdx++) {
+                    const sa = a + (sIdx - (shotCount - 1) / 2) * 0.22;
+                    eBullets.push({
+                        x: this.x, y: this.y,
+                        vx: Math.cos(sa) * sp, vy: Math.sin(sa) * sp,
+                        damage: this.damage * 0.72 * DC.edm, size: this.isMiniBoss ? 6.2 : 4.5,
+                        color: this.color, life: 4.2, truePct: this.truePctDmg
+                    });
+                }
             }
         }
 
@@ -1895,18 +1934,22 @@ class Boss extends Enemy {
         this.isBoss = true;
         this.type = 'boss';
         this.bw = bw;
-        this.r = 44 + bw * 2;
-        this.hp = (1450 + bw * 520) * DC.bhm;
+        this.r = 48 + bw * 2.5;
+        this.hp = (4200 + Math.pow(bw, 1.55) * 3800) * DC.bhm;
         this.maxHp = this.hp;
-        this.spd = 42 + bw * 2.5;
-        this.damage = (24 + bw * 5) * DC.edm;
-        this.sc = 350 + bw * 60;
+        this.spd = (58 + bw * 5) * Math.max(0.88, DC.esm);
+        this.damage = (28 + bw * 7) * DC.edm;
+        this.sc = 500 + bw * 120;
         this.pT = 0;
         this.enraged = false;
         this.armorAngle = Math.PI / 2;
         this.deflectTextCd = 0;
         this.riftTimer = 2.4;
         this.mortarTimer = 3.0;
+        this.patternTick = 0;
+        this.dashCd = 4.5;
+        this.dashActiveT = 0;
+        this.dashDir = 0;
 
         this.bossType = bossType || ['chaser', 'bullethell', 'gravity'][bw % 3];
         this.bossName = BOSS_NAMES[Math.min(bw - 1, BOSS_NAMES.length - 1)] || 'COSMIC BOSS';
@@ -1917,7 +1960,7 @@ class Boss extends Enemy {
             this.bossName = 'OBLIVION BEHEMOTH ◈ ZIRHLI YIKICI';
             this.color = '#ff5500';
             this.r += 10;
-            this.hp *= 1.3;
+            this.hp *= 1.35;
             this.maxHp = this.hp;
         } else {
             this.color = '#ff006a';
@@ -1926,6 +1969,8 @@ class Boss extends Enemy {
 
     takeDmg(d, cr = false, ignoreArmor = false, hitAngle = null) {
         if (!this.alive) return false;
+        // Boss aninda tek vurusla erimesini onleyen faz korumasi (tek vurus max %12 HP)
+        if (!ignoreArmor) d = Math.min(d, this.maxHp * 0.12);
         if (this.bossType === 'behemoth' && !ignoreArmor && hitAngle !== null) {
             let ad = hitAngle - this.armorAngle;
             while (ad > Math.PI) ad -= Math.PI * 2;
@@ -1948,37 +1993,76 @@ class Boss extends Enemy {
         if (!this.alive) return false;
         this.pT += dt;
         if (this.deflectTextCd > 0) this.deflectTextCd -= dt;
-        if (this.y < 85) { this.y += 95 * dt; return true; }
         if (!p1 || !p1.alive) return true;
 
+        // %50 HP altinda OFKE FAZI II tetiklenir!
+        if (!this.enraged && this.hp <= this.maxHp * 0.5) {
+            this.enraged = true;
+            this.spd *= 1.32;
+            floatT(this.x, this.y - this.r - 22, '⚠️ BOSS ÖFKE FAZI II! (+%35 HIZ & ÇİFT SALVO)', '#ff006a', 15);
+            particles.push(new Particle(this.x, this.y, 0, 0, '#ff006a', 0.7, 260, 'shockwave'));
+            shake(10);
+        }
+
         const a = ang(this, p1);
+        const dToP = dist(this, p1);
         if (this.bossType === 'chronos') {
             this.riftTimer -= dt;
             if (this.riftTimer <= 0) {
-                this.riftTimer = 3.2;
-                if (gravityRifts.length < 3) {
-                    gravityRifts.push({ x: p1.x + rand(-80, 80), y: p1.y + rand(-80, 80), r: 145, life: 4.0, maxLife: 4.0, a: 0, dmgTick: 0 });
+                this.riftTimer = this.enraged ? 2.2 : 3.0;
+                if (gravityRifts.length < 4) {
+                    gravityRifts.push({ x: p1.x + rand(-90, 90), y: p1.y + rand(-90, 90), r: 150, life: 4.5, maxLife: 4.5, a: 0, dmgTick: 0 });
                 }
             }
         } else if (this.bossType === 'behemoth') {
-            const turnRate = 1.15 * dt;
+            const turnRate = (this.enraged ? 1.55 : 1.15) * dt;
             let diff = a - this.armorAngle;
             while (diff > Math.PI) diff -= Math.PI * 2;
             while (diff < -Math.PI) diff += Math.PI * 2;
             this.armorAngle += clamp(diff, -turnRate, turnRate);
         }
 
-        this.vx = lerp(this.vx, Math.cos(a) * this.spd, 0.04);
-        this.vy = lerp(this.vy, Math.sin(a) * this.spd, 0.04);
-        this.x = clamp(this.x + this.vx * dt, this.r, canvas.width - this.r);
-        this.y = clamp(this.y + this.vy * dt, this.r, canvas.height - this.r);
+        // Periyodik Boss Sok Atilmasi (Dash)
+        this.dashCd -= dt * (this.enraged ? 1.35 : 1.0);
+        if (this.dashCd <= 0 && dToP > 130 && dToP < 650) {
+            this.dashCd = 4.6;
+            this.dashActiveT = 0.55;
+            this.dashDir = a;
+            floatT(this.x, this.y - this.r - 10, '⚡ BOSS ATILIMI!', '#ffaa00', 13);
+        }
 
-        this.sT -= dt * DC.bsr;
+        if (this.dashActiveT > 0) {
+            this.dashActiveT -= dt;
+            const dashSpd = this.spd * 3.6;
+            this.vx = Math.cos(this.dashDir) * dashSpd;
+            this.vy = Math.sin(this.dashDir) * dashSpd;
+        } else {
+            const approachBoost = dToP > 460 ? 1.65 : 1.0;
+            this.vx = lerp(this.vx, Math.cos(a) * this.spd * approachBoost, 0.06);
+            this.vy = lerp(this.vy, Math.sin(a) * this.spd * approachBoost, 0.06);
+        }
+
+        this.x = clamp(this.x + this.vx * dt, this.r, WORLD_W - this.r);
+        this.y = clamp(this.y + this.vy * dt, this.r, WORLD_H - this.r);
+
+        const salvoRate = DC.bsr * (this.enraged ? 1.38 : 1.0);
+        this.sT -= dt * salvoRate;
         if (this.sT <= 0) {
-            this.sT = 1.25;
-            for (let i = 0; i < 8; i++) {
-                const sa = this.pT + (i * Math.PI * 2 / 8);
-                eBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * 210, vy: Math.sin(sa) * 210, damage: 12 * DC.edm, size: 5.5, color: this.color, life: 3.8, truePct: 0.04 });
+            this.patternTick++;
+            this.sT = 1.05;
+            const ringCount = this.enraged ? 14 : 10;
+            const bSpd = this.enraged ? 265 : 225;
+            for (let i = 0; i < ringCount; i++) {
+                const sa = this.pT + (i * Math.PI * 2 / ringCount);
+                eBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * bSpd, vy: Math.sin(sa) * bSpd, damage: (14 + this.bw * 3) * DC.edm, size: 6, color: this.color, life: 4.5, truePct: 0.05 });
+            }
+            // Her 2 atista bir dogrudan oyuncuya 5'li yuksek hizli hedef salvosu
+            if (this.patternTick % 2 === 0 && p1.stealthT <= 0) {
+                const aimSpd = this.enraged ? 350 : 300;
+                for (let k = -2; k <= 2; k++) {
+                    const sa = a + k * 0.14;
+                    eBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * aimSpd, vy: Math.sin(sa) * aimSpd, damage: (16 + this.bw * 3.5) * DC.edm, size: 6.5, color: '#ffd700', life: 4.0, truePct: 0.06 });
+                }
             }
         }
         return true;
@@ -2018,11 +2102,11 @@ class Boss extends Enemy {
 // ── Kozmik Şans Sandığı (Loot Box) Mekanikleri ──
 function spawnCosmicChest(x, y) {
     pickups.push({
-        x: clamp(x, 60, canvas.width - 60),
-        y: clamp(y, 60, canvas.height - 60),
+        x: clamp(x, 60, WORLD_W - 60),
+        y: clamp(y, 60, WORLD_H - 60),
         r: 18,
         type: 'cosmicChest',
-        life: 25,
+        life: 35,
         aA: 0
     });
     floatT(x, y - 35, '🎁 KOZMİK ŞANS SANDIĞI DÜŞTÜ!', '#ffd700', 16);
@@ -2581,8 +2665,9 @@ function startWave(w) {
 
     // Her 3 dalgada bir Elit Mini-Boss iner!
     if (wave % 3 === 0) {
-        const mbX = clamp(p1.x + rand(-260, 260), 90, canvas.width - 90);
-        const mbY = clamp(p1.y - 220, 80, canvas.height - 80);
+        const mbA = rand(0, Math.PI * 2);
+        const mbX = clamp(p1.x + Math.cos(mbA) * 420, 90, WORLD_W - 90);
+        const mbY = clamp(p1.y + Math.sin(mbA) * 420, 90, WORLD_H - 90);
         const mb = new Enemy('tank', mbX, mbY, true);
         enemies.push(mb);
     }
@@ -2593,7 +2678,10 @@ function startWave(w) {
         let bType = ['chaser', 'bullethell', 'gravity'][(bn - 1) % 3];
         if (wave % 30 === 0) bType = 'behemoth';
         else if (wave % 20 === 0) bType = 'chronos';
-        const b = new Boss(bn, canvas.width / 2, -60, bType);
+        const bAng = rand(0, Math.PI * 2);
+        const bx = clamp(p1.x + Math.cos(bAng) * 560, 120, WORLD_W - 120);
+        const by = clamp(p1.y + Math.sin(bAng) * 560, 120, WORLD_H - 120);
+        const b = new Boss(bn, bx, by, bType);
         enemies.push(b);
         bossActive = b;
         document.getElementById('bossBar').classList.add('active');
@@ -2607,12 +2695,13 @@ function spawnEnemy() {
     const maxIdx = Math.min(pool.length - 1, Math.floor(wave / 2) + 2);
     const type = pool[randInt(0, maxIdx)];
 
-    const side = randInt(0, 3);
-    let x = 0, y = 0;
-    if (side === 0) { x = rand(40, canvas.width - 40); y = 30; }
-    else if (side === 1) { x = rand(40, canvas.width - 40); y = canvas.height - 30; }
-    else if (side === 2) { x = 30; y = rand(40, canvas.height - 40); }
-    else { x = canvas.width - 30; y = rand(40, canvas.height - 40); }
+    // Kameranin hemen disindan halka seklinde spawn (World icinde clamp)
+    const vb = getViewBounds();
+    const angS = rand(0, Math.PI * 2);
+    const radX = vb.halfW + rand(80, 190);
+    const radY = vb.halfH + rand(80, 190);
+    const x = clamp(camX + Math.cos(angS) * radX, 40, WORLD_W - 40);
+    const y = clamp(camY + Math.sin(angS) * radY, 40, WORLD_H - 40);
 
     enemies.push(new Enemy(type, x, y, false));
     waveSp++;
@@ -2666,6 +2755,7 @@ function update(dt) {
     }
 
     p1.update(eDt);
+    updateCamera(eDt);
     if (!p1.alive) {
         endGame();
         return;
@@ -2677,25 +2767,25 @@ function update(dt) {
             d.a += d.va * eDt;
             d.x += d.vx * eDt;
             d.y += d.vy * eDt;
-            if (d.x < 80 || d.x > canvas.width - 80) d.vx *= -1;
-            if (d.y < 80 || d.y > canvas.height - 80) d.vy *= -1;
+            if (d.x < 90 || d.x > WORLD_W - 90) d.vx *= -1;
+            if (d.y < 90 || d.y > WORLD_H - 90) d.vy *= -1;
         }
     } else if (SELECTED_MAP === 'nebula') {
         for (const gc of gasClouds) {
             gc.x += gc.vx * eDt;
             gc.y += gc.vy * eDt;
-            if (gc.x < 90 || gc.x > canvas.width - 90) gc.vx *= -1;
-            if (gc.y < 90 || gc.y > canvas.height - 90) gc.vy *= -1;
+            if (gc.x < 140 || gc.x > WORLD_W - 140) gc.vx *= -1;
+            if (gc.y < 140 || gc.y > WORLD_H - 140) gc.vy *= -1;
         }
     } else if (SELECTED_MAP === 'blackhole') {
-        while (lavaAsteroids.length < 4) spawnLavaAsteroid();
+        while (lavaAsteroids.length < 10) spawnLavaAsteroid();
         for (let i = lavaAsteroids.length - 1; i >= 0; i--) {
             const la = lavaAsteroids[i];
             la.x += la.vx * eDt;
             la.y += la.vy * eDt;
             la.a += eDt * 1.2;
-            if (la.x < 40 || la.x > canvas.width - 40) la.vx *= -1;
-            if (la.y < 40 || la.y > canvas.height - 40) la.vy *= -1;
+            if (la.x < 40 || la.x > WORLD_W - 40) la.vx *= -1;
+            if (la.y < 40 || la.y > WORLD_H - 40) la.vy *= -1;
             if (dist(la, p1) < la.r + p1.r) {
                 p1.takeDmg(24, 0.04);
                 spawnExp(la.x, la.y, '#ff4400', 1.5);
@@ -2728,8 +2818,8 @@ function update(dt) {
         if (rf.life <= 0) { gravityRifts.splice(i, 1); continue; }
         if (dist(rf, p1) < rf.r) {
             const pushA = ang(rf, p1);
-            p1.x = clamp(p1.x + Math.cos(pushA) * 180 * eDt - p1.vx * 1.3 * eDt, 36, canvas.width - 36);
-            p1.y = clamp(p1.y + Math.sin(pushA) * 180 * eDt - p1.vy * 1.3 * eDt, 36, canvas.height - 36);
+            p1.x = clamp(p1.x + Math.cos(pushA) * 180 * eDt - p1.vx * 1.3 * eDt, 36, WORLD_W - 36);
+            p1.y = clamp(p1.y + Math.sin(pushA) * 180 * eDt - p1.vy * 1.3 * eDt, 36, WORLD_H - 36);
         }
     }
 
@@ -2774,7 +2864,7 @@ function update(dt) {
         b.x += b.vx * eDt;
         b.y += b.vy * eDt;
         b.life -= eDt;
-        if (b.life <= 0 || b.x < -40 || b.x > canvas.width + 40 || b.y < -40 || b.y > canvas.height + 40) {
+        if (b.life <= 0 || b.x < -60 || b.x > WORLD_W + 60 || b.y < -60 || b.y > WORLD_H + 60) {
             bullets.splice(i, 1);
             continue;
         }
@@ -2853,7 +2943,7 @@ function update(dt) {
         b.x += b.vx * eDt;
         b.y += b.vy * eDt;
         b.life -= eDt;
-        if (b.life <= 0 || b.x < -40 || b.x > canvas.width + 40 || b.y < -40 || b.y > canvas.height + 40) {
+        if (b.life <= 0 || b.x < -60 || b.x > WORLD_W + 60 || b.y < -60 || b.y > WORLD_H + 60) {
             eBullets.splice(i, 1);
             continue;
         }
@@ -2957,7 +3047,7 @@ function updateHUD() {
     }
 }
 
-// ── Çizim Döngüsü (draw) ──
+// ── Çizim Döngüsü (Kamera & %78 Geniş Görüş Ölçekli draw) ──
 function draw() {
     const mapCfg = MAPS[SELECTED_MAP] || MAPS.sector9;
     const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -2968,22 +3058,34 @@ function draw() {
 
     ctx.save();
     if (shakeI > 0) ctx.translate(rand(-shakeI, shakeI), rand(-shakeI, shakeI));
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.scale(CAMERA_ZOOM, CAMERA_ZOOM);
+    ctx.translate(-camX, -camY);
 
-    // Taktiksel Arena Izgarası & Sınır Çerçevesi
+    // Kamera gorusu icindeki verimli taktiksel arena izgarasi
+    const vb = getViewBounds();
+    const step = 90;
+    const gxStart = Math.max(0, Math.floor(vb.left / step) * step);
+    const gxEnd = Math.min(WORLD_W, Math.ceil(vb.right / step) * step);
+    const gyStart = Math.max(0, Math.floor(vb.top / step) * step);
+    const gyEnd = Math.min(WORLD_H, Math.ceil(vb.bottom / step) * step);
+
     ctx.strokeStyle = mapCfg.gridColor;
     ctx.lineWidth = 1;
-    const step = 70;
-    for (let x = 0; x < canvas.width; x += step) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    for (let x = gxStart; x <= gxEnd; x += step) {
+        ctx.beginPath(); ctx.moveTo(x, gyStart); ctx.lineTo(x, gyEnd); ctx.stroke();
     }
-    for (let y = 0; y < canvas.height; y += step) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    for (let y = gyStart; y <= gyEnd; y += step) {
+        ctx.beginPath(); ctx.moveTo(gxStart, y); ctx.lineTo(gxEnd, y); ctx.stroke();
     }
 
-    // Sınırlı Arena Duvar Çizgisi
-    ctx.strokeStyle = mapCfg.borderColor + '55';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(24, 24, canvas.width - 48, canvas.height - 48);
+    // Genis Sektor Arena Dis Enerji Duvari (WORLD_W x WORLD_H)
+    ctx.strokeStyle = mapCfg.borderColor + 'aa';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(0, 0, WORLD_W, WORLD_H);
+    ctx.strokeStyle = mapCfg.borderColor + '33';
+    ctx.lineWidth = 16;
+    ctx.strokeRect(8, 8, WORLD_W - 16, WORLD_H - 16);
 
     // Harita 1: Dönen Hurda Metaller
     if (SELECTED_MAP === 'sector9') {
@@ -3029,17 +3131,17 @@ function draw() {
 
     // Harita 3: Merkez Kara Delik Anomalisi & Lav Asteroidleri
     if (SELECTED_MAP === 'blackhole') {
-        const cx = canvas.width / 2, cy = canvas.height / 2;
+        const cx = WORLD_W / 2, cy = WORLD_H / 2;
         ctx.save();
-        const g = ctx.createRadialGradient(cx, cy, 8, cx, cy, 175);
+        const g = ctx.createRadialGradient(cx, cy, 12, cx, cy, 240);
         g.addColorStop(0, '#000000');
         g.addColorStop(0.35, 'rgba(255, 68, 0, 0.35)');
         g.addColorStop(1, 'rgba(255, 68, 0, 0)');
         ctx.fillStyle = g;
-        ctx.beginPath(); ctx.arc(cx, cy, 175, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, cy, 240, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = '#ff5500';
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(cx, cy, 28, 0, Math.PI * 2); ctx.stroke();
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(cx, cy, 38, 0, Math.PI * 2); ctx.stroke();
         ctx.restore();
 
         for (const la of lavaAsteroids) {
@@ -3055,6 +3157,22 @@ function draw() {
             ctx.stroke();
             ctx.restore();
         }
+    }
+
+    // Harita 4: Dyson Mega-Kure Reaktoru Merkez Halka
+    if (SELECTED_MAP === 'dyson') {
+        const cx = WORLD_W / 2, cy = WORLD_H / 2;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.strokeStyle = 'rgba(0, 255, 136, 0.25)';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(0, 0, 260, 0, Math.PI * 2); ctx.stroke();
+        ctx.rotate(gameTime * 0.35);
+        ctx.setLineDash([28, 22]);
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.35)';
+        ctx.beginPath(); ctx.arc(0, 0, 420, 0, Math.PI * 2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
     }
 
     // Kara Delikler & Zaman Yarıkları
@@ -3133,10 +3251,40 @@ function draw() {
     }
 
     ctx.restore();
+
+    // Boss veya Elit Sandik kamera disindaysa ekran kenarina yon gostergesi ciz
+    if (bossActive && bossActive.alive && p1) {
+        const vb2 = getViewBounds();
+        if (bossActive.x < vb2.left || bossActive.x > vb2.right || bossActive.y < vb2.top || bossActive.y > vb2.bottom) {
+            const ba = Math.atan2(bossActive.y - camY, bossActive.x - camX);
+            const pad = 54;
+            const ix = clamp(canvas.width / 2 + Math.cos(ba) * (canvas.width / 2 - pad), pad, canvas.width - pad);
+            const iy = clamp(canvas.height / 2 + Math.sin(ba) * (canvas.height / 2 - pad), pad + 32, canvas.height - pad);
+            const dMeters = Math.round(dist(p1, bossActive));
+            ctx.save();
+            ctx.translate(ix, iy);
+            ctx.rotate(ba);
+            ctx.fillStyle = '#ff006a';
+            ctx.beginPath();
+            ctx.moveTo(12, 0);
+            ctx.lineTo(-8, -8);
+            ctx.lineTo(-4, 0);
+            ctx.lineTo(-8, 8);
+            ctx.closePath();
+            ctx.fill();
+            ctx.rotate(-ba);
+            ctx.font = 'bold 11px Orbitron';
+            ctx.fillStyle = '#ffd700';
+            ctx.textAlign = 'center';
+            ctx.fillText(`BOSS ${dMeters}m`, 0, -14);
+            ctx.restore();
+        }
+    }
+
     drawRadarMinimap();
 }
 
-// ── Taktiksel Radar Mini-Harita (v8.0) ──
+// ── Taktiksel Sektör Radar Mini-Haritası (2800x2100 Tam Dünya + Kamera Çerçevesi) ──
 function drawRadarMinimap() {
     const rCanvas = document.getElementById('radarMinimap');
     if (!rCanvas || !p1) return;
@@ -3144,43 +3292,65 @@ function drawRadarMinimap() {
     const w = rCanvas.width, h = rCanvas.height;
     rCtx.clearRect(0, 0, w, h);
 
-    // Radar Arka Plan & Halka
-    rCtx.fillStyle = 'rgba(4, 8, 22, 0.85)';
+    // Radar Arka Plan & Izgara
+    rCtx.fillStyle = 'rgba(4, 8, 22, 0.9)';
     rCtx.fillRect(0, 0, w, h);
-    rCtx.strokeStyle = 'rgba(0, 240, 255, 0.22)';
+    rCtx.strokeStyle = 'rgba(0, 240, 255, 0.2)';
     rCtx.lineWidth = 1;
-    rCtx.beginPath();
-    rCtx.arc(w / 2, h / 2, w * 0.42, 0, Math.PI * 2);
-    rCtx.stroke();
+    rCtx.strokeRect(0.5, 0.5, w - 1, h - 1);
     rCtx.beginPath();
     rCtx.moveTo(w / 2, 0); rCtx.lineTo(w / 2, h);
     rCtx.moveTo(0, h / 2); rCtx.lineTo(w, h / 2);
     rCtx.stroke();
 
-    const sx = w / Math.max(1, canvas.width);
-    const sy = h / Math.max(1, canvas.height);
+    const sx = w / WORLD_W;
+    const sy = h / WORLD_H;
+
+    // Harita Anomalileri (Kara Delik / Dyson / Nebula Bulutlari)
+    if (SELECTED_MAP === 'blackhole' || SELECTED_MAP === 'dyson') {
+        rCtx.strokeStyle = SELECTED_MAP === 'blackhole' ? '#ff5500' : '#00ff88';
+        rCtx.beginPath();
+        rCtx.arc((WORLD_W / 2) * sx, (WORLD_H / 2) * sy, 7, 0, Math.PI * 2);
+        rCtx.stroke();
+    } else if (SELECTED_MAP === 'nebula') {
+        rCtx.fillStyle = 'rgba(0, 240, 255, 0.16)';
+        for (const gc of gasClouds) {
+            rCtx.beginPath();
+            rCtx.arc(gc.x * sx, gc.y * sy, Math.max(2.5, gc.r * sx), 0, Math.PI * 2);
+            rCtx.fill();
+        }
+    }
+
+    // Aktif Kamera Gorus Dikdortgeni
+    const vb = getViewBounds();
+    rCtx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+    rCtx.lineWidth = 1;
+    rCtx.strokeRect(
+        clamp(vb.left * sx, 0, w),
+        clamp(vb.top * sy, 0, h),
+        Math.max(8, (vb.right - vb.left) * sx),
+        Math.max(6, (vb.bottom - vb.top) * sy)
+    );
 
     // Sandıklar
     for (const pu of pickups) {
         if (pu.type === 'cosmicChest') {
             rCtx.fillStyle = '#ffd700';
-            rCtx.beginPath();
-            rCtx.arc(pu.x * sx, pu.y * sy, 3.2, 0, Math.PI * 2);
-            rCtx.fill();
+            rCtx.fillRect(pu.x * sx - 2.5, pu.y * sy - 2.5, 5, 5);
         }
     }
 
     // Düşmanlar & Boss
     for (const e of enemies) {
         if (!e.alive) continue;
-        rCtx.fillStyle = e.isBoss ? '#ff006a' : (e.isMiniBoss ? '#ffd700' : '#ff3366');
-        const rad = e.isBoss ? 4.2 : (e.isMiniBoss ? 3.0 : 1.6);
+        rCtx.fillStyle = e.isBoss ? '#ff006a' : (e.isMiniBoss ? '#ffd700' : '#ff4477');
+        const rad = e.isBoss ? 4.5 : (e.isMiniBoss ? 2.8 : 1.4);
         rCtx.beginPath();
         rCtx.arc(e.x * sx, e.y * sy, rad, 0, Math.PI * 2);
         rCtx.fill();
     }
 
-    // Pilot (Merkez İmleç)
+    // Pilot (Parlayan Imlec)
     rCtx.fillStyle = '#00f0ff';
     rCtx.beginPath();
     rCtx.arc(p1.x * sx, p1.y * sy, 3.2, 0, Math.PI * 2);
@@ -3189,7 +3359,9 @@ function drawRadarMinimap() {
 
 // ── Kurulum, Duraklatma ve Oyun Sonu ──
 function initGame() {
-    p1 = new Player(1, canvas.width / 2, canvas.height / 2, SELECTED_SHIP);
+    p1 = new Player(1, WORLD_W / 2, WORLD_H / 2, SELECTED_SHIP);
+    camX = WORLD_W / 2;
+    camY = WORLD_H / 2;
     bullets.length = 0; eBullets.length = 0; enemies.length = 0; pickups.length = 0;
     particles.length = 0; floats.length = 0; laserTrails.length = 0;
     blackHoles.length = 0; gravityRifts.length = 0;
