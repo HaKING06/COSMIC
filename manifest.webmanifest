@@ -1,6 +1,6 @@
 {
   "name": "COSMIC SURVIVORS — Kozmik Arena & Hiper-Evrim Roguelike",
-  "short_name": "Cosmic v7.0",
+  "short_name": "Cosmic v8.0",
   "description": "Ücretsiz, web tabanlı 1P Kozmik Arena & Hiper-Evrim Roguelike hayatta kalma oyunu.",
   "id": "/",
   "start_url": "/?utm_source=pwa",
@@ -20,12 +20,6 @@
   ],
   "icons": [
     {
-      "src": "assets/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
       "src": "assets/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
@@ -36,6 +30,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "assets/favicon-64.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

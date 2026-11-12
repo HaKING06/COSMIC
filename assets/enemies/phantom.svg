@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+        
+    <defs>
+        <filter id="eph-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur1"/>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur2"/>
+            <feMerge>
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="eph-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.78"/>
+            <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#aa66ff" flood-opacity="0.45"/>
+        </filter>
+        <linearGradient id="eph-hull" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2b3548"/>
+            <stop offset="35%" stop-color="#182030"/>
+            <stop offset="70%" stop-color="#0d121c"/>
+            <stop offset="100%" stop-color="#060910"/>
+        </linearGradient>
+        <linearGradient id="eph-plate" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#121824"/>
+            <stop offset="25%" stop-color="#2c3a50"/>
+            <stop offset="50%" stop-color="#435674"/>
+            <stop offset="75%" stop-color="#2c3a50"/>
+            <stop offset="100%" stop-color="#121824"/>
+        </linearGradient>
+        <linearGradient id="eph-accent" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="25%" stop-color="#aa66ff"/>
+            <stop offset="80%" stop-color="#440088"/>
+            <stop offset="100%" stop-color="#050811"/>
+        </linearGradient>
+        <linearGradient id="eph-trim" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#aa66ff"/>
+            <stop offset="50%" stop-color="#440088"/>
+            <stop offset="100%" stop-color="#aa66ff"/>
+        </linearGradient>
+        <radialGradient id="eph-core" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="35%" stop-color="#ffffff"/>
+            <stop offset="75%" stop-color="#440088" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#440088" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="eph-aura" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#aa66ff" stop-opacity="0.26"/>
+            <stop offset="65%" stop-color="#440088" stop-opacity="0.08"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="eph-plume" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="30%" stop-color="#aa66ff"/>
+            <stop offset="70%" stop-color="#440088" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#440088" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="eph-glass" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+            <stop offset="28%" stop-color="#aa66ff" stop-opacity="0.85"/>
+            <stop offset="70%" stop-color="#06152d" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#440088" stop-opacity="0.9"/>
+        </linearGradient>
+    </defs>
+        <g filter="url(#eph-shadow)" opacity="0.92">
+            <polygon points="64,10 112,84 84,72 64,116 44,72 16,84" fill="url(#eph-hull)" stroke="#aa66ff" stroke-width="2.2"/>
+            <polygon points="64,26 96,76 64,96 32,76" fill="url(#eph-accent)"/>
+            <circle cx="64" cy="58" r="12" fill="url(#eph-core)" filter="url(#eph-glow)"/>
+        </g>
+    </svg>

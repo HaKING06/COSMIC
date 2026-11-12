@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+        
+    <defs>
+        <filter id="val-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur1"/>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur2"/>
+            <feMerge>
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="val-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.78"/>
+            <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#ffd700" flood-opacity="0.45"/>
+        </filter>
+        <linearGradient id="val-hull" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2b3548"/>
+            <stop offset="35%" stop-color="#182030"/>
+            <stop offset="70%" stop-color="#0d121c"/>
+            <stop offset="100%" stop-color="#060910"/>
+        </linearGradient>
+        <linearGradient id="val-plate" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#121824"/>
+            <stop offset="25%" stop-color="#2c3a50"/>
+            <stop offset="50%" stop-color="#435674"/>
+            <stop offset="75%" stop-color="#2c3a50"/>
+            <stop offset="100%" stop-color="#121824"/>
+        </linearGradient>
+        <linearGradient id="val-accent" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="25%" stop-color="#ffd700"/>
+            <stop offset="80%" stop-color="#00e5ff"/>
+            <stop offset="100%" stop-color="#050811"/>
+        </linearGradient>
+        <linearGradient id="val-trim" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffd700"/>
+            <stop offset="50%" stop-color="#00e5ff"/>
+            <stop offset="100%" stop-color="#ffd700"/>
+        </linearGradient>
+        <radialGradient id="val-core" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="35%" stop-color="#ffffff"/>
+            <stop offset="75%" stop-color="#00e5ff" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="val-aura" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffd700" stop-opacity="0.26"/>
+            <stop offset="65%" stop-color="#00e5ff" stop-opacity="0.08"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="val-plume" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="30%" stop-color="#ffd700"/>
+            <stop offset="70%" stop-color="#00e5ff" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="val-glass" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+            <stop offset="28%" stop-color="#ffd700" stop-opacity="0.85"/>
+            <stop offset="70%" stop-color="#06152d" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#00e5ff" stop-opacity="0.9"/>
+        </linearGradient>
+    </defs>
+        <circle cx="128" cy="128" r="116" fill="url(#val-aura)"/>
+        <!-- Carrier Thruster Array -->
+        <g filter="url(#val-glow)">
+            <polygon points="82,206 94,248 106,206" fill="url(#val-plume)"/>
+            <polygon points="116,210 128,254 140,210" fill="url(#val-plume)"/>
+            <polygon points="150,206 162,248 174,206" fill="url(#val-plume)"/>
+        </g>
+        <g filter="url(#val-shadow)">
+            <!-- Swept White-Gold Valkyrie Carrier Wings -->
+            <polygon points="104,24 114,92 22,148 16,184 82,178 96,210 160,210 174,178 240,184 234,148 142,92 152,24 136,84 120,84" fill="#e8eef7" stroke="#ffd700" stroke-width="2.4"/>
+            <!-- Gold & Cyan Royal Trim Panels -->
+            <polygon points="104,112 34,154 32,172 98,162" fill="url(#val-accent)" stroke="#ffd700" stroke-width="1.4"/>
+            <polygon points="152,112 222,154 224,172 158,162" fill="url(#val-accent)" stroke="#ffd700" stroke-width="1.4"/>
+            <!-- Twin Forward Railgun Prongs -->
+            <polygon points="102,14 116,14 118,98 98,98" fill="#ffffff" stroke="#ffd700" stroke-width="2"/>
+            <polygon points="140,14 154,14 158,98 138,98" fill="#ffffff" stroke="#ffd700" stroke-width="2"/>
+            <line x1="128" y1="20" x2="128" y2="90" stroke="#00e5ff" stroke-width="3" stroke-dasharray="6 4" filter="url(#val-glow)"/>
+            <!-- Docked Micro-Drones on Wing Hardpoints -->
+            <g fill="#162238" stroke="#00e5ff" stroke-width="1.6">
+                <polygon points="56,118 68,136 56,144 44,136"/>
+                <circle cx="56" cy="134" r="3" fill="#00e5ff"/>
+                <polygon points="200,118 212,136 200,144 188,136"/>
+                <circle cx="200" cy="134" r="3" fill="#00e5ff"/>
+            </g>
+            <!-- Central Carrier Flight Deck & Bridge -->
+            <polygon points="128,68 152,102 146,204 110,204 104,102" fill="url(#val-hull)" stroke="#ffd700" stroke-width="2"/>
+            <polygon points="128,82 140,110 128,144 116,110" fill="url(#val-glass)" stroke="#ffffff" stroke-width="1.6"/>
+            <circle cx="128" cy="172" r="16" fill="url(#val-core)" filter="url(#val-glow)"/>
+        </g>
+    </svg>

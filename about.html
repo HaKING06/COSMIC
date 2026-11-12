@@ -1,441 +1,215 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cosmic Survivors — Sektör 9 Arşivi, Hikaye &amp; Kurumsal Künye</title>
-  <meta name="description" content="Cosmic Survivors — Kozmik Arena & Hiper-Evrim Roguelike: Sektör 9 Arşivi, Hikaye (Lore), Halit Güneş (HaKING) MIT Lisansı ve İletişim." />
-  <meta name="keywords" content="Cosmic Survivors, kozmik arena, hiper evrim roguelike, uzay oyunu, Halit Güneş, HaKING" />
-  <meta name="author" content="Halit Güneş (HaKING)" />
-  <meta name="theme-color" content="#00f0ff" />
-  <link rel="canonical" href="https://cosmic.haking.tr/about.html" />
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
-  <link rel="manifest" href="manifest.webmanifest" />
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="tr_TR" />
-  <meta property="og:site_name" content="Cosmic Survivors" />
-  <meta property="og:title" content="Cosmic Survivors — Sektör 9 Arşivi &amp; Kurumsal Künye" />
-  <meta property="og:description" content="Sektör 9 Arşivi, Kozmik Parazit İstilası Hikayesi, Resmi İletişim ve Açık Kaynak Künyesi." />
-  <meta property="og:url" content="https://cosmic.haking.tr/about.html" />
-  <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
-
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-
-  <style>
-    :root {
-      --bg-dark: #03010a;
-      --panel: rgba(10, 7, 26, 0.88);
-      --cyan: #00f0ff;
-      --magenta: #ff006a;
-      --purple: #bf00ff;
-      --gold: #ffd700;
-      --green: #00ff88;
-      --text: #eef6ff;
-      --muted: #8fa5c9;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    /* VARSAYILAN %75 GÖRÜNÜM ÖLÇEĞİ */
-    html {
-      font-size: 75%;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    body {
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      background: radial-gradient(circle at 50% 30%, #13082c 0%, #050210 65%, #020106 100%);
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── ÜST NAVİGASYON ── */
-    .top-nav {
-      height: 46px;
-      padding: 0 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(5, 3, 16, 0.92);
-      border-bottom: 1px solid rgba(0, 240, 255, 0.24);
-      flex-shrink: 0;
-      z-index: 20;
-    }
-
-    .brand-box {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-
-    .brand-logo { width: 28px; height: 28px; }
-
-    .brand-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.15rem;
-      font-weight: 900;
-      letter-spacing: 2px;
-      background: linear-gradient(90deg, #00f0ff, #fff, #bf00ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .brand-sub {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--gold);
-      letter-spacing: 1.2px;
-      margin-left: 8px;
-    }
-
-    .nav-links { display: flex; align-items: center; gap: 8px; }
-
-    .nav-btn {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 700;
-      padding: 6px 13px;
-      border-radius: 7px;
-      text-decoration: none;
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(0, 240, 255, 0.28);
-      transition: all 0.2s;
-    }
-
-    .nav-btn:hover, .nav-btn.active {
-      background: rgba(0, 240, 255, 0.18);
-      border-color: var(--cyan);
-      box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
-    }
-
-    /* ── KURUMSAL SAYFA DÜZENİ ── */
-    .about-main {
-      flex: 1;
-      min-height: 0;
-      max-width: 1640px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 16px 24px;
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 18px;
-    }
-
-    .corp-card {
-      background: var(--panel);
-      border: 1px solid rgba(0, 240, 255, 0.24);
-      border-radius: 14px;
-      padding: 18px 22px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 12px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
-      overflow-y: auto;
-    }
-
-    .badge-tag {
-      display: inline-block;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.76rem;
-      color: var(--cyan);
-      background: rgba(0, 240, 255, 0.1);
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      padding: 3px 10px;
-      border-radius: 5px;
-      letter-spacing: 1.5px;
-      margin-bottom: 6px;
-    }
-
-    .hero-heading {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.65rem;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: 2px;
-      line-height: 1.25;
-    }
-
-    .lore-block {
-      background: rgba(255, 255, 255, 0.03);
-      border-left: 3px solid var(--cyan);
-      border-radius: 8px;
-      padding: 12px 15px;
-      font-size: 1.02rem;
-      color: #d6e5ff;
-      line-height: 1.52;
-    }
-
-    .lore-block p + p {
-      margin-top: 8px;
-    }
-
-    .pillars-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-
-    .pillar-item {
-      background: rgba(15, 11, 36, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 10px;
-      padding: 10px 12px;
-    }
-
-    .pillar-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.86rem;
-      font-weight: 800;
-      color: var(--gold);
-      margin-bottom: 4px;
-    }
-
-    .pillar-desc {
-      font-size: 0.9rem;
-      color: #bfd2f2;
-      line-height: 1.35;
-    }
-
-    /* SAĞ SÜTUN: DESTEK, İLETİŞİM & LİSANS */
-    .right-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      min-height: 0;
-    }
-
-    .support-card {
-      background: linear-gradient(135deg, rgba(36, 22, 6, 0.92), rgba(16, 10, 34, 0.94));
-      border: 2px solid var(--gold);
-      border-radius: 14px;
-      padding: 18px 22px;
-      box-shadow: 0 0 32px rgba(255, 215, 0, 0.22);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .support-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 900;
-      color: var(--gold);
-      letter-spacing: 1.5px;
-    }
-
-    .support-text {
-      font-size: 0.98rem;
-      color: #f4e8c6;
-      line-height: 1.45;
-    }
-
-    .coffee-cta {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 12px 20px;
-      border-radius: 10px;
-      background: linear-gradient(90deg, #ffd700, #ff9900);
-      color: #05020f;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1rem;
-      font-weight: 900;
-      text-decoration: none;
-      letter-spacing: 1.5px;
-      box-shadow: 0 0 24px rgba(255, 215, 0, 0.5);
-      transition: all 0.2s;
-    }
-
-    .coffee-cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 35px rgba(255, 215, 0, 0.85);
-    }
-
-    .contact-card {
-      background: var(--panel);
-      border: 1px solid rgba(0, 240, 255, 0.28);
-      border-radius: 14px;
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .contact-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 9px 12px;
-      border-radius: 9px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .contact-lbl {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.82rem;
-      color: var(--muted);
-    }
-
-    .contact-link {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: var(--cyan);
-      text-decoration: none;
-    }
-
-    .contact-link:hover {
-      text-decoration: underline;
-    }
-
-    .license-card {
-      flex: 1;
-      background: var(--panel);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 14px;
-      padding: 15px 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .mit-box {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.78rem;
-      color: #a9bede;
-      background: rgba(0, 0, 0, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
-      padding: 10px 12px;
-      line-height: 1.45;
-    }
-
-    @media (max-width: 1080px) {
-      html, body { overflow-y: auto; height: auto; }
-      .about-main { grid-template-columns: 1fr; }
-      .pillars-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSMIC SURVIVORS // Stüdyo Vizyonu, Mimari &amp; İletişim (v8.0)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/wiki.css">
+    <meta name="description"
+        content="COSMIC SURVIVORS — Sektör 9 Arşivi, Stüdyo Vizyonu, v8.0 Modüler Motor Mimarisi ve Halit Güneş (HaKING) Resmi İletişim." />
+    <meta name="author" content="Halit Güneş (HaKING)" />
+    <meta name="theme-color" content="#00f0ff" />
+    <link rel="canonical" href="https://cosmic.haking.tr/about.html" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Cosmic Survivors" />
+    <meta property="og:title" content="COSMIC SURVIVORS — Stüdyo Vizyonu, Mimari &amp; İletişim (v8.0)" />
+    <meta property="og:description"
+        content="Kozmik Parazit İstilası arkaplan hikayesi, v8.0 HTML5 Canvas motor mimarisi ve resmi geliştirici kanalları." />
+    <meta property="og:url" content="https://cosmic.haking.tr/about.html" />
+    <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
 </head>
-<body>
-  <!-- ÜST NAVİGASYON -->
-  <header class="top-nav">
-    <a href="index.html" class="brand-box">
-      <img src="assets/logo.svg" alt="Logo" class="brand-logo" />
-      <span class="brand-title">COSMIC SURVIVORS</span>
-      <span class="brand-sub">SEKTÖR 9 ARŞİVİ &amp; KURUMSAL KÜNYE</span>
-    </a>
-    <nav class="nav-links">
-      <a href="index.html" class="nav-btn">🏠 OYUN LOBİSİ</a>
-      <a href="tree.html" class="nav-btn">⚡ EVRİM AĞACI</a>
-      <a href="wiki.html" class="nav-btn">📚 KOZMİK WİKİ</a>
-      <a href="about.html" class="nav-btn active">📖 ARŞİV &amp; KÜNYE</a>
-      <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener" class="nav-btn" style="border-color:#ffd700;color:#ffd700;">☕ DESTEK</a>
-    </nav>
-  </header>
 
-  <!-- ANA İÇERİK -->
-  <main class="about-main">
-    <!-- SOL: SEKTÖR 9 HİKAYESİ (LORE) VE MİMARİ VİZYON -->
-    <section class="corp-card">
-      <div>
-        <span class="badge-tag">◈ SEKTÖR 9 RESMİ ARŞİV KAYDI // YIL 2384</span>
-        <h1 class="hero-heading">COSMIC SURVIVORS — KOZMİK ARENA &amp; HİPER-EVRİM ROGUELIKE</h1>
-      </div>
+<body class="page-scroll">
 
-      <div class="lore-block">
-        <p>
-          <strong>2384 yılında</strong>, derin uzay madencilik kolonisinin bulunduğu <strong>Sektör 9</strong>'da meydana gelen kuantum reaktör çökmesi, boyutlar arası karanlık bir tekillik yarığı açtı. Yarıktan akan biyomekanik <strong>Kozmik Parazit</strong> sürüleri, temas ettikleri tüm donanımları ve yıldız istasyonlarını kendi kolektif zihinlerine katarak galaksinin dış halkasını sarmaya başladı.
-        </p>
-        <p>
-          Birleşik Yıldız Donanması, istilayı kaynağında durdurmak için <strong>Hiper-Evrim Reaktörlerine</strong> sahip 5 elit yıldız gemisini (<em>Avcı, Kruvazör, Aegis, Void Phantom ve Solar Flare</em>) Sektör 9'a gönderdi. Bu gemiler, imha ettikleri parazitlerin enerji çekirdeklerini savaş sırasında sentezleyerek silahlarını ve aletlerini <strong>Çapraz Evrimlere ($X+Y=Z$)</strong> ve <strong>Kozmik Mega Evrimlere</strong> dönüştürebilen son savunma hattıdır.
-        </p>
-      </div>
+    <!-- UNIFIED TOP NAVIGATION BAR -->
+    <header class="cosmic-topbar">
+        <div class="topbar-left">
+            <a href="index.html" class="brand-logo">
+                <img src="assets/icon-192.png" alt="Cosmic Survivors" class="brand-logo" />
+                <div class="brand-text">
+                    <span class="brand-title">COSMIC SURVIVORS</span>
+                    <span class="brand-sub">STÜDYO VİZYONU &amp; MÜHENDİSLİK MİMARİSİ // v8.0</span>
+                </div>
+            </a>
+            <div class="topbar-status">
+                <span class="status-dot"></span>
+                <span>MODÜLER WEB &amp; KANVAS MOTORU v8.0</span>
+            </div>
+        </div>
 
-      <div class="pillars-grid">
-        <div class="pillar-item">
-          <div class="pillar-title">🛸 5 ÖZGÜN YILDIZ GEMİSİ</div>
-          <div class="pillar-desc">Her biri kendine özgü başlangıç silahı, pasif gövde avantajı, aktif yeteneği ve özel kök perk ağacına sahip 5 karakter sınıfı.</div>
-        </div>
-        <div class="pillar-item">
-          <div class="pillar-title">🧬 HİPER-EVRİM MATRİSİ</div>
-          <div class="pillar-desc">4 Silah ve 4 Alet yuvasıyla kurulan çapraz sentezler ve +1 boş silah slotu açan Kozmik Mega Evrim kombinasyonları.</div>
-        </div>
-        <div class="pillar-item">
-          <div class="pillar-title">⚡ SIFIR BAĞIMLILIK MOTORU</div>
-          <div class="pillar-desc">Harici oyun motoru veya kütüphane kullanmadan, tamamen saf HTML5 Canvas 2D ve Web Audio API ile geliştirilmiş yüksek performanslı mimari.</div>
-        </div>
-      </div>
+        <nav class="topbar-nav">
+            <a href="index.html" class="nav-link"><span class="nav-icon">🛸</span> ANA HANGAR</a>
+            <a href="game.html" class="nav-link"><span class="nav-icon">⚔️</span> SAVAŞA GİR</a>
+            <a href="tree.html" class="nav-link"><span class="nav-icon">🧬</span> EVRİM AĞACI</a>
+            <a href="wiki.html" class="nav-link"><span class="nav-icon">📖</span> KOZMİK WİKİ</a>
+            <a href="about.html" class="nav-link active"><span class="nav-icon">🏢</span> HAKKINDA</a>
+        </nav>
 
-      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px solid rgba(255,255,255,0.1);">
-        <span style="font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--muted);">Sürüm: v7.0 Kozmik Arena &amp; Hiper-Evrim Sürümü</span>
-        <div style="display:flex;gap:10px;">
-          <a href="wiki.html" class="nav-btn">📚 STRATEJİ WİKİ'SİNİ AÇ</a>
-          <a href="tree.html" class="nav-btn" style="border-color:#bf00ff;color:#eac2ff;">⚡ EVRİM AĞACINI İNCELE</a>
+        <div class="topbar-right">
+            <div class="credit-pill" title="Mevcut Kozmik Kredi Bakiyesi">
+                <span class="credit-gem">💎</span>
+                <div>
+                    <span class="credit-label">KREDİ</span>
+                    <span class="credit-amount" id="topCreditAmount">0</span>
+                </div>
+            </div>
         </div>
-      </div>
-    </section>
+    </header>
 
-    <!-- SAĞ: DESTEK KARTI, RESMİ İLETİŞİM VE MIT LİSANSI -->
-    <aside class="right-stack">
-      <!-- GELİŞTİRİCİYE DESTEK KARTI -->
-      <div class="support-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <span class="support-title">☕ GELİŞTİRİCİYE DESTEK OL</span>
-          <span class="badge-tag" style="color:#ffd700;border-color:#ffd700;background:rgba(255,215,0,0.12);margin:0;">BAĞIMSIZ PROJE</span>
-        </div>
-        <p class="support-text">
-          <strong>Cosmic Survivors</strong> reklamsız, ücretsiz ve açık kaynaklı bir bağımsız web oyun projesidir. Yeni yıldız gemileri, haritalar ve evrim dallarının geliştirilmesine katkıda bulunmak için projeyi destekleyebilirsiniz:
-        </p>
-        <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener" class="coffee-cta">
-          ☕ BUYMEACOFFEE.COM/HAKING — DESTEK OL
-        </a>
-      </div>
+    <!-- MAIN CONTENT -->
+    <main class="about-main">
 
-      <!-- RESMİ İLETİŞİM & BAĞLANTILAR -->
-      <div class="contact-card">
-        <div style="font-family:'Orbitron',sans-serif;font-size:0.95rem;font-weight:800;color:var(--cyan);letter-spacing:1px;">
-          📩 RESMİ İLETİŞİM &amp; PROJE BAĞLANTILARI
-        </div>
-        <div class="contact-row">
-          <span class="contact-lbl">Geliştirici &amp; Mimar</span>
-          <strong style="font-family:'Orbitron',sans-serif;font-size:0.9rem;color:#fff;">Halit Güneş (HaKING)</strong>
-        </div>
-        <div class="contact-row">
-          <span class="contact-lbl">Resmi E-Posta</span>
-          <a href="mailto:cosmic@haking.tr" class="contact-link">cosmic@haking.tr</a>
-        </div>
-        <div class="contact-row">
-          <span class="contact-lbl">Canlı Web Adresi</span>
-          <a href="https://cosmic.haking.tr/" target="_blank" rel="noopener" class="contact-link">https://cosmic.haking.tr/</a>
-        </div>
-      </div>
+        <!-- LEFT: CORPORATE & ARCHITECTURAL SHOWCASE -->
+        <section class="corp-card">
+            <div class="corp-header">
+                <div class="studio-badge">🛸</div>
+                <div class="studio-titles">
+                    <h1>COSMIC INTERACTIVE</h1>
+                    <span>BAĞIMSIZ OYUN MÜHENDİSLİĞİ &amp; SİMÜLASYON STÜDYOSU</span>
+                </div>
+            </div>
 
-      <!-- TELİF VE MIT LİSANSI -->
-      <div class="license-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-          <span style="font-family:'Orbitron',sans-serif;font-size:0.9rem;font-weight:800;color:var(--green);">⚖️ TELİF HAKKI &amp; MIT LİSANSI</span>
-          <span style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);">© 2026 Halit Güneş</span>
-        </div>
-        <div class="mit-box">
-          MIT License — Copyright (c) 2026 Halit Güneş (HaKING)<br/>
-          Bu yazılım ve kaynak kodları MIT Lisansı kapsamında açık kaynak olarak sunulmaktadır. Telif bildirimi ve lisans metni korunduğu sürece özgürce incelenebilir, çatallanabilir ve dağıtılabilir.
-        </div>
-      </div>
-    </aside>
-  </main>
+            <p class="vision-text">
+                <strong>COSMIC SURVIVORS v8.0</strong>, hiçbir harici oyun motoru, ağır kütüphane veya sunucu
+                bağımlılığı kullanmadan; saf <strong>HTML5 Canvas, Web Audio API, 3B Perspektif Projeksiyonu ve Modüler
+                    Tasarım Sistemi (Design System)</strong> ile sıfırdan inşa edilmiş ticari kalitede bir derin uzay
+                mermi-cenneti (Bullet-Heaven) ve taktiksel hayatta kalma simülasyonudur.
+            </p>
+            <p class="vision-text">
+                v8.0 mimarisi ile tüm stil katmanları <code>css/core.css</code>, <code>css/lobby.css</code>,
+                <code>css/game.css</code>, <code>css/tree.css</code> ve <code>css/wiki.css</code> modüllerine
+                ayrıştırılmış; 8 özgün gemi sınıfı, 4 anomalili sektör haritası, 5 çok-aşamalı Boss zayıf nokta mekaniği
+                ve 4 aşamalı silah sentez ağacı tek bir akıcı web ekosisteminde birleştirilmiştir.
+            </p>
+
+            <!-- 4 ARCHITECTURAL PILLARS -->
+            <div class="pillars-grid">
+                <div class="pillar-box">
+                    <h3>⚡ SIFIR BAĞIMLILIK &amp; 60 FPS MOTOR</h3>
+                    <p>Harici framework olmadan saf JavaScript ile çalışan parçacık fiziği, uzamsal çarpışma algılama,
+                        dinamik kamera sarsıntısı ve gerçek zamanlı DPS telemetrisi.</p>
+                </div>
+                <div class="pillar-box">
+                    <h3>🧬 8 GEMİ &amp; 4 AŞAMALI SENTEZ AĞI</h3>
+                    <p>Her geminin kendine özgü kök yeteneği, 12 aktif silah, 12 pasif alet, 12 Aşama 3 Evrim ve 4
+                        devasa Aşama 4 Mega Sentez birleşimi.</p>
+                </div>
+                <div class="pillar-box">
+                    <h3>🎨 MODÜLER CSS TASARIM SİSTEMİ</h3>
+                    <p>Tüm sayfalarda paylaşılan siberpunk tasarım belirteçleri (Design Tokens),
+                        aranabilir/sıralanabilir veri tabloları ve interaktif simülatörler.</p>
+                </div>
+                <div class="pillar-box">
+                    <h3>🔊 PROSEDÜREL WEB AUDIO SENTEZİ</h3>
+                    <p>Harici ses dosyalarına ihtiyaç duymayan; osilatör, filtre ve zarf (envelope) matematikleriyle
+                        anlık üretilen silah, patlama ve Boss ses efektleri.</p>
+                </div>
+            </div>
+
+            <!-- DEVELOPER SHOWCASE -->
+            <div class="dev-showcase">
+                <div class="dev-info">
+                    <div class="dev-avatar">👑</div>
+                    <div class="dev-meta">
+                        <span class="role">BAŞ MİMAR &amp; GELİŞTİRİCİ (LEAD ARCHITECT)</span>
+                        <div class="name">Halit Güneş <span class="alias">// HaKING</span></div>
+                    </div>
+                </div>
+                <a href="https://github.com/halitgunes" target="_blank" rel="noopener" class="dev-gh-btn">
+                    ⚡ GITHUB PROFİLİ
+                </a>
+            </div>
+        </section>
+
+        <!-- RIGHT: SUPPORT, CONTACT & LICENSE STACK -->
+        <aside class="right-stack">
+
+            <!-- SUPPORT / DONATION CARD -->
+            <div class="support-card">
+                <span class="card-tag">// BAĞIMSIZ GELİŞTİRİCİ DESTEK FONU</span>
+                <h2 class="support-title">PROJEYİ DESTEKLEYİN ☕</h2>
+                <p class="support-desc">
+                    <strong>Cosmic Survivors</strong> tamamen açık kaynaklı ve reklamsız olarak geliştirilmektedir. Yeni
+                    sektör haritaları, gemi sınıfları ve ses motoru güncellemeleri için projeye katkıda
+                    bulunabilirsiniz.
+                </p>
+
+                <div class="bank-box">
+                    <div class="bank-row">
+                        <span class="bank-label">BANKA / KURUM</span>
+                        <span class="bank-val" style="color:var(--cyan);">ENPARA.COM (QNB)</span>
+                    </div>
+                    <div class="bank-row">
+                        <span class="bank-label">ALICI ADI SOYADI</span>
+                        <span class="bank-val">HALİT GÜNEŞ</span>
+                    </div>
+
+                    <div class="iban-strip">
+                        <span class="iban-code" id="ibanText">TR55 0011 1000 0000 0098 6211 91</span>
+                        <button type="button" class="copy-btn" id="btnCopyIban">📋 IBAN KOPYALA</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTACT CHANNELS -->
+            <div class="contact-card">
+                <h3>📡 İLETİŞİM &amp; GERİ BİLDİRİM KANALLARI</h3>
+                <div class="contact-links">
+                    <a href="mailto:halitgunes.official@gmail.com" class="contact-item">
+                        <div class="c-left">
+                            <span class="c-icon">✉️</span>
+                            <div>
+                                <span class="c-label">RESMİ E-POSTA ADRESİ</span>
+                                <span class="c-val">halitgunes.official@gmail.com</span>
+                            </div>
+                        </div>
+                        <span class="c-arrow">→</span>
+                    </a>
+
+                    <a href="https://github.com/halitgunes" target="_blank" rel="noopener" class="contact-item">
+                        <div class="c-left">
+                            <span class="c-icon">💻</span>
+                            <div>
+                                <span class="c-label">AÇIK KAYNAK DEPOSU &amp; PORTFOLYO</span>
+                                <span class="c-val">github.com/halitgunes</span>
+                            </div>
+                        </div>
+                        <span class="c-arrow">→</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MIT LICENSE -->
+            <div class="license-card">
+                <h3>⚖️ AÇIK KAYNAK LİSANS BİLDİRİMİ (MIT)</h3>
+                <div class="license-box">
+                    <strong>MIT License — Copyright (c) 2026 Halit Güneş (HaKING)</strong><br>
+                    Bu yazılımın ve ilgili dokümantasyon dosyalarının ("Yazılım") bir kopyasını edinen herkese; Yazılımı
+                    kısıtlama olmaksızın kullanma, kopyalama, değiştirme, birleştirme, yayımlama ve dağıtma hakkı
+                    ücretsiz olarak verilir. Telif hakkı bildirimi ve bu izin bildirimi tüm kopyalarda yer almalıdır.
+                </div>
+            </div>
+
+        </aside>
+
+    </main>
+
+    <script src="js/data.js"></script>
+    <script src="js/wiki.js"></script>
 </body>
+
 </html>

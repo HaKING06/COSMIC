@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+        
+    <defs>
+        <filter id="chr-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur1"/>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur2"/>
+            <feMerge>
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="chr-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.78"/>
+            <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#00ffd5" flood-opacity="0.45"/>
+        </filter>
+        <linearGradient id="chr-hull" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2b3548"/>
+            <stop offset="35%" stop-color="#182030"/>
+            <stop offset="70%" stop-color="#0d121c"/>
+            <stop offset="100%" stop-color="#060910"/>
+        </linearGradient>
+        <linearGradient id="chr-plate" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#121824"/>
+            <stop offset="25%" stop-color="#2c3a50"/>
+            <stop offset="50%" stop-color="#435674"/>
+            <stop offset="75%" stop-color="#2c3a50"/>
+            <stop offset="100%" stop-color="#121824"/>
+        </linearGradient>
+        <linearGradient id="chr-accent" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="25%" stop-color="#00ffd5"/>
+            <stop offset="80%" stop-color="#ff00aa"/>
+            <stop offset="100%" stop-color="#050811"/>
+        </linearGradient>
+        <linearGradient id="chr-trim" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00ffd5"/>
+            <stop offset="50%" stop-color="#ff00aa"/>
+            <stop offset="100%" stop-color="#00ffd5"/>
+        </linearGradient>
+        <radialGradient id="chr-core" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="35%" stop-color="#ffffff"/>
+            <stop offset="75%" stop-color="#ff00aa" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#ff00aa" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="chr-aura" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#00ffd5" stop-opacity="0.26"/>
+            <stop offset="65%" stop-color="#ff00aa" stop-opacity="0.08"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="chr-plume" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="30%" stop-color="#00ffd5"/>
+            <stop offset="70%" stop-color="#ff00aa" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#ff00aa" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="chr-glass" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+            <stop offset="28%" stop-color="#00ffd5" stop-opacity="0.85"/>
+            <stop offset="70%" stop-color="#06152d" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#ff00aa" stop-opacity="0.9"/>
+        </linearGradient>
+    </defs>
+        <circle cx="128" cy="128" r="116" fill="url(#chr-aura)"/>
+        <!-- Temporal Singularity Wake -->
+        <g filter="url(#chr-glow)">
+            <polygon points="108,202 128,252 148,202" fill="url(#chr-plume)"/>
+        </g>
+        <g filter="url(#chr-shadow)">
+            <!-- Outer Gyroscopic Time-Ring with Clockwork Teeth -->
+            <circle cx="128" cy="132" r="84" fill="none" stroke="url(#chr-trim)" stroke-width="8"/>
+            <circle cx="128" cy="132" r="92" fill="none" stroke="#00ffd5" stroke-width="3" stroke-dasharray="6 14"/>
+            <!-- Inner Tilted Elliptical Gyro Ring -->
+            <ellipse cx="128" cy="132" rx="64" ry="38" transform="rotate(-28 128 132)" fill="none" stroke="#ff00aa" stroke-width="5" opacity="0.88"/>
+            <ellipse cx="128" cy="132" rx="64" ry="38" transform="rotate(28 128 132)" fill="none" stroke="#00ffd5" stroke-width="4" opacity="0.88"/>
+            <!-- Forward Temporal Spearhead Hull -->
+            <polygon points="128,12 154,78 142,102 128,88 114,102 102,78" fill="url(#chr-plate)" stroke="#00ffd5" stroke-width="2.2"/>
+            <!-- Floating Wing Stabilizer Blades -->
+            <polygon points="36,96 76,82 68,148 24,162" fill="url(#chr-hull)" stroke="#00ffd5" stroke-width="2"/>
+            <polygon points="220,96 180,82 188,148 232,162" fill="url(#chr-hull)" stroke="#ff00aa" stroke-width="2"/>
+            <!-- Rear Stabilizer Tail -->
+            <polygon points="104,174 128,158 152,174 142,216 128,204 114,216" fill="url(#chr-plate)" stroke="#00ffd5" stroke-width="2"/>
+            <!-- Central Singularity Hourglass Core -->
+            <circle cx="128" cy="132" r="26" fill="#050814" stroke="#00ffd5" stroke-width="2.5"/>
+            <circle cx="128" cy="132" r="20" fill="url(#chr-core)" filter="url(#chr-glow)"/>
+            <polygon points="114,114 142,114 128,132 142,150 114,150 128,132" fill="#ffffff" opacity="0.9"/>
+            <circle cx="128" cy="132" r="6" fill="#ff00aa"/>
+        </g>
+    </svg>

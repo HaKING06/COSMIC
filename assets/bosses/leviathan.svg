@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+        
+    <defs>
+        <filter id="lev-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur1"/>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur2"/>
+            <feMerge>
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="lev-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.78"/>
+            <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#00ff88" flood-opacity="0.45"/>
+        </filter>
+        <linearGradient id="lev-hull" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2b3548"/>
+            <stop offset="35%" stop-color="#182030"/>
+            <stop offset="70%" stop-color="#0d121c"/>
+            <stop offset="100%" stop-color="#060910"/>
+        </linearGradient>
+        <linearGradient id="lev-plate" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#121824"/>
+            <stop offset="25%" stop-color="#2c3a50"/>
+            <stop offset="50%" stop-color="#435674"/>
+            <stop offset="75%" stop-color="#2c3a50"/>
+            <stop offset="100%" stop-color="#121824"/>
+        </linearGradient>
+        <linearGradient id="lev-accent" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="25%" stop-color="#00ff88"/>
+            <stop offset="80%" stop-color="#7700ff"/>
+            <stop offset="100%" stop-color="#050811"/>
+        </linearGradient>
+        <linearGradient id="lev-trim" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00ff88"/>
+            <stop offset="50%" stop-color="#7700ff"/>
+            <stop offset="100%" stop-color="#00ff88"/>
+        </linearGradient>
+        <radialGradient id="lev-core" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="35%" stop-color="#00ffcc"/>
+            <stop offset="75%" stop-color="#7700ff" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#7700ff" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="lev-aura" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#00ff88" stop-opacity="0.26"/>
+            <stop offset="65%" stop-color="#7700ff" stop-opacity="0.08"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="lev-plume" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="30%" stop-color="#00ff88"/>
+            <stop offset="70%" stop-color="#7700ff" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#7700ff" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="lev-glass" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+            <stop offset="28%" stop-color="#00ff88" stop-opacity="0.85"/>
+            <stop offset="70%" stop-color="#06152d" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#7700ff" stop-opacity="0.9"/>
+        </linearGradient>
+    </defs>
+        <circle cx="128" cy="128" r="120" fill="url(#lev-aura)"/>
+        <!-- Writhing Biomechanical Plasma Tendrils -->
+        <g fill="none" stroke="url(#lev-trim)" stroke-width="8" stroke-linecap="round" filter="url(#lev-glow)">
+            <path d="M74,154 C22,168 14,212 46,238"/>
+            <path d="M98,168 C64,198 68,236 96,248"/>
+            <path d="M158,168 C192,198 188,236 160,248"/>
+            <path d="M182,154 C234,168 242,212 210,238"/>
+            <path d="M58,112 C12,104 10,64 42,42"/>
+            <path d="M198,112 C244,104 246,64 214,42"/>
+        </g>
+        <g filter="url(#lev-shadow)">
+            <!-- Kraken Mantle & Chitinous Head -->
+            <polygon points="128,16 184,58 204,124 168,176 88,176 52,124 72,58" fill="url(#lev-hull)" stroke="#00ff88" stroke-width="2.8"/>
+            <polygon points="128,32 168,68 182,120 152,162 104,162 74,120 88,68" fill="url(#lev-plate)" stroke="#9933ff" stroke-width="2"/>
+            <!-- Bio-Mandibles -->
+            <path d="M92,42 L64,12 L108,32 Z" fill="#00ff88"/>
+            <path d="M164,42 L192,12 L148,32 Z" fill="#00ff88"/>
+            <!-- Multiple Abyssal Eyes & Abyssal Core -->
+            <circle cx="96" cy="84" r="8" fill="#00ffcc" filter="url(#lev-glow)"/>
+            <circle cx="160" cy="84" r="8" fill="#00ffcc" filter="url(#lev-glow)"/>
+            <circle cx="84" cy="110" r="6" fill="#ff00aa" filter="url(#lev-glow)"/>
+            <circle cx="172" cy="110" r="6" fill="#ff00aa" filter="url(#lev-glow)"/>
+            <circle cx="128" cy="118" r="26" fill="url(#lev-core)" filter="url(#lev-glow)"/>
+            <ellipse cx="128" cy="118" rx="8" ry="20" fill="#050012" stroke="#ffffff" stroke-width="1.5"/>
+        </g>
+    </svg>

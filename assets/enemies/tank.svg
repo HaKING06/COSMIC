@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+        
+    <defs>
+        <filter id="etk-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur1"/>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur2"/>
+            <feMerge>
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="etk-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.78"/>
+            <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#ff8800" flood-opacity="0.45"/>
+        </filter>
+        <linearGradient id="etk-hull" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2b3548"/>
+            <stop offset="35%" stop-color="#182030"/>
+            <stop offset="70%" stop-color="#0d121c"/>
+            <stop offset="100%" stop-color="#060910"/>
+        </linearGradient>
+        <linearGradient id="etk-plate" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#121824"/>
+            <stop offset="25%" stop-color="#2c3a50"/>
+            <stop offset="50%" stop-color="#435674"/>
+            <stop offset="75%" stop-color="#2c3a50"/>
+            <stop offset="100%" stop-color="#121824"/>
+        </linearGradient>
+        <linearGradient id="etk-accent" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="25%" stop-color="#ff8800"/>
+            <stop offset="80%" stop-color="#aa3300"/>
+            <stop offset="100%" stop-color="#050811"/>
+        </linearGradient>
+        <linearGradient id="etk-trim" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff8800"/>
+            <stop offset="50%" stop-color="#aa3300"/>
+            <stop offset="100%" stop-color="#ff8800"/>
+        </linearGradient>
+        <radialGradient id="etk-core" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="35%" stop-color="#ffee88"/>
+            <stop offset="75%" stop-color="#aa3300" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#aa3300" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="etk-aura" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ff8800" stop-opacity="0.26"/>
+            <stop offset="65%" stop-color="#aa3300" stop-opacity="0.08"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="etk-plume" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="30%" stop-color="#ff8800"/>
+            <stop offset="70%" stop-color="#aa3300" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#aa3300" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="etk-glass" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+            <stop offset="28%" stop-color="#ff8800" stop-opacity="0.85"/>
+            <stop offset="70%" stop-color="#06152d" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#aa3300" stop-opacity="0.9"/>
+        </linearGradient>
+    </defs>
+        <g filter="url(#etk-shadow)">
+            <polygon points="42,14 86,14 114,42 114,86 86,114 42,114 14,86 14,42" fill="url(#etk-hull)" stroke="#ff8800" stroke-width="3"/>
+            <polygon points="48,26 80,26 102,48 102,80 80,102 48,102 26,80 26,48" fill="url(#etk-plate)" stroke="#ffcc00" stroke-width="2"/>
+            <circle cx="64" cy="64" r="20" fill="url(#etk-core)" filter="url(#etk-glow)"/>
+            <path d="M44,64 L84,64 M64,44 L64,84" stroke="#1a1208" stroke-width="4"/>
+        </g>
+    </svg>

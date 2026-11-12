@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+        <defs>
+            <linearGradient id="dys-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#060913"/>
+                <stop offset="50%" stop-color="#181206"/>
+                <stop offset="100%" stop-color="#291a04"/>
+            </linearGradient>
+            <radialGradient id="dys-star" cx="50%" cy="50%" r="42%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="30%" stop-color="#ffd700" stop-opacity="0.9"/>
+                <stop offset="65%" stop-color="#ff6600" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+            </radialGradient>
+        </defs>
+        <rect width="640" height="360" fill="url(#dys-bg)"/>
+        <circle cx="320" cy="180" r="150" fill="url(#dys-star)"/>
+        <!-- Dyson Megastructure Gyroscopic Rings -->
+        <circle cx="320" cy="180" r="128" fill="none" stroke="#ffd700" stroke-width="10" stroke-dasharray="36 14" opacity="0.9"/>
+        <ellipse cx="320" cy="180" rx="168" ry="74" transform="rotate(24 320 180)" fill="none" stroke="#00f0ff" stroke-width="6" stroke-dasharray="28 12" opacity="0.85"/>
+        <ellipse cx="320" cy="180" rx="168" ry="74" transform="rotate(-24 320 180)" fill="none" stroke="#ffd700" stroke-width="6" stroke-dasharray="28 12" opacity="0.85"/>
+        <rect x="16" y="16" width="608" height="328" rx="14" fill="none" stroke="#ffd700" stroke-width="2" stroke-opacity="0.55"/>
+    </svg>

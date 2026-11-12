@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+        
+    <defs>
+        <filter id="esn-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur1"/>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur2"/>
+            <feMerge>
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="esn-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.78"/>
+            <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#ff0044" flood-opacity="0.45"/>
+        </filter>
+        <linearGradient id="esn-hull" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2b3548"/>
+            <stop offset="35%" stop-color="#182030"/>
+            <stop offset="70%" stop-color="#0d121c"/>
+            <stop offset="100%" stop-color="#060910"/>
+        </linearGradient>
+        <linearGradient id="esn-plate" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#121824"/>
+            <stop offset="25%" stop-color="#2c3a50"/>
+            <stop offset="50%" stop-color="#435674"/>
+            <stop offset="75%" stop-color="#2c3a50"/>
+            <stop offset="100%" stop-color="#121824"/>
+        </linearGradient>
+        <linearGradient id="esn-accent" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="25%" stop-color="#ff0044"/>
+            <stop offset="80%" stop-color="#770022"/>
+            <stop offset="100%" stop-color="#050811"/>
+        </linearGradient>
+        <linearGradient id="esn-trim" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff0044"/>
+            <stop offset="50%" stop-color="#770022"/>
+            <stop offset="100%" stop-color="#ff0044"/>
+        </linearGradient>
+        <radialGradient id="esn-core" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="35%" stop-color="#ffffff"/>
+            <stop offset="75%" stop-color="#770022" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#770022" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="esn-aura" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ff0044" stop-opacity="0.26"/>
+            <stop offset="65%" stop-color="#770022" stop-opacity="0.08"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="esn-plume" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="30%" stop-color="#ff0044"/>
+            <stop offset="70%" stop-color="#770022" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#770022" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="esn-glass" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+            <stop offset="28%" stop-color="#ff0044" stop-opacity="0.85"/>
+            <stop offset="70%" stop-color="#06152d" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#770022" stop-opacity="0.9"/>
+        </linearGradient>
+    </defs>
+        <g filter="url(#esn-shadow)">
+            <rect x="61" y="4" width="6" height="58" fill="#ff0044" filter="url(#esn-glow)"/>
+            <polygon points="64,24 106,96 76,88 64,112 52,88 22,96" fill="url(#esn-hull)" stroke="#ff0044" stroke-width="2.4"/>
+            <circle cx="64" cy="74" r="12" fill="url(#esn-core)" filter="url(#esn-glow)"/>
+            <circle cx="64" cy="74" r="5" fill="#ffffff"/>
+        </g>
+    </svg>

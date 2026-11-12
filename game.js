@@ -23,11 +23,11 @@ sessionStorage.setItem('cosmic_map', SELECTED_MAP);
 const MODE = '1p'; // v7.0: Saf 1P Odaklı Mimari
 
 const DIFF = {
-    easy:      { label: 'KOLAY',  cls: 'easy',   ehm: 0.82, esm: 0.85, edm: 0.78, sdm: 1.15, ecm: 0.85, bhm: 0.80, bsr: 0.75, pdm: 1.20, sm: 1.0,  pr: 2.8, sr: 4.5 },
-    normal:    { label: 'NORMAL', cls: 'medium', ehm: 1.00, esm: 1.00, edm: 1.00, sdm: 1.00, ecm: 1.00, bhm: 1.00, bsr: 1.00, pdm: 1.00, sm: 1.35, pr: 2.0, sr: 3.5 },
-    medium:    { label: 'ORTA',   cls: 'medium', ehm: 1.00, esm: 1.00, edm: 1.00, sdm: 1.00, ecm: 1.00, bhm: 1.00, bsr: 1.00, pdm: 1.00, sm: 1.5,  pr: 1.8, sr: 3.2 },
-    hard:      { label: 'ZOR',    cls: 'hard',   ehm: 1.45, esm: 1.22, edm: 1.35, sdm: 0.82, ecm: 1.25, bhm: 1.40, bsr: 1.20, pdm: 0.90, sm: 2.0,  pr: 1.2, sr: 2.4 },
-    nightmare: { label: 'KABUS',  cls: 'hard',   ehm: 1.85, esm: 1.38, edm: 1.65, sdm: 0.72, ecm: 1.45, bhm: 1.75, bsr: 1.40, pdm: 0.80, sm: 2.75, pr: 0.9, sr: 1.8 }
+    easy: { label: 'KOLAY', cls: 'easy', ehm: 0.82, esm: 0.85, edm: 0.78, sdm: 1.15, ecm: 0.85, bhm: 0.80, bsr: 0.75, pdm: 1.20, sm: 1.0, pr: 2.8, sr: 4.5 },
+    normal: { label: 'NORMAL', cls: 'medium', ehm: 1.00, esm: 1.00, edm: 1.00, sdm: 1.00, ecm: 1.00, bhm: 1.00, bsr: 1.00, pdm: 1.00, sm: 1.35, pr: 2.0, sr: 3.5 },
+    medium: { label: 'ORTA', cls: 'medium', ehm: 1.00, esm: 1.00, edm: 1.00, sdm: 1.00, ecm: 1.00, bhm: 1.00, bsr: 1.00, pdm: 1.00, sm: 1.5, pr: 1.8, sr: 3.2 },
+    hard: { label: 'ZOR', cls: 'hard', ehm: 1.45, esm: 1.22, edm: 1.35, sdm: 0.82, ecm: 1.25, bhm: 1.40, bsr: 1.20, pdm: 0.90, sm: 2.0, pr: 1.2, sr: 2.4 },
+    nightmare: { label: 'KABUS', cls: 'hard', ehm: 1.85, esm: 1.38, edm: 1.65, sdm: 0.72, ecm: 1.45, bhm: 1.75, bsr: 1.40, pdm: 0.80, sm: 2.75, pr: 0.9, sr: 1.8 }
 };
 const DC = DIFF[DIFFKEY] || DIFF.normal;
 
@@ -76,16 +76,16 @@ function tone(f, d, t = 'sine', v = 0.08, det = 0) {
 
 const sfx = {
     shoot: () => tone(860, 0.05, 'square', 0.03, Math.random() * 40 - 20),
-    hit:   () => tone(220, 0.07, 'sawtooth', 0.04),
-    exp:   () => { tone(85, 0.28, 'sawtooth', 0.08); tone(55, 0.36, 'triangle', 0.06); },
+    hit: () => tone(220, 0.07, 'sawtooth', 0.04),
+    exp: () => { tone(85, 0.28, 'sawtooth', 0.08); tone(55, 0.36, 'triangle', 0.06); },
     bKill: () => { for (let i = 0; i < 6; i++) setTimeout(() => tone(160 + i * 90, 0.25, 'sawtooth', 0.09), i * 65); },
-    pow:   () => { tone(523, 0.09, 'sine', 0.07); setTimeout(() => tone(659, 0.09, 'sine', 0.07), 60); setTimeout(() => tone(784, 0.14, 'sine', 0.08), 120); },
-    lvl:   () => { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 0.14, 'triangle', 0.08), i * 55)); },
-    dmg:   () => tone(105, 0.16, 'sawtooth', 0.09),
-    wave:  () => { tone(330, 0.18, 'triangle', 0.06); setTimeout(() => tone(440, 0.26, 'triangle', 0.07), 120); },
-    dash:  () => { tone(320, 0.07, 'sawtooth', 0.07); setTimeout(() => tone(940, 0.14, 'sine', 0.08), 35); },
+    pow: () => { tone(523, 0.09, 'sine', 0.07); setTimeout(() => tone(659, 0.09, 'sine', 0.07), 60); setTimeout(() => tone(784, 0.14, 'sine', 0.08), 120); },
+    lvl: () => { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 0.14, 'triangle', 0.08), i * 55)); },
+    dmg: () => tone(105, 0.16, 'sawtooth', 0.09),
+    wave: () => { tone(330, 0.18, 'triangle', 0.06); setTimeout(() => tone(440, 0.26, 'triangle', 0.07), 120); },
+    dash: () => { tone(320, 0.07, 'sawtooth', 0.07); setTimeout(() => tone(940, 0.14, 'sine', 0.08), 35); },
     salvo: () => tone(210, 0.07, 'sawtooth', 0.05, Math.random() * 80 - 40),
-    emp:   () => { tone(90, 0.42, 'sine', 0.11); tone(660, 0.26, 'triangle', 0.08); },
+    emp: () => { tone(90, 0.42, 'sine', 0.11); tone(660, 0.26, 'triangle', 0.08); },
     chest: () => { [440, 554, 659, 880, 1174].forEach((f, i) => setTimeout(() => tone(f, 0.18, 'sine', 0.09), i * 65)); }
 };
 
@@ -95,18 +95,18 @@ function setCursorMode(show) {
 }
 function setSoundMuffled(m) { isSoundMuffled = m; }
 
-// ── 5 Özgün Gemi (Karakter) Tanımları ──
+// ── 8 Özgün Gemi (Karakter) Tanımları (v8.0) ──
 const SHIPS = {
     interceptor: {
         id: 'interceptor',
         name: 'Avcı (Interceptor)',
         color: '#00f0ff',
         starterWeapon: 'dualLaser',
-        hp: 100,
-        sh: 50,
-        sp: 295 * 1.20, // +%20 Hareket Hızı pasifi
-        crit: 0.20,     // +%15 Kritik pasifi (%5 baz + %15)
-        armor: 0.0,
+        hp: 105,
+        sh: 55,
+        sp: 295 * 1.20,
+        crit: 0.20,
+        armor: 0.05,
         passiveName: '+%20 Hareket Hızı & +%15 Kritik Şans',
         abilityName: 'WARP DASH',
         abilityCd: 7.0,
@@ -118,68 +118,116 @@ const SHIPS = {
         name: 'Kruvazör (Dreadnought)',
         color: '#ffaa00',
         starterWeapon: 'heavyPlasma',
-        hp: 175,
-        sh: 85,
-        sp: 265 * 0.90, // -%10 Hız
-        crit: 0.05,
-        armor: 0.30,    // +%30 Zırh pasifi
-        passiveName: '+%30 Zırh Koruması & -%10 Hareket Hızı',
+        hp: 185,
+        sh: 90,
+        sp: 265 * 0.90,
+        crit: 0.08,
+        armor: 0.32,
+        passiveName: '+%32 Zırh Koruması & Ağır Gövde',
         abilityName: 'MİKRO FÜZE SALVOSU',
-        abilityCd: 10.5,
+        abilityCd: 10.0,
         abilityColor: '#ffaa00',
         abilityDesc: '3 sn boyunca 360° her yöne güdümsüz mikro füze salvosu ateşler.'
     },
     aegis: {
         id: 'aegis',
         name: 'Aegis (Kalkan Muhafızı)',
-        color: '#bf00ff',
+        color: '#00ff88',
         starterWeapon: 'energyDisc',
-        hp: 115,
+        hp: 130,
         sh: 125,
-        sp: 270,
-        crit: 0.08,
-        armor: 0.12,
+        sp: 280,
+        crit: 0.10,
+        armor: 0.18,
         passiveName: 'Otomatik Kalkan Patlaması (6 sn\'de bir elektro-şok halkası)',
         abilityName: 'EMP ŞOK DALGASI',
-        abilityCd: 12.0,
-        abilityColor: '#bf00ff',
+        abilityCd: 9.0,
+        abilityColor: '#00ff88',
         abilityDesc: 'Ekrandaki tüm düşman mermilerini siler ve kalkan enerjisine dönüştürür.'
     },
     phantom: {
         id: 'phantom',
         name: 'Gölge (Void Phantom)',
-        color: '#ff006a',
+        color: '#d24dff',
         starterWeapon: 'quantumDagger',
         hp: 95,
         sh: 55,
-        sp: 315,
-        crit: 0.22,
+        sp: 335,
+        crit: 0.25,
         armor: 0.05,
-        passiveName: 'Her 10 sn\'de 1.5 sn Görünmezlik & Arkadan Vuruş Bonusu (+%60 Kritik)',
+        passiveName: 'Her 10 sn\'de 1.5 sn Görünmezlik & Arkadan Vuruş Bonusu (+%65 Kritik)',
         abilityName: 'GÖLGE SIÇRAMASI',
-        abilityCd: 8.0,
-        abilityColor: '#ff006a',
-        abilityDesc: 'Baktığı yöne kuantum sıçraması yapar, 1.5 sn görünmezlik ve suikast gücü açar.'
+        abilityCd: 6.5,
+        abilityColor: '#d24dff',
+        abilityDesc: 'Baktığı yöne kuantum sıçraması yapar, 1.8 sn görünmezlik ve suikast gücü açar.'
     },
     solarflare: {
         id: 'solarflare',
         name: 'Solar Flare (Güneş Fırtınası)',
-        color: '#ff6600',
+        color: '#ff5500',
         starterWeapon: 'flameLine',
         hp: 125,
         sh: 70,
-        sp: 280,
-        crit: 0.12,
-        armor: 0.10,
+        sp: 295,
+        crit: 0.14,
+        armor: 0.12,
         passiveName: 'Yakındaki düşmanları sürekli yakan Güneş Radyasyon Aurası',
         abilityName: 'GÜNEŞ PATLAMASI',
         abilityCd: 9.5,
-        abilityColor: '#ff6600',
+        abilityColor: '#ff5500',
         abilityDesc: 'Geniş çapta korona novası patlatarak tüm düşmanları ateşe verir.'
+    },
+    tempest: {
+        id: 'tempest',
+        name: 'Tempest (Kriyo-Fırtına)',
+        color: '#00d4ff',
+        starterWeapon: 'dualLaser',
+        hp: 115,
+        sh: 85,
+        sp: 310,
+        crit: 0.16,
+        armor: 0.14,
+        passiveName: 'Mutlak Sıfır İyonizasyonu (Yavaşlatma & Kritik Hasar)',
+        abilityName: 'KRİYO-TESLA FIRTINASI',
+        abilityCd: 8.5,
+        abilityColor: '#00d4ff',
+        abilityDesc: 'Ekran genelinde zincirleme yıldırım düşürür ve düşmanları 2.5 sn dondurur.'
+    },
+    valkyrie: {
+        id: 'valkyrie',
+        name: 'Valkyrie (Drone Taşıyıcı)',
+        color: '#ffd700',
+        starterWeapon: 'swarmMissiles',
+        hp: 145,
+        sh: 95,
+        sp: 280,
+        crit: 0.15,
+        armor: 0.22,
+        passiveName: 'Otonom Muhafız Drone Eskortu & Güdümlü Batarya',
+        abilityName: 'RAILGUN OVERDRIVE',
+        abilityCd: 9.0,
+        abilityColor: '#ffd700',
+        abilityDesc: 'Droneları aşırı yükler ve dev elektromanyetik Railgun salvosu ateşler.'
+    },
+    chronos: {
+        id: 'chronos',
+        name: 'Chronos (Zaman Dokuyucu)',
+        color: '#00ffcc',
+        starterWeapon: 'energyDisc',
+        hp: 110,
+        sh: 105,
+        sp: 305,
+        crit: 0.18,
+        armor: 0.15,
+        passiveName: 'Relativistik Zaman Genleşmesi (+%15 Cooldown Hızı)',
+        abilityName: 'ZAMAN DURDURMA (STASIS)',
+        abilityCd: 11.0,
+        abilityColor: '#00ffcc',
+        abilityDesc: 'Tüm düşmanları ve mermileri yavaşlatır, ateş hızını geçici olarak katlar.'
     }
 };
 
-// ── 3 Gerçek Harita Tanımları ──
+// ── 4 Gerçek Harita Tanımları (v8.0) ──
 const MAPS = {
     sector9: {
         id: 'sector9',
@@ -213,6 +261,17 @@ const MAPS = {
         borderColor: '#ff5500',
         scoreMult: 1.5,
         enemyPool: ['tank', 'shielder', 'healer', 'sweeper', 'kamikaze', 'sniper', 'phantom', 'splitter']
+    },
+    dyson: {
+        id: 'dyson',
+        name: 'Dyson Mega-Küre Reaktörü',
+        subtitle: 'Yörüngesel Enerji Sütunları (+%30 Hasar) & Lazer Koridoru',
+        bgTop: '#020b08',
+        bgBot: '#061f18',
+        gridColor: 'rgba(0, 255, 136, 0.06)',
+        borderColor: '#00ff88',
+        scoreMult: 1.75,
+        enemyPool: ['sniper', 'shielder', 'sweeper', 'kamikaze', 'phantom', 'tank', 'orbiter', 'healer']
     }
 };
 
@@ -284,6 +343,24 @@ const WEAPONS = {
         name: 'Plazma Havanı', icon: '☄️', color: '#ff6600',
         pairTrinket: 'fusionHeart', evoId: 'heliosCataclysm',
         desc: '[SOLAR FLARE ÖZEL KÖK SİLAHI] Düştüğü yerde yanan güneş kraterleri bırakan termal havan.'
+    },
+    cryoNova: {
+        id: 'cryoNova', kind: 'weapon', shipExclusive: 'tempest',
+        name: 'Kriyo-Buzul Küresi', icon: '❄️', color: '#00d4ff',
+        pairTrinket: 'teslaCoil', evoId: 'absoluteZero',
+        desc: '[TEMPEST ÖZEL KÖK SİLAHI] Patladığında düşmanları donduran ve buz şarapnelleri saçan küre.'
+    },
+    droneSwarm: {
+        id: 'droneSwarm', kind: 'weapon', shipExclusive: 'valkyrie',
+        name: 'Otonom Savaş Droneları', icon: '🛸', color: '#ffd700',
+        pairTrinket: 'neuralLink', evoId: 'seraphFleet',
+        desc: '[VALKYRIE ÖZEL KÖK SİLAHI] Hedefleri bağımsız kovalayan ve lazer yağdıran otonom drone filosu.'
+    },
+    chronoRift: {
+        id: 'chronoRift', kind: 'weapon', shipExclusive: 'chronos',
+        name: 'Zaman Yarığı Projektörü', icon: '⏳', color: '#00ffcc',
+        pairTrinket: 'fluxCapacitor', evoId: 'eternityLoop',
+        desc: '[CHRONOS ÖZEL KÖK SİLAHI] Uzay-zamanı yırtarak içindeki düşmanları yavaşlatıp patlatan yarık.'
     }
 };
 
@@ -349,6 +426,24 @@ const TRINKETS = {
         name: 'Termonükleer Kalp', icon: '☀️', color: '#ff6600',
         pairWeapon: 'solarMortar', evoId: 'heliosCataclysm',
         desc: '[SOLAR FLARE ÖZEL KÖK ALETİ] Yanma hasarını +%25 ve aura çapını artırır. Helios Kıyameti katalizörüdür.'
+    },
+    teslaCoil: {
+        id: 'teslaCoil', kind: 'trinket', shipExclusive: 'tempest',
+        name: 'Süper-İletken Bobin', icon: '🌩️', color: '#00d4ff',
+        pairWeapon: 'cryoNova', evoId: 'absoluteZero',
+        desc: '[TEMPEST ÖZEL KÖK ALETİ] Ateş hızını +%14 ve yavaşlatma süresini artırır. Mutlak Sıfır katalizörüdür.'
+    },
+    neuralLink: {
+        id: 'neuralLink', kind: 'trinket', shipExclusive: 'valkyrie',
+        name: 'Nöral Komuta Ağı', icon: '🧠', color: '#ffd700',
+        pairWeapon: 'droneSwarm', evoId: 'seraphFleet',
+        desc: '[VALKYRIE ÖZEL KÖK ALETİ] Drone ve füze hasarını +%20 artırır. Seraphim Filosu katalizörüdür.'
+    },
+    fluxCapacitor: {
+        id: 'fluxCapacitor', kind: 'trinket', shipExclusive: 'chronos',
+        name: 'Zaman Akı Çekirdeği', icon: '⌛', color: '#00ffcc',
+        pairWeapon: 'chronoRift', evoId: 'eternityLoop',
+        desc: '[CHRONOS ÖZEL KÖK ALETİ] Tüm dolum sürelerini -%15 düşürür. Sonsuzluk Döngüsü katalizörüdür.'
     }
 };
 
@@ -488,6 +583,30 @@ const EVOLUTIONS = {
         req: ['solarMortar', 'fusionHeart'],
         formula: 'Plazma Havanı (veya Alev Hattı) Lv.5 + Termonükleer Kalp Lv.5',
         desc: '[SOLAR FLARE ÖZEL EVRİMİ] Dev güneş kraterleri açar ve yanan her düşmanı zincirleme süpernova gibi patlatır!'
+    },
+    absoluteZero: {
+        id: 'absoluteZero', kind: 'evolution', shipExclusive: 'tempest',
+        name: 'Mutlak Sıfır Fırtınası', icon: '🌨️', color: '#00d4ff',
+        weaponReq: 'cryoNova', altWeaponReq: 'dualLaser', trinketReq: 'teslaCoil',
+        req: ['cryoNova', 'teslaCoil'],
+        formula: 'Kriyo-Buzul Küresi Lv.5 + Süper-İletken Bobin Lv.5',
+        desc: '[TEMPEST ÖZEL EVRİMİ] Ekran çapında dondurucu buzul ve zincirleme yıldırım fırtınası koparır!'
+    },
+    seraphFleet: {
+        id: 'seraphFleet', kind: 'evolution', shipExclusive: 'valkyrie',
+        name: 'Seraphim Drone Filosu', icon: '🛸', color: '#ffd700',
+        weaponReq: 'droneSwarm', altWeaponReq: 'swarmMissiles', trinketReq: 'neuralLink',
+        req: ['droneSwarm', 'neuralLink'],
+        formula: 'Otonom Savaş Droneları Lv.5 + Nöral Komuta Ağı Lv.5',
+        desc: '[VALKYRIE ÖZEL EVRİMİ] 6 adet altın Seraphim drone\'u yörüngede döner ve kesintisiz lazer yağdırır!'
+    },
+    eternityLoop: {
+        id: 'eternityLoop', kind: 'evolution', shipExclusive: 'chronos',
+        name: 'Sonsuzluk Döngüsü', icon: '♾️', color: '#00ffcc',
+        weaponReq: 'chronoRift', altWeaponReq: 'energyDisc', trinketReq: 'fluxCapacitor',
+        req: ['chronoRift', 'fluxCapacitor'],
+        formula: 'Zaman Yarığı Projektörü Lv.5 + Zaman Akı Çekirdeği Lv.5',
+        desc: '[CHRONOS ÖZEL EVRİMİ] Düşmanları zaman döngüsüne hapseden çifte tekillik halkaları açar!'
     }
 };
 
@@ -752,9 +871,13 @@ class Player {
         this.weapons[cfg.starterWeapon] = 1;
         this.pU[cfg.starterWeapon] = 1;
 
-        // Reroll (2) & Skip (1) Hakları
-        this.rerollsLeft = 2;
-        this.skipsLeft = 1;
+        // Reroll (2 + Atölye Bonusu) & Skip (1 + Atölye Bonusu) Hakları
+        const metaB = (typeof window.CosmicPersistence !== 'undefined')
+            ? window.CosmicPersistence.getBonuses()
+            : { dmgMult: 1, hpMult: 1, spdMult: 1, critAdd: 0, cdrAdd: 0, extraRerolls: 0, magnetMult: 1, xpMult: 1, creditMult: 1 };
+        this.metaBonuses = metaB;
+        this.rerollsLeft = 2 + (metaB.extraRerolls || 0);
+        this.skipsLeft = 1 + Math.floor((metaB.extraRerolls || 0) / 2);
 
         this.lv = 1;
         this.xp = 0;
@@ -795,8 +918,8 @@ class Player {
 
     usedWeaponSlots() {
         return Object.keys(this.weapons).length +
-               Object.keys(this.evolutions).length +
-               Object.keys(this.superEvolutions).length;
+            Object.keys(this.evolutions).length +
+            Object.keys(this.superEvolutions).length;
     }
 
     usedTrinketSlots() {
@@ -819,6 +942,7 @@ class Player {
 
     recalcStats(fullHeal = false) {
         const cfg = SHIPS[this.shipClass];
+        const mb = this.metaBonuses || { dmgMult: 1, hpMult: 1, spdMult: 1, critAdd: 0, cdrAdd: 0, extraRerolls: 0, magnetMult: 1, xpMult: 1, creditMult: 1 };
         const bioLv = this.trinkets.bioreactor || 0;
         const shLv = this.trinkets.shieldMatrix || 0;
         const thrLv = this.trinkets.thruster || 0;
@@ -829,8 +953,8 @@ class Player {
         const oldMh = this.mh || cfg.hp;
         const oldMs = this.ms || cfg.sh;
 
-        this.mh = cfg.hp + bioLv * 32 + (this.fusions.titanCore || this.superEvolutions.omegaJudgement ? 130 : 0);
-        this.ms = cfg.sh + shLv * 35 + (this.fusions.aegisResonance || this.superEvolutions.eventHorizon ? 85 : 0);
+        this.mh = Math.round((cfg.hp + bioLv * 32 + (this.fusions.titanCore || this.superEvolutions.omegaJudgement ? 130 : 0)) * mb.hpMult);
+        this.ms = Math.round((cfg.sh + shLv * 35 + (this.fusions.aegisResonance || this.superEvolutions.eventHorizon ? 85 : 0)) * mb.hpMult);
 
         if (fullHeal) {
             this.hp = this.mh;
@@ -840,12 +964,12 @@ class Player {
             if (this.ms > oldMs) this.sh = Math.min(this.ms, (this.sh || oldMs) + (this.ms - oldMs));
         }
 
-        this.sp = cfg.sp * (1 + thrLv * 0.12) * (this.fusions.aegisResonance || this.superEvolutions.eventHorizon ? 1.22 : 1);
-        this.armor = Math.min(0.65, cfg.armor + thrLv * 0.06 + (this.fusions.titanCore || this.superEvolutions.omegaJudgement ? 0.20 : 0));
-        this.cdMult = Math.max(0.32, Math.pow(0.86, coolLv));
-        this.dmgMult = (1 + tgtLv * 0.16) * (this.fusions.bloodHarvest || this.superEvolutions.infernoGatling ? 1.35 : 1);
-        this.crit = Math.min(0.85, cfg.crit + tgtLv * 0.09 + (this.fusions.cosmicSupernova || this.superEvolutions.eventHorizon ? 0.18 : 0));
-        this.magR = 115 * (1 + magLv * 0.35) * (this.fusions.cosmicSupernova ? 1.25 : 1);
+        this.sp = cfg.sp * mb.spdMult * (1 + thrLv * 0.12) * (this.fusions.aegisResonance || this.superEvolutions.eventHorizon ? 1.22 : 1);
+        this.armor = Math.min(0.70, cfg.armor + thrLv * 0.06 + (this.fusions.titanCore || this.superEvolutions.omegaJudgement ? 0.20 : 0));
+        this.cdMult = Math.max(0.28, Math.pow(0.86, coolLv) * (1 - (mb.cdrAdd || 0)) * (this.shipClass === 'chronos' ? 0.85 : 1));
+        this.dmgMult = mb.dmgMult * (1 + tgtLv * 0.16) * (this.fusions.bloodHarvest || this.superEvolutions.infernoGatling ? 1.35 : 1);
+        this.crit = Math.min(0.90, cfg.crit + (mb.critAdd || 0) + tgtLv * 0.09 + (this.fusions.cosmicSupernova || this.superEvolutions.eventHorizon ? 0.18 : 0));
+        this.magR = 115 * mb.magnetMult * (1 + magLv * 0.35) * (this.fusions.cosmicSupernova ? 1.25 : 1);
         this.rangeMult = 1 + magLv * 0.15;
         this.bioRegen = bioLv * 2.5;
         this.abMax = cfg.abilityCd * this.cdMult;
@@ -1067,6 +1191,44 @@ class Player {
             }
             sfx.exp();
             shake(10);
+        } else if (this.shipClass === 'tempest') {
+            // Kriyo-Tesla Fırtınası
+            particles.push(new Particle(this.x, this.y, 0, 0, '#00d4ff', 0.7, 340, 'shockwave'));
+            for (const e of enemies) {
+                if (e.alive && dist(this, e) < 340) {
+                    e.takeDmg(85 * this.dmgMult, true, true);
+                    e.slowT = 3.5;
+                }
+            }
+            sfx.emp();
+            shake(8);
+        } else if (this.shipClass === 'valkyrie') {
+            // Railgun Overdrive + Drone Salvosu
+            this.salvoT = 2.4;
+            this.salvoTick = 0;
+            for (let i = -2; i <= 2; i++) {
+                const a = this.fac + i * 0.08;
+                bullets.push({
+                    x: this.x, y: this.y,
+                    vx: Math.cos(a) * 780, vy: Math.sin(a) * 780,
+                    damage: 95 * this.dmgMult, size: 7, color: '#ffd700',
+                    life: 1.6, piercing: true, pierceLeft: 10, bounces: 1, crit: true
+                });
+            }
+            sfx.dash();
+            shake(9);
+        } else if (this.shipClass === 'chronos') {
+            // Zaman Durdurma (Stasis)
+            eBullets.length = 0;
+            particles.push(new Particle(this.x, this.y, 0, 0, '#00ffcc', 0.8, 360, 'shockwave'));
+            for (const e of enemies) {
+                if (e.alive) {
+                    e.slowT = 4.0;
+                    e.takeDmg(65 * this.dmgMult, true, true);
+                }
+            }
+            this.dashT = 1.6;
+            sfx.emp();
         }
     }
 
@@ -1421,7 +1583,7 @@ class Player {
             this.sigTimer = 0.34 * this.cdMult;
             const sigW = this.weapons.photonRailgun || this.weapons.flakArtillery || this.weapons.teslaPrism || this.weapons.voidScythe || this.weapons.solarMortar || 0;
             const hasSigEvo = this.evolutions.tachyonLance || this.evolutions.siegeBehemoth || this.evolutions.sanctuaryMaelstrom || this.evolutions.abyssalReaper || this.evolutions.heliosCataclysm ||
-                              this.evolutions.prismOverload || this.evolutions.gravitonImploder || this.evolutions.cryoVortex || this.evolutions.phantomExecutioner || this.evolutions.necroticNapalm;
+                this.evolutions.prismOverload || this.evolutions.gravitonImploder || this.evolutions.cryoVortex || this.evolutions.phantomExecutioner || this.evolutions.necroticNapalm;
             const hasNewMega = this.superEvolutions.hyperionApex || this.superEvolutions.ironDreadnought || this.superEvolutions.eclipseSingularity;
             if (sigW > 0 || hasSigEvo || hasNewMega) {
                 const shots = hasNewMega ? 6 : hasSigEvo ? 4 : 1 + Math.floor(sigW / 2);
@@ -1486,6 +1648,22 @@ class Player {
             }
         }
 
+        // v8.0 3D/HD Model Renderer Entegrasyonu (window.CosmicModels)
+        if (window.CosmicModels && typeof window.CosmicModels.drawShip === 'function') {
+            ctx.save();
+            if (this.stealthT > 0) ctx.globalAlpha = 0.38;
+            else if (this.invT > 0 && Math.floor(this.invT * 12) % 2 === 0) ctx.globalAlpha = 0.55;
+            window.CosmicModels.drawShip(ctx, this.shipClass, this.x, this.y, this.r * 1.45, this.fac, gameTime, {
+                shieldRatio: this.ms > 0 ? this.sh / this.ms : 0,
+                vx: this.vx,
+                vy: this.vy,
+                dashing: this.dashT > 0,
+                color: this.c
+            });
+            ctx.restore();
+            return;
+        }
+
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.fac);
@@ -1543,18 +1721,18 @@ class Player {
 
 // ── Düşman (Enemy) Sınıfı ──
 const ENEMY_CFG = {
-    drone:    { hp: 22,  spd: 105, r: 12, dmg: 10, sc: 15, color: '#ff3366' },
-    tank:     { hp: 90,  spd: 58,  r: 20, dmg: 22, sc: 40, color: '#ff8800' },
-    speeder:  { hp: 16,  spd: 185, r: 10, dmg: 8,  sc: 20, color: '#ffff00' },
-    shooter:  { hp: 36,  spd: 78,  r: 14, dmg: 12, sc: 30, color: '#cc44ff' },
-    orbiter:  { hp: 30,  spd: 135, r: 13, dmg: 12, sc: 28, color: '#00ff88' },
-    splitter: { hp: 48,  spd: 75,  r: 17, dmg: 14, sc: 35, color: '#ff6600' },
-    shielder: { hp: 42,  spd: 72,  r: 15, dmg: 14, sc: 38, color: '#4488ff' },
-    sniper:   { hp: 28,  spd: 65,  r: 13, dmg: 18, sc: 42, color: '#ff0044' },
-    kamikaze: { hp: 26,  spd: 165, r: 13, dmg: 28, sc: 36, color: '#ff4400' },
-    phantom:  { hp: 38,  spd: 115, r: 14, dmg: 15, sc: 45, color: '#aa66ff' },
-    sweeper:  { hp: 70,  spd: 62,  r: 18, dmg: 18, sc: 55, color: '#00ffcc' },
-    healer:   { hp: 62,  spd: 68,  r: 16, dmg: 14, sc: 60, color: '#ff1744' }
+    drone: { hp: 22, spd: 105, r: 12, dmg: 10, sc: 15, color: '#ff3366' },
+    tank: { hp: 90, spd: 58, r: 20, dmg: 22, sc: 40, color: '#ff8800' },
+    speeder: { hp: 16, spd: 185, r: 10, dmg: 8, sc: 20, color: '#ffff00' },
+    shooter: { hp: 36, spd: 78, r: 14, dmg: 12, sc: 30, color: '#cc44ff' },
+    orbiter: { hp: 30, spd: 135, r: 13, dmg: 12, sc: 28, color: '#00ff88' },
+    splitter: { hp: 48, spd: 75, r: 17, dmg: 14, sc: 35, color: '#ff6600' },
+    shielder: { hp: 42, spd: 72, r: 15, dmg: 14, sc: 38, color: '#4488ff' },
+    sniper: { hp: 28, spd: 65, r: 13, dmg: 18, sc: 42, color: '#ff0044' },
+    kamikaze: { hp: 26, spd: 165, r: 13, dmg: 28, sc: 36, color: '#ff4400' },
+    phantom: { hp: 38, spd: 115, r: 14, dmg: 15, sc: 45, color: '#aa66ff' },
+    sweeper: { hp: 70, spd: 62, r: 18, dmg: 18, sc: 55, color: '#00ffcc' },
+    healer: { hp: 62, spd: 68, r: 16, dmg: 14, sc: 60, color: '#ff1744' }
 };
 
 class Enemy {
@@ -1683,6 +1861,10 @@ class Enemy {
 
     draw(ctx) {
         if (!this.alive) return;
+        if (!this.isBoss && window.CosmicModels && typeof window.CosmicModels.drawEnemy === 'function') {
+            window.CosmicModels.drawEnemy(ctx, this.type, this.x, this.y, this.r, this.aA, this.color, gameTime, this.hp / this.maxHp, this.isMiniBoss || this.isElite, this.fl > 0);
+            return;
+        }
         ctx.save();
         ctx.translate(this.x, this.y);
         if (this.isMiniBoss || this.isElite) {
@@ -1810,6 +1992,10 @@ class Boss extends Enemy {
     }
 
     draw(ctx) {
+        if (window.CosmicModels && typeof window.CosmicModels.drawBoss === 'function') {
+            window.CosmicModels.drawBoss(ctx, this.bossType, this.x, this.y, this.r, this.pT, this.armorAngle, this.color, gameTime, this.hp / this.maxHp);
+            return;
+        }
         super.draw(ctx);
         if (this.bossType === 'behemoth') {
             ctx.save();
@@ -1988,8 +2174,8 @@ function renderLevelUpCards(player, lv) {
     const generated = buildLevelUpChoices(player, lv);
     const keyConfigs = [
         { key: 'KeyA', altKey: 'ArrowLeft', label: 'A' },
-        { key: 'KeyW', altKey: 'ArrowUp',   label: 'W' },
-        { key: 'KeyD', altKey: 'ArrowRight',label: 'D' }
+        { key: 'KeyW', altKey: 'ArrowUp', label: 'W' },
+        { key: 'KeyD', altKey: 'ArrowRight', label: 'D' }
     ];
 
     generated.forEach((cItem, index) => {
@@ -2387,8 +2573,8 @@ function startWave(w) {
     document.getElementById('waS').textContent = wave % 5 === 0
         ? '⚠️ OMEGA BOSS ALARMI!'
         : wave % 3 === 0
-        ? '★ ELİT MİNİ-BOSS SAHAYA İNDİ! (%50 ŞANS SANDIĞI) ★'
-        : mapCfg.name.toUpperCase();
+            ? '★ ELİT MİNİ-BOSS SAHAYA İNDİ! (%50 ŞANS SANDIĞI) ★'
+            : mapCfg.name.toUpperCase();
     wa.classList.add('show');
     setTimeout(() => wa.classList.remove('show'), 2200);
     sfx.wave();
@@ -2947,6 +3133,58 @@ function draw() {
     }
 
     ctx.restore();
+    drawRadarMinimap();
+}
+
+// ── Taktiksel Radar Mini-Harita (v8.0) ──
+function drawRadarMinimap() {
+    const rCanvas = document.getElementById('radarMinimap');
+    if (!rCanvas || !p1) return;
+    const rCtx = rCanvas.getContext('2d');
+    const w = rCanvas.width, h = rCanvas.height;
+    rCtx.clearRect(0, 0, w, h);
+
+    // Radar Arka Plan & Halka
+    rCtx.fillStyle = 'rgba(4, 8, 22, 0.85)';
+    rCtx.fillRect(0, 0, w, h);
+    rCtx.strokeStyle = 'rgba(0, 240, 255, 0.22)';
+    rCtx.lineWidth = 1;
+    rCtx.beginPath();
+    rCtx.arc(w / 2, h / 2, w * 0.42, 0, Math.PI * 2);
+    rCtx.stroke();
+    rCtx.beginPath();
+    rCtx.moveTo(w / 2, 0); rCtx.lineTo(w / 2, h);
+    rCtx.moveTo(0, h / 2); rCtx.lineTo(w, h / 2);
+    rCtx.stroke();
+
+    const sx = w / Math.max(1, canvas.width);
+    const sy = h / Math.max(1, canvas.height);
+
+    // Sandıklar
+    for (const pu of pickups) {
+        if (pu.type === 'cosmicChest') {
+            rCtx.fillStyle = '#ffd700';
+            rCtx.beginPath();
+            rCtx.arc(pu.x * sx, pu.y * sy, 3.2, 0, Math.PI * 2);
+            rCtx.fill();
+        }
+    }
+
+    // Düşmanlar & Boss
+    for (const e of enemies) {
+        if (!e.alive) continue;
+        rCtx.fillStyle = e.isBoss ? '#ff006a' : (e.isMiniBoss ? '#ffd700' : '#ff3366');
+        const rad = e.isBoss ? 4.2 : (e.isMiniBoss ? 3.0 : 1.6);
+        rCtx.beginPath();
+        rCtx.arc(e.x * sx, e.y * sy, rad, 0, Math.PI * 2);
+        rCtx.fill();
+    }
+
+    // Pilot (Merkez İmleç)
+    rCtx.fillStyle = '#00f0ff';
+    rCtx.beginPath();
+    rCtx.arc(p1.x * sx, p1.y * sy, 3.2, 0, Math.PI * 2);
+    rCtx.fill();
 }
 
 // ── Kurulum, Duraklatma ve Oyun Sonu ──
@@ -3011,12 +3249,27 @@ function endGame() {
     if (typeof CosmicLeaderboard !== 'undefined') {
         CosmicLeaderboard.submitScore(P1_NAME, Math.floor(score), wave, gameTime, DIFFKEY, '1p');
     }
+    let earnedCredits = 0;
+    if (typeof window.CosmicPersistence !== 'undefined' && p1) {
+        const res = window.CosmicPersistence.recordMatchResult({
+            score,
+            wave,
+            kills: totalKills,
+            evos: Object.keys(p1.evolutions || {}).length,
+            megas: Object.keys(p1.superEvolutions || {}).length,
+            bosses: Math.floor(wave / 3),
+            mapId: SELECTED_MAP
+        });
+        earnedCredits = res.earnedCredits || 0;
+    }
     document.getElementById('hud').classList.add('hidden');
     document.getElementById('gameOverOv').classList.remove('hidden');
     document.getElementById('goSc').textContent = Math.floor(score).toLocaleString();
     document.getElementById('goWv').textContent = wave;
     document.getElementById('goKl').textContent = totalKills;
     document.getElementById('goMap').textContent = (MAPS[SELECTED_MAP] || MAPS.sector9).name;
+    const goCr = document.getElementById('goCreditsEarned');
+    if (goCr) goCr.textContent = `+${earnedCredits.toLocaleString('tr-TR')} 💎 KOZMİK KREDİ KAZANILDI!`;
     const m = Math.floor(gameTime / 60), s = Math.floor(gameTime % 60);
     document.getElementById('goTm').textContent = `${m}:${s.toString().padStart(2, '0')}`;
 

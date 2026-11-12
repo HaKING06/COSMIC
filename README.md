@@ -5,7 +5,7 @@
 <br />
 
 # 🌌 COSMIC SURVIVORS
-### **KOZMİK ARENA & HİPER-EVRİM ROGUELIKE (v7.0)**
+### **KOZMİK ARENA & HİPER-EVRİM ROGUELIKE (v8.0 — MODULAR HYPER-EDITION)**
 
 [![Canlı Oyna](https://img.shields.io/badge/🎮_HEMEN_OYNA-cosmic.haking.tr-00f0ff?style=for-the-badge&logo=rocket&logoColor=03030a)](https://cosmic.haking.tr/)
 [![Evrim Ağacı](https://img.shields.io/badge/⚡_EVRİM_AĞACI-tree.html-ffcc00?style=for-the-badge)](https://cosmic.haking.tr/tree.html)
@@ -15,13 +15,13 @@
 [![Lisans: MIT](https://img.shields.io/badge/Lisans-MIT-00ff88?style=for-the-badge)](LICENSE)
 
 <p align="center">
-  <strong>Sıfır Bağımlılık • Saf HTML5 Canvas & Web Audio API • 5 Özgün Gemi & İmza Kök Ağaçları • 3 Dinamik Harita • 4 Silah + 4 Alet Slotu • 12 Çapraz Evrim ($X+Y=Z$) & 6 Kozmik Mega Evrim ($Z+N=\text{MEGA}$) • Elit Mini-Boss & Kozmik Sandık</strong>
+  <strong>Modüler Web Mimarisi (Harici CSS/JS/Asset Paketi) • 8 Özgün Yıldız Gemisi & 3D/HD Modeller • 4 Dinamik Sektör Haritası • Kalıcı Reaktör Atölyesi (💎 Kozmik Kredi) • Profesyonel Filtrelenebilir Katalog & Gemi Kıyaslama • 15 Çapraz Evrim ($X+Y=Z$) & 8 Mega Evrim ($Z+N=\text{MEGA}$)</strong>
 </p>
 
 ---
 
 ### 🚀 **[⚡ CANLI SİMÜLASYONU BAŞLAT — https://cosmic.haking.tr/](https://cosmic.haking.tr/)**
-### 📚 **[🧠 KOZMİK WİKİ & TAKTİK REHBERİ — https://cosmic.haking.tr/wiki.html](https://cosmic.haking.tr/wiki.html)**
+### 📚 **[🧠 KOZMİK WİKİ & VERİTABANI — https://cosmic.haking.tr/wiki.html](https://cosmic.haking.tr/wiki.html)**
 ### ☕ **[💛 PROJEYİ DESTEKLE — https://buymeacoffee.com/haking](https://buymeacoffee.com/haking)**
 ### 📩 **Resmi İletişim: [cosmic@haking.tr](mailto:cosmic@haking.tr)**
 
@@ -31,115 +31,68 @@
 
 ## 📖 Genel Bakış
 
-**COSMIC SURVIVORS — Kozmik Arena & Hiper-Evrim Roguelike**, herhangi bir harici oyun motoru, kütüphane veya ses/görsel dosyası kullanmadan; tamamen **Vanilla JavaScript (ES6+)**, **HTML5 Canvas 2D** ve **Prosedürel Web Audio API** ile sıfırdan inşa edilmiş tek oyunculu (**1P**) bir **Kozmik Arena & Hiper-Evrim Roguelike** web oyunudur.
+**COSMIC SURVIVORS — Kozmik Arena & Hiper-Evrim Roguelike (v8.0)**, harici `css/`, `js/` ve yüksek detaylı `assets/` (`ships/`, `bosses/`, `enemies/`, `maps/`) paket yapısıyla sıfırdan inşa edilmiş, çok sayfalı ve tam donanımlı bir web oyun portalıdır.
 
-Yıl **2384**. **Sektör 9**'da açılan hiper-uzay yarığından akan biyomekanik **Kozmik Parazit** sürülerine karşı 5 farklı yıldız gemisinden birini seçin, geminize özel **2 İmza Kök Yeteneğini (Signature Nodes)** açın, **3 farklı çevresel anomali haritasında** hayatta kalın, **4 Silah Slotu** ve **4 Alet (Trinket) Slotu**nu çapraz matrisle birleştirerek **12 Çapraz Evrim ($X+Y=Z$)** ve **6 Kozmik Mega Evrim ($Z+N=\text{MEGA}$)** sentezleyin!
-
----
-
-## ✨ v7.0 Mimari & Sistem Özellikleri
-
-- 🎨 **Özgün Cosmic Survivors Marka Kimliği & %75 Ferah Ekran Ölçeği:** Tüm arayüz (`index.html`, `game.html`, `tree.html`, `wiki.html`, `about.html`) tarayıcı %100 yakınlaştırmadayken bile **%75 ölçek (`html { font-size: 75%; }` ve kompakt `clamp()` birimleri)** ferahlığında, **sıfır dikey kaydırma (`100vh`)** ile tek ekrana tam oturacak şekilde tasarlandı.
-- 🛡️ **Atomik Kart Kilidi & Bellek/Ses Optimizasyonu:** Seviye atlama ekranında aynı karede çoklu tuş basımını engelleyen senkron `isLevelingUp` atomik kilidi, Web Audio API üzerinde eşzamanlı osilatör sınırlayıcısı ve Dalga 30+ için partikül/iz bellek havuzu üst limiti entegre edildi.
-- 🌿 **Karaktere Özel İmza Kök Ağaçları & Çapraz Füzyon Matrisi:** Her geminin yalnızca kendi havuzunda açılan **1 Özel Kök Silahı + 1 Özel Kök Aleti** bulunur. Silahlar iki farklı aletle birleşerek farklı evrimlere ($Silah_A + Alet_B = Evrim_1$ veya $Silah_A + Alet_C = Evrim_2$) dallanabilir.
-- 📚 **Kapsamlı Kozmik Wiki (`wiki.html`):** Harita × Gemi Sinerji Matrisi, En Güçlü 5 Meta Build & Dalga Zamanlama Rehberi ve *Oblivion Behemoth* arka reaktör zayıf nokta (`2.0x Hasar`) taktiklerini içeren oyun içi strateji ansiklopedisi.
-- 🎲 **Reroll (2x) & Skip (1x) + Elit Mini-Boss & Kozmik Sandık:** Her 3 dalgada bir beliren **Elit Mini-Boss** ve düşürdüğü altın **Kozmik Şans Sandığı** ile hazır evrimleri anında ücretsiz sentezleme imkanı.
+- **🛸 8 Özgün Yıldız Gemisi & 3D/2.5D Canlı Vitrin (`models3d.js`):** Her biri çok katmanlı SVG/PNG yüksek çözünürlüklü gövde modellerine, 2.5D yatış (banking) fiziğine, döner taretlere, kendine özel **İmza Kök Silahı + Kök Aletine** ve **Aktif Yeteneğe (`SPACE`)** sahip 8 gemi sınıfı.
+- **📋 Profesyonel Filtrelenebilir Katalog & Yan Yana Gemi Kıyaslama:** Hangar içinde ve Wiki sayfasında arama, kategori/gemi filtreleme, hasar/tier sıralama, Tablo/Kart görünüm değiştirici ve iki gemiyi yan yana kıyaslayan **Gemi Karşılaştırma Laboratuvarı**.
+- **🔧 Kalıcı Reaktör Atölyesi (Meta-Progression & 💎 Kozmik Kredi):** Savaşlarda ve başarımlarda kazanılan **Kozmik Krediler** ile tüm gemilerin hasar, gövde, hız, kritik, dolum süresi ve Reroll/Skip haklarını kalıcı olarak yükseltme imkanı.
+- **🗺️ 4 Dinamik Sektör Haritası & Taktiksel Radar Mini-Harita:** *Sektör 9 Enkazı*, *Kuantum Nebulası*, *Kara Delik Çevresi* ve yeni *Dyson Mega-Küre Reaktörü* ile oyun içi canlı **Radar Mini-Harita**.
 
 ---
 
-## 🛸 5 Özgün Yıldız Gemisi & İmza Kök Yetenekleri
+## 🛸 8 Özgün Yıldız Gemisi & İmza Kök Ağaçları
 
-| Gemi Sınıfı | Başlangıç Silahı | Özel Kök Silahı & Aleti (Signature Nodes) | Pasif Gövde Avantajı | Aktif Yetenek (`SPACE`) |
-| :--- | :--- | :--- | :--- | :--- |
-| **⚡ Avcı (`Interceptor`)** | **Çift Lazer** | **Foton Mızrağı** (`photonLance`) + **Hiper-Sürücü** (`hyperDrive`) | **+%20 Hız, +%15 Kritik** | **Warp Dash:** 1.2 sn dokunulmaz takla ve lazer izi |
-| **🛡️ Kruvazör (`Dreadnought`)** | **Ağır Plazma Topu** | **Kuşatma Havanı** (`siegeMortar`) + **Reaktif Zırh** (`reactivePlate`) | **+%30 Zırh, -%10 Hız** | **Mikro Füze Salvosu:** 3 sn boyunca 360° füze yağmuru |
-| **💠 Aegis (`Shield Guardian`)** | **Dönen Enerji Diski** | **Prizma Küresi** (`prismOrb`) + **Kapasitör Çekirdeği** (`capacitorCore`) | **Otomatik Kalkan Patlaması** (8 sn) | **EMP Şok Dalgası:** Tüm mermileri siler ve kalkana çevirir |
-| **👻 Gölge (`Void Phantom`)** | **Kuantum Hançeri** | **Hiper-Faz Tırpanı** (`phaseScythe`) + **Hiper-Pelerin** (`cloakModule`) | **10 sn'de bir 1.5 sn Görünmezlik + %65 Suikast** | **Gölge Sıçraması:** İmlece ışınlanır ve 8'li hançer saçar |
-| **☀️ Solar Flare (`Sunstorm`)** | **Alev Hattı** | **Güneş Havanı** (`solarFlareGun`) + **Korona Çekirdeği** (`coronaCore`) | **Termal Radyasyon Aurası** | **Güneş Patlaması:** Ekran çapında korona patlaması |
-
----
-
-## 🗺️ 3 Gerçek Savaş Haritası & Çevresel Anomaliler
-
-| Harita | Çevresel Mekanik & Anomaliler | En Avantajlı Gemi Sinerjileri |
-| :--- | :--- | :--- |
-| **1. Sektör 9 Enkazı** *(Standart Arena)* | Dönen dev **Titanyum Hurda Enkazları** mermileri ve gemiyi fiziksel olarak saptırır. | **Kruvazör (`Dreadnought`)** & **Aegis** (Engel arkası alan hasarı ve yörünge diskleri) |
-| **2. Kuantum Nebulası** *(Hız & Tehlike)* | **Mavi İyonize Bulutlar** gemiyi **+%45 hızlandırır**, **Mor Yoğun Gazlar** **-%35 yavaşlatır**. | **Avcı (`Interceptor`)** & **Gölge (`Void Phantom`)** (Yüksek mobilite ve ışınlanma) |
-| **3. Kara Delik Çevresi** *(Zorlu Çekim)* | Merkezdeki **Tekillik (Singularity)** gemiyi ve düşmanları merkeze çeker; **Lav Asteroidleri** şarapnel saçar. | **Solar Flare** & **Kruvazör** (Merkeze toplanan sürülere termal korona ve havan yıkımı) |
+| Gemi Sınıfı | Rol & Kademe | Başlangıç Silahı | Özel Kök Silahı + Aleti | Özel Evrim ➔ Mega Evrim | Aktif Yetenek (`SPACE`) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **⚡ Avcı (`Interceptor`)** | Hızlı Taarruz (`S`) | Çift Lazer | Foton Raylı Top + Hiper-İvme | Takyon Mızrağı ➔ **Hyperion Işık Hükümdarı** | **Warp Dash** |
+| **🛡️ Kruvazör (`Dreadnought`)** | Ağır Kuşatma (`S`) | Ağır Plazma Topu | Balistik Flak + Reaktif Zırh | Kıyamet Bataryası ➔ **Zırhlı Kıyamet Kalesi** | **360° Füze Salvosu** |
+| **💠 Aegis (`Guardian`)** | Yörünge & EMP (`A+`) | Dönen Enerji Diski | Tesla Prizması + Kondansatör | Kutsal İyon Fırtınası ➔ **Olay Ufku** | **EMP Şok Dalgası** |
+| **👻 Gölge (`Void Phantom`)** | Kuantum Suikast (`S`) | Kuantum Hançeri | Hiper-Uzay Tırpanı + Gölge Pelerini | Hiçlik Biçicisi ➔ **Tutulma Tanrısı** | **Gölge Sıçraması** |
+| **☀️ Solar Flare (`Sunstorm`)** | Termal AoE (`S`) | Alev Hattı | Plazma Havanı + Termonükleer Kalp | Helios Kıyameti ➔ **Omega Hükmü** | **Güneş Patlaması** |
+| **❄️ Tempest (`Cryo-Storm`)** | Kriyo-Kontrol (`S`) | Çift Lazer / Ark | Kriyo-Buzul Küresi + İletken Bobin | **Mutlak Sıfır Fırtınası** | **Kriyo-Tesla Fırtınası** |
+| **🛸 Valkyrie (`Carrier`)** | Drone Taşıyıcı (`S+`) | Füze Sürüsü | Otonom Dronelar + Nöral Ağ | **Seraphim Drone Filosu** | **Railgun Overdrive** |
+| **⏳ Chronos (`Singularity`)** | Zaman Bükücü (`S+`) | Enerji Diski | Zaman Yarığı + Akı Çekirdeği | **Sonsuzluk Döngüsü** | **Zaman Durdurma (Stasis)** |
 
 ---
 
-## 🧬 Çok Katmanlı Evrim ($X+Y=Z$) & 6 Kozmik Mega Evrim ($Z+N=\text{MEGA}$)
-
-İki uyumlu **Evrimleşmiş Silah** aynı anda envanterdeyken birleşerek tek bir **KOZMİK MEGA EVRİM** oluşturur ve **+1 Silah Slotunu Boşaltır**:
-
-| Kozmik Mega Evrim | Sentez Formülü ($Z_1 + Z_2 = \text{MEGA}$) | Kozmik Yıkım Etkisi |
-| :--- | :---: | :--- |
-| **👑 CEHENNEM GATLİNG'İ** | `Kan Hasadı` + `Gatling Fırtınası` | Ekranı yırtan kızıl-altın mermi fırtınası: 4 kez seken patlayıcı plazma mermileri ve yüksek can çalma! |
-| **🌀 OLAY UFKU** | `Kozmik Süpernova` + `Aegis Rezonansı` | Gemi etrafında 6 kara delik diski döner; kritik vuruşlar tekillik açar ve periyodik EMP şok dalgaları yayar! |
-| **🔱 OMEGA HÜKMÜ** | `Titan Koronası` + `Kuantum Yargıç` | Yörüngesel kıyamet protokolü: Dev plazma küreleri ve 7 hedefe sıçrayan kuantum yıldırımları! |
-| **⚡ VALKYRIE HİPER-FIRTINASI** *(Avcı Özel)* | `Valkyrie Mızrağı` + `Gatling Fırtınası` | Seken lazerler ve ekranı boydan boya yaran altın foton mızrakları birleşir! |
-| **🛡️ KIYAMET KALESİ** *(Kruvazör Özel)* | `Kıyamet Bataryası` + `Kan Hasadı` | Yörüngesel nükleer havan bombardımanı ve zırh/can çalma kalesi! |
-| **👻 HİÇLİK EFENDİSİ** *(Gölge Özel)* | `Hiçlik Biçici` + `Kozmik Süpernova` | Boyutlararası tırpan darbeleri ve zincirleme tekillik patlamaları! |
-
----
-
-## 🗂️ Çok Sayfalı Mimari & Dosya Yapısı
+## 🗂️ Modüler Proje Mimarisi
 
 ```text
 COSMIC/
-├── index.html              # [OYUN LOBİSİ] %75 Ölçekli Sıfır-Scroll Kokpit, Canlı Gemi Hologramı, Harita & Zorluk Seçimi
-├── game.html               # [SAVAŞ ARENASI] Minimalist HUD, ESC DPS & Evrim Terminali, Kozmik Sandık Modalları
-├── game.js                 # [OYUN MOTORU] v7.0 Kozmik Arena Motoru, 5 Gemi, 3 Harita, 4+4 Slot, Çapraz & Mega Evrimler
-├── tree.html               # [EVRİM AĞACI] 5 Gemi Sekmeli İnteraktif SVG Perk & Çok Katmanlı Füzyon Laboratuvarı
-├── wiki.html               # [KOZMİK WİKİ] Harita×Gemi Sinerji Matrisi, Top 5 Meta Build ve Boss Zayıf Nokta Rehberi
-├── about.html              # [SEKTÖR 9 ARŞİVİ] Kurumsal Arşiv, Sektör 9 Lore, İletişim & Destek Kartı, MIT Lisansı
-├── manifest.json           # PWA Web App Manifest
-├── sitemap.xml             # SEO Site Haritası (index, game, tree, wiki, about)
-├── LICENSE                 # MIT Açık Kaynak Lisansı (Halit Güneş / HaKING)
-├── README.md               # Evrensel Teknik Dokümantasyon
+├── index.html                  # [KOMUTA HANGARI] 5 Modüllü Portal (3D Vitrin, Profesyonel Katalog, Atölye, Sektörler, Başarımlar)
+├── game.html                   # [SAVAŞ ARENASI] Radar Mini-Harita, Minimalist HUD, ESC Terminali, Evrim & Sandık Modalları
+├── tree.html                   # [EVRİM LABORATUVARI] 8 Gemi Sekmeli İnteraktif SVG Perk Ağacı & Sentez Hesaplayıcı
+├── wiki.html                   # [KOZMİK WİKİ] Canlı Arama/Sıralama Veritabanı, 4x8 Harita Sinerji Matrisi, Hasar Hesaplayıcı
+├── about.html                  # [SEKTÖR 9 ARŞİVİ] Lore, Kurumsal İletişim, Destek Kartı & MIT Lisansı
+├── css/
+│   ├── core.css                # Global Tasarım Sistemi, Tablo/Filtre/Kart Bileşenleri, %75 Responsive Ölçek
+│   ├── lobby.css               # Hangar Portalı, 3D Turntable, Katalog & Reaktör Atölyesi Stilleri
+│   ├── game.css                # Savaş Arenası HUD, Radar Mini-Harita & Hologram Kart Stilleri
+│   ├── tree.css                # İnteraktif Yetenek Ağacı & Sentez Simülatörü Stilleri
+│   └── wiki.css                # Wiki Veritabanı, Sekmeler & Kurumsal Arşiv Stilleri
+├── js/
+│   ├── data.js                 # Merkezi Veritabanı (8 Gemi, 4 Harita, Katalog, Atölye) & CosmicPersistence
+│   ├── models3d.js             # 2.5D/3D Gemi, Boss, Düşman & Hangar Turntable Model Çizim Motoru
+│   ├── lobby.js                # Hangar, Profesyonel Katalog, Gemi Kıyaslama & Atölye Kontrolcüsü
+│   ├── tree.js                 # İnteraktif Evrim Ağacı & Sentez Simülatörü Motoru
+│   └── wiki.js                 # Wiki Canlı Arama, Sıralama & Matematiksel Hasar Hesaplayıcı
+├── game.js                     # Ana Savaş Motoru (v8.0)
+├── leaderboard.js              # Yerel Liderlik Tablosu Yöneticisi
 └── assets/
-    ├── logo.svg            # Vektörel Cyberpunk Arma & Favicon
-    ├── og-banner.svg       # 1200x630 Vektörel Tanıtım Afişi
-    └── og-banner.png       # 1200x630 Yüksek Çözünürlüklü Sosyal Medya (OG/Twitter) Banner
+    ├── ships/                  # 8 Gemi İçin Çok Katmanlı HD SVG & PNG Modelleri
+    ├── bosses/                 # 5 Kozmik Boss HD SVG Modelleri
+    ├── enemies/                # 8 Parazit Sınıfı HD SVG Modelleri
+    ├── maps/                   # 4 Sektör Haritası Vektörel Önizlemeleri
+    ├── hangar-bg.png           # Yüksek Çözünürlüklü Hangar Arka Plan Sanatı
+    ├── boss-banner.png         # Yüksek Çözünürlüklü Boss Savaş Sanatı
+    └── og-banner.png           # 1200x630 Sosyal Medya Paylaşım Afişi
 ```
 
 ---
 
-## 🛠️ Kurulum ve Yerel Çalıştırma
+## 📄 Lisans & İletişim
 
-Proje hiçbir derleme (build) adımı veya harici paket kurulumu gerektirmez:
-
-```bash
-# 1. Depoyu klonlayın
-git clone https://github.com/haking/COSMIC.git
-cd COSMIC
-
-# 2. Yerel bir HTTP sunucusu başlatın
-python -m http.server 8080
-
-# 3. Tarayıcınızda açın
-# Oyun Lobisi (Kokpit)        : http://localhost:8080/index.html
-# Savaş Arenası               : http://localhost:8080/game.html
-# İnteraktif Evrim Ağacı      : http://localhost:8080/tree.html
-# Kozmik Wiki & Taktik Rehber : http://localhost:8080/wiki.html
-# Sektör 9 Arşivi & Künye     : http://localhost:8080/about.html
-```
-
----
-
-## 💖 Destek & İletişim
-
-**Cosmic Survivors**, açık kaynaklı ve bağımsız bir web oyun projesidir. Geliştirmeyi desteklemek için:
-
-- ☕ **Buy Me a Coffee:** [**https://buymeacoffee.com/haking**](https://buymeacoffee.com/haking)
-- 🌐 **Canlı Web Oyunu:** [**https://cosmic.haking.tr/**](https://cosmic.haking.tr/)
+- ☕ **Destek:** [**https://buymeacoffee.com/haking**](https://buymeacoffee.com/haking)
+- 🌐 **Web:** [**https://cosmic.haking.tr/**](https://cosmic.haking.tr/)
 - 📩 **E-Posta:** [**cosmic@haking.tr**](mailto:cosmic@haking.tr)
-
----
-
-## 📄 Lisans
-
-Bu proje **MIT Lisansı** altında lisanslanmıştır — detaylar için [LICENSE](LICENSE) dosyasına göz atabilirsiniz.
-
-**Telif Hakkı © 2026 Halit Güneş (HaKING). Tüm hakları saklıdır.**
+- **Telif Hakkı © 2026 Halit Güneş (HaKING) — MIT Lisansı.**

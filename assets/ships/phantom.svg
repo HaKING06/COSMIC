@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+        
+    <defs>
+        <filter id="phn-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur1"/>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur2"/>
+            <feMerge>
+                <feMergeNode in="blur2"/>
+                <feMergeNode in="blur1"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="phn-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.78"/>
+            <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#ff006a" flood-opacity="0.45"/>
+        </filter>
+        <linearGradient id="phn-hull" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2b3548"/>
+            <stop offset="35%" stop-color="#182030"/>
+            <stop offset="70%" stop-color="#0d121c"/>
+            <stop offset="100%" stop-color="#060910"/>
+        </linearGradient>
+        <linearGradient id="phn-plate" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#121824"/>
+            <stop offset="25%" stop-color="#2c3a50"/>
+            <stop offset="50%" stop-color="#435674"/>
+            <stop offset="75%" stop-color="#2c3a50"/>
+            <stop offset="100%" stop-color="#121824"/>
+        </linearGradient>
+        <linearGradient id="phn-accent" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="25%" stop-color="#ff006a"/>
+            <stop offset="80%" stop-color="#7b00ff"/>
+            <stop offset="100%" stop-color="#050811"/>
+        </linearGradient>
+        <linearGradient id="phn-trim" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff006a"/>
+            <stop offset="50%" stop-color="#7b00ff"/>
+            <stop offset="100%" stop-color="#ff006a"/>
+        </linearGradient>
+        <radialGradient id="phn-core" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="35%" stop-color="#ff80bf"/>
+            <stop offset="75%" stop-color="#7b00ff" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#7b00ff" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="phn-aura" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ff006a" stop-opacity="0.26"/>
+            <stop offset="65%" stop-color="#7b00ff" stop-opacity="0.08"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="phn-plume" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="30%" stop-color="#ff006a"/>
+            <stop offset="70%" stop-color="#7b00ff" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#7b00ff" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="phn-glass" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+            <stop offset="28%" stop-color="#ff006a" stop-opacity="0.85"/>
+            <stop offset="70%" stop-color="#06152d" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#7b00ff" stop-opacity="0.9"/>
+        </linearGradient>
+    </defs>
+        <circle cx="128" cy="128" r="114" fill="url(#phn-aura)"/>
+        <!-- Void Phase Afterburner -->
+        <g filter="url(#phn-glow)">
+            <polygon points="112,196 128,252 144,196" fill="url(#phn-plume)"/>
+            <polygon points="74,186 82,228 92,186" fill="url(#phn-plume)"/>
+            <polygon points="164,186 174,228 182,186" fill="url(#phn-plume)"/>
+        </g>
+        <g filter="url(#phn-shadow)">
+            <!-- Swept-Forward Scythe Phase Blades -->
+            <path d="M88,148 L22,184 L16,96 L58,22 L72,94 L98,118 Z" fill="url(#phn-accent)" stroke="#ff66b2" stroke-width="2"/>
+            <path d="M168,148 L234,184 L240,96 L198,22 L184,94 L158,118 Z" fill="url(#phn-accent)" stroke="#ff66b2" stroke-width="2"/>
+            <!-- Inner Stealth Chassis -->
+            <polygon points="128,14 156,88 198,64 176,174 148,158 128,210 108,158 80,174 58,64 100,88" fill="url(#phn-hull)" stroke="#ff006a" stroke-width="2.2"/>
+            <polygon points="128,28 148,96 174,88 158,158 128,194 98,158 82,88 108,96" fill="url(#phn-plate)" stroke="#b300ff" stroke-width="1.6"/>
+            <!-- Quantum Dagger Emitters -->
+            <polygon points="58,22 46,68 64,62" fill="#ffffff" filter="url(#phn-glow)"/>
+            <polygon points="198,22 210,68 192,62" fill="#ffffff" filter="url(#phn-glow)"/>
+            <!-- Dark-Matter Singularity Core -->
+            <circle cx="128" cy="132" r="22" fill="#07020d" stroke="#ff006a" stroke-width="2.2"/>
+            <circle cx="128" cy="132" r="16" fill="url(#phn-core)" filter="url(#phn-glow)"/>
+            <circle cx="128" cy="132" r="7" fill="#05000a" stroke="#ffffff" stroke-width="1.5"/>
+            <!-- Assassin Split Visor Canopy -->
+            <polygon points="128,48 140,86 128,104 116,86" fill="url(#phn-glass)" stroke="#ffffff" stroke-width="1.4"/>
+            <path d="M116,74 L128,84 L140,74" stroke="#ff006a" stroke-width="2.5" fill="none"/>
+        </g>
+    </svg>
