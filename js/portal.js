@@ -1,6 +1,6 @@
 // =============================================================================
-// COSMIC UNIVERSE v11.0 — MULTI-GAME PORTAL CONTROLLER (js/portal.js)
-// Renders 50 Games with custom Logos, 16:9 Posters, Fuse.js search, Filters & Story Sync
+// COSMIC UNIVERSE v11.5 — CLEAN STOREFRONT & 60-GAME PORTAL CONTROLLER (js/portal.js)
+// Renders 60 Games (Clean Text-Free Posters + Corner Logos), 4-Act Story Jump & Fuse Search
 // =============================================================================
 (function (global) {
     'use strict';
@@ -15,14 +15,13 @@
 
     const COPY = {
         tr: {
-            pageTitle: 'COSMIC UNIVERSE v11.0 — 50 Uzay Oyunu & Hikâye Portalı',
-            topbarSub: 'V11.0 MULTIVERSE PORTAL',
-            eyebrow: 'TEK KAHRAMAN · 50 KOZMİK DÜNYA',
+            pageTitle: 'COSMIC UNIVERSE v11.5 — 60 Uzay Oyunu & 24 Bölümlük Hikâye Portalı',
+            topbarSub: 'V11.5 MULTIVERSE PORTAL',
+            eyebrow: 'TEK KAHRAMAN · 60 KOZMİK DÜNYA',
             heroTitle: 'Cosmic Universe Arcade',
-            heroSub: 'Kaptan Nova Vex\'in 8 bölümlü evrensel hikâyesini keşfet veya 7 farklı oyun motorunda geliştirilmiş 50 benzersiz tarayıcı oyunundan birini hemen başlat.',
-            heroStory: 'Hikâye Modu (8 Bölüm)',
+            heroSub: 'Kaptan Nova Vex\'in 24 bölümlük Sezon 1 destanını oyna veya 11 farklı oyun motoruyla geliştirilmiş 60 sonsuz tarayıcı oyunundan birini hemen başlat.',
+            heroStory: 'Hikâye Modu (24 Bölüm)',
             heroSurvivors: 'Cosmic Survivors',
-            heroMystery: 'Cinayet Dosyası',
             random: 'Şanslı Oyun',
             audioOn: 'Ses Açık',
             audioOff: 'Sessiz',
@@ -31,11 +30,11 @@
             kpiStars: 'Yıldızlar',
             kpiStory: 'Hikâye',
             kpiScore: 'Toplam Skor',
-            engineStack: 'MOTOR & DİL YIĞINI FİLTRESİ',
-            storyStripTitle: 'Kaptan Nova Vex — Parçalanan Sonsuzluk (8 Bölüm)',
+            featuredNew: 'YENİ V11.5 AMİRAL GEMİSİ OYUNLAR',
+            storyStripTitle: 'Kaptan Nova Vex — Sezon 1 Perdeleri (24 Bölüm)',
             storyMore: 'Hikâye Haritasına Git',
-            searchPlaceholder: '50 oyun arasında ara (3D, bulmaca, cinayet, flappy, WASM...)',
-            sortIndex: 'Katalog (#01 – #50)',
+            searchPlaceholder: '60 oyun ara (Phaser, Lua, WASM, 3D, gizem...)',
+            sortIndex: 'Katalog (#01 – #60)',
             sortStars: 'En Yüksek Yıldızlarım',
             sortStory: 'Hikâye Bölümleri Önce',
             sortDiff: 'Zorluk (Kolay -> Zor)',
@@ -51,22 +50,21 @@
                 physics: 'Fizik & Çekim',
                 tactics: 'Taktik & Gizem'
             },
-            allEngines: 'Tümü',
-            flagshipTag: 'ANA OYUN',
+            allEngines: 'Motor: Tümü',
+            flagshipTag: 'V11.5 YENİ',
             storyBadge: (n) => `BÖL.${n}`,
             playCta: 'OYNA →',
             hangarCta: 'HANGAR →',
             bestPrefix: 'Rekor'
         },
         en: {
-            pageTitle: 'COSMIC UNIVERSE v11.0 — 50 Space Games & Story Portal',
-            topbarSub: 'V11.0 MULTIVERSE PORTAL',
-            eyebrow: 'ONE HERO · 50 COSMIC WORLDS',
+            pageTitle: 'COSMIC UNIVERSE v11.5 — 60 Space Games & 24-Chapter Story Portal',
+            topbarSub: 'V11.5 MULTIVERSE PORTAL',
+            eyebrow: 'ONE HERO · 60 COSMIC WORLDS',
             heroTitle: 'Cosmic Universe Arcade',
-            heroSub: 'Follow Captain Nova Vex across an 8-Chapter multiverse story or launch any of 50 playable browser games spanning 7 engines.',
-            heroStory: 'Story Saga (8 Ch.)',
+            heroSub: 'Follow Captain Nova Vex across a 24-Chapter Season 1 saga or launch any of 60 endless browser games powered by 11 distinct engines.',
+            heroStory: 'Story Saga (24 Ch.)',
             heroSurvivors: 'Cosmic Survivors',
-            heroMystery: 'Murder Mystery',
             random: 'Random Game',
             audioOn: 'Audio On',
             audioOff: 'Muted',
@@ -75,11 +73,11 @@
             kpiStars: 'Stars Earned',
             kpiStory: 'Story Progress',
             kpiScore: 'Total Score',
-            engineStack: 'ENGINE & LANGUAGE STACK FILTER',
-            storyStripTitle: 'Captain Nova Vex — The Shattered Infinity (8 Chapters)',
+            featuredNew: 'NEW V11.5 FLAGSHIP RELEASES',
+            storyStripTitle: 'Captain Nova Vex — Season 1 Acts (24 Chapters)',
             storyMore: 'Open Story Map',
-            searchPlaceholder: 'Search all 50 games (3D, puzzle, murder, flappy, WASM...)',
-            sortIndex: 'Catalog (#01 – #50)',
+            searchPlaceholder: 'Search all 60 games (Phaser, Lua, WASM, 3D, mystery...)',
+            sortIndex: 'Catalog (#01 – #60)',
             sortStars: 'My Highest Stars',
             sortStory: 'Story Chapters First',
             sortDiff: 'Difficulty (Easy -> Hard)',
@@ -95,8 +93,8 @@
                 physics: 'Physics & Gravity',
                 tactics: 'Tactics & Mystery'
             },
-            allEngines: 'All Stacks',
-            flagshipTag: 'FLAGSHIP',
+            allEngines: 'Engine: All',
+            flagshipTag: 'V11.5 NEW',
             storyBadge: (n) => `CH.${n}`,
             playCta: 'PLAY →',
             hangarCta: 'HANGAR →',
@@ -152,50 +150,55 @@
         if (global.CosmicStoryStore) {
             const sst = global.CosmicStoryStore.getStats();
             document.getElementById('valKpiStory').textContent = `${sst.completedCount} / ${sst.totalChapters}`;
-            document.getElementById('telemetryChapterBadge').textContent = `CH ${sst.unlockedChapter} / ${sst.totalChapters}`;
+            const prefix = lang === 'en' ? 'CH' : 'BÖL';
+            document.getElementById('telemetryChapterBadge').textContent = `${prefix} ${sst.unlockedChapter} / ${sst.totalChapters}`;
         }
     }
 
     function renderStoryStrip() {
         const row = document.getElementById('portalStoryRow');
-        if (!row || !global.COSMIC_STORY_CHAPTERS || !global.CosmicStoryStore) return;
+        const acts = (global.COSMIC_STORY_META && global.COSMIC_STORY_META.acts) || [];
+        if (!row || !global.CosmicStoryStore || !acts.length) return;
+        const lang = getLang();
         const st = global.CosmicStoryStore.load();
-        row.innerHTML = global.COSMIC_STORY_CHAPTERS.map((ch) => {
-            const rec = st.completedChapters[ch.id];
-            const starTxt = rec ? '★'.repeat(rec.stars) : (ch.id <= st.unlockedChapter ? '●' : '🔒');
+        const thumbs = [1, 9, 15, 24];
+
+        row.innerHTML = acts.map((act, idx) => {
+            const chStart = act.range[0];
+            const chEnd = act.range[1];
+            let doneCount = 0;
+            for (let k = chStart; k <= chEnd; k++) {
+                if (st.completedChapters[k]) doneCount++;
+            }
+            const targetCh = Math.min(chEnd, Math.max(chStart, st.unlockedChapter <= chEnd ? st.unlockedChapter : chStart));
+            const locked = st.unlockedChapter < chStart;
             return `
-                <a href="story.html?chapter=${ch.id}" class="mini-chapter-card ${rec ? 'cleared' : ''}">
-                    <img src="${ch.image}" alt="" class="mini-chapter-img" loading="lazy">
-                    <div class="mini-chapter-meta">
-                        <span>${c().storyBadge(ch.id)}</span>
-                        <span class="mini-chapter-stars">${starTxt}</span>
+                <a href="story.html?chapter=${locked ? st.unlockedChapter : targetCh}" class="act-quick-card">
+                    <img src="assets/v11/chapters/ch${thumbs[idx] || chStart}.jpg" alt="" class="act-quick-img" loading="lazy">
+                    <div class="act-quick-info">
+                        <div class="act-quick-title">${act.title[lang] || act.title.tr}</div>
+                        <div class="act-quick-sub">${doneCount} / 6 ★ · ${locked ? '🔒' : '▶'}</div>
                     </div>
                 </a>
             `;
         }).join('');
     }
 
-    function renderEngineFilters() {
-        const wrap = document.getElementById('engineFilterChips');
-        if (!wrap || !global.COSMIC_ARCADE_GAMES) return;
-        const engines = ['all', 'Three.js 3D', 'PixiJS v8', 'Matter.js', 'WebAssembly', 'TypeScript', 'GLSL WebGL2', 'Neo-Pixel'];
-        wrap.innerHTML = '';
-        engines.forEach((eng) => {
+    function renderEngineSelect() {
+        const sel = document.getElementById('engineFilterSelect');
+        if (!sel || !global.COSMIC_ARCADE_GAMES) return;
+        const unique = ['all', ...new Set(global.COSMIC_ARCADE_GAMES.map((g) => g.engine))];
+        sel.innerHTML = '';
+        unique.forEach((eng) => {
             const count = eng === 'all'
                 ? global.COSMIC_ARCADE_GAMES.length
-                : global.COSMIC_ARCADE_GAMES.filter(g => g.engine === eng).length;
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'engine-chip-btn' + (state.engine === eng ? ' active' : '');
-            btn.textContent = eng === 'all' ? `${c().allEngines} (${count})` : `${eng} (${count})`;
-            btn.addEventListener('click', () => {
-                if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
-                state.engine = eng;
-                renderEngineFilters();
-                renderGamesGrid();
-            });
-            wrap.appendChild(btn);
+                : global.COSMIC_ARCADE_GAMES.filter((g) => g.engine === eng).length;
+            const opt = document.createElement('option');
+            opt.value = eng;
+            opt.textContent = eng === 'all' ? `${c().allEngines} (${count})` : `${eng} (${count})`;
+            sel.appendChild(opt);
         });
+        sel.value = state.engine;
     }
 
     function renderCategoryTabs() {
@@ -207,7 +210,7 @@
         order.forEach((cat) => {
             const count = cat === 'all'
                 ? global.COSMIC_ARCADE_GAMES.length
-                : global.COSMIC_ARCADE_GAMES.filter(g => g.category === cat).length;
+                : global.COSMIC_ARCADE_GAMES.filter((g) => g.category === cat).length;
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'cat-tab-btn' + (state.category === cat ? ' active' : '');
@@ -223,51 +226,42 @@
     }
 
     function getFilteredGames() {
-        const allGames = (global.COSMIC_ARCADE_GAMES || []).map((g, idx) => Object.assign({}, g, { _idx: idx + 1 }));
-        let list = allGames;
-
+        const all = (global.COSMIC_ARCADE_GAMES || []).map((g, idx) => ({ ...g, _idx: idx + 1 }));
+        let list = all;
         const q = state.query.trim();
-        if (q) {
+
+        if (q.length > 0) {
             if (state.fuse) {
-                const matchedIds = new Set(state.fuse.search(q).map(r => r.item.id));
-                list = list.filter(g => matchedIds.has(g.id));
+                const hits = new Set(state.fuse.search(q).map((r) => r.item.id));
+                list = list.filter((g) => hits.has(g.id));
             } else {
-                const lq = q.toLowerCase();
-                list = list.filter(g =>
-                    g.id.toLowerCase().includes(lq) ||
-                    (g.title.tr || '').toLowerCase().includes(lq) ||
-                    (g.title.en || '').toLowerCase().includes(lq) ||
-                    (g.tagline.tr || '').toLowerCase().includes(lq) ||
-                    (g.tagline.en || '').toLowerCase().includes(lq) ||
-                    (g.engine || '').toLowerCase().includes(lq)
+                const low = q.toLowerCase();
+                list = list.filter((g) =>
+                    g.id.includes(low) ||
+                    g.title.tr.toLowerCase().includes(low) ||
+                    g.title.en.toLowerCase().includes(low) ||
+                    g.engine.toLowerCase().includes(low)
                 );
             }
         }
 
         if (state.category !== 'all') {
-            list = list.filter(g => g.category === state.category);
+            list = list.filter((g) => g.category === state.category);
         }
         if (state.engine !== 'all') {
-            list = list.filter(g => g.engine === state.engine);
+            list = list.filter((g) => g.engine === state.engine);
         }
 
-        const store = global.CosmicArcadeStore;
-        if (state.sort === 'stars' && store) {
-            list = list.slice().sort((a, b) => {
-                const sa = store.getGameStats(a.id);
-                const sb = store.getGameStats(b.id);
-                return (sb.stars - sa.stars) || (sb.highScore - sa.highScore) || (a._idx - b._idx);
-            });
+        const getStats = (id) => (global.CosmicArcadeStore ? global.CosmicArcadeStore.getGameStats(id) : { stars: 0 });
+        if (state.sort === 'stars') {
+            list.sort((a, b) => (getStats(b.id).stars - getStats(a.id).stars) || (a._idx - b._idx));
         } else if (state.sort === 'story') {
-            list = list.slice().sort((a, b) => {
-                const ca = a.storyChapter || 99;
-                const cb = b.storyChapter || 99;
-                return (ca - cb) || (a._idx - b._idx);
-            });
+            list.sort((a, b) => ((a.storyChapter || 999) - (b.storyChapter || 999)) || (a._idx - b._idx));
         } else if (state.sort === 'diff') {
-            list = list.slice().sort((a, b) => (a.difficulty - b.difficulty) || (a._idx - b._idx));
+            list.sort((a, b) => (a.difficulty - b.difficulty) || (a._idx - b._idx));
+        } else {
+            list.sort((a, b) => a._idx - b._idx);
         }
-
         return list;
     }
 
@@ -291,32 +285,34 @@
         grid.innerHTML = list.map((g) => {
             const rec = global.CosmicArcadeStore ? global.CosmicArcadeStore.getGameStats(g.id) : { highScore: 0, stars: 0 };
             const starHtml = '★'.repeat(rec.stars || 0) + '☆'.repeat(3 - (rec.stars || 0));
-            const targetHref = g.isFlagship ? 'hangar.html' : `games/${encodeURIComponent(g.id)}/index.html`;
+            const isMainHangar = g.id === 'cosmic-survivors';
+            const targetHref = isMainHangar ? 'hangar.html' : `games/${encodeURIComponent(g.id)}/index.html`;
             const bannerSrc = `assets/v11/banners/${g.id}.jpg`;
             const thumbSrc = `assets/v11/thumbs/${g.id}.png`;
-            const badgeRight = g.storyChapter
-                ? `<span class="card-story-tag">${copy.storyBadge(g.storyChapter)}</span>`
-                : (g.isFlagship ? `<span class="card-story-tag">${copy.flagshipTag}</span>` : '');
+            const storyTag = g.storyChapter
+                ? `<span class="card-meta-story">${copy.storyBadge(g.storyChapter)}</span>`
+                : (g._idx > 50 ? `<span class="card-meta-story">${copy.flagshipTag}</span>` : '');
 
             return `
                 <a href="${targetHref}" class="game-portal-card ${g.isFlagship ? 'is-flagship' : ''}" style="--card-accent:${g.accent};">
                     <div class="card-banner-wrap">
                         <img src="${bannerSrc}" alt="${g.title[lang] || g.title.tr}" class="card-banner-img" loading="lazy" onerror="this.src='assets/v11/portal_keyart.jpg'">
-                        <div class="card-banner-scrim"></div>
-                        <div class="card-top-badges">
-                            <span class="card-num-pill">#${String(g._idx).padStart(2, '0')}</span>
-                            <span class="card-engine-pill">${g.engine} · ${g.lang}</span>
-                        </div>
                         <img src="${thumbSrc}" alt="" class="card-logo-badge" loading="lazy" onerror="this.src='assets/v11/sprites/${g.sprite}.png'">
-                        ${badgeRight}
                     </div>
                     <div class="card-body">
+                        <div class="card-meta-strip">
+                            <div class="card-meta-left">
+                                <span class="card-meta-num">#${String(g._idx).padStart(2, '0')}</span>
+                                <span class="card-meta-eng">${g.engine}</span>
+                            </div>
+                            ${storyTag}
+                        </div>
                         <h3 class="card-title">${g.title[lang] || g.title.tr}</h3>
                         <p class="card-tagline">${g.tagline[lang] || g.tagline.tr}</p>
                         <div class="card-footer-row">
                             <span class="card-stars">${starHtml}</span>
                             <span class="card-best-score">${rec.highScore > 0 ? `${copy.bestPrefix}: ${rec.highScore}` : `Lv.${g.difficulty}/5`}</span>
-                            <span class="card-play-pill">${g.isFlagship ? copy.hangarCta : copy.playCta}</span>
+                            <span class="card-play-pill">${isMainHangar ? copy.hangarCta : copy.playCta}</span>
                         </div>
                     </div>
                 </a>
@@ -337,14 +333,13 @@
             heroMainSub: copy.heroSub,
             heroStoryBtnLabel: copy.heroStory,
             heroSurvivorsLabel: copy.heroSurvivors,
-            heroMysteryLabel: copy.heroMystery,
             btnRandomLabel: copy.random,
             lblTelemetryEyebrow: copy.telemetryEyebrow,
             lblKpiGames: copy.kpiGames,
             lblKpiStars: copy.kpiStars,
             lblKpiStory: copy.kpiStory,
             lblKpiScore: copy.kpiScore,
-            lblEngineStackTitle: copy.engineStack,
+            lblFeaturedNewTitle: copy.featuredNew,
             storyStripTitle: copy.storyStripTitle,
             storyStripMoreLabel: copy.storyMore,
             btnResetFiltersLabel: copy.resetFilters,
@@ -373,7 +368,7 @@
         syncCopy();
         updateTelemetry();
         renderStoryStrip();
-        renderEngineFilters();
+        renderEngineSelect();
         renderCategoryTabs();
         renderGamesGrid();
         refreshIcons();
@@ -396,6 +391,12 @@
             renderGamesGrid();
         });
 
+        document.getElementById('engineFilterSelect')?.addEventListener('change', (e) => {
+            state.engine = e.target.value || 'all';
+            if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
+            renderGamesGrid();
+        });
+
         document.getElementById('portalSortSelect')?.addEventListener('change', (e) => {
             state.sort = e.target.value || 'index';
             renderGamesGrid();
@@ -410,13 +411,13 @@
             clearBtn?.classList.add('hidden');
             const sel = document.getElementById('portalSortSelect');
             if (sel) sel.value = 'index';
-            renderEngineFilters();
+            renderEngineSelect();
             renderCategoryTabs();
             renderGamesGrid();
         });
 
         document.getElementById('btnRandomLaunch')?.addEventListener('click', () => {
-            const list = (global.COSMIC_ARCADE_GAMES || []).filter(g => !g.isFlagship);
+            const list = (global.COSMIC_ARCADE_GAMES || []).filter((g) => g.id !== 'cosmic-survivors');
             if (!list.length) return;
             const pick = list[Math.floor(Math.random() * list.length)];
             location.href = `games/${encodeURIComponent(pick.id)}/index.html`;
@@ -438,6 +439,14 @@
     }
 
     function init() {
+        const params = new URLSearchParams(location.search);
+        const qParam = params.get('q') || '';
+        if (qParam) {
+            state.query = qParam;
+            const searchEl = document.getElementById('portalSearchInput');
+            if (searchEl) searchEl.value = qParam;
+            document.getElementById('portalSearchClear')?.classList.remove('hidden');
+        }
         initFuse();
         bindEvents();
         renderAll();

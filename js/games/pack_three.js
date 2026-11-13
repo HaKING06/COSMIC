@@ -641,7 +641,7 @@
         const enemies = [];
         const warps = [];
 
-        const isStory = Boolean(ctx.chapterId || ctx.chapterTarget);
+        const isStory = ctx.isStory !== undefined ? Boolean(ctx.isStory) : Boolean(ctx.chapterId || ctx.chapterTarget);
         const storyTarget = ctx.chapterTarget || 1200;
 
         let score = 0;
@@ -1171,7 +1171,7 @@
         const gates = [];
         const meteors = [];
 
-        const isStory = Boolean(ctx.chapterId || ctx.chapterTarget);
+        const isStory = ctx.isStory !== undefined ? Boolean(ctx.isStory) : Boolean(ctx.chapterId || ctx.chapterTarget);
         const storyTarget = ctx.chapterTarget || 2500;
 
         let score = 0;

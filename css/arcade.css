@@ -582,3 +582,171 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+
+/* Dedicated Pre-Game Start Menu Overlay */
+.pregame-menu-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background: #04070e;
+}
+
+.pregame-bg-img {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px) brightness(0.42) saturate(1.15);
+    transform: scale(1.06);
+}
+
+.pregame-scrim {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 40%, rgba(13, 21, 38, 0.55) 0%, rgba(4, 7, 14, 0.94) 85%);
+}
+
+.pregame-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 640px;
+    background: rgba(11, 17, 30, 0.92);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: var(--radius-xl);
+    padding: 1.35rem 1.5rem;
+    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.72), 0 0 0 1px rgba(148, 163, 184, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.pregame-head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pregame-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+    object-fit: cover;
+    border: 2px solid rgba(56, 189, 248, 0.45);
+    background: #070b12;
+    flex-shrink: 0;
+}
+
+.pregame-title-col {
+    flex: 1;
+    min-width: 0;
+}
+
+.pregame-badges {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.32rem;
+}
+
+.pregame-title {
+    margin: 0;
+    font-size: clamp(1.25rem, 2.2vw, 1.65rem);
+    color: #fff;
+    line-height: 1.15;
+}
+
+.pregame-tagline {
+    margin: 0.25rem 0 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.pregame-config-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.pregame-config-box {
+    background: rgba(7, 11, 18, 0.72);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.config-label {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.pill-toggle-row {
+    display: flex;
+    gap: 0.38rem;
+    flex-wrap: wrap;
+}
+
+.mode-pill {
+    padding: 0.38rem 0.65rem;
+    border-radius: 7px;
+    border: 1px solid var(--border-subtle);
+    background: rgba(15, 23, 42, 0.85);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.mode-pill:hover {
+    border-color: var(--border-active);
+    color: #fff;
+}
+
+.mode-pill.active {
+    border-color: var(--accent-sky);
+    background: rgba(56, 189, 248, 0.2);
+    color: #fff;
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.3);
+}
+
+.pregame-controls-bar {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    background: rgba(7, 11, 18, 0.6);
+    border: 1px dashed rgba(148, 163, 184, 0.22);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+}
+
+.pregame-footer {
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.pregame-launch-btn {
+    flex: 1;
+    min-width: 190px;
+    justify-content: center;
+    padding: 0.78rem 1.25rem;
+    font-size: 14.5px;
+    font-weight: 700;
+}
+
+@media (max-width: 640px) {
+    .pregame-config-grid {
+        grid-template-columns: 1fr;
+    }
+}

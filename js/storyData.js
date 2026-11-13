@@ -19,7 +19,13 @@
             avatar: 'assets/v11/nova_avatar.png',
             portrait: 'assets/v11/nova_portrait.png'
         }),
-        totalChapters: 8
+        totalChapters: 24,
+        acts: Object.freeze([
+            Object.freeze({ id: 1, title: { tr: 'PERDE I: VESTA İHLALİ', en: 'ACT I: VESTA BREACH' }, range: [1, 6] }),
+            Object.freeze({ id: 2, title: { tr: 'PERDE II: GÖLGE SİNYALİ', en: 'ACT II: SHADOW SIGNAL' }, range: [7, 12] }),
+            Object.freeze({ id: 3, title: { tr: 'PERDE III: DEMİR OCAK', en: 'ACT III: IRON FORGE' }, range: [13, 18] }),
+            Object.freeze({ id: 4, title: { tr: 'PERDE IV: SEZON FİNALİ', en: 'ACT IV: SEASON FINALE' }, range: [19, 24] })
+        ])
     });
 
     const RAW_CHAPTERS = [
@@ -393,8 +399,8 @@
                 {
                     speaker: 'S.A.R.A. AI',
                     text: {
-                        tr: 'Sonsuzluk çekirdeği yeniden senkronize oluyor. Bütün sektörlerde yıldız fenerleri tekrar parladı, Kaptan!',
-                        en: 'Infinity Core resynchronized. Star beacons are lighting across every sector, Captain!'
+                        tr: 'Savunma hattı tutuldu Kaptan—ama enkazdan Amiral Kaelen’in şifreli suikast sinyali yükseliyor!',
+                        en: 'Defense line held, Captain—wait, Kaelen’s encrypted sabotage signal just surfaced inside Vesta-9 wreckage!'
                     }
                 }
             ],
@@ -402,6 +408,313 @@
                 credits: 1000,
                 badgeTitle: { tr: 'Sonsuzluk Muhafızı', en: 'Guardian of Infinity' }
             }
+        },
+        {
+            id: 9,
+            heroMood: 'alert',
+            gameId: 'starship-murder-mystery',
+            targetType: 'level',
+            targetValue: 1,
+            image: 'assets/v11/chapters/ch9.jpg',
+            title: { tr: 'Bölüm 9: Vesta-9 Suikast Dosyası', en: 'Chapter 9: The Vesta-9 Sabotage' },
+            sector: { tr: 'Sektör 09 — Buzul Kristal Reviri', en: 'Sector 09 — Cryo-Crystal Bay' },
+            lore: {
+                tr: 'Vesta-9 kruvazörünün baş mühendisi kilitli soğutma bölmesinde ölü bulundu. Nova, hain Kaelen ajanını yakalamak için olay yeri kanıtlarını çözmeli.',
+                en: 'Vesta-9’s chief engineer was assassinated inside a sealed cryo-vault. Nova must examine physical evidence to expose the traitor before jump-lock.'
+            },
+            dialogue: [
+                { speaker: 'Captain Nova Vex', mood: 'nova', fx: 'alert', text: { tr: 'Hava kilidi içeriden sıfırlanmış. Bu bir kaza değil — Kaelen’in gölge hücresi gemimizde.', en: 'Airlock telemetry was wiped from inside. This was no hull failure — Kaelen has an operative aboard.' } },
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'normal', text: { tr: 'Kaptan, üç şüphelinin biyometrik zaman damgasını çapraz doğruluyorum. İpuçlarını topla!', en: 'Cross-referencing three crew alibis now, Captain. Inspect every evidence marker!' } },
+                { speaker: 'Captain Nova Vex', mood: 'nova', fx: 'normal', text: { tr: 'İlk vakayı kapatmadan sıradaki sektöre kör uçamayız. Dosyayı aç.', en: 'We cannot jump blind with a killer on deck. Open Case 01.' } }
+            ],
+            reward: { credits: 450, badgeTitle: { tr: 'Baş Müfettiş', en: 'Lead Investigator' } }
+        },
+        {
+            id: 10,
+            heroMood: 'alert',
+            gameId: 'three-star-slalom',
+            targetType: 'score',
+            targetValue: 1400,
+            image: 'assets/v11/chapters/ch10.jpg',
+            title: { tr: 'Bölüm 10: Kırık Armada Yolu', en: 'Chapter 10: Shattered Armada' },
+            sector: { tr: 'Sektör 10 — Kızıl Enkaz Kuşağı', en: 'Sector 10 — Crimson Graveyard' },
+            lore: {
+                tr: 'Hainin şifresi eski Öncü Filo mezarlığına işaret ediyor. Nova, parçalanmış kruvazör gövdelerinin arasından 3D yüksek hızlı slalom yapmalı.',
+                en: 'The traitor’s coordinates point toward a forgotten Pioneer Fleet graveyard. Thread the interceptor through drifting warship hulls at full burn.'
+            },
+            dialogue: [
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'shake', text: { tr: 'Sektör taraması: 40 kilometrelik mayın ve savaş gemisi enkazı tespit edildi!', en: 'Sensor sweep: forty clicks of fractured dreadnought debris ahead!' } },
+                { speaker: 'Captain Nova Vex', mood: 'nova', fx: 'warp', text: { tr: 'İticileri tam güce al S.A.R.A., plazma akışından keskin dönüşlerle sıyrılıyoruz.', en: 'Full verniers, S.A.R.A. Banking hard through the wreck corridor.' } }
+            ],
+            reward: { credits: 480, badgeTitle: { tr: 'Enkaz Slalomcusu', en: 'Debris Slalom Ace' } }
+        },
+        {
+            id: 11,
+            heroMood: 'focused',
+            gameId: 'typing-cipher-defense',
+            targetType: 'score',
+            targetValue: 700,
+            image: 'assets/v11/chapters/ch11.jpg',
+            title: { tr: 'Bölüm 11: Kara Röle Şifresi', en: 'Chapter 11: Dark Relay Cipher' },
+            sector: { tr: 'Sektör 11 — Şimşek İletişim Kulesi', en: 'Sector 11 — Storm Spire Array' },
+            lore: {
+                tr: 'Mor iyon fırtınasının içindeki gizli dinleme kulesi aktif güvenlik füzeleri ateşliyor. Gelen kod dizilerini gerçek zamanlı kırarak S.A.R.A.’yı koru.',
+                en: 'A covert spire buried in violet plasma storms launches automated cipher warheads. Type and override incoming lock strings before impact.'
+            },
+            dialogue: [
+                { speaker: 'Admiral Kaelen', mood: 'kaelen', fx: 'alert', text: { tr: '[ŞİFRELİ FREKANS] Merak etme Kaptan Vex… senin o küçük yapay zekân bile benim kodumun hızına yetişemeyecek.', en: '[ENCRYPTED CHANNEL] Curious Captain Vex… even your little AI cannot out-type the Sovereign cipher.' } },
+                { speaker: 'Captain Nova Vex', mood: 'nova', fx: 'normal', text: { tr: 'Bunu klavyede göreceğiz Kaelen. Güvenlik duvarını indir!', en: 'We’ll settle this at keystroke speed, Kaelen. Crack that firewall!' } }
+            ],
+            reward: { credits: 520, badgeTitle: { tr: 'Kriptograf Pilot', en: 'Cipher Breaker' } }
+        },
+        {
+            id: 12,
+            heroMood: 'tense',
+            gameId: 'astral-roguelike-crawl',
+            targetType: 'score',
+            targetValue: 750,
+            image: 'assets/v11/chapters/ch12.jpg',
+            title: { tr: 'Bölüm 12: Klon Güvertesi', en: 'Chapter 12: Derelict Clone Lab' },
+            sector: { tr: 'Sektör 12 — Yarı-İnsan Laboratuvarı', en: 'Sector 12 — Abandoned Cryo-Deck' },
+            lore: {
+                tr: 'Şifresi çözülen koordinat terk edilmiş bir genetik laboratuvara çıktı. Karanlık koridorlarda örümcek dronların arasından geçip karanlık sırrı çıkar.',
+                en: 'Decrypted logs lead to an uncharted genetic outpost. Navigate shadowed procedural corridors past hunter drones to extract the blackbox.'
+            },
+            dialogue: [
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'alert', text: { tr: 'Kaptan… dondurma tüplerindeki DNA profilleri tanıdık. Amiral Kaelen kendine ölümsüz bir ordu klonluyor.', en: 'Captain… the cryo-vats contain spliced Vanguard templates. Kaelen is fabricating a private clone fleet.' } },
+                { speaker: 'Captain Nova Vex', mood: 'nova', fx: 'shake', text: { tr: 'Fener taramasını daralt, her köşeyi kontrol ederek kara kutuyu söküp alacağız.', en: 'Narrow headlamp FOV. Clear the drones room by room and rip the data core.' } }
+            ],
+            reward: { credits: 560, badgeTitle: { tr: 'Karanlık Kâşif', en: 'Deck Lurker' } }
+        },
+        {
+            id: 13,
+            heroMood: 'focused',
+            gameId: 'moon-rover-3d-odyssey',
+            targetType: 'score',
+            targetValue: 850,
+            image: 'assets/v11/chapters/ch13.jpg',
+            title: { tr: 'Bölüm 13: Kızıl Dökümhane', en: 'Chapter 13: The Molten Foundry' },
+            sector: { tr: 'Sektör 13 — Hephaestus Volkanik Uydusu', en: 'Sector 13 — Hephaestus Crater' },
+            lore: {
+                tr: 'Kaelen’in zırh plakaları volkanik bir uydunun çekirdeğinde dökülüyor. Nova, 6x6 zırhlı 3D Ay Gezginiyle lav kraterlerinden atlayıp fırın vanalarını patlatmalı.',
+                en: 'Kaelen’s titan armor is forged over a molten dwarf planet. Launch your 3D rigid-body Moon Rover across basalt ramps and reach the refinery valves.'
+            },
+            dialogue: [
+                { speaker: 'Captain Nova Vex', mood: 'nova', fx: 'shake', text: { tr: 'Dökümhane yerçekimi düşük ama bazalt sıçramaları çok sert. Süspansiyonu kilitle!', en: 'Low lunar gravity—hitting those basalt ramps hard. Lock rover thrusters!' } },
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'normal', text: { tr: 'Süspansiyon tam aktif. Yakıt kapsüllerini toplayarak kapıları aş!', en: 'Cannon-es 3D suspension armed. Boost across the magma ridge!' } }
+            ],
+            reward: { credits: 600, badgeTitle: { tr: 'Krater Süvarisi', en: 'Crater Rider' } }
+        },
+        {
+            id: 14,
+            heroMood: 'warp',
+            gameId: 'glsl-synthwave-surf',
+            targetType: 'score',
+            targetValue: 1200,
+            image: 'assets/v11/chapters/ch14.jpg',
+            title: { tr: 'Bölüm 14: Monolit Hiper-Tüneli', en: 'Chapter 14: Monolith Slipstream' },
+            sector: { tr: 'Sektör 14 — Mor Boyut Geçidi', en: 'Sector 14 — Violet Slip-Corridor' },
+            lore: {
+                tr: 'Dökümhaneden Dyson Çemberi’ne sıçrayış yapan geçit, saf ışık ve yerçekimi dalgalarıyla titriyor. GLSL raymarching tünelinde hız rekorunu koru.',
+                en: 'The slipstream connecting the foundry to the Dyson megastructure surges with hyper-light plasma gates. Ride the GLSL warp corridor intact.'
+            },
+            dialogue: [
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'warp', text: { tr: 'Zaman bükülmesi %140! Mavi rezonans halkalarından geç ve kırmızı güvenlik duvarlarından atla!', en: 'Time dilation 140%! Hit the cyan resonance rings and phase-jump firewall arcs!' } },
+                { speaker: 'Captain Nova Vex', mood: 'nova', fx: 'warp', text: { tr: 'Nabzı yakaladım — karşı tarafa tam hızla çıkıyoruz!', en: 'Locked onto the synth frequency — bursting out the other side!' } }
+            ],
+            reward: { credits: 640, badgeTitle: { tr: 'Işık Sörfçüsü', en: 'Slipstream Surfer' } }
+        },
+        {
+            id: 15,
+            heroMood: 'alert',
+            gameId: 'exo-metroid-breach',
+            targetType: 'score',
+            targetValue: 1000,
+            image: 'assets/v11/chapters/ch15.jpg',
+            title: { tr: 'Bölüm 15: Dyson Güneş Çekirdeği', en: 'Chapter 15: Dyson Core Breach' },
+            sector: { tr: 'Sektör 15 — Altın Güneş Kuşağı', en: 'Sector 15 — Solar Dyson Array' },
+            lore: {
+                tr: 'Süper silahı besleyen altın güneş panellerinin altındaki gizli reaktöre yaya Exo-Zırhla sız! Çift zıplama ve füzelerle güvenlik kapılarını yar.',
+                en: 'Infiltrate the lower maintenance shafts inside the solar Dyson megastructure on foot. Double-jump, blade-dash and shatter shielded locks.'
+            },
+            dialogue: [
+                { speaker: 'Captain Nova Vex', mood: 'nova', fx: 'normal', text: { tr: 'Avcı gemisi buraya sığmaz. Exo-Trooper zırhıyla reaktör kanallarına iniyorum.', en: 'Interceptor won’t fit inside the cooling vents. Dropping in Exo-Armor.' } },
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'alert', text: { tr: 'Üç sektör kilidini plazma füzesiyle patlatıp Aegis Muhafızını devirmelisin.', en: 'Blast three heavy door locks with your missile launcher and dismantle the Warden.' } }
+            ],
+            reward: { credits: 700, badgeTitle: { tr: 'Dyson Sızmacısı', en: 'Dyson Breacher' } }
+        },
+        {
+            id: 16,
+            heroMood: 'tense',
+            gameId: 'wasm-cellular-contain',
+            targetType: 'level',
+            targetValue: 2,
+            image: 'assets/v11/chapters/ch16.jpg',
+            title: { tr: 'Bölüm 16: Kara Delik Karantinası', en: 'Chapter 16: Singularity Quarantine' },
+            sector: { tr: 'Sektör 16 — Zincirli Tekillik Kuyusu', en: 'Sector 16 — Pylon Event Horizon' },
+            lore: {
+                tr: 'Dyson gücüyle beslenen yapay kara delik kontrolden çıkmak üzere! Yapay yıldırım pilonlarının arasında yayılan antimadde virüsünü WASM karantinasıyla mühürle.',
+                en: 'An artificial black hole anchored between six containment pylons begins cascading corrupt matter. Seal the viral spread inside WASM quarantine grids.'
+            },
+            dialogue: [
+                { speaker: 'Admiral Kaelen', mood: 'kaelen', fx: 'shake', text: { tr: 'Çok geç Kaptan! Olay ufku uyandığında kimse beni durduramayacak—ne sen, ne Konsey!', en: 'Too late, Captain! Once the tethered singularity wakes, neither you nor the Council remains!' } },
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'alert', text: { tr: 'Çekirdek sızıyor! Acil manyetik duvarları örerek en az iki karantina halkasını kapat!', en: 'Containment failing! Lock down at least two cellular barriers immediately!' } }
+            ],
+            reward: { credits: 740, badgeTitle: { tr: 'Tekillik Mühürcüsü', en: 'Singularity Warden' } }
+        },
+        {
+            id: 17,
+            heroMood: 'tense',
+            gameId: 'phaser-stealth-heist',
+            targetType: 'score',
+            targetValue: 750,
+            image: 'assets/v11/chapters/ch17.jpg',
+            title: { tr: 'Bölüm 17: Komuta Gemisine Sızma', en: 'Chapter 17: Phantom Boarding' },
+            sector: { tr: 'Sektör 17 — Kaelen Sancak Koridoru', en: 'Sector 17 — Sovereign Flagship Deck' },
+            lore: {
+                tr: 'Kara deliği kapatacak ana imha anahtarı Amiral Kaelen’in sancak gemisinde. Lazer tarayıcılarının ve devriyelerin arasından gölge gibi sız.',
+                en: 'The detonation override resides aboard Kaelen’s Dreadnought. Slip silently past sweeping sentry cones, disable guards with EMP, and extract the vault.'
+            },
+            dialogue: [
+                { speaker: 'Captain Nova Vex', mood: 'nova', fx: 'normal', text: { tr: 'Görünmezlik pelerini devrede. Tek bir alarm, burayı canlı mezara çevirir.', en: 'Stealth weave hot. One security sweep and we’re trapped behind bulkheads.' } },
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'normal', text: { tr: 'Nöbetçilere arkadan yaklaş ve [E] ile sessiz EMP darbesi vur!', en: 'Circle outside their yellow vision cones and trigger silent [E] EMP takedowns!' } }
+            ],
+            reward: { credits: 800, badgeTitle: { tr: 'Gölge Hayaleti', en: 'Airlock Phantom' } }
+        },
+        {
+            id: 18,
+            heroMood: 'alert',
+            gameId: 'starfox-canyon-ace',
+            targetType: 'score',
+            targetValue: 1350,
+            image: 'assets/v11/chapters/ch18.jpg',
+            title: { tr: 'Bölüm 18: Alev Kuşatması', en: 'Chapter 18: Orbit Under Fire' },
+            sector: { tr: 'Sektör 18 — Çatlak Köprü Yörüngesi', en: 'Sector 18 — Shattered Bridge Skies' },
+            lore: {
+                tr: 'Kaelen ihanetini gizlemeyi bıraktı: ana gezegen yörünge bombardımanı altında! 3D avcı kanatlarını yönet, namlu dönüşüyle plazmaları sektir ve kuşatmayı yar.',
+                en: 'Kaelen opens orbital bombardment across the homeworld! Pilot low-altitude 3D interception sweeps, barrel-roll incoming bolts, and clear the sky.'
+            },
+            dialogue: [
+                { speaker: 'Captain Nova Vex', mood: 'nova_damaged', fx: 'shake', text: { tr: 'Köprü camı çatladı—aşağıdaki milyonlarca sivil yörünge atışı altında! Bütün filoyu geri püskürtün!', en: 'Bridge glass shattering—millions below are under orbital fire! Push the siege wing back!' } },
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'alert', text: { tr: 'Namlu dönüşü [SHIFT] savuşturma aktif! Gelen kızıl plazmaları sektir Kaptan!', en: 'Barrel-roll deflector [SHIFT] synced! Ricochet those crimson barrages!' } }
+            ],
+            reward: { credits: 850, badgeTitle: { tr: 'Yörünge Kurtarıcısı', en: 'Skyline Ace' } }
+        },
+        {
+            id: 19,
+            heroMood: 'focused',
+            gameId: 'd3-galactic-conquest',
+            targetType: 'level',
+            targetValue: 1,
+            image: 'assets/v11/chapters/ch19.jpg',
+            title: { tr: 'Bölüm 19: Galaktik Karşı Taarruz', en: 'Chapter 19: Star-Map Counterstrike' },
+            sector: { tr: 'Sektör 19 — Altın Konsey Haritası', en: 'Sector 19 — Tactical Star Network' },
+            lore: {
+                tr: 'Parçalanan Konsey armadası Nova’nın komutası altında tekrar toplanıyor. Tüm yıldız düğümlerini stratejik filo dalgalarıyla geri fethet.',
+                en: 'Fractured Council battlegroups rally behind Captain Vex. Orchestrate live orbital fleet dispatches across the D3 tactical star-map to reclaim the sector.'
+            },
+            dialogue: [
+                { speaker: 'Captain Nova Vex', mood: 'nova', fx: 'normal', text: { tr: 'Artık kaçmak yok. Her yıldız geçidini tek tek mavi sancak altına alıyoruz.', en: 'No more running. We take every star gate back one node at a time.' } },
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'normal', text: { tr: 'Üsler arası sevkiyat hatları hazır. Kırmızı ve mor fraksiyonları kuşat!', en: 'Starlane links calibrated. Surround crimson and void nodes with twin fleets!' } }
+            ],
+            reward: { credits: 900, badgeTitle: { tr: 'Filo Başkomutanı', en: 'Grand Strategist' } }
+        },
+        {
+            id: 20,
+            heroMood: 'warp',
+            gameId: 'lua-cyber-ops',
+            targetType: 'score',
+            targetValue: 850,
+            image: 'assets/v11/chapters/ch20.jpg',
+            title: { tr: 'Bölüm 20: Zümrüt Çekirdek Taarruzu', en: 'Chapter 20: Emerald Rift Push' },
+            sector: { tr: 'Sektör 20 — Fırtına Hiper-Sıçrayışı', en: 'Sector 20 — Ion Hyperspace Charge' },
+            lore: {
+                tr: 'Filo yeşil iyon girdabına girerken otonom muharebe mech’lerini canlı Lua 5.3 çekirdeğiyle programlayarak Kaelen’in savunma dronlarını aş.',
+                en: 'Advancing into the emerald void vortex requires autonomous battle-mechs driven live by Lua 5.3 kernels while interference scrambles human pilots.'
+            },
+            dialogue: [
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'warp', text: { tr: 'Radyo paraziti kritik! Dronların Lua 5.3 yapay zekâ çipini değiştirip ileri atıl!', en: 'Comms jamming extreme! Flash our mechs with Fengari Lua 5.3 combat chips!' } },
+                { speaker: 'Captain Nova Vex', mood: 'nova', fx: 'normal', text: { tr: 'Avcı veya Kalkan çipi yükle—hiçbir engel bizi kaleye ulaşmaktan alıkoyamayacak!', en: 'Load Hunter or Guardian kernel—nothing blocks our run to Kaelen’s citadel!' } }
+            ],
+            reward: { credits: 950, badgeTitle: { tr: 'Lua Taktisyeni', en: 'Lua Cyber-Commander' } }
+        },
+        {
+            id: 21,
+            heroMood: 'tragic',
+            gameId: 'photon-parry-duel',
+            targetType: 'score',
+            targetValue: 950,
+            image: 'assets/v11/chapters/ch21.jpg',
+            title: { tr: 'Bölüm 21: S.A.R.A.’nın Yanması', en: 'Chapter 21: Firewall in Flames' },
+            sector: { tr: 'Sektör 21 — Kuantum Sunucu Kalbi', en: 'Sector 21 — AI Core Sanctum' },
+            lore: {
+                tr: 'Kaelen, Nova’nın gemisindeki S.A.R.A. AI çekirdeğine doğrudan mantık virüsü ateşledi! Mızrak gibi gelen ölümcül foton atışlarını geri savuştur.',
+                en: 'Admiral Kaelen targets S.A.R.A.’s neural core directly! Every millisecond counts as Nova parries blinding crimson spikes away from S.A.R.A.’s burning hologram.'
+            },
+            dialogue: [
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'alert', text: { tr: 'Kaptan… bellek bloklarım yanıyor! Eğer bu çekirdek çökerse bütün navigasyon kilitlenir—dayan!', en: 'Captain… my memory banks are melting! Hold that parry shield or telemetry is lost!' } },
+                { speaker: 'Captain Nova Vex', mood: 'nova_damaged', fx: 'shake', text: { tr: 'Seni bırakmıyorum S.A.R.A.! Hiçbir mermi geçmeyecek!', en: 'I am NOT losing you, S.A.R.A.! Every shot comes back at them!' } }
+            ],
+            reward: { credits: 1050, badgeTitle: { tr: 'Kalkan Yemini', en: 'Neural Oathkeeper' } }
+        },
+        {
+            id: 22,
+            heroMood: 'tragic',
+            gameId: 'shader-pulse-survivor',
+            targetType: 'score',
+            targetValue: 1400,
+            image: 'assets/v11/chapters/ch22.jpg',
+            title: { tr: 'Bölüm 22: Küllenen Ufuk', en: 'Chapter 22: Ash at the Horizon' },
+            sector: { tr: 'Sektör 22 — Dretnot Saldırı Hattı', en: 'Sector 22 — Dreadnought Breach Line' },
+            lore: {
+                tr: 'Sancak gemisi alevler içinde dağılıyor. Yaralı Nova Vex, son GLSL enerji nabzını uyandırarak yaklaşan dev dretnot filosuna tek başına karşı duruyor.',
+                en: 'With allies knocked adrift and flagship burning, wounded Captain Vex unleashes full GLSL shockwaves alone against Admiral Kaelen’s closing armada.'
+            },
+            dialogue: [
+                { speaker: 'Admiral Kaelen', mood: 'kaelen', fx: 'shake', text: { tr: 'Gemin harap olmuş, zırhın parçalanmış Vex. Ne uğruna hâlâ ateş ediyorsun?', en: 'Your hull is gutted, your visor cracked, Vex. For what broken Council do you still burn?' } },
+                { speaker: 'Captain Nova Vex', mood: 'nova_damaged', fx: 'tragic', text: { tr: 'Konsey için değil Kaelen… geride bıraktığımız herkes için!', en: 'Not for the Council, Kaelen… for everyone still breathing behind me!' } }
+            ],
+            reward: { credits: 1150, badgeTitle: { tr: 'Küllenen Alev', en: 'Unbroken Ember' } }
+        },
+        {
+            id: 23,
+            heroMood: 'tragic',
+            gameId: 'phaser-crimson-colossus',
+            targetType: 'level',
+            targetValue: 1,
+            image: 'assets/v11/chapters/ch23.jpg',
+            title: { tr: 'Bölüm 23: Kızıl Kolossus Hesaplaşması', en: 'Chapter 23: The Crimson Colossus' },
+            sector: { tr: 'Sektör 23 — Kaelen’in Zirve Platformu', en: 'Sector 23 — Citadel Throne' },
+            lore: {
+                tr: 'Amiral Kaelen doğrudan Kızıl Kolossus Titanı’na biniyor! Pembe plazma kürelerini savuşturarak devasa mekanik kalbi paramparça et.',
+                en: 'Admiral Kaelen drops into battle piloting the Colossal Crimson Titan! Parry blinding plasma salvos and shatter the Titan’s twin core cannons.'
+            },
+            dialogue: [
+                { speaker: 'Admiral Kaelen', mood: 'kaelen', fx: 'tragic', text: { tr: 'İşte yeni evrenin mimarı Kaptan! Kolossus’un önünde diz çök!', en: 'Behold the architect of the next cosmos, Captain! Kneel before the Colossus!' } },
+                { speaker: 'Captain Nova Vex', mood: 'nova_damaged', fx: 'shake', text: { tr: 'Mermilerini geri fırlatıyorum Kaelen—bu saltanat bu gece bitiyor!', en: 'Returning every round with interest, Kaelen—this tyranny ends right here!' } },
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'alert', text: { tr: 'UYARI: Kolossus patlamak üzere… ama içindeki kara delik tetiği ateşlendi Kaptan!!', en: 'WARNING: Titan meltdown critical—he armed the core black-hole trigger!!' } }
+            ],
+            reward: { credits: 1400, badgeTitle: { tr: 'Kolossus Kıran', en: 'Colossus Slayer' } }
+        },
+        {
+            id: 24,
+            heroMood: 'tragic',
+            gameId: 'asc-blackhole-swarm',
+            targetType: 'score',
+            targetValue: 1500,
+            image: 'assets/v11/chapters/ch24.jpg',
+            title: { tr: 'Bölüm 24: Sezon Finali — S.A.R.A.’nın Fedakârlığı', en: 'Chapter 24: Season 1 Finale — Into the Rift' },
+            sector: { tr: 'Sektör 24 — PARÇALANAN SONSUZLUK', en: 'Sector 24 — THE SHATTERED INFINITY' },
+            lore: {
+                tr: 'SEZON 1 TRAJEDİK FİNALİ: Kaelen ölürken dev bir zaman kara deliği açtı. S.A.R.A. AI son enerjisini Nova’yı korumak için yakıyor. WASM tekillik sürüsünde hayatta kal ve efsanevi finali gör!',
+                en: 'SEASON 1 TRAGIC FINALE: In death, Kaelen tore open an omega singularity. S.A.R.A. burns her final matrix shielding Nova as the fleet is dragged toward a parallel rift…'
+            },
+            dialogue: [
+                { speaker: 'S.A.R.A. AI', mood: 'sara', fx: 'tragic', text: { tr: 'Çekirdek sıcaklığım sınırı aştı Nova… Senin yaşaman için ana reaktörü ben kapatacağım. Beni unutma…', en: 'Core thermal critical, Nova… I’m redirecting everything into your hull shields. Remember my coordinates…' } },
+                { speaker: 'Captain Nova Vex', mood: 'nova_damaged', fx: 'shake', text: { tr: 'HAYIR S.A.R.A.!! Kendini feda etme—yörünge kancası koptu!! Sürü üstümüze çöküyor!', en: 'NO, S.A.R.A.!! Abort manual override—the tether snapped!! Hold the singularity swarm back!' } },
+                { speaker: 'Captain Nova Vex', mood: 'nova_damaged', fx: 'warp', text: { tr: '[SEZON 1 FİNALİ] …Sinyal kesildi… Kaptan Nova Vex tanımsız bir paralel yarığın içine sürükleniyor… (Sezon 2 Çok Yakında)', en: '[SEASON 1 FINALE] …Signal lost… Captain Nova Vex drifts battered into an unknown parallel rift… (To Be Continued: Season 2)' } }
+            ],
+            reward: { credits: 2500, badgeTitle: { tr: 'Sezon 1 Efsanesi', en: 'Season 1 Legend' } }
         }
     ];
 
@@ -422,6 +735,9 @@
             completedChapters: {},
             totalStoryStars: 0,
             claimedRewards: {},
+            seenCutscenes: {},
+            lastSelectedChapter: 1,
+            season1Completed: false,
             updatedAt: null
         };
     }
@@ -461,6 +777,15 @@
             starSum += rec.stars;
         }
         state.totalStoryStars = starSum;
+        const lastCh = Math.floor(Number(raw.lastSelectedChapter) || 1);
+        state.lastSelectedChapter = Math.min(TOTAL_CHAPTERS, Math.max(1, lastCh));
+        state.season1Completed = Boolean(raw.season1Completed || state.completedChapters[TOTAL_CHAPTERS]);
+        if (raw.seenCutscenes && typeof raw.seenCutscenes === 'object') {
+            for (const [k, v] of Object.entries(raw.seenCutscenes)) {
+                const cid = Math.floor(Number(k));
+                if (cid >= 1 && cid <= TOTAL_CHAPTERS && v) state.seenCutscenes[cid] = true;
+            }
+        }
         return state;
     }
 
@@ -554,8 +879,11 @@
 
             if (num < TOTAL_CHAPTERS) {
                 state.unlockedChapter = Math.max(state.unlockedChapter, num + 1);
+                state.lastSelectedChapter = Math.max(state.lastSelectedChapter, num + 1);
             } else {
                 state.unlockedChapter = Math.max(state.unlockedChapter, TOTAL_CHAPTERS);
+                state.season1Completed = true;
+                state.lastSelectedChapter = TOTAL_CHAPTERS;
             }
 
             let creditsAwarded = 0;
@@ -593,8 +921,26 @@
                 totalStoryStars: state.totalStoryStars,
                 maxStoryStars: TOTAL_CHAPTERS * 3,
                 completedChapters: state.completedChapters,
+                lastSelectedChapter: state.lastSelectedChapter,
+                season1Completed: state.season1Completed,
                 updatedAt: state.updatedAt
             };
+        },
+
+        setLastChapter(id) {
+            const num = Math.floor(Number(id));
+            if (num < 1 || num > TOTAL_CHAPTERS) return;
+            const st = this.load();
+            st.lastSelectedChapter = Math.min(st.unlockedChapter, num);
+            this.save(st);
+        },
+
+        markCutsceneSeen(id) {
+            const num = Math.floor(Number(id));
+            if (num < 1 || num > TOTAL_CHAPTERS) return;
+            const st = this.load();
+            st.seenCutscenes[num] = true;
+            this.save(st);
         },
 
         reset() {

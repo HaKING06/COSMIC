@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC UNIVERSE v11.0 — Kaptan Nova Vex: Hikâye Modu (8 Bölüm)</title>
-    <meta name="description" content="Kaptan Nova Vex'in Parçalanan Sonsuzluk destanını oyna: 8 kozmik bölümde Flappy yarık geçişi, kuantum Sokoban, 3D hipertünel ve boss savaşları.">
-    <meta property="og:title" content="COSMIC UNIVERSE v11.0 — Captain Nova Vex Story Saga">
+    <title>COSMIC UNIVERSE v11.5 — Kaptan Nova Vex: Hikâye Modu (24 Bölüm · Sezon 1)</title>
+    <meta name="description" content="Kaptan Nova Vex'in 24 bölümlük Parçalanan Sonsuzluk Sezon 1 destanını animasyonlu ara sahneler ve farklı kozmik evren oyunlarıyla oyna.">
+    <meta property="og:title" content="COSMIC UNIVERSE v11.5 — Captain Nova Vex Season 1 Story Saga (24 Chapters)">
     <meta property="og:image" content="assets/og-banner.png">
     <meta name="theme-color" content="#070b12">
 
@@ -27,7 +27,7 @@
             <img src="assets/icon-192.png" alt="Cosmic Universe v11" class="topbar-logo-img">
             <div class="topbar-title-wrap">
                 <span class="topbar-title">COSMIC UNIVERSE</span>
-                <span class="topbar-version" id="storyTopbarSub">V11.0 STORY SAGA</span>
+                <span class="topbar-version" id="storyTopbarSub">V11.5 SEASON 1 SAGA</span>
             </div>
         </a>
 
@@ -82,21 +82,26 @@
             <div class="story-hero-left">
                 <img src="assets/v11/nova_portrait.png" alt="Captain Nova Vex" class="nova-hero-avatar">
                 <div>
-                    <div class="story-eyebrow font-mono" id="sagaEyebrow">PARÇALANAN SONSUZLUK · KAPTAN NOVA VEX</div>
+                    <div class="story-eyebrow font-mono" id="sagaEyebrow">PARÇALANAN SONSUZLUK · SEZON 1 (24 BÖLÜM)</div>
                     <h1 class="story-page-title" id="storyPageTitle">Çoklu Evren Hikâye Seferi</h1>
-                    <p class="story-page-sub" id="storyPageSub">Her bölümde farklı bir fizik ve evren kuralıyla savaş, bulmaca çöz ve 8 boyutsal mührü kır.</p>
+                    <p class="story-page-sub" id="storyPageSub">4 perdelik animasyonlu ara sahneler ve her bölümde değişen oyun evrenleriyle destanı tamamla.</p>
                 </div>
             </div>
 
             <div class="story-hero-controls">
                 <div class="story-stat-pills">
-                    <span class="cs-badge cs-badge-amber font-mono" id="storyStarsStat">0 / 24 ★</span>
-                    <span class="cs-badge cs-badge-mint font-mono" id="storyClearedStat">0 / 8</span>
+                    <span class="cs-badge cs-badge-sky font-mono" id="storyResumeStat">OTOMATİK KAYIT · BÖLÜM 1</span>
+                    <span class="cs-badge cs-badge-amber font-mono" id="storyStarsStat">0 / 72 ★</span>
+                    <span class="cs-badge cs-badge-mint font-mono" id="storyClearedStat">0 / 24</span>
                 </div>
                 <div class="story-btn-group">
+                    <button type="button" class="cs-btn cs-btn-primary" id="btnResumeStory">
+                        <i data-lucide="play-circle"></i>
+                        <span id="btnResumeStoryLabel">Kaldığın Yerden Devam Et</span>
+                    </button>
                     <button type="button" class="cs-btn cs-btn-ghost" id="btnUnlockAllStory">
                         <i data-lucide="unlock"></i>
-                        <span id="btnUnlockAllLabel">Tüm Bölümleri Önizle</span>
+                        <span id="btnUnlockAllLabel">Tüm 24 Bölümü Aç</span>
                     </button>
                     <button type="button" class="cs-btn cs-btn-ghost" id="btnResetStory">
                         <i data-lucide="rotate-ccw"></i>
@@ -106,21 +111,32 @@
             </div>
         </section>
 
-        <!-- 8-Node Constellation Chapter Map -->
+        <!-- 4-Act Tabs & 6-Node Constellation Chapter Map (24 Chapters Total) -->
         <section class="chapter-map-panel" aria-label="Bölüm Haritası">
+            <div class="act-tabs-row" id="actTabsRow"></div>
             <div class="chapter-map-track" id="chapterMapTrack"></div>
         </section>
 
-        <!-- Cinema Visual Novel Stage + Briefing Dossier -->
+        <!-- Cinema Animated Cutscene Viewport + Briefing Dossier -->
         <section class="story-cinema-grid">
             <div class="cinema-viewport" id="cinemaViewport">
                 <img src="assets/v11/chapters/ch1.jpg" alt="Chapter Biome" class="cinema-bg" id="cinemaBiomeImg">
+                <canvas class="cutscene-canvas" id="cutsceneCanvas" width="960" height="540"></canvas>
                 <div class="cinema-scrim"></div>
 
                 <div class="cinema-top-chips">
-                    <span class="cs-badge cs-badge-sky font-mono" id="cinemaChapterBadge">CHAPTER 01</span>
+                    <span class="cs-badge cs-badge-sky font-mono" id="cinemaChapterBadge">BÖL.1 / 24</span>
                     <span class="cs-badge cs-badge-violet font-mono" id="cinemaSectorBadge">Sector 01</span>
                     <span class="cs-badge cs-badge-amber font-mono" id="cinemaEngineBadge">Neo-Pixel</span>
+                    <button type="button" class="cs-badge cs-badge-mint font-mono autoplay-pill" id="btnCutsceneAutoplay" title="Toggle Auto-Play Cutscene">▶ OTO SAHNE: AÇIK</button>
+                </div>
+
+                <!-- Season 1 Tragic Finale Epilogue Card (shown on Ch.24 clear / Epilogue replay) -->
+                <div class="season-finale-banner hidden" id="seasonFinaleBanner">
+                    <div class="finale-eyebrow font-mono" id="finaleEyebrow">SEZON 1 FİNALİ · PARÇALANAN SONSUZLUK</div>
+                    <h2 class="finale-title" id="finaleTitle">S.A.R.A. AI Çekirdeğini Feda Etti — Kaptan Vex Zaman Yarığına Sürüklendi…</h2>
+                    <p class="finale-sub" id="finaleSub">Amiral Kaelen’in tekillik bombası filoyu ikiye yardı. Nova Vex bilinmeyen paralel bir galakside uyandı. Kayıtların güvende — Sezon 2 çok yakında!</p>
+                    <button type="button" class="cs-btn cs-btn-primary" id="btnCloseFinaleBanner">Epilogu Kapat &amp; Oynamaya Devam Et</button>
                 </div>
 
                 <!-- Visual Novel Dialogue Overlay -->
@@ -212,6 +228,7 @@
     <script src="js/audio.js"></script>
     <script src="js/arcadeCatalog.js"></script>
     <script src="js/storyData.js"></script>
+    <script src="js/cutscenePlayer.js"></script>
     <script src="js/story.js"></script>
 </body>
 </html>

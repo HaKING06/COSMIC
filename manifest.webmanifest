@@ -1,7 +1,7 @@
 {
-  "name": "COSMIC UNIVERSE v11.0 — 50 Space Games & Captain Nova Vex Saga",
+  "name": "COSMIC UNIVERSE v11.5 — 60 Space Games & 24-Chapter Story Saga",
   "short_name": "Cosmic Universe",
-  "description": "Portfolio-grade multi-engine space gaming portal featuring 50 playable browser games across Three.js 3D, PixiJS v8, Matter.js, WebAssembly, TypeScript, GLSL, and Captain Nova Vex Story Saga.",
+  "description": "Portfolio-grade multi-engine space gaming portal featuring 60 playable browser games across Phaser 3, Three.js 3D, Cannon-es, ROT.js, Lua 5.3, WebAssembly, D3.js, TypeScript, GLSL, and the 24-Chapter Captain Nova Vex Season 1 Saga.",
   "id": "/",
   "start_url": "/?utm_source=pwa",
   "scope": "/",
@@ -42,9 +42,9 @@
   ],
   "shortcuts": [
     {
-      "name": "50-Game Portal",
+      "name": "60-Game Portal",
       "short_name": "Portal",
-      "description": "Browse and play 50 cosmic browser games",
+      "description": "Browse and play 60 endless cosmic browser games",
       "url": "index.html",
       "icons": [
         {
@@ -55,9 +55,9 @@
       ]
     },
     {
-      "name": "Story Saga",
+      "name": "Story Saga (24 Ch.)",
       "short_name": "Story",
-      "description": "Captain Nova Vex 8-Chapter Campaign",
+      "description": "Captain Nova Vex 24-Chapter Season 1 Campaign",
       "url": "story.html",
       "icons": [
         {

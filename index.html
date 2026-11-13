@@ -3,14 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC UNIVERSE v11.0 — 50 Uzay Oyunu &amp; Hikâye Portalı</title>
-    <meta name="description" content="Kaptan Nova Vex'in 8 bölümlü hikâye seferi ve Three.js 3D, PixiJS v8, Matter.js, WebAssembly, TypeScript ve GLSL tabanlı 50 benzersiz tarayıcı uzay oyunu.">
+    <title>COSMIC UNIVERSE v11.5 — 60 Uzay Oyunu &amp; 24 Bölümlük Hikâye Portalı</title>
+    <meta name="description" content="Cosmic Universe: Kaptan Nova Vex'in 24 bölümlük Sezon 1 hikâye seferi ve Phaser 3, Three.js 3D, Cannon-es, ROT.js, Lua 5.3, WebAssembly, D3.js ve GLSL tabanlı 60 ücretsiz tarayıcı oyunu.">
+    <meta name="keywords" content="Cosmic, Cosmic Universe, Cosmic oyunları, uzay oyunları, tarayıcı oyunları, Kaptan Nova Vex, Halit Güneş, HaKING, Phaser 3, Three.js 3D, WebAssembly, Lua">
+    <link rel="canonical" href="https://cosmic.haking.tr/">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="COSMIC UNIVERSE v11.0 — 50 Space Games &amp; Interactive Story Portal">
-    <meta property="og:description" content="One hero across 50 cosmic worlds: Flagship roguelike, 3D void trenches, physics simulations, murder mystery deduction, and TypeScript logic puzzles.">
-    <meta property="og:image" content="assets/og-banner.png">
+    <meta property="og:site_name" content="COSMIC UNIVERSE">
+    <meta property="og:url" content="https://cosmic.haking.tr/">
+    <meta property="og:title" content="COSMIC UNIVERSE v11.5 — 60 Space Games &amp; 24-Chapter Story Portal">
+    <meta property="og:description" content="One hero across 60 cosmic worlds: Phaser 3 Metroidvania, Three.js + Cannon-es 3D Rally, ROT.js Roguelike, Fengari Lua 5.3 Arena, AssemblyScript WASM &amp; 24-Chapter Season Finale.">
+    <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="theme-color" content="#070b12">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "name": "COSMIC UNIVERSE",
+          "alternateName": ["Cosmic", "Cosmic Arcade", "Cosmic Universe v11.5"],
+          "url": "https://cosmic.haking.tr/",
+          "inLanguage": ["tr", "en"],
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://cosmic.haking.tr/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "CollectionPage",
+          "name": "COSMIC UNIVERSE — 60 Uzay Oyunu & Sezon 1 Hikâye Destanı",
+          "description": "60 farklı tarayıcı oyunu ve 24 bölümlü Kaptan Nova Vex hikâye modu.",
+          "url": "https://cosmic.haking.tr/",
+          "author": {
+            "@type": "Person",
+            "name": "Halit Güneş (HaKING)",
+            "email": "cosmic@haking.tr",
+            "url": "https://github.com/HaKING06/COSMIC"
+          }
+        }
+      ]
+    }
+    </script>
 
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
     <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
@@ -31,7 +67,7 @@
             <img src="assets/icon-192.png" alt="Cosmic Universe v11 Emblem" class="topbar-logo-img">
             <div class="topbar-title-wrap">
                 <span class="topbar-title">COSMIC UNIVERSE</span>
-                <span class="topbar-version" id="portalTopbarSub">V11.0 MULTIVERSE PORTAL</span>
+                <span class="topbar-version" id="portalTopbarSub">V11.5 MULTIVERSE PORTAL</span>
             </div>
         </a>
 
@@ -88,23 +124,19 @@
                 <div class="hero-feature-inner">
                     <div class="hero-nova-row">
                         <img src="assets/v11/nova_avatar.png" alt="Captain Nova Vex" class="hero-nova-badge-img">
-                        <span class="cs-badge cs-badge-sky font-mono" id="heroEyebrow">TEK KAHRAMAN · 50 KOZMİK DÜNYA</span>
+                        <span class="cs-badge cs-badge-sky font-mono" id="heroEyebrow">TEK KAHRAMAN · 60 KOZMİK DÜNYA</span>
                     </div>
                     <h1 class="hero-main-title" id="heroMainTitle">Cosmic Universe Arcade</h1>
-                    <p class="hero-main-sub" id="heroMainSub">Kaptan Nova Vex'in 8 bölümlü evrensel hikâyesini keşfet veya 7 farklı oyun motorunda geliştirilmiş 50 benzersiz tarayıcı oyunundan birini hemen başlat.</p>
+                    <p class="hero-main-sub" id="heroMainSub">Kaptan Nova Vex'in 24 bölümlük Sezon 1 destanını oyna veya 11 farklı oyun motoruyla geliştirilmiş 60 sonsuz tarayıcı oyunundan birini hemen başlat.</p>
 
                     <div class="hero-cta-row">
                         <a href="story.html" class="cs-btn cs-btn-primary" id="heroStoryBtn">
                             <i data-lucide="compass"></i>
-                            <span id="heroStoryBtnLabel">Hikâye Modu (8 Bölüm)</span>
+                            <span id="heroStoryBtnLabel">Hikâye Modu (24 Bölüm)</span>
                         </a>
                         <a href="hangar.html" class="cs-btn cs-btn-mint" id="heroSurvivorsBtn">
                             <i data-lucide="rocket"></i>
                             <span id="heroSurvivorsLabel">Cosmic Survivors</span>
-                        </a>
-                        <a href="games/starship-murder-mystery/index.html" class="cs-btn cs-btn-amber" id="heroMysteryBtn">
-                            <i data-lucide="search"></i>
-                            <span id="heroMysteryLabel">Cinayet Dosyası</span>
                         </a>
                         <button type="button" class="cs-btn cs-btn-ghost" id="btnRandomLaunch">
                             <i data-lucide="shuffle"></i>
@@ -120,21 +152,21 @@
                         <span class="telemetry-label font-mono" id="lblTelemetryEyebrow">PİLOT PROFİLİ &amp; ARŞİV</span>
                         <h2 class="telemetry-heading" id="lblTelemetryTitle">Kaptan Nova Vex</h2>
                     </div>
-                    <span class="cs-badge cs-badge-violet font-mono" id="telemetryChapterBadge">CH 1 / 8</span>
+                    <span class="cs-badge cs-badge-violet font-mono" id="telemetryChapterBadge">BÖL 1 / 24</span>
                 </div>
 
                 <div class="telemetry-kpis">
                     <div class="kpi-box">
                         <span class="kpi-label" id="lblKpiGames">Oynanan</span>
-                        <strong class="kpi-val font-mono text-sky" id="valKpiGames">0 / 50</strong>
+                        <strong class="kpi-val font-mono text-sky" id="valKpiGames">0 / 60</strong>
                     </div>
                     <div class="kpi-box">
                         <span class="kpi-label" id="lblKpiStars">Yıldızlar</span>
-                        <strong class="kpi-val font-mono text-amber" id="valKpiStars">0 / 150 ★</strong>
+                        <strong class="kpi-val font-mono text-amber" id="valKpiStars">0 / 180 ★</strong>
                     </div>
                     <div class="kpi-box">
                         <span class="kpi-label" id="lblKpiStory">Hikâye</span>
-                        <strong class="kpi-val font-mono text-mint" id="valKpiStory">0 / 8</strong>
+                        <strong class="kpi-val font-mono text-mint" id="valKpiStory">0 / 24</strong>
                     </div>
                     <div class="kpi-box">
                         <span class="kpi-label" id="lblKpiScore">Toplam Skor</span>
@@ -142,43 +174,51 @@
                     </div>
                 </div>
 
-                <div class="engine-filter-block">
-                    <div class="engine-filter-title font-mono" id="lblEngineStackTitle">MOTOR &amp; DİL YIĞINI FİLTRESİ</div>
-                    <div class="engine-chips-wrap" id="engineFilterChips"></div>
+                <div class="featured-new-block">
+                    <div class="engine-filter-title font-mono" id="lblFeaturedNewTitle">YENİ V11.5 AMİRAL GEMİSİ OYUNLAR</div>
+                    <div class="featured-mini-trio" id="featuredTrioRow">
+                        <a href="games/exo-metroid-breach/index.html" class="mini-feat-pill"><img src="assets/v11/thumbs/exo-metroid-breach.png" alt=""><span>Exo-Metroid <small>Phaser 3</small></span></a>
+                        <a href="games/moon-rover-3d-odyssey/index.html" class="mini-feat-pill"><img src="assets/v11/thumbs/moon-rover-3d-odyssey.png" alt=""><span>Moon Rover <small>Cannon 3D</small></span></a>
+                        <a href="games/phaser-crimson-colossus/index.html" class="mini-feat-pill"><img src="assets/v11/thumbs/phaser-crimson-colossus.png" alt=""><span>Colossus <small>Boss Raid</small></span></a>
+                    </div>
                 </div>
             </aside>
         </section>
 
-        <!-- 8-Chapter Story Strip -->
-        <section class="portal-story-strip" aria-label="Hikâye Bölümleri">
+        <!-- 4-Act Story Quick Jump Strip -->
+        <section class="portal-story-strip" aria-label="Hikâye Perdeleri">
             <div class="strip-head">
                 <div class="strip-title-wrap">
                     <i data-lucide="sparkles"></i>
-                    <h2 class="strip-title" id="storyStripTitle">Kaptan Nova Vex — Parçalanan Sonsuzluk (8 Bölüm)</h2>
+                    <h2 class="strip-title" id="storyStripTitle">Kaptan Nova Vex — Sezon 1 Perdeleri (24 Bölüm)</h2>
                 </div>
                 <a href="story.html" class="strip-more-link" id="storyStripMore">
                     <span id="storyStripMoreLabel">Hikâye Haritasına Git</span>
                     <i data-lucide="arrow-right"></i>
                 </a>
             </div>
-            <div class="story-chapters-row" id="portalStoryRow"></div>
+            <div class="story-chapters-row story-acts-row" id="portalStoryRow"></div>
         </section>
 
-        <!-- Sticky Search + Category Filter Toolbar -->
+        <!-- Clean Single-Row Storefront Filter Toolbar -->
         <section class="catalog-toolbar" id="arcadeLibrary">
             <div class="category-tabs-wrap" id="categoryTabsWrap"></div>
 
             <div class="search-sort-wrap">
+                <select id="engineFilterSelect" class="cs-select portal-engine-select" aria-label="Motor / Dil Filtresi">
+                    <option value="all" id="optAllEngines">Motor: Tümü</option>
+                </select>
+
                 <div class="portal-search-box">
                     <i data-lucide="search"></i>
-                    <input type="search" id="portalSearchInput" class="portal-search-input" placeholder="50 oyun arasında ara (3D, bulmaca, cinayet, flappy, WASM...)">
+                    <input type="search" id="portalSearchInput" class="portal-search-input" placeholder="60 oyun ara (Phaser, Lua, WASM, 3D, gizem...)">
                     <button type="button" id="portalSearchClear" class="search-clear-btn hidden" aria-label="Temizle">
                         <i data-lucide="x"></i>
                     </button>
                 </div>
 
                 <select id="portalSortSelect" class="cs-select portal-sort-select" aria-label="Sıralama">
-                    <option value="index" id="optSortIndex">Katalog (#01 – #50)</option>
+                    <option value="index" id="optSortIndex">Katalog (#01 – #60)</option>
                     <option value="stars" id="optSortStars">En Yüksek Yıldızlarım</option>
                     <option value="story" id="optSortStory">Hikâye Bölümleri Önce</option>
                     <option value="diff" id="optSortDiff">Zorluk (Kolay -> Zor)</option>
@@ -188,20 +228,20 @@
 
         <!-- Results Status Bar -->
         <div class="catalog-results-meta">
-            <span class="font-mono" id="resultsCountBadge">50 / 50 OYUN</span>
+            <span class="font-mono" id="resultsCountBadge">60 / 60 OYUN</span>
             <button type="button" class="reset-filters-link hidden" id="btnResetFilters">
                 <i data-lucide="rotate-ccw"></i>
                 <span id="btnResetFiltersLabel">Filtreleri Sıfırla</span>
             </button>
         </div>
 
-        <!-- 50-Game Portfolio Grid -->
+        <!-- 60-Game Clean Portfolio Grid -->
         <section class="portal-games-grid" id="portalGamesGrid" aria-live="polite"></section>
     </main>
 
     <footer class="portal-footer">
         <div class="portal-footer-inner">
-            <span>COSMIC UNIVERSE v11.0 · Halit Güneş (HaKING)</span>
+            <span>COSMIC UNIVERSE v11.5 · Halit Güneş (HaKING)</span>
             <div class="portal-footer-links">
                 <a href="story.html">Story Saga</a>
                 <a href="hangar.html">Cosmic Survivors</a>

@@ -458,7 +458,7 @@
         const stars = core.createStarfield(110);
         const input = core.createInput(ctx.stageEl || canvas);
 
-        const isStory = Boolean(ctx.chapterId || ctx.chapterTarget);
+        const isStory = ctx.isStory !== undefined ? Boolean(ctx.isStory) : Boolean(ctx.chapterId || ctx.chapterTarget);
         const storyScoreTarget = ctx.chapterTarget || 1500;
 
         const BOSS_DEFS = [
@@ -795,12 +795,11 @@
                     winGame();
                     return;
                 }
-                if (!isStory && bossesDefeated >= BOSS_DEFS.length) {
-                    winGame();
-                    return;
+                if (!isStory && bossesDefeated % BOSS_DEFS.length === 0) {
+                    fx.popup(W * 0.5, 110, core.tr('SONSUZ RUSH TURU +1!', 'ENDLESS RUSH TIER +1!'), '#38bdf8', 22);
                 }
                 if (lives < 4) lives += 1;
-                spawnBoss(boss.idx + 1);
+                spawnBoss((boss.idx + 1) % BOSS_DEFS.length);
             }
 
             // Enemy bullets vs Player
@@ -1126,7 +1125,7 @@
         const stars = core.createStarfield(120);
         const input = core.createInput(canvas);
 
-        const isStory = Boolean(ctx.chapterId || ctx.chapterTarget);
+        const isStory = ctx.isStory !== undefined ? Boolean(ctx.isStory) : Boolean(ctx.chapterId || ctx.chapterTarget);
         const storyTarget = ctx.chapterTarget || 1000;
 
         const MAX_BULLETS = 360;
@@ -1962,7 +1961,7 @@
         const stars = core.createStarfield(110);
         const input = core.createInput(canvas);
 
-        const isStory = Boolean(ctx.chapterId || ctx.chapterTarget);
+        const isStory = ctx.isStory !== undefined ? Boolean(ctx.isStory) : Boolean(ctx.chapterId || ctx.chapterTarget);
         const storyTarget = ctx.chapterTarget || 8;
 
         const NOVA_X = 220;
@@ -3221,13 +3220,13 @@
                 score += 400 + sentinel.round * 200;
                 fx.burst(SENTINEL_X, LANES_Y[sentinel.lane], '#fbbf24', 32, 280);
                 core.playAudio('explodeBoss');
-                if (sentinel.round + 1 >= SENTINELS.length) {
+                if (isStory && sentinel.round + 1 >= SENTINELS.length) {
                     ended = true;
                     syncHud(true);
                     ctx.onWin?.({ score: Math.floor(score), level: SENTINELS.length, stars: lives >= 4 ? 3 : (lives >= 2 ? 2 : 1) });
                     return;
                 }
-                startRound(sentinel.round + 1);
+                startRound((sentinel.round + 1) % SENTINELS.length);
             }
 
             fx.update(dt);

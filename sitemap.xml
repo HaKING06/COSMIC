@@ -1,363 +1,710 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://cosmic.haking.tr/</loc>
     <lastmod>2026-11-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/og-banner.png</image:loc>
+      <image:title>COSMIC UNIVERSE v11.5 — 60 Space Games Portal</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/story.html</loc>
     <lastmod>2026-11-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/chapters/ch24.jpg</image:loc>
+      <image:title>Captain Nova Vex 24-Chapter Story Saga</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/hangar.html</loc>
     <lastmod>2026-11-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/portal_keyart.jpg</image:loc>
+      <image:title>Cosmic Survivors Flagship Hangar</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/arcade.html</loc>
     <lastmod>2026-11-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/og-banner.png</image:loc>
+      <image:title>Universal Arcade Player</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/game.html</loc>
     <lastmod>2026-11-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/og-banner.png</image:loc>
+      <image:title>Cosmic Survivors Arena</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/armory.html</loc>
     <lastmod>2026-11-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/og-banner.png</image:loc>
+      <image:title>Cosmic Armory</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/modes.html</loc>
     <lastmod>2026-11-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/og-banner.png</image:loc>
+      <image:title>Cosmic Modes</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/tree.html</loc>
     <lastmod>2026-11-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/og-banner.png</image:loc>
+      <image:title>Cosmic Evolution Tree</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/wiki.html</loc>
     <lastmod>2026-11-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/og-banner.png</image:loc>
+      <image:title>Cosmic Encyclopedia</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/about.html</loc>
     <lastmod>2026-11-13</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/og-banner.png</image:loc>
+      <image:title>COSMIC UNIVERSE Hakkında &amp; Mimari</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://cosmic.haking.tr/privacy.html</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/cosmic-survivors/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/cosmic-survivors.jpg</image:loc>
+      <image:title>Kozmik Hayatta Kalanlar (Ana Sefer) (Cosmic Survivors (Flagship))</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/boss-gauntlet/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/boss-gauntlet.jpg</image:loc>
+      <image:title>Kızıl Sürü: Boss Arenası (Boss Gauntlet)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/three-void-interceptor/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/three-void-interceptor.jpg</image:loc>
+      <image:title>3D Hipertünel Avcısı (3D Void Interceptor)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/three-star-slalom/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/three-star-slalom.jpg</image:loc>
+      <image:title>3D Yıldız Slalomu (3D Star Slalom)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/wasm-bullet-weave/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/wasm-bullet-weave.jpg</image:loc>
+      <image:title>WASM Mermi Dokumacı (WASM Bullet Weave)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/shader-pulse-survivor/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/shader-pulse-survivor.jpg</image:loc>
+      <image:title>GLSL Ufuk Nabzı (Shader Pulse Survivor)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/nova-flappy-rift/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/nova-flappy-rift.jpg</image:loc>
+      <image:title>Nova Yarık Sıçrayışı (Nova Flappy Rift)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/gravity-flip-runner/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/gravity-flip-runner.jpg</image:loc>
+      <image:title>Yerçekimi Ters Çeviren Koşucu (Gravity Flip Runner)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/orbital-dash-ring/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/orbital-dash-ring.jpg</image:loc>
+      <image:title>Yörünge Atılma Halkası (Orbital Dash Ring)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/warp-lane-dodger/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/warp-lane-dodger.jpg</image:loc>
+      <image:title>Büküm Şeridi Kaçışı (Warp Lane Dodger)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/photon-parry-duel/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/photon-parry-duel.jpg</image:loc>
+      <image:title>Foton Savuşturma Düellosu (Photon Parry Duel)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/meteor-jetpack-rise/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/meteor-jetpack-rise.jpg</image:loc>
+      <image:title>Meteor Sırt Roketi Yükselişi (Meteor Jetpack Rise)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/helix-station-drop/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/helix-station-drop.jpg</image:loc>
+      <image:title>3D Sarmal İstasyon Düşüşü (Helix Station Drop)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/laser-limbo-dash/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/laser-limbo-dash.jpg</image:loc>
+      <image:title>Lazer Altından Atılma (Laser Limbo Dash)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/starlight-rhythm-pulse/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/starlight-rhythm-pulse.jpg</image:loc>
+      <image:title>Yıldız Işığı Ritim Nabzı (Starlight Rhythm Pulse)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/starship-murder-mystery/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/starship-murder-mystery.jpg</image:loc>
+      <image:title>Vesta-9: Uzay Gemisi Cinayet Dosyası (Silent Airlock: Starship Murder Mystery)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/galaga-swarm-assault/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/galaga-swarm-assault.jpg</image:loc>
+      <image:title>Galaktik Sürü Taarruzu (Galaga Swarm Assault)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/defender-patrol/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/defender-patrol.jpg</image:loc>
+      <image:title>Yatay Sektör Muhafızı (Defender Patrol)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/astro-vector-asteroids/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/astro-vector-asteroids.jpg</image:loc>
+      <image:title>Astro Vektör Asteroitler (Astro Vector Asteroids)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/cosmic-snake-leviathan/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/cosmic-snake-leviathan.jpg</image:loc>
+      <image:title>Kozmik Yılan Leviathan (Cosmic Snake Leviathan)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/quantum-brick-breaker/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/quantum-brick-breaker.jpg</image:loc>
+      <image:title>Kuantum Blok Kırıcı (Quantum Brick Breaker)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/twin-paddle-pong/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/twin-paddle-pong.jpg</image:loc>
+      <image:title>İkiz Palet Kuantum Pong (Twin Paddle Pong)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/centipede-spore-purge/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/centipede-spore-purge.jpg</image:loc>
+      <image:title>Spor Kırkayağı İmhası (Centipede Spore Purge)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/missile-dome-defense/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/missile-dome-defense.jpg</image:loc>
+      <image:title>Füze Kubbe Savunması (Missile Dome Defense)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/lunar-excavator/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/lunar-excavator.jpg</image:loc>
+      <image:title>Ay Yüzeyi Kazıcısı (Lunar Excavator)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/quantum-sokoban/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/quantum-sokoban.jpg</image:loc>
+      <image:title>Kuantum Kargo Sokoban (Quantum Sokoban)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/laser-mirror-grid/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/laser-mirror-grid.jpg</image:loc>
+      <image:title>Lazer Ayna Matrisi (Laser Mirror Grid)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/circuit-pipe-link/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/circuit-pipe-link.jpg</image:loc>
+      <image:title>Dyson Devre Bağlantısı (Circuit Pipe Link)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/quantum-2048/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/quantum-2048.jpg</image:loc>
+      <image:title>Kuantum 2048 Füzyonu (Quantum 2048)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/nebula-minesweeper/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/nebula-minesweeper.jpg</image:loc>
+      <image:title>Nebula Mayın Tarlası (Nebula Minesweeper)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/match3-isotope-core/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/match3-isotope-core.jpg</image:loc>
+      <image:title>İzotop Eşleştirme Çekirdeği (Match-3 Isotope Core)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/lights-out-array/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/lights-out-array.jpg</image:loc>
+      <image:title>Işıkları Söndür Dizisi (Lights-Out Array)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/memory-star-matrix/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/memory-star-matrix.jpg</image:loc>
+      <image:title>Yıldız Hafıza Matrisi (Memory Star Matrix)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/nonogram-star-map/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/nonogram-star-map.jpg</image:loc>
+      <image:title>Nonogram Yıldız Haritası (Nonogram Star Map)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/hanoi-warp-cores/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/hanoi-warp-cores.jpg</image:loc>
+      <image:title>Hanoi Büküm Çekirdekleri (Hanoi Warp Cores)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/wasm-cellular-contain/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/wasm-cellular-contain.jpg</image:loc>
+      <image:title>WASM Hücresel Karantina (WASM Cellular Containment)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/orbital-sudoku-mini/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/orbital-sudoku-mini.jpg</image:loc>
+      <image:title>Yörünge Mini Sudoku (Orbital Sudoku Mini)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/orbital-slingshot/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/orbital-slingshot.jpg</image:loc>
+      <image:title>Yörünge Sapanı (Tekillik) (Orbital Slingshot)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/moon-lander-apollo/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/moon-lander-apollo.jpg</image:loc>
+      <image:title>Ay İniş Modülü Apollo (Moon Lander Apollo)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/cosmic-pinball-rig/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/cosmic-pinball-rig.jpg</image:loc>
+      <image:title>Kozmik Langırt / Tilt Masası (Cosmic Pinball Rig)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/nebula-pool-ricochet/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/nebula-pool-ricochet.jpg</image:loc>
+      <image:title>Nebula Bilardo Sekmesi (Nebula Pool Ricochet)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/cargo-tower-balance/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/cargo-tower-balance.jpg</image:loc>
+      <image:title>Kargo Kulesi Dengesi (Cargo Tower Balance)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/magnetic-tether-swing/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/magnetic-tether-swing.jpg</image:loc>
+      <image:title>Manyetik Halat Salınımı (Magnetic Tether Swing)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/gravity-golf-parsec/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/gravity-golf-parsec.jpg</image:loc>
+      <image:title>Parsec Yerçekimi Golfü (Gravity Golf Parsec)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/tower-defense-bastion/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/tower-defense-bastion.jpg</image:loc>
+      <image:title>Sonsuzluk Kalesi Kule Savunması (Tower Defense Bastion)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/deck-breach-tactics/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/deck-breach-tactics.jpg</image:loc>
+      <image:title>Güverte İhlal Taktikleri (Deck Breach Tactics)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/fleet-commander-auto/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/fleet-commander-auto.jpg</image:loc>
+      <image:title>Filo Komutanı Oto-Savaş (Fleet Commander Auto)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/wormhole-roulette-rpg/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/wormhole-roulette-rpg.jpg</image:loc>
+      <image:title>Solucan Deliği Rulet RYO (Wormhole Roulette RPG)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/mining-tycoon-idle/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/mining-tycoon-idle.jpg</image:loc>
+      <image:title>Asteroit Maden İmparatorluğu (Mining Tycoon Idle)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/typing-cipher-defense/</loc>
     <lastmod>2026-11-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/typing-cipher-defense.jpg</image:loc>
+      <image:title>Şifre Yazım Savunması (Typing Cipher Defense)</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://cosmic.haking.tr/games/exo-metroid-breach/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/exo-metroid-breach.jpg</image:loc>
+      <image:title>Exo-Metroid Sektör İhlali (Exo-Metroid Sector Breach)</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://cosmic.haking.tr/games/astral-roguelike-crawl/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/astral-roguelike-crawl.jpg</image:loc>
+      <image:title>Astral Zindan Kâşifi (Astral Roguelike Crawl)</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://cosmic.haking.tr/games/moon-rover-3d-odyssey/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/moon-rover-3d-odyssey.jpg</image:loc>
+      <image:title>Ay Gezgini 3D Fizik Rallisi (Moon Rover 3D Odyssey)</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://cosmic.haking.tr/games/starfox-canyon-ace/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/starfox-canyon-ace.jpg</image:loc>
+      <image:title>Yıldız Tilkisi 3D Kanyon Ası (Starfox 3D Canyon Ace)</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://cosmic.haking.tr/games/lua-cyber-ops/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/lua-cyber-ops.jpg</image:loc>
+      <image:title>Lua 5.3 Siber Drone Arenası (Lua 5.3 Cyber Drone Ops)</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://cosmic.haking.tr/games/asc-blackhole-swarm/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/asc-blackhole-swarm.jpg</image:loc>
+      <image:title>Olay Ufku: AssemblyScript Sürüsü (Event Horizon: WASM Singularity Swarm)</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://cosmic.haking.tr/games/phaser-stealth-heist/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/phaser-stealth-heist.jpg</image:loc>
+      <image:title>Korsan Sızması: Phaser Gizlilik Operasyonu (Phantom Airlock: Stealth Heist)</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://cosmic.haking.tr/games/d3-galactic-conquest/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/d3-galactic-conquest.jpg</image:loc>
+      <image:title>D3 Galaktik Fethiyye RTS (D3 Galactic Conquest RTS)</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://cosmic.haking.tr/games/glsl-synthwave-surf/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/glsl-synthwave-surf.jpg</image:loc>
+      <image:title>GLSL Raymarch Hiper Sörf (GLSL Synthwave Tunnel Surf)</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://cosmic.haking.tr/games/phaser-crimson-colossus/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://cosmic.haking.tr/assets/v11/banners/phaser-crimson-colossus.jpg</image:loc>
+      <image:title>Kızıl Kolossus: Boss Baskını (Crimson Colossus: Boss Raid)</image:title>
+    </image:image>
   </url>
 </urlset>

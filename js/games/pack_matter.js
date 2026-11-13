@@ -861,11 +861,12 @@
                 ? 3
                 : (fuelLeft >= 2 || shotCoins > 0 ? 2 : 1);
 
-            state = levelIdx >= LEVELS.length - 1 ? 'victory' : 'cleared';
+            const hitStory = Boolean(ctx.isStory && levelIdx + 1 >= (ctx.chapterTarget || 2));
+            state = (levelIdx >= LEVELS.length - 1 || hitStory) ? 'victory' : 'cleared';
             stateTimer = 0;
             M.Body.setStatic(probeBody, true);
             syncHud();
-            if (!reportedEnd) {
+            if ((state === 'victory' || hitStory) && !reportedEnd) {
                 reportedEnd = true;
                 ctx.onWin?.({ score, level: levelIdx + 1, stars });
             }
@@ -1522,10 +1523,11 @@
             playSfx(ctx, 'levelup');
 
             M.Body.setStatic(lander, true);
-            state = levelIdx >= SECTORS.length - 1 ? 'victory' : 'cleared';
+            const hitStory = Boolean(ctx.isStory && levelIdx + 1 >= (ctx.chapterTarget || 2));
+            state = (levelIdx >= SECTORS.length - 1 || hitStory) ? 'victory' : 'cleared';
             stateTimer = 0;
             syncHud();
-            if (!reportedEnd) {
+            if ((state === 'victory' || hitStory) && !reportedEnd) {
                 reportedEnd = true;
                 ctx.onWin?.({ score, level: levelIdx + 1, stars });
             }
@@ -2857,10 +2859,11 @@
                     const stars = shotsLeft >= Math.ceil(cfg.shots * 0.45) ? 3 : (shotsLeft >= 1 ? 2 : 1);
                     fx.popup(MIDX, MIDY, `CLEAR! +${350 + shotBonus}`, PAL.mint);
                     playSfx(ctx, 'levelup');
-                    state = levelIdx >= TABLES.length - 1 ? 'victory' : 'cleared';
+                    const hitStory = Boolean(ctx.isStory && levelIdx + 1 >= (ctx.chapterTarget || 2));
+                    state = (levelIdx >= TABLES.length - 1 || hitStory) ? 'victory' : 'cleared';
                     stateTimer = 0;
                     syncHud();
-                    if (!reportedEnd) {
+                    if ((state === 'victory' || hitStory) && !reportedEnd) {
                         reportedEnd = true;
                         ctx.onWin?.({ score, level: levelIdx + 1, stars });
                     }
@@ -3663,10 +3666,11 @@
             fx.popup(airlock.position.x - 40, airlock.position.y - 40, `AIRLOCK +${clearBonus}`, PAL.mint);
             playSfx(ctx, 'levelup');
             M.Body.setStatic(astro, true);
-            state = levelIdx >= COURSES.length - 1 ? 'victory' : 'cleared';
+            const hitStory = Boolean(ctx.isStory && levelIdx + 1 >= (ctx.chapterTarget || 2));
+            state = (levelIdx >= COURSES.length - 1 || hitStory) ? 'victory' : 'cleared';
             stateTimer = 0;
             syncHud();
-            if (!reportedEnd) {
+            if ((state === 'victory' || hitStory) && !reportedEnd) {
                 reportedEnd = true;
                 ctx.onWin?.({ score, level: levelIdx + 1, stars });
             }
@@ -4208,10 +4212,11 @@
 
             M.Body.setVelocity(golfBall, { x: 0, y: 0 });
             M.Body.setPosition(golfBall, { x: cfg.cup.x, y: cfg.cup.y });
-            state = levelIdx >= HOLES.length - 1 ? 'victory' : 'cleared';
+            const hitStory = Boolean(ctx.isStory && levelIdx + 1 >= (ctx.chapterTarget || 2));
+            state = (levelIdx >= HOLES.length - 1 || hitStory) ? 'victory' : 'cleared';
             stateTimer = 0;
             syncHud();
-            if (!reportedEnd) {
+            if ((state === 'victory' || hitStory) && !reportedEnd) {
                 reportedEnd = true;
                 ctx.onWin?.({ score: totalScore, level: levelIdx + 1, stars });
             }

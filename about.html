@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC UNIVERSE v11.0 — 50 Oyunluk Çoklu Evren &amp; Teknik Mimari | Hakkında</title>
-    <meta name="description" content="COSMIC UNIVERSE v11.0 teknik mimarisi: 50 tarayıcı oyunu, Kaptan Nova Vex 8 bölümlük hikâye modu, Three.js 3D, PixiJS v8, Matter.js, WebAssembly, TypeScript, GLSL shader ve MIT lisansı.">
+    <title>COSMIC UNIVERSE v11.5 — 60 Oyunluk Çoklu Evren &amp; Teknik Mimari | Cosmic Hakkında</title>
+    <meta name="description" content="COSMIC UNIVERSE v11.5 hakkında: 60 tarayıcı oyunu, Kaptan Nova Vex 24 bölümlük Sezon 1 hikâyesi, Phaser 3, Three.js 3D, Cannon-es, ROT.js, Lua 5.3, WebAssembly, D3.js ve GLSL shader mimarisi.">
+    <meta name="keywords" content="Cosmic hakkında, Cosmic Universe, Halit Güneş, HaKING, Cosmic oyunları, Phaser 3, Three.js, WebAssembly">
     <meta name="author" content="Halit Güneş (HaKING)">
     <meta name="theme-color" content="#070b12">
     <link rel="canonical" href="https://cosmic.haking.tr/about.html">
 
     <!-- OpenGraph Meta Tags -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="COSMIC UNIVERSE v11.0">
-    <meta property="og:title" content="COSMIC UNIVERSE v11.0 — 50-Game Multiverse Portal & Story Saga">
-    <meta property="og:description" content="50 playable space browser games & 8-chapter Captain Nova Vex saga by Halit Güneş (HaKING) across PixiJS v8, Three.js 3D, Matter.js, WebAssembly, TypeScript & GLSL.">
+    <meta property="og:site_name" content="COSMIC UNIVERSE v11.5">
+    <meta property="og:title" content="COSMIC UNIVERSE v11.5 — 60-Game Multiverse Portal &amp; Story Saga">
+    <meta property="og:description" content="60 playable space browser games &amp; 24-chapter Captain Nova Vex Season 1 saga by Halit Güneş (HaKING) across Phaser 3, PixiJS v8, Three.js 3D, Cannon-es, ROT.js, Lua 5.3, WebAssembly &amp; GLSL.">
     <meta property="og:url" content="https://cosmic.haking.tr/about.html">
     <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="COSMIC UNIVERSE v11.0 Showcase Banner">
+    <meta property="og:image:alt" content="COSMIC UNIVERSE v11.5 Showcase Banner">
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="COSMIC UNIVERSE v11.0 — 50-Game Multiverse Portal">
-    <meta name="twitter:description" content="50 playable space games & 8-chapter story saga running 100% locally across PixiJS v8, Three.js 3D, Matter.js, WASM, TypeScript & GLSL.">
+    <meta name="twitter:title" content="COSMIC UNIVERSE v11.5 — 60-Game Multiverse Portal">
+    <meta name="twitter:description" content="60 playable space games &amp; 24-chapter Season 1 story saga running 100% locally across Phaser 3, PixiJS v8, Three.js 3D, Cannon-es, ROT.js, Lua 5.3, WASM, TypeScript, D3.js &amp; GLSL.">
     <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png">
 
     <!-- Icons & PWA Manifest -->
@@ -40,50 +41,80 @@
     <link rel="stylesheet" href="css/core.css">
     <link rel="stylesheet" href="css/wiki.css">
 
-    <!-- Schema.org Structured Data (VideoGame & WebApplication) -->
+    <!-- Schema.org Structured Data (AboutPage, VideoGame & FAQPage for Cosmic Hakkinda search) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": ["VideoGame", "WebApplication"],
-      "name": "COSMIC UNIVERSE v11.0 — 50-Game Space Portal & Story Saga",
-      "alternateName": "Cosmic Universe v11.0",
-      "softwareVersion": "11.0",
-      "description": "Portfolio-grade multi-engine space gaming portal starring Captain Nova Vex with 50 playable browser games across PixiJS v8 WebGL, Three.js 3D, Matter.js physics, WebAssembly, TypeScript, and GLSL shaders.",
-      "url": "https://cosmic.haking.tr/",
-      "sameAs": "https://github.com/HaKING06/COSMIC",
-      "image": "https://cosmic.haking.tr/assets/og-banner.png",
-      "screenshot": "https://cosmic.haking.tr/assets/v11/portal_keyart.jpg",
-      "applicationCategory": "Game",
-      "operatingSystem": "Web Browser",
-      "browserRequirements": "Requires HTML5 Canvas / WebGL2 / WebAssembly",
-      "genre": ["Action", "Roguelike", "Puzzle", "Physics", "Mystery", "Sci-Fi"],
-      "playMode": "SinglePlayer",
-      "inLanguage": ["en", "tr"],
-      "isAccessibleForFree": true,
-      "license": "https://opensource.org/licenses/MIT",
-      "author": {
-        "@type": "Person",
-        "name": "Halit Güneş (HaKING)",
-        "email": "mailto:cosmic@haking.tr",
-        "url": "https://github.com/HaKING06/COSMIC"
-      },
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD",
-        "availability": "https://schema.org/InStock"
-      }
+      "@graph": [
+        {
+          "@type": "AboutPage",
+          "name": "COSMIC UNIVERSE Hakkında — Teknik Mimari & Geliştirici",
+          "url": "https://cosmic.haking.tr/about.html",
+          "mainEntity": {
+            "@type": ["VideoGame", "WebApplication"],
+            "name": "COSMIC UNIVERSE v11.5 — 60-Game Space Portal & 24-Chapter Story Saga",
+            "alternateName": ["Cosmic", "Cosmic Universe", "Cosmic Hakkında"],
+            "softwareVersion": "11.5",
+            "description": "Portfolio-grade multi-engine space gaming portal starring Captain Nova Vex with 60 playable browser games across Phaser 3, PixiJS v8, Three.js 3D, Cannon-es, ROT.js, Fengari Lua 5.3 VM, AssemblyScript WebAssembly, D3.js, TypeScript, and GLSL raymarching.",
+            "url": "https://cosmic.haking.tr/",
+            "sameAs": "https://github.com/HaKING06/COSMIC",
+            "image": "https://cosmic.haking.tr/assets/og-banner.png",
+            "screenshot": "https://cosmic.haking.tr/assets/v11/portal_keyart.jpg",
+            "applicationCategory": "Game",
+            "operatingSystem": "Web Browser",
+            "browserRequirements": "Requires HTML5 Canvas / WebGL2 / WebAssembly",
+            "genre": ["Action", "Roguelike", "Metroidvania", "Puzzle", "Physics", "Mystery", "Sci-Fi"],
+            "playMode": "SinglePlayer",
+            "inLanguage": ["en", "tr"],
+            "isAccessibleForFree": true,
+            "license": "https://opensource.org/licenses/MIT",
+            "author": {
+              "@type": "Person",
+              "name": "Halit Güneş (HaKING)",
+              "email": "mailto:cosmic@haking.tr",
+              "url": "https://github.com/HaKING06/COSMIC"
+            },
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock"
+            }
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "COSMIC UNIVERSE nedir ve kaç oyun içerir?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "COSMIC UNIVERSE, Halit Güneş (HaKING) tarafından geliştirilen, 60 benzersiz tarayıcı oyunu ve 24 bölümlü Kaptan Nova Vex Sezon 1 hikâye modunu içeren ücretsiz çoklu motorlu bir web oyun platformudur."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "COSMIC UNIVERSE geliştiricisiyle nasıl iletişim kurulur?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Resmi e-posta: cosmic@haking.tr, GitHub deposu: github.com/HaKING06/COSMIC ve destek sayfası: buymeacoffee.com/haking üzerinden ulaşabilirsiniz."
+              }
+            }
+          ]
+        }
+      ]
     }
     </script>
 </head>
 <body>
-    <!-- Unified v11.0 Compact Topbar (6 Navigation Links + EN/TR Toggle + Audio + Credits) -->
+    <!-- Unified v11.5 Compact Topbar (6 Navigation Links + EN/TR Toggle + Audio + Credits) -->
     <header class="cosmic-topbar">
         <a href="index.html" class="topbar-brand">
-            <img src="assets/icon-192.png" alt="Cosmic Universe v11 Emblem" class="topbar-logo-img">
+            <img src="assets/icon-192.png" alt="Cosmic Universe v11.5 Emblem" class="topbar-logo-img">
             <div class="topbar-title-wrap">
                 <span class="topbar-title">COSMIC UNIVERSE</span>
-                <span class="topbar-version" data-i18n="about.topbarVersion">V11.0 MULTIVERSE EDITION</span>
+                <span class="topbar-version" data-i18n="about.topbarVersion">V11.5 MULTIVERSE EDITION</span>
             </div>
         </a>
 
@@ -133,25 +164,25 @@
     </header>
 
     <main class="wiki-container">
-        <!-- Showcase Hero Card with v11.0 OG Banner -->
+        <!-- Showcase Hero Card with v11.5 OG Banner -->
         <section class="about-hero-card">
             <div style="display:flex;flex-direction:column;gap:0.8rem;">
                 <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">
-                    <span class="cs-badge cs-badge-sky cs-badge-glow font-mono" data-i18n="about.hero.badge">V11.0 MULTIVERSE PORTAL · MIT LİSANSI</span>
+                    <span class="cs-badge cs-badge-sky cs-badge-glow font-mono" data-i18n="about.hero.badge">V11.5 MULTIVERSE PORTAL · MIT LİSANSI</span>
                     <span class="cs-badge cs-badge-teal font-mono" data-i18n="about.hero.offlineBadge">ÇEVRİMDIŞI · YEREL KAYIT</span>
                 </div>
-                <h1 class="wiki-hero-title" data-i18n="about.hero.title">COSMIC UNIVERSE v11.0</h1>
+                <h1 class="wiki-hero-title" data-i18n="about.hero.title">COSMIC UNIVERSE v11.5</h1>
                 <p style="font-size:14.5px;margin:0;line-height:1.6;" data-i18n="about.hero.desc">
-                    Halit Güneş (HaKING) tarafından geliştirilen; Kaptan Nova Vex önderliğinde 50 oynanabilir uzay oyunu, 8 bölümlük Hikâye Modu ve PixiJS v8, Three.js 3D, Matter.js, WebAssembly, TypeScript + GLSL çoklu dil motor mimarisini tek çatıda sunan bağımsız tarayıcı oyun portali.
+                    Halit Güneş (HaKING) tarafından geliştirilen; Kaptan Nova Vex önderliğinde 60 oynanabilir uzay oyunu, 24 bölümlük Sezon 1 Hikâye Modu ve Phaser 3, PixiJS v8, Three.js 3D + Cannon-es, ROT.js, Fengari Lua 5.3, AssemblyScript WASM, D3.js, TypeScript + GLSL çoklu dil motor mimarisini tek çatıda sunan bağımsız tarayıcı oyun portali.
                 </p>
                 <div style="display:flex;gap:0.55rem;flex-wrap:wrap;margin-top:0.2rem;">
                     <a href="index.html" class="cs-btn cs-btn-primary">
                         <i data-lucide="layout-grid"></i>
-                        <span data-i18n="about.hero.ctaHangar">50 Oyun Portali</span>
+                        <span data-i18n="about.hero.ctaHangar">60 Oyun Portali</span>
                     </a>
                     <a href="story.html" class="cs-btn cs-btn-mint">
                         <i data-lucide="compass"></i>
-                        <span data-i18n="about.hero.ctaModes">8 Bölümlük Hikâye</span>
+                        <span data-i18n="about.hero.ctaModes">24 Bölümlük Sezon 1</span>
                     </a>
                     <a href="https://github.com/HaKING06/COSMIC" target="_blank" rel="noopener noreferrer" class="cs-btn cs-btn-ghost">
                         <i data-lucide="git-branch"></i>
@@ -159,26 +190,26 @@
                     </a>
                 </div>
             </div>
-            <img src="assets/og-banner.png" alt="COSMIC UNIVERSE v11.0 Showcase Banner" class="about-banner-img">
+            <img src="assets/og-banner.png" alt="COSMIC UNIVERSE v11.5 Showcase Banner" class="about-banner-img">
         </section>
 
         <!-- Multiverse Architecture Banner -->
         <section class="hero-keyart-banner" aria-labelledby="genesisKeyartHeading">
             <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:1.25rem;flex-wrap:wrap;">
                 <div style="max-width:740px;display:flex;flex-direction:column;gap:0.55rem;">
-                    <span class="cs-badge cs-badge-amber font-mono" style="align-self:flex-start;" data-i18n="about.banner.tag">V11.0 ÇOKLU MOTOR MİMARİSİ</span>
+                    <span class="cs-badge cs-badge-amber font-mono" style="align-self:flex-start;" data-i18n="about.banner.tag">V11.5 ÇOKLU MOTOR MİMARİSİ</span>
                     <h2 id="genesisKeyartHeading" style="font-size:21px;font-weight:700;" data-i18n="about.banner.title">
-                        50 Uzay Oyunu, 8 Bölümlük Kaptan Nova Vex Destanı &amp; Çoklu Dil Altyapısı
+                        60 Uzay Oyunu, 24 Bölümlük Sezon 1 Kaptan Nova Vex Destanı &amp; Çoklu Dil Altyapısı
                     </h2>
                     <p style="font-size:13.5px;margin:0;color:var(--text-secondary);" data-i18n="about.banner.desc">
-                        Adli uzay cinayeti gizeminden (Vesta-9) 3D hipertünel savaşlarına, TypeScript + BFS mantık bulmacalarından WebAssembly mermi simülasyonlarına ve PixiJS v8 amiral gemisi Cosmic Survivors Hangarına kadar tüm kozmik evren birleşik kredi ve yıldız ekonomisinde buluşur.
+                        Adli uzay cinayeti gizeminden (Vesta-9) Phaser 3 Metroidvania baskınlarına, Cannon-es 3D ay aracı &amp; kanyon it dalaşlarına, Fengari Lua 5.3 sanal makinesi ve AssemblyScript WebAssembly sürülerine kadar tüm kozmik evren birleşik kredi ve yıldız ekonomisinde buluşur.
                     </p>
                 </div>
                 <div style="display:flex;gap:0.45rem;flex-wrap:wrap;">
-                    <span class="cs-badge cs-badge-sky font-mono" data-i18n="about.banner.pill1">50 OYUN · 6 KATEGORİ</span>
-                    <span class="cs-badge cs-badge-mint font-mono" data-i18n="about.banner.pill2">8 HİKÂYE BÖLÜMÜ</span>
-                    <span class="cs-badge cs-badge-violet font-mono" data-i18n="about.banner.pill3">JS · TS · WASM · GLSL</span>
-                    <span class="cs-badge cs-badge-amber font-mono" data-i18n="about.banner.pill4">50 ÖZEL SEO ROTASI</span>
+                    <span class="cs-badge cs-badge-sky font-mono" data-i18n="about.banner.pill1">60 OYUN · 6 KATEGORİ</span>
+                    <span class="cs-badge cs-badge-mint font-mono" data-i18n="about.banner.pill2">24 HİKÂYE BÖLÜMÜ (S1)</span>
+                    <span class="cs-badge cs-badge-violet font-mono" data-i18n="about.banner.pill3">JS · TS · LUA · WASM · GLSL</span>
+                    <span class="cs-badge cs-badge-amber font-mono" data-i18n="about.banner.pill4">60 ÖZEL SEO ROTASI</span>
                 </div>
             </div>
         </section>
@@ -190,13 +221,13 @@
                     <div class="workshop-icon-box" style="color:var(--accent-sky);">
                         <i data-lucide="cpu"></i>
                     </div>
-                    <h2 style="font-size:18px;" data-i18n="about.card1.title">WebGL2, Three.js 3D &amp; GLSL</h2>
+                    <h2 style="font-size:18px;" data-i18n="about.card1.title">Phaser 3, Three.js + Cannon-es &amp; GLSL</h2>
                 </div>
                 <p style="font-size:13.5px;margin:0;" data-i18n="about.card1.desc">
-                    PixiJS v8 WebGL + pixi-filters amiral gemisi motoruna ek olarak 3D Hipertünel Avcısı ve Yıldız Slalomu için donanım hızlandırmalı Three.js 3D sahneleri ve özel GLSL fragment gölgelendiricileri (Shader Pulse Survivor) sunar.
+                    PixiJS v8 amiral gemisine ek olarak Phaser 3 (Exo-Metroid, Gizlilik &amp; Colossus Raid), Three.js + Cannon-es gerçek 3D fizik (Ay Aracı 3D &amp; Kanyon İt Dalaşı), ROT.js roguelike, D3.js strateji haritası ve WebGL2 GLSL raymarch gölgelendiricileri sunar.
                 </p>
                 <div class="module-formula-line" data-i18n="about.card1.meta">
-                    PixiJS v8 · Three.js 3D · WebGL2 GLSL · Matter.js Fizik
+                    Phaser 3 · PixiJS v8 · Three.js + Cannon-es · ROT.js · D3.js · WebGL2 GLSL
                 </div>
             </article>
 
@@ -205,13 +236,13 @@
                     <div class="workshop-icon-box" style="color:var(--accent-mint);">
                         <i data-lucide="compass"></i>
                     </div>
-                    <h2 style="font-size:18px;" data-i18n="about.card2.title">WebAssembly, TypeScript &amp; 50 Oyun</h2>
+                    <h2 style="font-size:18px;" data-i18n="about.card2.title">AssemblyScript WASM, Lua 5.3 &amp; 60 Oyun</h2>
                 </div>
                 <p style="font-size:13.5px;margin:0;" data-i18n="about.card2.desc">
-                    El yazımı WAT -> WebAssembly ikilisi (WASM Mermi Dokumacı &amp; Hücresel Otomat) ile 2000+ eşzamanlı varlık işlenirken; TypeScript çözücülü bulmacalar, Matter.js yörünge fizikleri ve Vesta-9 Uzay Cinayet Dosyası kesintisiz tarayıcıda çalışır.
+                    AssemblyScript &amp; WAT WebAssembly ikilileri (Kara Delik Sürüsü &amp; Mermi Dokumacı), canlı Fengari Lua 5.3 drone yapay zekâsı, TypeScript çözücülü bulmacalar, Matter.js fizikleri ve animasyonlu 24 bölümlük Sezon 1 destanı tek çatıda çalışır.
                 </p>
                 <div class="module-formula-line" data-i18n="about.card2.meta">
-                    50 Oyun · 50 Özel Logo &amp; 1200×630 Afiş · /games/&lt;slug&gt;/ SEO
+                    60 Oyun · 60 Özel Logo &amp; 1200×630 Afiş · /games/&lt;slug&gt;/ SEO
                 </div>
             </article>
 
@@ -223,10 +254,10 @@
                     <h2 style="font-size:18px;" data-i18n="about.card3.title">İstemci Yığını &amp; CC0 Varlıklar</h2>
                 </div>
                 <p style="font-size:13.5px;margin:0;" data-i18n="about.card3.desc">
-                    Harici sunucu veya izleme gerektirmeyen tam çevrimdışı tarayıcı mimarisi (yerel pilot kayıtları). Paketlenmiş Fuse.js arama, Howler.js ses havuzu, Chart.js telemetri, GSAP animasyon, Panzoom ağaç gezintisi, canvas-confetti ve Kenney (CC0 1.0) sprite/ses varlıklarıyla çalışır.
+                    Harici sunucu veya izleme gerektirmeyen tam çevrimdışı tarayıcı mimarisi (otomatik Sezon 1 kayıtları). Paketlenmiş Phaser 3, Three.js, Cannon-es, Matter.js, PixiJS v8, ROT.js, Fengari Lua, D3.js, Fuse.js, Howler.js, Chart.js, GSAP ve Kenney (CC0 1.0) varlıklarıyla çalışır.
                 </p>
                 <div class="module-formula-line" data-i18n="about.card3.meta">
-                    Fuse.js · Howler.js · Chart.js · GSAP · Panzoom · canvas-confetti · CC0 Kenney
+                    Phaser 3 · Cannon-es · ROT.js · Fengari Lua · D3.js · WASM · CC0 Kenney
                 </div>
             </article>
         </section>
@@ -356,8 +387,8 @@
 
             const ABOUT_I18N = {
                 tr: {
-                    'meta.title': 'COSMIC UNIVERSE v11.0 — 50 Oyunluk Çoklu Evren & Teknik Mimari | Hakkında',
-                    'about.topbarVersion': 'V11.0 MULTIVERSE EDITION',
+                    'meta.title': 'COSMIC UNIVERSE v11.5 — 60 Oyunluk Çoklu Evren & Teknik Mimari | Hakkında',
+                    'about.topbarVersion': 'V11.5 MULTIVERSE EDITION',
                     'nav.portalLink': 'Portal',
                     'nav.story': 'Hikâye',
                     'nav.hangar': 'Survivors',
@@ -366,31 +397,31 @@
                     'nav.about': 'Hakkında',
                     'common.audioOn': 'Ses Açık',
                     'common.audioOff': 'Sessiz',
-                    'about.hero.badge': 'V11.0 MULTIVERSE PORTAL · MIT LİSANSI',
+                    'about.hero.badge': 'V11.5 MULTIVERSE PORTAL · MIT LİSANSI',
                     'about.hero.offlineBadge': 'ÇEVRİMDIŞI · YEREL KAYIT',
-                    'about.hero.title': 'COSMIC UNIVERSE v11.0',
-                    'about.hero.desc': 'Halit Güneş (HaKING) tarafından geliştirilen; Kaptan Nova Vex önderliğinde 50 oynanabilir uzay oyunu, 8 bölümlük Hikâye Modu ve PixiJS v8, Three.js 3D, Matter.js, WebAssembly, TypeScript + GLSL çoklu dil motor mimarisini tek çatıda sunan bağımsız tarayıcı oyun portali.',
-                    'about.hero.ctaHangar': '50 Oyun Portali',
-                    'about.hero.ctaModes': '8 Bölümlük Hikâye',
+                    'about.hero.title': 'COSMIC UNIVERSE v11.5',
+                    'about.hero.desc': 'Halit Güneş (HaKING) tarafından geliştirilen; Kaptan Nova Vex önderliğinde 60 oynanabilir uzay oyunu, 24 bölümlük Sezon 1 Hikâye Modu ve Phaser 3, PixiJS v8, Three.js 3D + Cannon-es, ROT.js, Fengari Lua 5.3, AssemblyScript WASM, D3.js, TypeScript + GLSL çoklu dil motor mimarisini tek çatıda sunan bağımsız tarayıcı oyun portali.',
+                    'about.hero.ctaHangar': '60 Oyun Portali',
+                    'about.hero.ctaModes': '24 Bölümlük Sezon 1',
                     'about.hero.ctaRepo': 'GitHub Deposu',
-                    'about.banner.tag': 'V11.0 ÇOKLU MOTOR MİMARİSİ',
-                    'about.banner.title': '50 Uzay Oyunu, 8 Bölümlük Kaptan Nova Vex Destanı & Çoklu Dil Altyapısı',
-                    'about.banner.desc': 'Adli uzay cinayeti gizeminden (Vesta-9) 3D hipertünel savaşlarına, TypeScript + BFS mantık bulmacalarından WebAssembly mermi simülasyonlarına ve PixiJS v8 amiral gemisi Cosmic Survivors Hangarına kadar tüm kozmik evren birleşik kredi ve yıldız ekonomisinde buluşur.',
-                    'about.banner.pill1': '50 OYUN · 6 KATEGORİ',
-                    'about.banner.pill2': '8 HİKÂYE BÖLÜMÜ',
-                    'about.banner.pill3': 'JS · TS · WASM · GLSL',
-                    'about.banner.pill4': '50 ÖZEL SEO ROTASI',
-                    'about.card1.title': 'WebGL2, Three.js 3D & GLSL',
-                    'about.card1.desc': 'PixiJS v8 WebGL + pixi-filters amiral gemisi motoruna ek olarak 3D Hipertünel Avcısı ve Yıldız Slalomu için donanım hızlandırmalı Three.js 3D sahneleri ve özel GLSL fragment gölgelendiricileri (Shader Pulse Survivor) sunar.',
-                    'about.card1.meta': 'PixiJS v8 · Three.js 3D · WebGL2 GLSL · Matter.js Fizik',
-                    'about.card2.title': 'WebAssembly, TypeScript & 50 Oyun',
-                    'about.card2.desc': 'El yazımı WAT -> WebAssembly ikilisi (WASM Mermi Dokumacı & Hücresel Otomat) ile 2000+ eşzamanlı varlık işlenirken; TypeScript çözücülü bulmacalar, Matter.js yörünge fizikleri ve Vesta-9 Uzay Cinayet Dosyası kesintisiz tarayıcıda çalışır.',
-                    'about.card2.meta': '50 Oyun · 50 Özel Logo & 1200×630 Afiş · /games/<slug>/ SEO',
+                    'about.banner.tag': 'V11.5 ÇOKLU MOTOR MİMARİSİ',
+                    'about.banner.title': '60 Uzay Oyunu, 24 Bölümlük Sezon 1 Kaptan Nova Vex Destanı & Çoklu Dil Altyapısı',
+                    'about.banner.desc': 'Adli uzay cinayeti gizeminden (Vesta-9) Phaser 3 Metroidvania baskınlarına, Cannon-es 3D ay aracı & kanyon it dalaşlarına, Fengari Lua 5.3 sanal makinesi ve AssemblyScript WebAssembly sürülerine kadar tüm kozmik evren birleşik kredi ve yıldız ekonomisinde buluşur.',
+                    'about.banner.pill1': '60 OYUN · 6 KATEGORİ',
+                    'about.banner.pill2': '24 HİKÂYE BÖLÜMÜ (S1)',
+                    'about.banner.pill3': 'JS · TS · LUA · WASM · GLSL',
+                    'about.banner.pill4': '60 ÖZEL SEO ROTASI',
+                    'about.card1.title': 'Phaser 3, Three.js + Cannon-es & GLSL',
+                    'about.card1.desc': 'PixiJS v8 amiral gemisine ek olarak Phaser 3 (Exo-Metroid, Gizlilik & Colossus Raid), Three.js + Cannon-es gerçek 3D fizik (Ay Aracı 3D & Kanyon İt Dalaşı), ROT.js roguelike, D3.js strateji haritası ve WebGL2 GLSL raymarch gölgelendiricileri sunar.',
+                    'about.card1.meta': 'Phaser 3 · PixiJS v8 · Three.js + Cannon-es · ROT.js · D3.js · WebGL2 GLSL',
+                    'about.card2.title': 'AssemblyScript WASM, Lua 5.3 & 60 Oyun',
+                    'about.card2.desc': 'AssemblyScript & WAT WebAssembly ikilileri (Kara Delik Sürüsü & Mermi Dokumacı), canlı Fengari Lua 5.3 drone yapay zekâsı, TypeScript çözücülü bulmacalar, Matter.js fizikleri ve animasyonlu 24 bölümlük Sezon 1 destanı tek çatıda çalışır.',
+                    'about.card2.meta': '60 Oyun · 60 Özel Logo & 1200×630 Afiş · /games/<slug>/ SEO',
                     'about.card3.title': 'İstemci Yığını & CC0 Varlıklar',
-                    'about.card3.desc': 'Harici sunucu veya izleme gerektirmeyen tam çevrimdışı tarayıcı mimarisi (yerel pilot kayıtları). Paketlenmiş Three.js, Matter.js, PixiJS v8, Fuse.js, Howler.js, Chart.js, GSAP, Panzoom, canvas-confetti ve Kenney (CC0 1.0) varlıklarıyla çalışır.',
-                    'about.card3.meta': 'Three.js · Matter.js · PixiJS v8 · WASM · TypeScript · CC0 Kenney',
+                    'about.card3.desc': 'Harici sunucu veya izleme gerektirmeyen tam çevrimdışı tarayıcı mimarisi (otomatik Sezon 1 kayıtları). Paketlenmiş Phaser 3, Three.js, Cannon-es, Matter.js, PixiJS v8, ROT.js, Fengari Lua, D3.js, Fuse.js, Howler.js, Chart.js, GSAP ve Kenney (CC0 1.0) varlıklarıyla çalışır.',
+                    'about.card3.meta': 'Phaser 3 · Cannon-es · ROT.js · Fengari Lua · D3.js · WASM · CC0 Kenney',
                     'about.controls.title': 'Taktik Kontroller & Evrensel Kısayollar',
-                    'about.controls.subtitle': 'Portal genelindeki 50 oyun ve amiral gemisi Cosmic Survivors arenasında kullanılan birleşik kontroller.',
+                    'about.controls.subtitle': 'Portal genelindeki 60 oyun ve amiral gemisi Cosmic Survivors arenasında kullanılan birleşik kontroller.',
                     'about.controls.badge': 'KLAVYE · FARE · DOKUNMATİK',
                     'about.ctrl.moveKey': 'W A S D / Yön Tuşları',
                     'about.ctrl.moveDesc': '5600×5600 engelli sektörde itici manevrası ve siper konumlanması.',
@@ -416,8 +447,8 @@
                     'about.license.viewFile': 'LICENSE Dosyasını Görüntüle'
                 },
                 en: {
-                    'meta.title': 'COSMIC UNIVERSE v11.0 — 50-Game Multiverse Portal & Technical Architecture | About',
-                    'about.topbarVersion': 'V11.0 MULTIVERSE EDITION',
+                    'meta.title': 'COSMIC UNIVERSE v11.5 — 60-Game Multiverse Portal & Technical Architecture | About',
+                    'about.topbarVersion': 'V11.5 MULTIVERSE EDITION',
                     'nav.portalLink': 'Portal',
                     'nav.story': 'Story Saga',
                     'nav.hangar': 'Survivors',
@@ -426,31 +457,31 @@
                     'nav.about': 'About',
                     'common.audioOn': 'Audio On',
                     'common.audioOff': 'Muted',
-                    'about.hero.badge': 'V11.0 MULTIVERSE PORTAL · MIT LICENSE',
+                    'about.hero.badge': 'V11.5 MULTIVERSE PORTAL · MIT LICENSE',
                     'about.hero.offlineBadge': 'OFFLINE · LOCAL RECORDS',
-                    'about.hero.title': 'COSMIC UNIVERSE v11.0',
-                    'about.hero.desc': 'Independent multi-engine sci-fi web game portal developed by Halit Güneş (HaKING), uniting 50 playable browser games, an 8-chapter Captain Nova Vex story saga, and PixiJS v8, Three.js 3D, Matter.js, WebAssembly, TypeScript + GLSL runtimes.',
-                    'about.hero.ctaHangar': '50-Game Portal',
-                    'about.hero.ctaModes': '8-Chapter Story',
+                    'about.hero.title': 'COSMIC UNIVERSE v11.5',
+                    'about.hero.desc': 'Independent multi-engine sci-fi web game portal developed by Halit Güneş (HaKING), uniting 60 playable browser games, a 24-chapter Season 1 Captain Nova Vex story saga with animated cutscenes, and Phaser 3, PixiJS v8, Three.js 3D + Cannon-es, ROT.js, Fengari Lua 5.3, AssemblyScript WASM, D3.js, TypeScript + GLSL runtimes.',
+                    'about.hero.ctaHangar': '60-Game Portal',
+                    'about.hero.ctaModes': '24-Chapter Season 1',
                     'about.hero.ctaRepo': 'GitHub Repository',
-                    'about.banner.tag': 'V11.0 MULTI-ENGINE ARCHITECTURE',
-                    'about.banner.title': '50 Space Games, 8-Chapter Captain Nova Vex Saga & Multi-Language Core',
-                    'about.banner.desc': 'From sci-fi forensic murder mystery (USCS Vesta-9) and Three.js 3D dogfighting to TypeScript BFS puzzles, WebAssembly bullet simulations, and the PixiJS v8 Cosmic Survivors flagship hangar — unified under one local credits and star economy.',
-                    'about.banner.pill1': '50 GAMES · 6 GENRES',
-                    'about.banner.pill2': '8 STORY CHAPTERS',
-                    'about.banner.pill3': 'JS · TS · WASM · GLSL',
-                    'about.banner.pill4': '50 DEDICATED SEO PAGES',
-                    'about.card1.title': 'WebGL2, Three.js 3D & GLSL',
-                    'about.card1.desc': 'Alongside hardware-accelerated PixiJS v8 WebGL + pixi-filters flagship combat, custom Three.js 3D scenes power Void Interceptor, Star Slalom, and Helix Drop while raw GLSL fragment shaders drive Shader Pulse Survivor.',
-                    'about.card1.meta': 'PixiJS v8 · Three.js 3D · WebGL2 GLSL · Matter.js Physics',
-                    'about.card2.title': 'WebAssembly, TypeScript & 50 Games',
-                    'about.card2.desc': 'Hand-assembled WAT -> WebAssembly kernels power 2,000+ concurrent bullets & cellular automata, paired with TypeScript solver-verified puzzles, Matter.js orbital rigs, and USCS Vesta-9 Murder Mystery.',
-                    'about.card2.meta': '50 Games · 50 Custom Logos & 1200×630 Posters · /games/<slug>/ SEO',
+                    'about.banner.tag': 'V11.5 MULTI-ENGINE ARCHITECTURE',
+                    'about.banner.title': '60 Space Games, 24-Chapter Season 1 Captain Nova Vex Saga & Multi-Language Core',
+                    'about.banner.desc': 'From sci-fi forensic murder mystery (USCS Vesta-9) and Phaser 3 Metroidvania raids to Three.js + Cannon-es 3D rover & canyon combat, live Fengari Lua 5.3 scripting, AssemblyScript WebAssembly swarms, ROT.js roguelikes, and the PixiJS v8 Cosmic Survivors flagship hangar.',
+                    'about.banner.pill1': '60 GAMES · 6 GENRES',
+                    'about.banner.pill2': '24 STORY CHAPTERS (S1)',
+                    'about.banner.pill3': 'JS · TS · LUA · WASM · GLSL',
+                    'about.banner.pill4': '60 DEDICATED SEO PAGES',
+                    'about.card1.title': 'Phaser 3, Three.js + Cannon-es & GLSL',
+                    'about.card1.desc': 'Alongside PixiJS v8 flagship combat, Phaser 3 powers Exo-Metroid, Stealth & Colossus raids, Three.js + Cannon-es drives 3D Lunar Rover & Starfox Canyon combat, ROT.js & D3.js drive strategy, and raw GLSL raymarching shaders drive Synthwave & Pulse arenas.',
+                    'about.card1.meta': 'Phaser 3 · PixiJS v8 · Three.js + Cannon-es · ROT.js · D3.js · WebGL2 GLSL',
+                    'about.card2.title': 'AssemblyScript WASM, Lua 5.3 & 60 Games',
+                    'about.card2.desc': 'AssemblyScript & WAT WebAssembly kernels compute 2,000+ gravity swarm particles and bullet weaves, paired with a live Fengari Lua 5.3 VM, TypeScript solver puzzles, Matter.js physics rigs, and auto-saved 24-chapter Season 1 cutscenes.',
+                    'about.card2.meta': '60 Games · 60 Custom Logos & 1200×630 Posters · /games/<slug>/ SEO',
                     'about.card3.title': 'Offline Client Stack & CC0 Assets',
-                    'about.card3.desc': 'Zero external backend, zero tracking, and persistent local progress. Vendored offline with Three.js, Matter.js, PixiJS v8, Fuse.js, Howler.js, Chart.js, GSAP, Panzoom, canvas-confetti, and Kenney (CC0 1.0) assets.',
-                    'about.card3.meta': 'Three.js · Matter.js · PixiJS v8 · WASM · TypeScript · CC0 Kenney',
+                    'about.card3.desc': 'Zero external backend, zero tracking, and persistent Season 1 auto-save progress. Vendored offline with Phaser 3, Three.js, Cannon-es, Matter.js, PixiJS v8, ROT.js, Fengari Lua, D3.js, Fuse.js, Howler.js, Chart.js, GSAP, and Kenney (CC0 1.0) assets.',
+                    'about.card3.meta': 'Phaser 3 · Cannon-es · ROT.js · Fengari Lua · D3.js · WASM · CC0 Kenney',
                     'about.controls.title': 'Tactical Controls & Universal Bindings',
-                    'about.controls.subtitle': 'Shared controls across the 50-game portal and the Cosmic Survivors flagship arena.',
+                    'about.controls.subtitle': 'Shared controls across all 60 standalone games and the Cosmic Survivors flagship arena.',
                     'about.controls.badge': 'KEYBOARD · MOUSE · TOUCH',
                     'about.ctrl.moveKey': 'W A S D / Arrow Keys',
                     'about.ctrl.moveDesc': 'Thruster navigation and tactical cover positioning across 5600×5600 sectors.',

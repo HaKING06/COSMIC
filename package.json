@@ -12,18 +12,24 @@
   "type": "commonjs",
   "dependencies": {
     "@panzoom/panzoom": "^4.6.2",
+    "cannon-es": "^0.20.0",
     "canvas-confetti": "^1.9.4",
     "chart.js": "^4.6.1",
+    "d3": "^7.9.2",
+    "fengari-web": "^0.1.4",
     "fuse.js": "^7.5.0",
     "gsap": "^3.15.1",
     "howler": "^2.2.4",
     "lucide": "^1.72.0",
     "matter-js": "^0.20.0",
+    "phaser": "^3.88.2",
     "pixi-filters": "^6.1.5",
     "pixi.js": "^8.23.0",
+    "rot-js": "^2.2.1",
     "three": "^0.187.0"
   },
   "devDependencies": {
+    "assemblyscript": "^0.28.20",
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2"
   }

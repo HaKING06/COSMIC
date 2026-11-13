@@ -9,8 +9,12 @@
         'fighter', 'astronaut', 'ufo', 'asteroid',
         'warp_ring', 'laser_turret', 'cryo_crystal', 'energy_prism',
         'alien_drone', 'plasma_bomb', 'cargo_crate', 'portal_vortex',
-        'coin_star', 'boss_core', 'moon_lander', 'shield_battery'
+        'coin_star', 'boss_core', 'moon_lander', 'shield_battery',
+        'exo_trooper', 'tactical_mech', 'moon_rover', 'colossus_boss',
+        'stealth_jet', 'carrier_ship', 'reactor_node', 'spider_bot', 'missile_pod'
     ];
+
+    const CAST_KEYS = ['nova_tactical', 'nova_damaged', 'sara_ai', 'admiral_kaelen'];
 
     const state = {
         gameId: 'nova-flappy-rift',
@@ -18,6 +22,9 @@
         indexNum: 1,
         chapterId: null,
         chapterMeta: null,
+        playMode: 'endless',
+        difficultyMult: 1,
+        menuVisible: true,
         initialLevel: 1,
         currentLevel: 1,
         currentScore: 0,
@@ -31,8 +38,9 @@
 
     const COPY = {
         tr: {
-            portalBtn: 'Portal (50 Oyun)',
+            portalBtn: 'Portal (60 Oyun)',
             storyBtn: 'Hikâye Haritası',
+            menuBtn: 'Oyun Menüsü',
             pause: 'Duraklat [P]',
             resume: 'Devam Et [P]',
             restart: 'Yeniden [R]',
@@ -49,9 +57,15 @@
             controls: 'KONTROLLER',
             mech: 'HEDEF & MEKANİK',
             related: 'Benzer Kozmik Dünyalar',
-            viewAll: 'Tüm 50 Oyunu Gör',
+            viewAll: 'Tüm 60 Oyunu Gör',
+            modeLabel: 'OYUN MODU SEÇİMİ',
+            diffLabel: 'ZORLUK SEVİYESİ',
+            endlessBtn: '♾ Sonsuz / Serbest Mod',
+            storyModeBtn: (ch) => `📖 Hikâye Görevi (Böl.${ch})`,
+            launchMenuBtn: 'OYUNA BAŞLA',
+            backCatalog: 'Tüm Oyunlar',
             flagshipBadge: 'ANA OYUN · PIXIJS V8 ROGUELIKE',
-            flagshipTitle: 'Cosmic Survivors v11.0 — Tam Ölçek Uzay Arenası',
+            flagshipTitle: 'Cosmic Survivors v11.5 — Tam Ölçek Uzay Arenası',
             flagshipDesc: '8 yıldız gemisi, 4 adet 5600×5600 engelli arena, çok katmanlı Mega Evrim ağacı ve 5 operasyon moduyla tam sürüm hayatta kalma savaşına geçin.',
             launchHangar: 'Komuta Hangarını Aç',
             launchInstant: 'Hemen Arenaya Atla',
@@ -69,7 +83,7 @@
             playAgain: 'Tekrar Oyna',
             resumeBtn: 'Devam Et',
             nextLevel: 'Sonraki Seviye',
-            storyNext: (id) => id < 8 ? `Bölüm ${id + 1}'e Geç` : 'Hikâyeye Dön',
+            storyNext: (id) => id < 24 ? `Bölüm ${id + 1}'e Geç` : 'Sezon Finalini Gör',
             chapterClearedMsg: (id) => `Bölüm ${id} başarıyla tamamlandı ve hikâye kilidi açıldı!`,
             ovScore: 'Skor',
             ovBest: 'Rekor',
@@ -77,8 +91,9 @@
             readyStatus: 'Hazır'
         },
         en: {
-            portalBtn: 'Portal (50 Games)',
+            portalBtn: 'Portal (60 Games)',
             storyBtn: 'Story Map',
+            menuBtn: 'Game Menu',
             pause: 'Pause [P]',
             resume: 'Resume [P]',
             restart: 'Restart [R]',
@@ -95,9 +110,15 @@
             controls: 'CONTROLS',
             mech: 'OBJECTIVE & MECHANICS',
             related: 'Similar Cosmic Worlds',
-            viewAll: 'View All 50 Games',
+            viewAll: 'View All 60 Games',
+            modeLabel: 'GAME MODE',
+            diffLabel: 'DIFFICULTY',
+            endlessBtn: '♾ Endless / Free Play',
+            storyModeBtn: (ch) => `📖 Story Mission (Ch.${ch})`,
+            launchMenuBtn: 'PLAY NOW',
+            backCatalog: 'All Games',
             flagshipBadge: 'FLAGSHIP TITLE · PIXIJS V8 ROGUELIKE',
-            flagshipTitle: 'Cosmic Survivors v11.0 — Full Space Survival Arena',
+            flagshipTitle: 'Cosmic Survivors v11.5 — Full Space Survival Arena',
             flagshipDesc: 'Command 8 starships across four 5600×5600 cover arenas, multi-tier Mega Evolutions, and 5 operation modes in the full flagship arena.',
             launchHangar: 'Open Command Hangar',
             launchInstant: 'Deploy Now',
@@ -115,7 +136,7 @@
             playAgain: 'Play Again',
             resumeBtn: 'Resume',
             nextLevel: 'Next Level',
-            storyNext: (id) => id < 8 ? `Continue to Ch.${id + 1}` : 'Return to Story',
+            storyNext: (id) => id < 24 ? `Continue to Ch.${id + 1}` : 'View Season Finale',
             chapterClearedMsg: (id) => `Chapter ${id} cleared! Next Story Universe unlocked.`,
             ovScore: 'Score',
             ovBest: 'Best',
@@ -155,6 +176,7 @@
     function preloadSprites() {
         return new Promise((resolve) => {
             const entries = SPRITE_KEYS.map(k => [k, asset(`assets/v11/sprites/${k}.png`)]);
+            CAST_KEYS.forEach(c => entries.push([c, asset(`assets/v11/cast/${c}.png`)]));
             entries.push(['nova_avatar', asset('assets/v11/nova_avatar.png')]);
             let left = entries.length;
             const done = () => {
@@ -209,6 +231,7 @@
         const map = {
             backPortalLabel: c.portalBtn,
             backStoryLabel: c.storyBtn,
+            btnMenuLabel: c.menuBtn,
             btnPauseLabel: state.paused ? c.resume : c.pause,
             btnRestartLabel: c.restart,
             btnFullscreenLabel: c.fullscreen,
@@ -234,7 +257,7 @@
 
         if (meta) {
             const titleStr = meta.title[lang] || meta.title.tr;
-            document.title = `${titleStr} — COSMIC UNIVERSE v11.0`;
+            document.title = `${titleStr} — COSMIC UNIVERSE v11.5`;
             document.getElementById('gameTitleHeading').textContent = titleStr;
             document.getElementById('gameTaglineText').textContent = meta.tagline[lang] || meta.tagline.tr;
             document.getElementById('valControlsText').textContent = meta.controls[lang] || meta.controls.tr;
@@ -251,7 +274,7 @@
             if (novaAvatar) novaAvatar.src = asset('assets/v11/nova_avatar.png');
         }
 
-        if (state.chapterMeta) {
+        if (state.playMode === 'story' && state.chapterMeta) {
             const ch = state.chapterMeta;
             document.getElementById('storyMissionBanner').classList.remove('hidden');
             document.getElementById('backStoryLink').classList.remove('hidden');
@@ -263,6 +286,10 @@
                 : (lang === 'en' ? `Target: Clear Level ${ch.targetValue}` : `Hedef: Seviye ${ch.targetValue}'i tamamla`);
             document.getElementById('storyMissionObjective').textContent = `${ch.title[lang]} — ${targetDesc}`;
             document.getElementById('storyMissionStatus').textContent = state.chapterAwarded ? c.missionDone : c.missionActive;
+        } else {
+            document.getElementById('storyMissionBanner')?.classList.add('hidden');
+            document.getElementById('gameChapterBadge')?.classList.add('hidden');
+            document.getElementById('backStoryLink')?.classList.toggle('hidden', !state.chapterId);
         }
 
         const audioLabel = document.getElementById('audioToggleLabel');
@@ -310,7 +337,7 @@
         const others = global.COSMIC_ARCADE_GAMES.filter(g => g.id !== state.gameId && (g.category === state.meta.category || g.engine === state.meta.engine));
         const picks = others.slice(0, 4);
         grid.innerHTML = picks.map(g => `
-            <a href="${g.isFlagship ? asset('hangar.html') : asset(`games/${encodeURIComponent(g.id)}/index.html`)}" class="related-card">
+            <a href="${g.id === 'cosmic-survivors' ? asset('hangar.html') : asset(`games/${encodeURIComponent(g.id)}/index.html`)}" class="related-card">
                 <img src="${asset(`assets/v11/thumbs/${g.id}.png`)}" onerror="this.src='${asset(`assets/v11/sprites/${g.sprite}.png`)}'" alt="">
                 <div class="related-card-info">
                     <div class="related-card-name">${g.title[lang] || g.title.tr}</div>
@@ -321,14 +348,14 @@
     }
 
     function pickRandomGameUrl() {
-        const list = (global.COSMIC_ARCADE_GAMES || []).filter(g => !g.isFlagship && g.id !== state.gameId);
+        const list = (global.COSMIC_ARCADE_GAMES || []).filter(g => g.id !== 'cosmic-survivors' && g.id !== state.gameId);
         if (!list.length) return asset('index.html');
         const pick = list[Math.floor(Math.random() * list.length)];
         return asset(`games/${encodeURIComponent(pick.id)}/index.html`);
     }
 
     function checkStoryCompletion(score, level, explicitWin) {
-        if (!state.chapterMeta || state.chapterAwarded || !global.CosmicStoryStore) return false;
+        if (state.playMode !== 'story' || !state.chapterMeta || state.chapterAwarded || !global.CosmicStoryStore) return false;
         const ch = state.chapterMeta;
         const met = ch.targetType === 'score'
             ? (Number(score) >= ch.targetValue)
@@ -398,9 +425,9 @@
             btnNext.classList.add('hidden');
         }
 
-        if (state.chapterMeta) {
+        if (state.playMode === 'story' && state.chapterMeta) {
             btnStory.classList.remove('hidden');
-            const nextCh = state.chapterMeta.id < 8 ? state.chapterMeta.id + 1 : state.chapterMeta.id;
+            const nextCh = state.chapterMeta.id < 24 ? state.chapterMeta.id + 1 : state.chapterMeta.id;
             btnStory.href = chapterNowCleared ? asset(`story.html?chapter=${nextCh}`) : asset(`story.html?chapter=${state.chapterMeta.id}`);
             document.getElementById('ovBtnStoryText').textContent = chapterNowCleared ? c.storyNext(state.chapterMeta.id) : c.storyBtn;
             if (chapterNowCleared) {
@@ -477,8 +504,8 @@
         document.getElementById('valHudLives').textContent = '3';
         document.getElementById('valHudStatus').textContent = copy().readyStatus;
 
-        // Special Flagship Hangar Card for #01 cosmic-survivors
-        if (state.meta && state.meta.isFlagship) {
+        // Special Flagship Hangar Card ONLY for #01 cosmic-survivors
+        if (state.gameId === 'cosmic-survivors') {
             const c = copy();
             stageEl.innerHTML = `
                 <div class="flagship-stage-card">
@@ -533,8 +560,10 @@
             audio: global.CosmicAudio || null,
             wasm: state.wasmBridge || global.CosmicWasm || null,
             shaders: global.CosmicShaders || null,
-            chapterId: state.chapterId,
-            chapterTarget: state.chapterMeta ? state.chapterMeta.targetValue : null,
+            isStory: Boolean(state.playMode === 'story' && state.chapterMeta),
+            chapterId: state.playMode === 'story' ? state.chapterId : null,
+            chapterTarget: (state.playMode === 'story' && state.chapterMeta) ? state.chapterMeta.targetValue : null,
+            difficultyMult: state.difficultyMult || 1,
             initialLevel: state.currentLevel,
             getPaused: () => state.paused,
             setHud(hud) {
@@ -542,7 +571,7 @@
                 if (hud.score !== undefined) {
                     state.currentScore = Math.floor(Number(hud.score) || 0);
                     document.getElementById('valHudScore').textContent = String(state.currentScore);
-                    if (state.chapterMeta && state.chapterMeta.targetType === 'score') {
+                    if (state.playMode === 'story' && state.chapterMeta && state.chapterMeta.targetType === 'score') {
                         checkStoryCompletion(state.currentScore, state.currentLevel, false);
                     }
                 }
@@ -621,7 +650,102 @@
         }
     }
 
+    function syncPreGameMenu() {
+        const ov = document.getElementById('preGameMenuOverlay');
+        if (!ov || !state.meta) return;
+        const lang = getLang();
+        const c = copy();
+        const rec = global.CosmicArcadeStore ? global.CosmicArcadeStore.getGameStats(state.gameId) : { highScore: 0, stars: 0 };
+
+        const bg = document.getElementById('preGameBgImg');
+        if (bg) bg.style.backgroundImage = `url('${asset(`assets/v11/banners/${state.gameId}.jpg`)}')`;
+        const logo = document.getElementById('preGameLogo');
+        if (logo) {
+            logo.onerror = () => { logo.src = asset(`assets/v11/sprites/${state.meta.sprite}.png`); };
+            logo.src = asset(`assets/v11/thumbs/${state.gameId}.png`);
+        }
+
+        document.getElementById('preGameEnginePill').textContent = `${state.meta.engine} · ${state.meta.lang}`;
+        document.getElementById('preGameBestPill').textContent = `${c.best}: ${rec.highScore || 0}`;
+        document.getElementById('preGameStarsPill').textContent = formatStars(rec.stars || 0);
+        document.getElementById('preGameTitle').textContent = state.meta.title[lang] || state.meta.title.tr;
+        document.getElementById('preGameTagline').textContent = state.meta.tagline[lang] || state.meta.tagline.tr;
+        document.getElementById('preGameControlsHint').textContent = `${c.controls}: ${state.meta.controls[lang] || state.meta.controls.tr}`;
+        document.getElementById('lblModeSelect').textContent = c.modeLabel;
+        document.getElementById('lblDiffSelect').textContent = c.diffLabel;
+        document.getElementById('btnLaunchFromMenuText').textContent = c.launchMenuBtn;
+        document.getElementById('btnBackToCatalogText').textContent = c.backCatalog;
+
+        const btnEndless = document.getElementById('btnModeEndless');
+        const btnStory = document.getElementById('btnModeStory');
+        if (btnEndless) {
+            btnEndless.textContent = c.endlessBtn;
+            btnEndless.classList.toggle('active', state.playMode === 'endless');
+        }
+        const linkedCh = state.chapterId || state.meta.storyChapter;
+        if (btnStory) {
+            if (linkedCh && global.CosmicStoryStore) {
+                btnStory.classList.remove('hidden');
+                btnStory.textContent = c.storyModeBtn(linkedCh);
+                btnStory.classList.toggle('active', state.playMode === 'story');
+            } else {
+                btnStory.classList.add('hidden');
+            }
+        }
+        document.querySelectorAll('#diffToggleRow .mode-pill').forEach((btn) => {
+            btn.classList.toggle('active', Math.abs(parseFloat(btn.dataset.diff) - state.difficultyMult) < 0.05);
+        });
+    }
+
+    function showPreGameMenu() {
+        destroyActiveController();
+        state.paused = false;
+        state.ended = false;
+        state.menuVisible = true;
+        document.getElementById('stageOverlay')?.classList.add('hidden');
+        syncStaticChrome();
+        syncPreGameMenu();
+        document.getElementById('preGameMenuOverlay')?.classList.remove('hidden');
+        refreshIcons();
+    }
+
+    function launchFromMenu() {
+        if (global.CosmicAudio) {
+            global.CosmicAudio.unlock();
+            global.CosmicAudio.play('uiClick');
+        }
+        const linkedCh = state.chapterId || (state.meta && state.meta.storyChapter);
+        if (state.playMode === 'story' && linkedCh && global.CosmicStoryStore) {
+            state.chapterId = linkedCh;
+            state.chapterMeta = global.CosmicStoryStore.getChapter(linkedCh);
+        } else {
+            state.chapterMeta = null;
+        }
+        state.menuVisible = false;
+        document.getElementById('preGameMenuOverlay')?.classList.add('hidden');
+        mountGame(state.currentLevel || state.initialLevel);
+    }
+
     function bindEvents() {
+        document.getElementById('btnShowGameMenu')?.addEventListener('click', showPreGameMenu);
+        document.getElementById('btnLaunchFromMenu')?.addEventListener('click', launchFromMenu);
+        document.getElementById('btnModeEndless')?.addEventListener('click', () => {
+            state.playMode = 'endless';
+            if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
+            syncPreGameMenu();
+        });
+        document.getElementById('btnModeStory')?.addEventListener('click', () => {
+            state.playMode = 'story';
+            if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
+            syncPreGameMenu();
+        });
+        document.querySelectorAll('#diffToggleRow .mode-pill').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                state.difficultyMult = parseFloat(btn.dataset.diff) || 1;
+                if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
+                syncPreGameMenu();
+            });
+        });
         document.getElementById('btnPauseGame')?.addEventListener('click', togglePause);
         document.getElementById('btnRestartGame')?.addEventListener('click', restartCurrentGame);
         document.getElementById('btnFullscreen')?.addEventListener('click', toggleFullscreen);
@@ -632,9 +756,15 @@
 
         window.addEventListener('keydown', (e) => {
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+            if (state.menuVisible && e.key === 'Enter') {
+                e.preventDefault();
+                launchFromMenu();
+                return;
+            }
             // Don't hijack typing game keystrokes!
-            if (state.gameId === 'typing-cipher-defense') return;
+            if (state.gameId === 'typing-cipher-defense' || state.gameId === 'lua-cyber-ops') return;
             if (e.key === 'p' || e.key === 'P') {
+                if (state.menuVisible) return;
                 e.preventDefault();
                 togglePause();
             } else if (e.key === 'r' || e.key === 'R') {
@@ -652,7 +782,11 @@
 
         global.addEventListener('cosmic:langchange', () => {
             syncStaticChrome();
-            mountGame(state.currentLevel);
+            if (state.menuVisible) {
+                syncPreGameMenu();
+            } else {
+                mountGame(state.currentLevel);
+            }
         });
 
         window.addEventListener('beforeunload', destroyActiveController);
@@ -671,11 +805,15 @@
         state.gameId = state.meta ? state.meta.id : requestedId;
         state.indexNum = foundIdx + 1;
         state.initialLevel = Math.max(1, parseInt(params.get('level') || '1', 10) || 1);
+        state.currentLevel = state.initialLevel;
 
         const chParam = parseInt(params.get('chapter') || '0', 10);
         if (chParam >= 1 && global.CosmicStoryStore) {
             state.chapterId = chParam;
             state.chapterMeta = global.CosmicStoryStore.getChapter(chParam);
+            state.playMode = 'story';
+        } else {
+            state.playMode = 'endless';
         }
 
         const wasmPromise = (global.CosmicWasm && typeof global.CosmicWasm.ready === 'function')
@@ -685,7 +823,14 @@
         updateCreditsPill();
         setupAudioControl();
         bindEvents();
-        mountGame(state.initialLevel);
+
+        if (state.gameId === 'cosmic-survivors' || params.get('autostart') === '1') {
+            state.menuVisible = false;
+            document.getElementById('preGameMenuOverlay')?.classList.add('hidden');
+            mountGame(state.initialLevel);
+        } else {
+            showPreGameMenu();
+        }
     }
 
     if (document.readyState === 'loading') {

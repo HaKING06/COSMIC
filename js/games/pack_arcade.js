@@ -1095,9 +1095,17 @@
                             boss = null;
                             enemies = [];
                             enemyBullets = [];
-                            ended = true;
-                            ctx.onWin?.({ score: Math.floor(score), level: stage, wave });
-                            return;
+                            if (ctx.isStory) {
+                                ended = true;
+                                ctx.onWin?.({ score: Math.floor(score), level: stage, wave });
+                                return;
+                            }
+                            stage += 1;
+                            wave += 1;
+                            if (lives < 4) lives += 1;
+                            sfx(ctx, 'levelup');
+                            fx.showBanner('SECTOR ' + stage + ' ENGAGED', 'FLAGSHIP SHATTERED · ESCALATING SWARM', PAL.mint, 2.2);
+                            spawnWave(wave);
                         }
                     }
                 }
@@ -1757,12 +1765,14 @@
             // Wave clear / Level win
             if (spawnPending === 0 && enemies.length === 0) {
                 score += astronauts.length * 100;
-                if (wave >= 2) {
+                if (ctx.isStory && wave >= 2) {
                     ended = true;
                     sfx(ctx, 'levelup');
                     ctx.onWin?.({ score: Math.floor(score), level: stage, wave, astronautsSaved: astronauts.length });
                     return;
                 }
+                if (wave >= 2 && wave % 2 === 0) stage += 1;
+                sfx(ctx, 'levelup');
                 startWave(wave + 1);
             }
         }
@@ -2354,9 +2364,18 @@
 
             // Sector clear
             if (asteroids.length === 0 && !ufo) {
-                ended = true;
-                sfx(ctx, 'levelup');
-                ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage });
+                if (ctx.isStory) {
+                    ended = true;
+                    sfx(ctx, 'levelup');
+                    ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage });
+                } else {
+                    stage += 1;
+                    score += 500 * stage;
+                    sfx(ctx, 'levelup');
+                    const nextCount = Math.min(14, 3 + stage);
+                    for (let i = 0; i < nextCount; i++) spawnAsteroid(3);
+                    fx.showBanner('BELT ' + stage, 'NEXT ASTEROID FIELD · +' + (500 * stage), PAL.sky, 2.0);
+                }
             }
         }
 
@@ -2803,10 +2822,19 @@
                 fx.floatText(pos.x, pos.y - 12, '+' + pts + (combo > 1 ? ' x' + combo : ''), PAL.mint);
 
                 if (crystalsEaten >= targetCrystals) {
-                    ended = true;
+                    if (ctx.isStory) {
+                        ended = true;
+                        sfx(ctx, 'levelup');
+                        ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage, crystals: crystalsEaten });
+                        return;
+                    }
+                    stage += 1;
+                    score += 800 * stage;
+                    crystalsEaten = 0;
+                    targetCrystals += 4;
+                    stepInterval = Math.max(0.056, stepInterval - 0.006);
                     sfx(ctx, 'levelup');
-                    ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage, crystals: crystalsEaten });
-                    return;
+                    fx.showBanner('WARP TIER ' + stage, 'OVERDRIVE SPEED BOOST!', PAL.mint, 1.9);
                 }
                 spawnCrystal();
             }
@@ -3497,9 +3525,18 @@
             }
 
             if (bricks.length === 0) {
-                ended = true;
-                sfx(ctx, 'levelup');
-                ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage });
+                if (ctx.isStory) {
+                    ended = true;
+                    sfx(ctx, 'levelup');
+                    ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage });
+                } else {
+                    stage += 1;
+                    score += 1000 * stage;
+                    sfx(ctx, 'levelup');
+                    resetPaddleAndBall();
+                    buildLevel(stage);
+                    fx.showBanner('SHIELD LAYOUT ' + (((stage - 1) % 6) + 1), 'STAGE CLEARED · +' + (1000 * stage), PAL.mint, 2.1);
+                }
             }
         }
 
@@ -3859,10 +3896,18 @@
                 fx.burst(W - 14, ball.y, 24, PAL.mint, 240, 4, 0.55);
                 fx.floatText(W * 0.7, H * 0.5, 'POINT SCORED!', PAL.mint, 1.25);
                 if (pScore >= 5) {
-                    ended = true;
+                    if (ctx.isStory) {
+                        ended = true;
+                        sfx(ctx, 'levelup');
+                        ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage, bestRally });
+                        return;
+                    }
+                    stage += 1;
+                    pScore = 0;
+                    aiScore = 0;
+                    score += 1500 * stage;
                     sfx(ctx, 'levelup');
-                    ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage, bestRally });
-                    return;
+                    fx.showBanner('MATCH SET ' + stage, 'AI TIER INCREASED · +' + (1500 * stage), PAL.sky, 2.1);
                 }
                 resetRound(-1);
             }
@@ -4326,9 +4371,18 @@
 
             // Wave cleared when all segments purged
             if (centipedes.length === 0) {
-                ended = true;
-                sfx(ctx, 'levelup');
-                ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage });
+                if (ctx.isStory) {
+                    ended = true;
+                    sfx(ctx, 'levelup');
+                    ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage });
+                } else {
+                    stage += 1;
+                    score += 900 * stage;
+                    sfx(ctx, 'levelup');
+                    const nextSeg = Math.min(28, 12 + (stage - 1) * 3);
+                    spawnCentipede(nextSeg);
+                    fx.showBanner('SWARM WAVE ' + stage, nextSeg + '-SEGMENT PURGE!', PAL.mint, 2.0);
+                }
             }
         }
 
@@ -4756,12 +4810,13 @@
                         }
                     }
 
-                    if (wave >= 3) {
+                    if (ctx.isStory && wave >= 3) {
                         ended = true;
                         sfx(ctx, 'levelup');
                         ctx.onWin?.({ score: Math.floor(score), level: stage, wave });
                         return;
                     }
+                    if (wave % 3 === 0) stage += 1;
                     startWave(wave + 1);
                 }
             }
@@ -5413,9 +5468,20 @@
 
             // Win when all beetles are eliminated
             if (enemies.length === 0) {
-                ended = true;
-                sfx(ctx, 'levelup');
-                ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage });
+                if (ctx.isStory) {
+                    ended = true;
+                    sfx(ctx, 'levelup');
+                    ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage });
+                } else {
+                    stage += 1;
+                    score += 1200 * stage;
+                    sfx(ctx, 'levelup');
+                    bonusItem = null;
+                    bouldersDropped = 0;
+                    setupCavern(stage);
+                    resetPlayer();
+                    fx.showBanner('DEPTH ' + stage, 'DEEPER CAVERN UNLOCKED!', PAL.amber, 2.0);
+                }
             }
         }
 

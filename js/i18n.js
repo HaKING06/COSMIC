@@ -11,7 +11,7 @@
     const DICT = {
         tr: {
             // Topbar & Navigation
-            'nav.portal': 'V11.0 ÇOKLU EVREN PORTALI',
+            'nav.portal': 'V11.5 ÇOKLU EVREN PORTALI',
             'nav.portalLink': 'Portal',
             'nav.story': 'Hikâye',
             'nav.hangar': 'Survivors',
@@ -113,7 +113,7 @@
             'maps.recommended': 'Önerilen Gemiler',
             'maps.hazard': 'Tehlike Seviyesi',
 
-            // Local Records (Zero Global Leaderboard)
+            // Local Pilot Flight Records Only
             'records.title': 'Yerel Kayıtlar & Kişisel Rekorlar',
             'records.sub': 'Tüm uçuş verileri yalnızca bu cihazda çevrimdışı olarak saklanır. Sektör ve mod bazlı en iyi derecelerinizi takip edin.',
             'records.bestBySector': 'Sektöre Göre En İyi Skorlar',
@@ -210,7 +210,7 @@
             'tree.formula': 'Formül',
 
             // About
-            'about.title': 'COSMIC UNIVERSE v11.0 — 50 Oyun & Hikâye Portali',
+            'about.title': 'COSMIC UNIVERSE v11.5 — 60 Oyun & 24 Bölümlük Sezon 1',
             'about.sub': 'Yüksek tempolu uzay arena hayatta kalma oyunu. Sıfır sunucu bağımlılığı ile tamamen tarayıcınızda çalışır.',
             'about.architecture': 'Teknik Mimari',
             'about.controls': 'Uçuş & Savaş Kontrolleri',
@@ -230,7 +230,7 @@
         },
         en: {
             // Topbar & Navigation
-            'nav.portal': 'V11.0 MULTIVERSE PORTAL',
+            'nav.portal': 'V11.5 MULTIVERSE PORTAL',
             'nav.portalLink': 'Portal',
             'nav.story': 'Story Saga',
             'nav.hangar': 'Survivors',
@@ -332,7 +332,7 @@
             'maps.recommended': 'Recommended Ships',
             'maps.hazard': 'Hazard Rating',
 
-            // Local Records (Zero Global Leaderboard)
+            // Local Pilot Flight Records Only
             'records.title': 'Local Records & Personal Bests',
             'records.sub': 'All flight logs are stored strictly offline on this device. Track your best runs across sectors and modes.',
             'records.bestBySector': 'Personal Bests by Sector',
@@ -429,7 +429,7 @@
             'tree.formula': 'Formula',
 
             // About
-            'about.title': 'COSMIC UNIVERSE v11.0 — 50-Game Portal & Story Saga',
+            'about.title': 'COSMIC UNIVERSE v11.5 — 60-Game Portal & Season 1 Saga',
             'about.sub': 'High-tempo cosmic arena survival game running 100% locally in your browser with zero external server dependency.',
             'about.architecture': 'Technical Architecture',
             'about.controls': 'Flight & Combat Controls',
