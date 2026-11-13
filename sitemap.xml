@@ -3,17 +3,17 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://cosmic.haking.tr/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
       <image:loc>https://cosmic.haking.tr/assets/og-banner.png</image:loc>
-      <image:title>COSMIC UNIVERSE v11.5 — 60 Space Games Portal</image:title>
+      <image:title>COSMIC UNIVERSE v12.0 — 60 Space Games Portal</image:title>
     </image:image>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/story.html</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
     <image:image>
@@ -23,7 +23,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/hangar.html</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
     <image:image>
@@ -33,7 +33,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/arcade.html</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -43,7 +43,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/game.html</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -53,7 +53,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/armory.html</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
     <image:image>
@@ -63,7 +63,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/modes.html</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
     <image:image>
@@ -73,7 +73,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/tree.html</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
     <image:image>
@@ -83,7 +83,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/wiki.html</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
     <image:image>
@@ -93,7 +93,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/about.html</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -103,13 +103,13 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/privacy.html</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/cosmic-survivors/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -119,7 +119,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/boss-gauntlet/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -129,7 +129,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/three-void-interceptor/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -139,7 +139,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/three-star-slalom/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -149,7 +149,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/wasm-bullet-weave/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -159,7 +159,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/shader-pulse-survivor/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -169,7 +169,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/nova-flappy-rift/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -179,7 +179,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/gravity-flip-runner/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -189,7 +189,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/orbital-dash-ring/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -199,7 +199,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/warp-lane-dodger/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -209,7 +209,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/photon-parry-duel/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -219,7 +219,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/meteor-jetpack-rise/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -229,7 +229,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/helix-station-drop/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -239,7 +239,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/laser-limbo-dash/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -249,7 +249,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/starlight-rhythm-pulse/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -259,7 +259,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/starship-murder-mystery/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -269,7 +269,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/galaga-swarm-assault/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -279,7 +279,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/defender-patrol/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -289,7 +289,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/astro-vector-asteroids/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -299,7 +299,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/cosmic-snake-leviathan/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -309,7 +309,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/quantum-brick-breaker/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -319,7 +319,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/twin-paddle-pong/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -329,7 +329,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/centipede-spore-purge/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -339,7 +339,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/missile-dome-defense/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -349,7 +349,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/lunar-excavator/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -359,7 +359,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/quantum-sokoban/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -369,7 +369,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/laser-mirror-grid/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -379,7 +379,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/circuit-pipe-link/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -389,7 +389,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/quantum-2048/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -399,7 +399,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/nebula-minesweeper/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -409,7 +409,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/match3-isotope-core/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -419,7 +419,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/lights-out-array/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -429,7 +429,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/memory-star-matrix/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -439,7 +439,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/nonogram-star-map/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -449,7 +449,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/hanoi-warp-cores/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -459,7 +459,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/wasm-cellular-contain/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -469,7 +469,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/orbital-sudoku-mini/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -479,7 +479,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/orbital-slingshot/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -489,7 +489,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/moon-lander-apollo/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -499,7 +499,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/cosmic-pinball-rig/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -509,7 +509,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/nebula-pool-ricochet/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -519,7 +519,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/cargo-tower-balance/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -529,7 +529,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/magnetic-tether-swing/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -539,7 +539,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/gravity-golf-parsec/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -549,7 +549,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/tower-defense-bastion/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -559,7 +559,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/deck-breach-tactics/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -569,7 +569,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/fleet-commander-auto/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -579,7 +579,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/wormhole-roulette-rpg/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -589,7 +589,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/mining-tycoon-idle/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -599,7 +599,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/typing-cipher-defense/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -609,7 +609,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/exo-metroid-breach/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -619,7 +619,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/astral-roguelike-crawl/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -629,7 +629,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/moon-rover-3d-odyssey/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -639,7 +639,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/starfox-canyon-ace/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -649,7 +649,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/lua-cyber-ops/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -659,7 +659,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/asc-blackhole-swarm/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -669,7 +669,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/phaser-stealth-heist/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -679,7 +679,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/d3-galactic-conquest/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -689,7 +689,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/glsl-synthwave-surf/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -699,7 +699,7 @@
   </url>
   <url>
     <loc>https://cosmic.haking.tr/games/phaser-crimson-colossus/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>

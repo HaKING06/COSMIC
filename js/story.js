@@ -1,5 +1,5 @@
 // =============================================================================
-// COSMIC UNIVERSE v11.5 — 24-CHAPTER SEASON 1 STORY & CUTSCENE CONTROLLER (js/story.js)
+// COSMIC UNIVERSE v12.0 — 24-CHAPTER SEASON 1 STORY & CUTSCENE CONTROLLER (js/story.js)
 // =============================================================================
 (function (global) {
     'use strict';
@@ -12,15 +12,18 @@
         resetArmed: false,
         resetTimer: null,
         cutscene: null,
-        finaleDismissed: false
+        finaleDismissed: false,
+        resizeObserver: null
     };
+
+    const ROMAN_ACTS = ['', 'I', 'II', 'III', 'IV'];
 
     const COPY = {
         tr: {
-            pageTitle: 'COSMIC UNIVERSE v11.5 — Kaptan Nova Vex: Sezon 1 (24 Bölüm)',
+            pageTitle: 'COSMIC UNIVERSE v12.0 — Kaptan Nova Vex: Sezon 1 (24 Bölüm)',
             eyebrow: 'PARÇALANAN SONSUZLUK · SEZON 1 (24 BÖLÜM)',
             heading: 'Çoklu Evren Hikâye Seferi',
-            sub: '4 perdelik animasyonlu ara sahneler ve her bölümde değişen oyun evrenleriyle destanı tamamla.',
+            sub: '4 perdelik 60 FPS çok katmanlı ara sahneler ve her bölümde değişen oyun evrenleriyle destanı tamamla.',
             audioOn: 'Ses Açık',
             audioOff: 'Sessiz',
             resumeBtn: (ch) => `Kaldığın Yerden Devam Et (Böl.${ch})`,
@@ -33,7 +36,20 @@
             skipIntro: 'Hemen Başla',
             autoOn: '▶ OTO SAHNE: AÇIK',
             autoOff: '⏸ OTO SAHNE: KAPALI',
-            dialogueReady: 'Sinyal kilitlendi — göreve hazır!',
+            beatLabel: 'SAHNE',
+            replayBtn: 'Tekrar',
+            replayTitle: 'Ara Sahneyi Baştan Oynat',
+            actLabel: (n) => `PERDE ${ROMAN_ACTS[n] || n}`,
+            actProgress: 'Perde İlerlemesi',
+            roleNova: 'PİLOT · NOVA VEX',
+            roleSara: 'TAKTİK YZ · S.A.R.A.',
+            roleKaelen: 'ANTAGONİST · AMİRAL KAELEN',
+            roleArchitect: 'ANTAGONİST · MİMAR',
+            keyHint: '[SPACE / ENTER]',
+            chapterStamp: (id) => {
+                const p = String(id).padStart(2, '0');
+                return `BÖL.${p} // SEKTÖR ${p}`;
+            },
             lblGame: 'OYNANACAK EVREN / OYUN',
             lblObjective: 'BÖLÜM KİLİT AÇMA HEDEFİ',
             lblReward: 'TAMAMLAMA ÖDÜLÜ',
@@ -49,10 +65,10 @@
             finaleSub: 'Amiral Kaelen’in tekillik bombası filoyu ikiye yardı. Nova Vex bilinmeyen paralel bir galakside uyandı. İlerlemen otomatik kaydedildi — Sezon 2 çok yakında!'
         },
         en: {
-            pageTitle: 'COSMIC UNIVERSE v11.5 — Captain Nova Vex: Season 1 (24 Chapters)',
+            pageTitle: 'COSMIC UNIVERSE v12.0 — Captain Nova Vex: Season 1 (24 Chapters)',
             eyebrow: 'THE SHATTERED INFINITY · SEASON 1 (24 CHAPTERS)',
             heading: 'Multiverse Story Campaign',
-            sub: 'Experience 4-Act animated cutscenes and master a fresh game engine each chapter toward the tragic Season Finale.',
+            sub: 'Experience 4-Act 60 FPS multi-layer animated cutscenes and master a fresh game engine each chapter toward the tragic Season Finale.',
             audioOn: 'Audio On',
             audioOff: 'Muted',
             resumeBtn: (ch) => `Resume Journey (Ch.${ch})`,
@@ -65,7 +81,20 @@
             skipIntro: 'Launch Mission',
             autoOn: '▶ AUTO SCENE: ON',
             autoOff: '⏸ AUTO SCENE: PAUSED',
-            dialogueReady: 'Telemetry locked — ready for deployment!',
+            beatLabel: 'BEAT',
+            replayBtn: 'Replay',
+            replayTitle: 'Replay Cutscene From Start',
+            actLabel: (n) => `ACT ${ROMAN_ACTS[n] || n}`,
+            actProgress: 'Act Progression',
+            roleNova: 'PILOT · NOVA VEX',
+            roleSara: 'TACTICAL AI · S.A.R.A.',
+            roleKaelen: 'ANTAGONIST · ADMIRAL KAELEN',
+            roleArchitect: 'ANTAGONIST · THE ARCHITECT',
+            keyHint: '[SPACE / ENTER]',
+            chapterStamp: (id) => {
+                const p = String(id).padStart(2, '0');
+                return `CH.${p} // SECTOR ${p}`;
+            },
             lblGame: 'ASSIGNED UNIVERSE / GAME',
             lblObjective: 'CHAPTER UNLOCK OBJECTIVE',
             lblReward: 'COMPLETION REWARD',
@@ -105,13 +134,38 @@
         return (global.COSMIC_ARCADE_GAMES || []).find((g) => g.id === gameId) || null;
     }
 
-    function portraitSrcForSpeaker(speaker, lineMood, chId) {
+    function speakerProfile(speaker, lineMood, chId) {
+        const copy = c();
         const sp = String(speaker || '').toLowerCase();
         const mood = lineMood || '';
-        if (sp.includes('kaelen') || mood === 'kaelen') return 'assets/v11/cast/admiral_kaelen.png';
-        if (sp.includes('s.a.r.a') || mood === 'sara') return 'assets/v11/cast/sara_ai.png';
-        if (mood === 'nova_damaged' || Number(chId) >= 21) return 'assets/v11/cast/nova_damaged.png';
-        return 'assets/v11/cast/nova_tactical.png';
+        if (sp.includes('kaelen') || mood === 'kaelen') {
+            return {
+                key: 'kaelen',
+                portrait: 'assets/v11/cast/admiral_kaelen.png',
+                role: copy.roleKaelen
+            };
+        }
+        if (sp.includes('architect') || sp.includes('mimar') || mood === 'architect') {
+            return {
+                key: 'architect',
+                portrait: 'assets/v11/sprites/boss_core.png',
+                role: copy.roleArchitect
+            };
+        }
+        if (sp.includes('s.a.r.a') || sp.includes('sara') || mood === 'sara') {
+            return {
+                key: 'sara',
+                portrait: 'assets/v11/cast/sara_ai.png',
+                role: copy.roleSara
+            };
+        }
+        return {
+            key: 'nova',
+            portrait: (mood === 'nova_damaged' || Number(chId) >= 21)
+                ? 'assets/v11/cast/nova_damaged.png'
+                : 'assets/v11/cast/nova_tactical.png',
+            role: copy.roleNova
+        };
     }
 
     function updateCreditsAndStats() {
@@ -138,20 +192,28 @@
     function renderActTabs() {
         const row = document.getElementById('actTabsRow');
         const acts = (global.COSMIC_STORY_META && global.COSMIC_STORY_META.acts) || [];
-        if (!row || !acts.length) return;
+        if (!row || !acts.length || !global.CosmicStoryStore) return;
         const lang = getLang();
         const storyState = global.CosmicStoryStore.load();
         row.innerHTML = '';
 
         acts.forEach((act) => {
             const unlockedInAct = storyState.unlockedChapter >= act.range[0];
+            let clearedInAct = 0;
+            for (let cid = act.range[0]; cid <= act.range[1]; cid++) {
+                if (storyState.completedChapters[cid]) clearedInAct++;
+            }
+
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'act-tab-btn'
                 + (act.id === state.activeAct ? ' active' : '')
                 + (act.id === 4 ? ' act-finale' : '');
             const actTitle = act.title[lang] || act.title.tr;
-            btn.innerHTML = `${actTitle} <span style="opacity:.7">(${act.range[0]}–${act.range[1]})</span>${unlockedInAct ? '' : ' 🔒'}`;
+            btn.innerHTML = `
+                <span>${actTitle} <span style="opacity:.7">(${act.range[0]}–${act.range[1]})</span>${unlockedInAct ? '' : ' 🔒'}</span>
+                <span class="act-tab-progress">${clearedInAct}/6</span>
+            `;
             btn.addEventListener('click', () => {
                 if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
                 state.activeAct = act.id;
@@ -168,51 +230,168 @@
         });
     }
 
+    function drawConstellationHyperlanes() {
+        const track = document.getElementById('chapterMapTrack');
+        const svg = document.getElementById('constellationSvg');
+        if (!track || !svg) return;
+
+        const nodes = Array.from(track.querySelectorAll('.chapter-node-btn'));
+        if (nodes.length < 2) {
+            svg.innerHTML = '';
+            return;
+        }
+
+        const trackW = track.clientWidth;
+        const trackH = track.clientHeight;
+        if (!trackW || !trackH) return;
+
+        svg.setAttribute('viewBox', `0 0 ${trackW} ${trackH}`);
+
+        const pts = nodes.map((el) => ({
+            x: el.offsetLeft + el.offsetWidth * 0.5,
+            y: el.offsetTop + Math.min(el.offsetHeight * 0.42, 54),
+            unlocked: el.dataset.unlocked === '1',
+            cleared: el.dataset.cleared === '1'
+        }));
+
+        const parts = [];
+        for (let i = 0; i < pts.length - 1; i++) {
+            const a = pts[i];
+            const b = pts[i + 1];
+            const sameRow = Math.abs(a.y - b.y) < 24;
+            let d;
+            if (sameRow) {
+                const mx = (a.x + b.x) * 0.5;
+                const arc = i % 2 === 0 ? -12 : 12;
+                d = `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} Q ${mx.toFixed(1)} ${(a.y + arc).toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+            } else {
+                const my = (a.y + b.y) * 0.5;
+                d = `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} C ${a.x.toFixed(1)} ${my.toFixed(1)}, ${b.x.toFixed(1)} ${my.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+            }
+
+            if (a.cleared && b.unlocked) {
+                parts.push(`<path class="hyperlane-cleared" d="${d}"></path>`);
+                parts.push(`<path class="hyperlane-flow is-cleared" d="${d}"></path>`);
+            } else if (a.unlocked && b.unlocked) {
+                parts.push(`<path class="hyperlane-unlocked" d="${d}"></path>`);
+                parts.push(`<path class="hyperlane-flow" d="${d}"></path>`);
+            } else {
+                parts.push(`<path class="hyperlane-locked" d="${d}"></path>`);
+            }
+        }
+
+        pts.forEach((p) => {
+            const fill = p.cleared ? '#34d399' : (p.unlocked ? 'var(--act-accent)' : 'rgba(148, 163, 184, 0.35)');
+            parts.push(`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${fill}" />`);
+        });
+
+        svg.innerHTML = parts.join('');
+    }
+
     function renderChapterMap() {
+        const panel = document.getElementById('chapterMapPanel');
         const track = document.getElementById('chapterMapTrack');
         if (!track || !global.COSMIC_STORY_CHAPTERS || !global.CosmicStoryStore) return;
         const lang = getLang();
+        const copy = c();
         const storyState = global.CosmicStoryStore.load();
         const acts = (global.COSMIC_STORY_META && global.COSMIC_STORY_META.acts) || [];
-        const actObj = acts.find((a) => a.id === state.activeAct) || { range: [1, 6] };
+        const actObj = acts.find((a) => a.id === state.activeAct) || { id: 1, range: [1, 6] };
 
-        track.innerHTML = '';
-        global.COSMIC_STORY_CHAPTERS
-            .filter((ch) => ch.id >= actObj.range[0] && ch.id <= actObj.range[1])
-            .forEach((ch) => {
-                const unlocked = ch.id <= storyState.unlockedChapter;
-                const rec = storyState.completedChapters[ch.id] || null;
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'chapter-node-btn'
-                    + (ch.id === state.selectedChapterId ? ' active' : '')
-                    + (rec ? ' cleared' : '')
-                    + (!unlocked ? ' locked' : '');
-                btn.innerHTML = `
-                    <div class="ch-thumb-wrap">
-                        <img src="${ch.image}" alt="">
-                        ${!unlocked ? '<div class="ch-lock-badge"><i data-lucide="lock"></i></div>' : ''}
-                    </div>
-                    <div class="ch-node-top">
-                        <span>${c().chShort(ch.id)}</span>
-                        <span class="ch-node-stars">${rec ? starsStr(rec.stars) : (unlocked ? '●' : '—')}</span>
-                    </div>
-                    <div class="ch-node-title">${ch.title[lang] || ch.title.tr}</div>
-                `;
-                btn.addEventListener('click', () => {
-                    if (!unlocked) return;
-                    if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
-                    state.selectedChapterId = ch.id;
-                    state.dialogueIdx = 0;
-                    state.finaleDismissed = false;
-                    global.CosmicStoryStore.setLastChapter?.(ch.id);
-                    renderAll();
-                });
-                track.appendChild(btn);
+        if (panel) panel.setAttribute('data-act', String(actObj.id || state.activeAct));
+
+        const actChapters = global.COSMIC_STORY_CHAPTERS
+            .filter((ch) => ch.id >= actObj.range[0] && ch.id <= actObj.range[1]);
+
+        let actCleared = 0;
+        actChapters.forEach((ch) => {
+            if (storyState.completedChapters[ch.id]) actCleared++;
+        });
+
+        // Update Act Progress Meter
+        const codeEl = document.getElementById('actProgressCode');
+        const labelEl = document.getElementById('actProgressLabel');
+        const meterEl = document.getElementById('actProgressMeter');
+        const fillEl = document.getElementById('actProgressFill');
+        const countEl = document.getElementById('actProgressCount');
+        if (codeEl) codeEl.textContent = copy.actLabel(actObj.id || state.activeAct);
+        if (labelEl) labelEl.textContent = copy.actProgress;
+        if (meterEl) meterEl.setAttribute('aria-valuenow', String(actCleared));
+        if (fillEl) fillEl.style.width = `${Math.round((actCleared / 6) * 100)}%`;
+        if (countEl) countEl.textContent = `${actCleared} / 6`;
+
+        track.innerHTML = '<svg class="constellation-svg" id="constellationSvg" aria-hidden="true"></svg>';
+
+        actChapters.forEach((ch) => {
+            const unlocked = ch.id <= storyState.unlockedChapter;
+            const rec = storyState.completedChapters[ch.id] || null;
+            const padded = String(ch.id).padStart(2, '0');
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.dataset.unlocked = unlocked ? '1' : '0';
+            btn.dataset.cleared = rec ? '1' : '0';
+            btn.className = 'chapter-node-btn'
+                + (ch.id === state.selectedChapterId ? ' active' : '')
+                + (rec ? ' cleared' : '')
+                + (!unlocked ? ' locked' : '');
+            btn.innerHTML = `
+                <div class="ch-thumb-wrap">
+                    <img src="${ch.image}" alt="">
+                    <span class="ch-orbital-beacon">${padded}</span>
+                    ${!unlocked ? '<div class="ch-lock-badge"><i data-lucide="lock"></i></div>' : ''}
+                </div>
+                <div class="ch-node-top">
+                    <span>${copy.chShort(ch.id)}</span>
+                    <span class="ch-node-stars">${rec ? starsStr(rec.stars) : (unlocked ? '●' : '—')}</span>
+                </div>
+                <div class="ch-node-title">${ch.title[lang] || ch.title.tr}</div>
+            `;
+            btn.addEventListener('click', () => {
+                if (!unlocked) return;
+                if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
+                state.selectedChapterId = ch.id;
+                state.activeAct = Math.ceil(ch.id / 6);
+                state.dialogueIdx = 0;
+                state.finaleDismissed = false;
+                global.CosmicStoryStore.setLastChapter?.(ch.id);
+                renderAll();
             });
+            track.appendChild(btn);
+        });
+
+        requestAnimationFrame(drawConstellationHyperlanes);
     }
 
-    function renderSelectedChapter(skipSceneReset) {
+    function renderBeatStepper(lines) {
+        const stepper = document.getElementById('cinemaBeatStepper');
+        if (!stepper) return;
+        const copy = c();
+        const total = lines.length;
+        if (!total) {
+            stepper.innerHTML = '';
+            return;
+        }
+        stepper.innerHTML = `<span class="beat-stepper-label">${copy.beatLabel}</span>`;
+        for (let i = 0; i < total; i++) {
+            const pill = document.createElement('button');
+            pill.type = 'button';
+            pill.className = 'beat-step-pill'
+                + (i === state.dialogueIdx ? ' active' : '')
+                + (i < state.dialogueIdx ? ' visited' : '');
+            pill.textContent = String(i + 1);
+            pill.setAttribute('aria-label', `${copy.beatLabel} ${i + 1}`);
+            pill.setAttribute('aria-pressed', i === state.dialogueIdx ? 'true' : 'false');
+            pill.addEventListener('click', () => {
+                if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
+                state.dialogueIdx = i;
+                renderSelectedChapter(true);
+                refreshIcons();
+            });
+            stepper.appendChild(pill);
+        }
+    }
+
+    function renderSelectedChapter(skipSceneReset, forceSlam) {
         const ch = global.CosmicStoryStore && global.CosmicStoryStore.getChapter(state.selectedChapterId);
         if (!ch) return;
         const lang = getLang();
@@ -227,31 +406,55 @@
         document.getElementById('cinemaEngineBadge').textContent = gMeta ? `${gMeta.engine} · ${gMeta.lang}` : 'Neo-Pixel';
 
         const lines = ch.dialogue || [];
+        if (state.dialogueIdx >= lines.length) state.dialogueIdx = Math.max(0, lines.length - 1);
         const line = lines[state.dialogueIdx] || lines[lines.length - 1];
+
+        const dialogueBox = document.getElementById('vnDialogueBox');
         const portraitWrap = document.getElementById('vnPortraitWrap');
         const speakerImg = document.getElementById('vnSpeakerImg');
         const aiHolo = document.getElementById('vnAiHolo');
         const speakerNameEl = document.getElementById('vnSpeakerName');
+        const speakerRoleEl = document.getElementById('vnSpeakerRole');
         const stepCountEl = document.getElementById('vnStepCount');
         const dialogueTextEl = document.getElementById('vnDialogueText');
 
-        if (portraitWrap) portraitWrap.setAttribute('data-mood', line?.fx || ch.heroMood || 'focused');
+        const profile = speakerProfile(line?.speaker, line?.mood, ch.id);
+        const beatMood = line?.fx || ch.heroMood || 'focused';
+
+        if (dialogueBox) dialogueBox.setAttribute('data-speaker', profile.key);
+        if (portraitWrap) {
+            portraitWrap.setAttribute('data-mood', beatMood);
+            portraitWrap.setAttribute('data-speaker', profile.key);
+        }
         if (speakerImg) {
             speakerImg.classList.remove('hidden');
-            speakerImg.src = portraitSrcForSpeaker(line?.speaker, line?.mood, ch.id);
+            speakerImg.src = profile.portrait;
         }
         if (aiHolo) aiHolo.classList.add('hidden');
 
         if (speakerNameEl) speakerNameEl.textContent = (line?.speaker || 'CAPTAIN NOVA VEX').toUpperCase();
+        if (speakerRoleEl) speakerRoleEl.textContent = profile.role;
         if (stepCountEl) stepCountEl.textContent = `${Math.min(lines.length, state.dialogueIdx + 1)} / ${lines.length}`;
+
+        renderBeatStepper(lines);
+
+        const sceneMeta = {
+            speaker: line?.speaker || 'Captain Nova Vex',
+            mood: beatMood,
+            stamp: copy.chapterStamp(ch.id),
+            title: ch.title[lang] || ch.title.tr,
+            forceSlam: Boolean(forceSlam)
+        };
 
         const lineText = line?.text ? (line.text[lang] || line.text.tr) : '';
         if (state.cutscene) {
             if (!skipSceneReset) {
-                state.cutscene.setScene(ch.id, ch.image, line?.fx || ch.heroMood);
-            } else if (line?.fx === 'shake' || line?.fx === 'tragic') {
-                state.cutscene.mood = line.fx;
-                state.cutscene.triggerImpact(line.fx === 'tragic' ? '#f43f5e' : '#38bdf8');
+                state.cutscene.setScene(ch.id, ch.image, beatMood, sceneMeta);
+            } else {
+                state.cutscene.setBeat(sceneMeta);
+                if (line?.fx === 'shake' || line?.fx === 'tragic') {
+                    state.cutscene.triggerImpact(line.fx === 'tragic' ? '#f43f5e' : '#38bdf8');
+                }
             }
             state.cutscene.typeDialogue(lineText, dialogueTextEl, () => {
                 if (global.CosmicAudio && state.dialogueIdx > 0) global.CosmicAudio.play('uiClick', 0.4);
@@ -306,22 +509,39 @@
     function renderBadgesGrid() {
         const grid = document.getElementById('storyBadgesGrid');
         if (!grid || !global.COSMIC_STORY_CHAPTERS || !global.CosmicStoryStore) return;
+        const copy = c();
         const lang = getLang();
         const storyState = global.CosmicStoryStore.load();
 
+        let earnedCount = 0;
         grid.innerHTML = '';
         global.COSMIC_STORY_CHAPTERS.forEach((ch) => {
             const rec = storyState.completedChapters[ch.id] || null;
+            if (rec) earnedCount++;
+            const actNum = Math.ceil(ch.id / 6);
             const gMeta = findGameMeta(ch.gameId);
             const card = document.createElement('div');
             card.className = 'badge-item' + (rec ? ' earned' : ' locked');
+            card.setAttribute('data-act', String(actNum));
             card.innerHTML = `
-                <img src="${gMeta ? `assets/v11/sprites/${gMeta.sprite}.png` : 'assets/v11/sprites/exo_trooper.png'}" alt="">
-                <div class="badge-name">${ch.reward.badgeTitle[lang] || ch.reward.badgeTitle.tr}</div>
-                <div class="badge-ch">${c().chShort(ch.id)} · ${rec ? starsStr(rec.stars) : '🔒'}</div>
+                <div class="badge-icon-slot">
+                    <img src="${gMeta ? `assets/v11/sprites/${gMeta.sprite}.png` : 'assets/v11/sprites/exo_trooper.png'}" alt="">
+                </div>
+                <div class="badge-info">
+                    <div class="badge-name">${ch.reward.badgeTitle[lang] || ch.reward.badgeTitle.tr}</div>
+                    <div class="badge-meta-row">
+                        <span class="badge-act-tag">${copy.actLabel(actNum)}</span>
+                        <span class="badge-ch">${copy.chShort(ch.id)} · ${rec ? starsStr(rec.stars) : '🔒'}</span>
+                    </div>
+                </div>
             `;
             grid.appendChild(card);
         });
+
+        const countPill = document.getElementById('badgesCountPill');
+        if (countPill) {
+            countPill.textContent = `${earnedCount} / ${global.COSMIC_STORY_CHAPTERS.length}`;
+        }
     }
 
     function syncStaticTexts() {
@@ -329,6 +549,7 @@
         const copy = c();
         document.documentElement.lang = lang;
         document.title = copy.pageTitle;
+        document.getElementById('storyTopbarSub').textContent = 'V12.0 SEASON 1 SAGA';
         document.getElementById('sagaEyebrow').textContent = copy.eyebrow;
         document.getElementById('storyPageTitle').textContent = copy.heading;
         document.getElementById('storyPageSub').textContent = copy.sub;
@@ -338,6 +559,14 @@
         document.getElementById('btnLaunchAltLabel').textContent = copy.launchAlt;
         document.getElementById('badgesHeading').textContent = copy.badgesHeading;
         document.getElementById('btnSkipDialogueLabel').textContent = copy.skipIntro;
+
+        const keyHintEl = document.getElementById('vnKeyHint');
+        if (keyHintEl) keyHintEl.textContent = copy.keyHint;
+
+        const replayBtn = document.getElementById('btnReplayCutscene');
+        const replayLbl = document.getElementById('btnReplayCutsceneLabel');
+        if (replayBtn) replayBtn.title = copy.replayTitle;
+        if (replayLbl) replayLbl.textContent = copy.replayBtn;
 
         const autoBtn = document.getElementById('btnCutsceneAutoplay');
         if (autoBtn) autoBtn.textContent = state.autoPlay ? copy.autoOn : copy.autoOff;
@@ -363,9 +592,23 @@
         }
     }
 
+    function advanceOrFinishDialogue() {
+        if (state.cutscene && state.cutscene.skipTypewriter()) return;
+        const ch = global.CosmicStoryStore.getChapter(state.selectedChapterId);
+        if (!ch) return;
+        if (state.dialogueIdx < ch.dialogue.length - 1) {
+            state.dialogueIdx++;
+            if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
+            renderSelectedChapter(true);
+            refreshIcons();
+        } else {
+            global.CosmicStoryStore.markCutsceneSeen?.(ch.id);
+            const href = document.getElementById('btnLaunchChapter')?.href;
+            if (href) location.href = href;
+        }
+    }
+
     function renderAll() {
-        const actForCh = Math.ceil(state.selectedChapterId / 6);
-        if (actForCh >= 1 && actForCh <= 4) state.activeAct = actForCh;
         updateCreditsAndStats();
         syncStaticTexts();
         renderActTabs();
@@ -376,25 +619,18 @@
     }
 
     function bindEvents() {
-        document.getElementById('btnNextDialogue')?.addEventListener('click', () => {
-            if (state.cutscene && state.cutscene.skipTypewriter()) return;
-            const ch = global.CosmicStoryStore.getChapter(state.selectedChapterId);
-            if (!ch) return;
-            if (state.dialogueIdx < ch.dialogue.length - 1) {
-                state.dialogueIdx++;
-                if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
-                renderSelectedChapter(true);
-                refreshIcons();
-            } else {
-                global.CosmicStoryStore.markCutsceneSeen?.(ch.id);
-                const href = document.getElementById('btnLaunchChapter')?.href;
-                if (href) location.href = href;
-            }
-        });
+        document.getElementById('btnNextDialogue')?.addEventListener('click', advanceOrFinishDialogue);
 
         document.getElementById('btnSkipDialogue')?.addEventListener('click', () => {
             const href = document.getElementById('btnLaunchChapter')?.href;
             if (href) location.href = href;
+        });
+
+        document.getElementById('btnReplayCutscene')?.addEventListener('click', () => {
+            if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
+            state.dialogueIdx = 0;
+            renderSelectedChapter(false, true);
+            refreshIcons();
         });
 
         document.getElementById('btnCutsceneAutoplay')?.addEventListener('click', () => {
@@ -406,6 +642,7 @@
         document.getElementById('btnResumeStory')?.addEventListener('click', () => {
             const st = global.CosmicStoryStore ? global.CosmicStoryStore.load() : { unlockedChapter: 1 };
             state.selectedChapterId = Math.min(24, Math.max(1, st.unlockedChapter || 1));
+            state.activeAct = Math.ceil(state.selectedChapterId / 6);
             state.dialogueIdx = 0;
             renderAll();
         });
@@ -452,6 +689,27 @@
             refreshIcons();
         });
 
+        document.addEventListener('keydown', (evt) => {
+            if (evt.ctrlKey || evt.metaKey || evt.altKey) return;
+            if (evt.key !== ' ' && evt.key !== 'Enter') return;
+            const target = evt.target;
+            if (target && target.closest && target.closest('input, textarea, select, button, a, [contenteditable="true"]')) {
+                return;
+            }
+            evt.preventDefault();
+            advanceOrFinishDialogue();
+        });
+
+        const track = document.getElementById('chapterMapTrack');
+        if (track && typeof global.ResizeObserver === 'function') {
+            state.resizeObserver = new global.ResizeObserver(() => {
+                drawConstellationHyperlanes();
+            });
+            state.resizeObserver.observe(track);
+        } else {
+            global.addEventListener('resize', drawConstellationHyperlanes);
+        }
+
         global.addEventListener('cosmic:langchange', renderAll);
     }
 
@@ -464,12 +722,16 @@
         } else {
             state.selectedChapterId = Math.min(st.unlockedChapter || 1, Math.max(1, st.lastSelectedChapter || st.unlockedChapter || 1));
         }
+        state.activeAct = Math.min(4, Math.max(1, Math.ceil(state.selectedChapterId / 6)));
 
         const cnv = document.getElementById('cutsceneCanvas');
         if (cnv && global.CosmicCutscenePlayer) {
             state.cutscene = new global.CosmicCutscenePlayer({
                 canvas: cnv,
-                onAutoNext: advanceDialogueOrStay
+                onAutoNext: advanceDialogueOrStay,
+                onTypeStateChange: (isTyping) => {
+                    document.getElementById('vnDialogueBox')?.classList.toggle('is-typing', Boolean(isTyping));
+                }
             });
             state.cutscene.setAutoPlay(state.autoPlay);
             state.cutscene.start();

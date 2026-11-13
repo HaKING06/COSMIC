@@ -398,6 +398,7 @@
         const visAlpha = new Float32Array(GW * GH);
 
         const player = { x: 2, y: 2, vx: 2, vy: 2, hp: 100, maxHp: 100, atk: 11, hitFlash: 0, facing: 1 };
+        let floorBannerTimer = 1.5;
         let stairs = { x: 4, y: 4 };
         let enemies = [];
         let items = [];
@@ -540,11 +541,66 @@
             // Ensure player tile isn't a door
             tiles[idx(player.x, player.y)] = 0;
 
-            // Furthest room (or floor cell) hosts Warp Elevator (>)
+            // BFS connectivity helper & corridor repair so every floor room & stairs is reachable
+            const getReachable = () => {
+                const seen = new Set();
+                const q = [[player.x, player.y]];
+                seen.add(player.x + ',' + player.y);
+                let head = 0;
+                const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+                while (head < q.length) {
+                    const [cx, cy] = q[head++];
+                    for (let d = 0; d < 4; d++) {
+                        const nx = cx + dirs[d][0];
+                        const ny = cy + dirs[d][1];
+                        if (!inBounds(nx, ny) || tiles[idx(nx, ny)] === 1) continue;
+                        const k = nx + ',' + ny;
+                        if (!seen.has(k)) {
+                            seen.add(k);
+                            q.push([nx, ny]);
+                        }
+                    }
+                }
+                return { seen, list: q };
+            };
+
+            let reach = getReachable();
+            for (let pass = 0; pass < 12; pass++) {
+                let targetCell = null;
+                for (let y = 1; y < GH - 1 && !targetCell; y++) {
+                    for (let x = 1; x < GW - 1; x++) {
+                        if (tiles[idx(x, y)] !== 1 && !reach.seen.has(x + ',' + y)) {
+                            targetCell = [x, y];
+                            break;
+                        }
+                    }
+                }
+                if (!targetCell) break;
+                let bestSrc = reach.list[0];
+                let bestDist = Infinity;
+                for (let i = 0; i < reach.list.length; i++) {
+                    const p = reach.list[i];
+                    const md = Math.abs(p[0] - targetCell[0]) + Math.abs(p[1] - targetCell[1]);
+                    if (md < bestDist) { bestDist = md; bestSrc = p; }
+                }
+                let cx = bestSrc[0], cy = bestSrc[1];
+                while (cx !== targetCell[0]) {
+                    cx += Math.sign(targetCell[0] - cx);
+                    if (inBounds(cx, cy) && tiles[idx(cx, cy)] === 1) tiles[idx(cx, cy)] = 0;
+                }
+                while (cy !== targetCell[1]) {
+                    cy += Math.sign(targetCell[1] - cy);
+                    if (inBounds(cx, cy) && tiles[idx(cx, cy)] === 1) tiles[idx(cx, cy)] = 0;
+                }
+                reach = getReachable();
+            }
+
+            // Furthest reachable room (or floor cell) hosts Warp Elevator (>)
             let bestRoom = roomCenters[roomCenters.length - 1];
             let bestD = -1;
             for (let i = 1; i < roomCenters.length; i++) {
                 const rc = roomCenters[i];
+                if (!reach.seen.has(rc.cx + ',' + rc.cy)) continue;
                 const d = Math.abs(rc.cx - player.x) + Math.abs(rc.cy - player.y);
                 if (d > bestD) {
                     bestD = d;
@@ -552,36 +608,49 @@
                 }
             }
             stairs = { x: bestRoom.cx, y: bestRoom.cy };
-            if (stairs.x === player.x && stairs.y === player.y) {
+            if ((stairs.x === player.x && stairs.y === player.y) || !reach.seen.has(stairs.x + ',' + stairs.y)) {
                 let farDist = -1;
-                for (let y = 1; y < GH - 1; y++) {
-                    for (let x = 1; x < GW - 1; x++) {
-                        if (tiles[idx(x, y)] === 0) {
-                            const d = Math.abs(x - player.x) + Math.abs(y - player.y);
-                            if (d > farDist) { farDist = d; stairs = { x, y }; }
-                        }
-                    }
+                for (let i = 0; i < reach.list.length; i++) {
+                    const [x, y] = reach.list[i];
+                    const d = Math.abs(x - player.x) + Math.abs(y - player.y);
+                    if (d > farDist) { farDist = d; stairs = { x, y }; }
                 }
             }
             tiles[idx(stairs.x, stairs.y)] = 0;
 
-            // Collect walkable floor cells excluding player and stairs
+            // Identify 1-tile corridor chokepoints so stationary guardians never seal pathways
+            const isChokepoint = (x, y) => {
+                if (!inBounds(x, y) || tiles[idx(x, y)] === 1) return true;
+                const nWall = !inBounds(x, y - 1) || tiles[idx(x, y - 1)] === 1;
+                const sWall = !inBounds(x, y + 1) || tiles[idx(x, y + 1)] === 1;
+                const wWall = !inBounds(x - 1, y) || tiles[idx(x - 1, y)] === 1;
+                const eWall = !inBounds(x + 1, y) || tiles[idx(x + 1, y)] === 1;
+                if ((nWall && sWall) || (wWall && eWall)) return true;
+                let openN = 0;
+                if (!nWall) openN++;
+                if (!sWall) openN++;
+                if (!wWall) openN++;
+                if (!eWall) openN++;
+                return openN < 3;
+            };
+
+            // Collect reachable walkable floor cells excluding player and stairs
             const floorCells = [];
-            for (let y = 1; y < GH - 1; y++) {
-                for (let x = 1; x < GW - 1; x++) {
-                    if (tiles[idx(x, y)] === 0 && (x !== player.x || y !== player.y) && (x !== stairs.x || y !== stairs.y)) {
-                        floorCells.push({ x, y });
-                    }
+            for (let i = 0; i < reach.list.length; i++) {
+                const [x, y] = reach.list[i];
+                if (tiles[idx(x, y)] === 0 && (x !== player.x || y !== player.y) && (x !== stairs.x || y !== stairs.y)) {
+                    floorCells.push({ x, y });
                 }
             }
 
             const occupied = new Set([player.x + ',' + player.y, stairs.x + ',' + stairs.y]);
-            const popFreeNear = (cx, cy, maxR) => {
-                for (let tries = 0; tries < 24; tries++) {
+            const popFreeNear = (cx, cy, maxR, allowChokepoint) => {
+                for (let tries = 0; tries < 40; tries++) {
                     const tx = cx + randInt(-maxR, maxR);
                     const ty = cy + randInt(-maxR, maxR);
                     const key = tx + ',' + ty;
                     if (inBounds(tx, ty) && tiles[idx(tx, ty)] === 0 && !occupied.has(key)) {
+                        if (!allowChokepoint && isChokepoint(tx, ty)) continue;
                         occupied.add(key);
                         return { x: tx, y: ty };
                     }
@@ -589,8 +658,8 @@
                 return null;
             };
 
-            // Guardian Reactor Node near Warp Elevator
-            const guardPos = popFreeNear(stairs.x, stairs.y, 2);
+            // Guardian Reactor Node near Warp Elevator (prefer wide room tile, never block a 1-tile doorway)
+            const guardPos = popFreeNear(stairs.x, stairs.y, 2, false) || popFreeNear(stairs.x, stairs.y, 3, false);
             if (guardPos) {
                 enemies.push({
                     kind: 'node', sprite: 'reactor_node',
@@ -644,6 +713,7 @@
                 });
             }
 
+            floorBannerTimer = 1.65;
             computeFov();
             syncHud();
         }
@@ -687,7 +757,8 @@
                 score += e.xp;
                 playSfx(ctx, 'explodeSmall', 0.14);
                 spawnBurstParticles(particles, px, py, PAL.coral, 16, 170, 3.6, 0.45);
-                logMsg = L(ctx, `Hedef imha edildi (+${e.xp} puan)`, `Hostile purged (+${e.xp} pts)`);
+                floatTexts.push({ x: px, y: py - 24, text: `+${e.xp} XP`, color: PAL.gold, life: 0.9, maxLife: 0.9 });
+                logMsg = L(ctx, `Hedef imha edildi (+${e.xp} XP)`, `Hostile purged (+${e.xp} XP)`);
                 checkWinCondition();
             } else {
                 playSfx(ctx, 'hitMetal', 0.12);
@@ -718,6 +789,8 @@
 
                 if (dMan === 1) {
                     const dmg = Math.max(2, e.atk - randInt(0, 2));
+                    e.vx = e.x + Math.sign(player.x - e.x) * 0.46;
+                    e.vy = e.y + Math.sign(player.y - e.y) * 0.46;
                     player.hp = Math.max(0, player.hp - dmg);
                     player.hitFlash = 0.28;
                     shakeTimer = 0.18;
@@ -829,6 +902,8 @@
             // Enemy in target tile -> bump-attack
             const target = enemyAt(nx, ny);
             if (target) {
+                player.vx = player.x + dx * 0.48;
+                player.vy = player.y + dy * 0.48;
                 const dmg = player.atk + randInt(0, 4);
                 damageEnemy(target, dmg, 'melee');
                 enemies = enemies.filter(e => e.hp > 0);
@@ -1099,6 +1174,18 @@
                 }
             }
 
+            // Smooth FOV Radial Lantern Glow & Fog-of-War Edge Shading
+            const pGlowX = OX + (player.vx + 0.5) * TILE;
+            const pGlowY = OY + (player.vy + 0.5) * TILE;
+            g.save();
+            const fovGrad = g.createRadialGradient(pGlowX, pGlowY, TILE * 0.8, pGlowX, pGlowY, TILE * 8.4);
+            fovGrad.addColorStop(0, 'rgba(56, 189, 248, 0.14)');
+            fovGrad.addColorStop(0.55, 'rgba(34, 211, 238, 0.05)');
+            fovGrad.addColorStop(1, 'rgba(4, 7, 16, 0)');
+            g.fillStyle = fovGrad;
+            g.fillRect(OX, OY, GW * TILE, GH * TILE);
+            g.restore();
+
             // Click-to-move preview dots
             if (clickPath.length) {
                 g.save();
@@ -1211,6 +1298,16 @@
             updateAndDrawParticles(g, particles, dt);
             updateAndDrawFloatTexts(g, floatTexts, dt);
 
+            if (floorBannerTimer > 0) {
+                floorBannerTimer = Math.max(0, floorBannerTimer - dt);
+                const alpha = clamp(floorBannerTimer / 0.45, 0, 1);
+                g.save();
+                g.globalAlpha = alpha;
+                const label = L(ctx, `ASTRAL GÜVERTE ${floor}`, `ASTRAL DECK ${floor}`);
+                drawPill(g, label, W * 0.5 - 92, 54, PAL.cyan, 'rgba(8, 22, 46, 0.9)', 'rgba(34, 211, 238, 0.65)');
+                g.restore();
+            }
+
             // Top HUD Bar
             g.fillStyle = 'rgba(7, 11, 22, 0.94)';
             g.fillRect(0, 0, W, 42);
@@ -1275,14 +1372,17 @@
                 kills = 0;
                 relicsCollected = 0;
                 novaCd = 0;
+                waitHealCounter = 0;
                 shakeTimer = 0;
                 novaWave = null;
                 clickPath = [];
                 player.hp = 100;
                 player.hitFlash = 0;
+                player.facing = 1;
                 player.atk = 11 + (floor - 1);
                 particles.length = 0;
                 floatTexts.length = 0;
+                logMsg = L(ctx, 'ROT.js Digger sektörü tarandı. Warp Asansörünü (>) bul!', 'ROT.js Digger deck mapped. Reach the Warp Elevator (>)!');
                 generateFloor(floor);
             },
             destroy() {
@@ -1498,59 +1598,73 @@
                 return true;
             }
             const { lua, lauxlib, to_luastring, to_jsstring } = fengariRef;
-            // Test in current state by saving previous step_ai first
-            lua.lua_getglobal(LState, to_luastring('step_ai'));
-            const prevRef = lauxlib.luaL_ref(LState, lua.LUA_REGISTRYINDEX);
+            let prevRef = null;
+            const restorePrev = () => {
+                try {
+                    lua.lua_settop(LState, 0);
+                    if (prevRef !== null) {
+                        lua.lua_rawgeti(LState, lua.LUA_REGISTRYINDEX, prevRef);
+                        lua.lua_setglobal(LState, to_luastring('step_ai'));
+                        lauxlib.luaL_unref(LState, lua.LUA_REGISTRYINDEX, prevRef);
+                        prevRef = null;
+                    }
+                } catch (_) {
+                    luaReady = false;
+                }
+            };
+            try {
+                lua.lua_getglobal(LState, to_luastring('step_ai'));
+                prevRef = lauxlib.luaL_ref(LState, lua.LUA_REGISTRYINDEX);
 
-            const st = lauxlib.luaL_dostring(LState, to_luastring(codeStr));
-            if (st !== 0) {
-                const errStr = lua.lua_tostring(LState, -1);
-                vmError = true;
-                vmStatusMsg = 'Lua ERR: ' + (errStr ? to_jsstring(errStr) : 'Syntax error');
+                const st = lauxlib.luaL_dostring(LState, to_luastring(codeStr));
+                if (st !== 0) {
+                    const errStr = lua.lua_tostring(LState, -1);
+                    vmError = true;
+                    vmStatusMsg = 'Lua ERR: ' + (errStr ? to_jsstring(errStr) : 'Syntax error');
+                    restorePrev();
+                    updatePanelVisuals();
+                    return false;
+                }
+
+                // Verify step_ai is a callable function and dry-run it safely
+                lua.lua_getglobal(LState, to_luastring('step_ai'));
+                if (!lua.lua_isfunction(LState, -1)) {
+                    vmError = true;
+                    vmStatusMsg = 'Lua ERR: function step_ai(...) missing';
+                    restorePrev();
+                    updatePanelVisuals();
+                    return false;
+                }
+
+                const dryArgs = [260, 290, 100, 0, 420, 290, 160, 335, 290, 75];
+                for (let i = 0; i < dryArgs.length; i++) lua.lua_pushnumber(LState, dryArgs[i]);
+                const rc = lua.lua_pcall(LState, 10, 3, 0);
+                if (rc !== 0) {
+                    const errStr = lua.lua_tostring(LState, -1);
+                    vmError = true;
+                    vmStatusMsg = 'Lua Runtime ERR: ' + (errStr ? to_jsstring(errStr) : 'pcall error');
+                    restorePrev();
+                    updatePanelVisuals();
+                    return false;
+                }
                 lua.lua_settop(LState, 0);
-                // Restore previous working step_ai
-                lua.lua_rawgeti(LState, lua.LUA_REGISTRYINDEX, prevRef);
-                lua.lua_setglobal(LState, to_luastring('step_ai'));
-                lauxlib.luaL_unref(LState, lua.LUA_REGISTRYINDEX, prevRef);
+                if (prevRef !== null) {
+                    lauxlib.luaL_unref(LState, lua.LUA_REGISTRYINDEX, prevRef);
+                    prevRef = null;
+                }
+
+                activeLuaCode = codeStr;
+                vmError = false;
+                vmStatusMsg = '✓ Lua 5.3 Compiled' + (chipLabel ? ' [' + chipLabel + ']' : '');
+                updatePanelVisuals();
+                return true;
+            } catch (err) {
+                vmError = true;
+                vmStatusMsg = 'Lua ERR: ' + (err && err.message ? err.message : 'Compile fault (JS Fallback)');
+                restorePrev();
                 updatePanelVisuals();
                 return false;
             }
-
-            // Verify step_ai is a callable function and dry-run it safely
-            lua.lua_getglobal(LState, to_luastring('step_ai'));
-            if (!lua.lua_isfunction(LState, -1)) {
-                lua.lua_settop(LState, 0);
-                vmError = true;
-                vmStatusMsg = 'Lua ERR: function step_ai(...) missing';
-                lua.lua_rawgeti(LState, lua.LUA_REGISTRYINDEX, prevRef);
-                lua.lua_setglobal(LState, to_luastring('step_ai'));
-                lauxlib.luaL_unref(LState, lua.LUA_REGISTRYINDEX, prevRef);
-                updatePanelVisuals();
-                return false;
-            }
-
-            const dryArgs = [260, 290, 100, 0, 420, 290, 160, 335, 290, 75];
-            for (let i = 0; i < dryArgs.length; i++) lua.lua_pushnumber(LState, dryArgs[i]);
-            const rc = lua.lua_pcall(LState, 10, 3, 0);
-            if (rc !== 0) {
-                const errStr = lua.lua_tostring(LState, -1);
-                vmError = true;
-                vmStatusMsg = 'Lua Runtime ERR: ' + (errStr ? to_jsstring(errStr) : 'pcall error');
-                lua.lua_settop(LState, 0);
-                lua.lua_rawgeti(LState, lua.LUA_REGISTRYINDEX, prevRef);
-                lua.lua_setglobal(LState, to_luastring('step_ai'));
-                lauxlib.luaL_unref(LState, lua.LUA_REGISTRYINDEX, prevRef);
-                updatePanelVisuals();
-                return false;
-            }
-            lua.lua_settop(LState, 0);
-            lauxlib.luaL_unref(LState, lua.LUA_REGISTRYINDEX, prevRef);
-
-            activeLuaCode = codeStr;
-            vmError = false;
-            vmStatusMsg = '✓ Lua 5.3 Compiled' + (chipLabel ? ' [' + chipLabel + ']' : '');
-            updatePanelVisuals();
-            return true;
         }
 
         function initLuaVmWithScript(luaSource) {
@@ -1667,32 +1781,48 @@
                 return jsFallbackStepAi(bx, by, hp, cooldown, tx, ty, tdist, nx, ny, ndist);
             }
             const { lua, to_luastring, to_jsstring } = fengariRef;
-            lua.lua_getglobal(LState, to_luastring('step_ai'));
-            if (!lua.lua_isfunction(LState, -1)) {
+            try {
+                lua.lua_getglobal(LState, to_luastring('step_ai'));
+                if (!lua.lua_isfunction(LState, -1)) {
+                    lua.lua_settop(LState, 0);
+                    return jsFallbackStepAi(bx, by, hp, cooldown, tx, ty, tdist, nx, ny, ndist);
+                }
+                const args = [bx, by, hp, cooldown, tx, ty, tdist, nx, ny, ndist];
+                for (let i = 0; i < 10; i++) lua.lua_pushnumber(LState, args[i]);
+                const rc = lua.lua_pcall(LState, 10, 3, 0);
+                if (rc !== 0) {
+                    const errStr = lua.lua_tostring(LState, -1);
+                    const nextMsg = 'Lua ERR: ' + (errStr ? to_jsstring(errStr) : 'pcall');
+                    vmError = true;
+                    if (vmStatusMsg !== nextMsg) {
+                        vmStatusMsg = nextMsg;
+                        updatePanelVisuals();
+                    }
+                    lua.lua_settop(LState, 0);
+                    return jsFallbackStepAi(bx, by, hp, cooldown, tx, ty, tdist, nx, ny, ndist);
+                }
+                pcallCounter++;
+                const rawAct = lua.lua_isstring(LState, -3) ? to_jsstring(lua.lua_tostring(LState, -3)) : 'HOLD';
+                const rx = lua.lua_isnumber(LState, -2) ? lua.lua_tonumber(LState, -2) : nx;
+                const ry = lua.lua_isnumber(LState, -1) ? lua.lua_tonumber(LState, -1) : ny;
                 lua.lua_settop(LState, 0);
-                return jsFallbackStepAi(bx, by, hp, cooldown, tx, ty, tdist, nx, ny, ndist);
-            }
-            const args = [bx, by, hp, cooldown, tx, ty, tdist, nx, ny, ndist];
-            for (let i = 0; i < 10; i++) lua.lua_pushnumber(LState, args[i]);
-            const rc = lua.lua_pcall(LState, 10, 3, 0);
-            if (rc !== 0) {
-                const errStr = lua.lua_tostring(LState, -1);
+                return [String(rawAct || 'HOLD').toUpperCase(), Number.isFinite(rx) ? rx : nx, Number.isFinite(ry) ? ry : ny];
+            } catch (err) {
+                try { lua.lua_settop(LState, 0); } catch (_) {}
+                const nextMsg = 'Lua Runtime Fallback: ' + (err && err.message ? err.message : 'Exception');
                 vmError = true;
-                vmStatusMsg = 'Lua ERR: ' + (errStr ? to_jsstring(errStr) : 'pcall');
-                lua.lua_settop(LState, 0);
+                if (vmStatusMsg !== nextMsg) {
+                    vmStatusMsg = nextMsg;
+                    updatePanelVisuals();
+                }
                 return jsFallbackStepAi(bx, by, hp, cooldown, tx, ty, tdist, nx, ny, ndist);
             }
-            pcallCounter++;
-            const rawAct = lua.lua_isstring(LState, -3) ? to_jsstring(lua.lua_tostring(LState, -3)) : 'HOLD';
-            const rx = lua.lua_isnumber(LState, -2) ? lua.lua_tonumber(LState, -2) : nx;
-            const ry = lua.lua_isnumber(LState, -1) ? lua.lua_tonumber(LState, -1) : ny;
-            lua.lua_settop(LState, 0);
-            return [String(rawAct || 'HOLD').toUpperCase(), Number.isFinite(rx) ? rx : nx, Number.isFinite(ry) ? ry : ny];
         }
 
         function triggerEmpBlast(cx, cy, radius, dmg, color) {
             playSfx(ctx, 'emp');
             shakeTimer = 0.16;
+            const arenaMax = panelCollapsed ? W - 22 : 652;
             shockRings.push({ x: cx, y: cy, r: 10, maxR: radius, life: 0.36, maxLife: 0.36, color: color || PAL.cyan });
             spawnBurstParticles(particles, cx, cy, color || PAL.cyan, 22, 220, 3.5, 0.45);
             for (let i = enemies.length - 1; i >= 0; i--) {
@@ -1702,9 +1832,9 @@
                     e.hp -= dmg;
                     e.stun = 1.25;
                     e.hitFlash = 0.25;
-                    const ang = Math.atan2(e.y - cy, e.x - cx);
-                    e.x += Math.cos(ang) * 44;
-                    e.y += Math.sin(ang) * 44;
+                    const ang = d > 1 ? Math.atan2(e.y - cy, e.x - cx) : 0;
+                    e.x = clamp(e.x + Math.cos(ang) * 44, 22, arenaMax);
+                    e.y = clamp(e.y + Math.sin(ang) * 44, 38, H - 22);
                     floatTexts.push({ x: e.x, y: e.y - 14, text: '-' + dmg, color: PAL.cyan, life: 0.65, maxLife: 0.65 });
                 }
             }
@@ -1837,23 +1967,60 @@
             let moveX = 0;
             let moveY = 0;
 
-            if (act === 'FIRE' && nearest && unit.fireCd <= 0) {
-                unit.fireCd = isWing ? 0.42 : 0.28;
-                const ang = Math.atan2(ay - unit.y, ax - unit.x);
-                bolts.push({
-                    x: unit.x + Math.cos(ang) * 16,
-                    y: unit.y + Math.sin(ang) * 16,
-                    vx: Math.cos(ang) * 560,
-                    vy: Math.sin(ang) * 560,
-                    dmg: isWing ? 11 : 16,
-                    color: isWing ? PAL.mint : PAL.cyan,
-                    life: 1.1
-                });
-                playSfx(ctx, 'shootLaser', 0.16);
-            } else if (act === 'EMP' && unit.empCd !== undefined && unit.empCd <= 0) {
-                unit.empCd = 3.2;
-                unit.fireCd = 0.65;
-                triggerEmpBlast(unit.x, unit.y, 145, 22 + wave * 3, PAL.mint);
+            if (act === 'FIRE' && nearest) {
+                if (unit.fireCd <= 0) {
+                    unit.fireCd = isWing ? 0.38 : 0.28;
+                    const ang = Math.atan2(ay - unit.y, ax - unit.x);
+                    bolts.push({
+                        x: unit.x + Math.cos(ang) * 16,
+                        y: unit.y + Math.sin(ang) * 16,
+                        vx: Math.cos(ang) * 560,
+                        vy: Math.sin(ang) * 560,
+                        dmg: isWing ? 12 : 16,
+                        color: isWing ? PAL.mint : PAL.cyan,
+                        life: 1.15
+                    });
+                    playSfx(ctx, 'shootLaser', 0.16);
+                } else if (isWing) {
+                    // Wing-drone keeps agile strafing orbit while recharging barrel
+                    unit.orbitAngle += dt * 2.5;
+                    const gx = nx + Math.cos(unit.orbitAngle) * 105;
+                    const gy = ny + Math.sin(unit.orbitAngle) * 105;
+                    const dx = gx - unit.x;
+                    const dy = gy - unit.y;
+                    const d = Math.hypot(dx, dy) || 1;
+                    moveX = (dx / d) * speed;
+                    moveY = (dy / d) * speed;
+                }
+            } else if (act === 'EMP') {
+                if (unit.empCd !== undefined && unit.empCd <= 0) {
+                    unit.empCd = 3.2;
+                    unit.fireCd = 0.65;
+                    triggerEmpBlast(unit.x, unit.y, 145, 22 + wave * 3, PAL.mint);
+                } else if (isWing && nearest && unit.fireCd <= 0) {
+                    // Drone responds to EMP command with rapid precision suppressing fire + orbit
+                    unit.fireCd = 0.42;
+                    const ang = Math.atan2(nearest.y - unit.y, nearest.x - unit.x);
+                    bolts.push({
+                        x: unit.x + Math.cos(ang) * 14,
+                        y: unit.y + Math.sin(ang) * 14,
+                        vx: Math.cos(ang) * 580,
+                        vy: Math.sin(ang) * 580,
+                        dmg: 12,
+                        color: PAL.cyan,
+                        life: 1.15
+                    });
+                    playSfx(ctx, 'shootLaser', 0.12);
+                } else if (isWing) {
+                    unit.orbitAngle += dt * 2.2;
+                    const gx = nx + Math.cos(unit.orbitAngle) * 95;
+                    const gy = ny + Math.sin(unit.orbitAngle) * 95;
+                    const dx = gx - unit.x;
+                    const dy = gy - unit.y;
+                    const d = Math.hypot(dx, dy) || 1;
+                    moveX = (dx / d) * speed;
+                    moveY = (dy / d) * speed;
+                }
             } else if (act === 'ORBIT') {
                 unit.orbitAngle += dt * (isWing ? 2.4 : 1.7);
                 const rad = isWing ? 105 : 78;
@@ -1969,7 +2136,8 @@
                 }
             }
 
-            // Enemies update & cleanup
+            // Enemies update & cleanup (clamp cleanly inside visible cyber arena)
+            const arenaRight = panelCollapsed ? W - 18 : 656;
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const e = enemies[i];
                 if (e.hp <= 0) {
@@ -1982,8 +2150,15 @@
                 }
                 if (e.hitFlash > 0) e.hitFlash = Math.max(0, e.hitFlash - dt);
                 if (e.atkCd > 0) e.atkCd = Math.max(0, e.atkCd - dt);
+                if (e.x >= 18 && e.x <= arenaRight && e.y >= 34 && e.y <= H - 18) {
+                    e.enteredArena = true;
+                }
                 if (e.stun > 0) {
                     e.stun = Math.max(0, e.stun - dt);
+                    if (e.enteredArena) {
+                        e.x = clamp(e.x, 18, arenaRight);
+                        e.y = clamp(e.y, 34, H - 18);
+                    }
                     continue;
                 }
                 const dMech = dist(e.x, e.y, mech.x, mech.y);
@@ -1992,6 +2167,14 @@
                 const ang = Math.atan2(tgt.y - e.y, tgt.x - e.x);
                 e.x += Math.cos(ang) * e.speed * dt;
                 e.y += Math.sin(ang) * e.speed * dt;
+                if (e.enteredArena) {
+                    e.x = clamp(e.x, 18, arenaRight);
+                    e.y = clamp(e.y, 34, H - 18);
+                } else {
+                    // Gently pull straggling offscreen spawns into the active viewport
+                    e.x = clamp(e.x, -26, arenaRight + 26);
+                    e.y = clamp(e.y, -26, H + 26);
+                }
 
                 if (dist(e.x, e.y, tgt.x, tgt.y) < (tgt === core ? 30 : 24) && e.atkCd <= 0) {
                     e.atkCd = 0.85;
@@ -2041,6 +2224,18 @@
             for (let y = 0; y <= H; y += 36) {
                 g.beginPath(); g.moveTo(0, y + 0.5); g.lineTo(W, y + 0.5); g.stroke();
             }
+
+            // Active Cyber Arena Perimeter Boundary (clearly frames playable zone when Lua console is expanded)
+            const arenaRightVis = panelCollapsed ? W - 12 : 660;
+            g.save();
+            g.strokeStyle = 'rgba(52, 211, 153, 0.24)';
+            g.lineWidth = 1.5;
+            g.strokeRect(12, 42, arenaRightVis - 12, H - 54);
+            if (!panelCollapsed) {
+                g.fillStyle = 'rgba(2, 6, 16, 0.6)';
+                g.fillRect(arenaRightVis, 0, W - arenaRightVis, H);
+            }
+            g.restore();
 
             // Core perimeter defense ring
             g.save();
@@ -2118,7 +2313,15 @@
                 }
             }
 
-            // Wing-Drone (allied Lua bot)
+            // Wing-Drone (allied Lua turret bot)
+            g.save();
+            g.strokeStyle = 'rgba(52, 211, 153, 0.2)';
+            g.setLineDash([3, 3]);
+            g.beginPath();
+            g.moveTo(wing.x, wing.y);
+            g.lineTo(wing.tx, wing.ty);
+            g.stroke();
+            g.restore();
             drawSprite(g, sprites, 'alien_drone', wing.x, wing.y, 26, 26, {
                 glow: PAL.mint,
                 glowBlur: 10,
@@ -2134,11 +2337,14 @@
             });
             drawProgressBar(g, mech.x - 20, mech.y + 24, 40, 5, mech.hp / mech.maxHp, PAL.mint, '#0f172a');
 
-            // Lua AI Action badge above Mech
+            // Lua AI Action badge above Mech & Wing
             g.font = '700 10px ' + FONT_MONO;
             g.textAlign = 'center';
             g.fillStyle = PAL.cyan;
             g.fillText('[' + mech.action + ']', mech.x, mech.y - 26);
+            g.fillStyle = PAL.mint;
+            g.font = '700 9px ' + FONT_MONO;
+            g.fillText('[' + wing.action + ']', wing.x, wing.y - 19);
 
             // Plasma bolts
             for (let i = 0; i < bolts.length; i++) {
@@ -2187,11 +2393,20 @@
                 waveTotal = 7 + wave * 3;
                 spawnTimer = 0.5;
                 empCd = 0;
+                shakeTimer = 0;
+                pcallCounter = 0;
+                pcallWindow = 0;
                 core.hp = 150;
+                core.hitFlash = 0;
                 core.x = panelCollapsed ? 480 : 335;
                 mech.hp = 100;
-                mech.x = 260; mech.y = 290;
-                wing.x = 380; wing.y = 240;
+                mech.fireCd = 0;
+                mech.empCd = 0;
+                mech.hitFlash = 0;
+                mech.x = 260; mech.y = 290; mech.vx = 0; mech.vy = 0;
+                wing.hp = 100;
+                wing.fireCd = 0;
+                wing.x = 380; wing.y = 240; wing.vx = 0; wing.vy = 0;
                 beacon.active = false;
                 enemies.length = 0;
                 bolts.length = 0;
@@ -2223,7 +2438,7 @@
         const sprites = ensureSprites(ctx, ['portal_vortex', 'stealth_jet', 'fighter', 'energy_prism', 'cryo_crystal']);
         const bag = createListenerBag();
         const isStory = isStoryMode(ctx);
-        const storyTarget = ctx.chapterTarget || 1600;
+        const storyTarget = ctx.chapterTarget || 1500;
 
         const BASE_PTR = 16384;
         const STRIDE_FLOATS = 6; // x, y, vx, vy, hp, kind (24 bytes)
@@ -2267,6 +2482,10 @@
                 let vy = f32[o + 3];
                 let hp = f32[o + 4];
                 const kind = f32[o + 5];
+                if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(vx) || !Number.isFinite(vy) || !Number.isFinite(hp)) {
+                    f32[o] = -999.0;
+                    continue;
+                }
 
                 if (fhs > 0.01) {
                     const hdx = fhx - x;
@@ -2276,6 +2495,12 @@
                     const force = (fhs * (kind > 0.5 ? 1.15 : 0.85)) / hd2;
                     vx += (hdx * force - hdy * (force * 0.65)) * fdt * 220.0;
                     vy += (hdy * force + hdx * (force * 0.65)) * fdt * 220.0;
+                    if (kind >= 1.0 && hdist > 290.0) {
+                        // Gentle inward drift so perimeter swarmers spiral into play instead of stalling
+                        const inward = Math.min(95.0, (hdist - 290.0) * 0.55);
+                        vx += (hdx / hdist) * inward * fdt * 2.2;
+                        vy += (hdy / hdist) * inward * fdt * 2.2;
+                    }
                     if (hdist < 26.0) {
                         f32[o] = -999.0;
                         absorbed++;
@@ -2417,6 +2642,8 @@
         let pulseCd = 0;
         let wave = 1;
         let waveTimer = 0;
+        let singularityTimer = 0;
+        const SINGULARITY_INTERVAL = 10.5;
         let score = 0;
         let combo = 1;
         let comboTimer = 0;
@@ -2490,6 +2717,7 @@
         function update(dt) {
             time += dt;
             waveTimer += dt;
+            singularityTimer += dt;
             if (shakeTimer > 0) shakeTimer = Math.max(0, shakeTimer - dt);
             if (pulseCd > 0) pulseCd = Math.max(0, pulseCd - dt);
             if (pulsePush > 0) pulsePush = Math.max(0, pulsePush - dt * 68);
@@ -2500,12 +2728,22 @@
                 if (comboTimer <= 0) combo = 1;
             }
 
-            // Escalate waves smoothly
+            // Escalate waves smoothly with restorative pulse feedback
             if (waveTimer >= 16) {
                 waveTimer = 0;
                 wave++;
+                player.hp = Math.min(player.maxHp, player.hp + 8);
                 playSfx(ctx, 'levelup');
                 floatTexts.push({ x: hole.x, y: 80, text: `SINGULARITY WAVE ${wave}`, color: PAL.magenta, life: 1.3, maxLife: 1.3, size: 16 });
+            }
+
+            // Periodic Singularity Collapse Pulse sweeps outer orbiters inward
+            let singularitySurge = false;
+            if (singularityTimer >= SINGULARITY_INTERVAL) {
+                singularityTimer = 0;
+                singularitySurge = true;
+                playSfx(ctx, 'emp', 0.18);
+                shockRings.push({ x: hole.x, y: hole.y, r: 230, maxR: 26, life: 0.48, maxLife: 0.48, color: PAL.magenta });
             }
 
             // Player motion (WASD/Arrows priority, or smooth mouse steering)
@@ -2621,7 +2859,7 @@
             }
 
             // Step N-body swarm inside WebAssembly linear memory!
-            const bhStrength = 18000 + wave * 2400 + (pulsePush > 0 ? 8000 : 0);
+            const bhStrength = 18000 + wave * 2400 + (pulsePush > 0 ? 8000 : 0) + (singularitySurge ? 18000 : 0);
             let packedRes;
             if (wasmActive && wasmExports) {
                 packedRes = wasmExports.stepGravitySwarm(
@@ -2638,23 +2876,55 @@
             }
             activeEntities = packedRes & 0xFFFF;
 
-            // Detect enemies swallowed by the black hole for Gravity Combo Chains!
+            // Detect enemies swallowed + enforce WASM memory NaN & arena boundary clamping + anti-stall drift
             const f32After = getF32View();
             let swallowedCount = 0;
-            for (let i = DUST_COUNT; i < MAX_COUNT; i++) {
-                if (prevAliveKind[i] >= 1.0 && f32After[i * STRIDE_FLOATS] < -900.0) {
-                    const dHole = dist(prevPosX[i], prevPosY[i], hole.x, hole.y);
-                    if (dHole < 52) {
-                        swallowedCount++;
-                        combo = Math.min(8, combo + 1);
-                        comboTimer = 2.8;
-                        const pts = 24 * combo;
-                        score += pts;
-                        if (swallowedCount <= 3) {
-                            spawnBurstParticles(particles, hole.x, hole.y, PAL.magenta, 6, 120, 2.8, 0.32);
+            for (let i = 0; i < MAX_COUNT; i++) {
+                const o = i * STRIDE_FLOATS;
+                let ex = f32After[o];
+                if (ex < -900.0) {
+                    if (i >= DUST_COUNT && prevAliveKind[i] >= 1.0) {
+                        const dHole = dist(prevPosX[i], prevPosY[i], hole.x, hole.y);
+                        if (dHole < 52) {
+                            swallowedCount++;
+                            combo = Math.min(8, combo + 1);
+                            comboTimer = 2.8;
+                            const pts = 24 * combo;
+                            score += pts;
+                            if (swallowedCount <= 3) {
+                                spawnBurstParticles(particles, hole.x, hole.y, PAL.magenta, 6, 120, 2.8, 0.32);
+                            }
+                        } else {
+                            score += 12;
                         }
-                    } else {
-                        score += 12;
+                    }
+                    continue;
+                }
+                let ey = f32After[o + 1];
+                let evx = f32After[o + 2];
+                let evy = f32After[o + 3];
+                if (!Number.isFinite(ex) || !Number.isFinite(ey) || !Number.isFinite(evx) || !Number.isFinite(evy)) {
+                    f32After[o] = -999.0;
+                    continue;
+                }
+                if (ex < 14 || ex > W - 14) {
+                    f32After[o] = clamp(ex, 14, W - 14);
+                    f32After[o + 2] = -evx * 0.6;
+                }
+                if (ey < 14 || ey > H - 14) {
+                    f32After[o + 1] = clamp(ey, 14, H - 14);
+                    f32After[o + 3] = -evy * 0.6;
+                }
+                if (i >= DUST_COUNT && f32After[o + 5] >= 1.0) {
+                    const hdx = hole.x - f32After[o];
+                    const hdy = hole.y - f32After[o + 1];
+                    const hd = Math.hypot(hdx, hdy) || 1;
+                    if (singularitySurge && hd < 420) {
+                        f32After[o + 2] += (hdx / hd) * 165;
+                        f32After[o + 3] += (hdy / hd) * 165;
+                    } else if (hd > 315) {
+                        f32After[o + 2] += (hdx / hd) * 110 * dt;
+                        f32After[o + 3] += (hdy / hd) * 110 * dt;
                     }
                 }
             }
@@ -2749,6 +3019,25 @@
                 glowBlur: 20,
                 smooth: true
             });
+            // Singularity Collapse Pulse Telegraph Ring (contracts inward 2.3s prior to surge)
+            const singWarnStart = SINGULARITY_INTERVAL - 2.3;
+            if (singularityTimer >= singWarnStart) {
+                const sp = clamp((singularityTimer - singWarnStart) / 2.3, 0, 1);
+                g.save();
+                g.strokeStyle = sp > 0.72 ? PAL.coral : PAL.magenta;
+                g.lineWidth = 1.5 + sp * 2.5;
+                g.globalAlpha = 0.35 + sp * 0.6;
+                g.setLineDash([8, 6]);
+                g.beginPath();
+                g.arc(hole.x, hole.y, lerp(195, 34, sp), 0, TAU);
+                g.stroke();
+                g.setLineDash([]);
+                g.font = '700 10px ' + FONT_MONO;
+                g.textAlign = 'center';
+                g.fillStyle = PAL.magenta;
+                g.fillText(`SINGULARITY SURGE ${(SINGULARITY_INTERVAL - singularityTimer).toFixed(1)}s`, hole.x, hole.y - 52);
+                g.restore();
+            }
             g.save();
             g.fillStyle = '#020308';
             g.beginPath();
@@ -2767,17 +3056,31 @@
                 const x = f32[o];
                 if (x < -900.0) continue;
                 const y = f32[o + 1];
+                const vx = f32[o + 2];
+                const vy = f32[o + 3];
                 const kind = f32[o + 5];
 
                 if (kind < 0.5) {
-                    g.fillStyle = (i & 1) ? 'rgba(167, 139, 250, 0.72)' : 'rgba(56, 189, 248, 0.68)';
+                    g.fillStyle = (i & 1) ? 'rgba(167, 139, 250, 0.75)' : 'rgba(56, 189, 248, 0.70)';
                     g.fillRect(x - 1.3, y - 1.3, 2.6, 2.6);
                 } else if (kind < 1.5) {
+                    g.strokeStyle = 'rgba(251, 113, 133, 0.45)';
+                    g.lineWidth = 2;
+                    g.beginPath();
+                    g.moveTo(x, y);
+                    g.lineTo(x - vx * 0.032, y - vy * 0.032);
+                    g.stroke();
                     g.fillStyle = PAL.coral;
                     g.beginPath();
                     g.arc(x, y, 4.4, 0, TAU);
                     g.fill();
                 } else {
+                    g.strokeStyle = 'rgba(245, 158, 11, 0.55)';
+                    g.lineWidth = 2.4;
+                    g.beginPath();
+                    g.moveTo(x, y);
+                    g.lineTo(x - vx * 0.035, y - vy * 0.035);
+                    g.stroke();
                     g.fillStyle = PAL.amber;
                     g.beginPath();
                     g.arc(x, y, 5.6, 0, TAU);
@@ -2853,6 +3156,8 @@
                 : 'WASM KERNEL: JS MIRROR [ACTIVE]';
             const pw = drawPill(g, kernelLabel, 14, 12, wasmActive ? PAL.magenta : PAL.amber, 'rgba(15, 10, 30, 0.88)', 'rgba(192, 132, 252, 0.5)');
             drawPill(g, `${activeEntities} ENTITIES · COMBO x${combo}`, 24 + pw, 12, PAL.cyan);
+            drawPill(g, `WAVE ${wave}`, W - 186, 12, PAL.magenta, 'rgba(15, 10, 30, 0.88)', 'rgba(192, 132, 252, 0.4)');
+            drawProgressBar(g, W - 114, 18, 98, 10, waveTimer / 16, PAL.magenta, 'rgba(15,23,42,0.88)', 'rgba(192,132,252,0.35)');
 
             // Hull + Shockwave bar bottom left
             drawProgressBar(g, 14, H - 28, 160, 12, player.hp / player.maxHp, player.hp > 35 ? PAL.mint : PAL.coral, 'rgba(15,23,42,0.88)', 'rgba(148,163,184,0.35)');
@@ -2880,14 +3185,19 @@
                 ended = false;
                 wave = Math.max(1, Number(lv) || 1);
                 waveTimer = 0;
+                singularityTimer = 0;
                 score = 0;
                 combo = 1;
                 comboTimer = 0;
                 pulsePush = 0;
                 pulseCd = 0;
+                shakeTimer = 0;
+                activeEntities = DUST_COUNT;
                 player.hp = 100;
                 player.x = 210; player.y = 290;
                 player.vx = 0; player.vy = 0;
+                player.angle = 0;
+                player.satAngle = 0;
                 player.invuln = 0;
                 player.boostTimer = 0;
                 cores.length = 0;
@@ -2937,6 +3247,8 @@
         let aiTimer = 1.2;
         let selectedIds = new Set();
         let sectorBannerTimer = 0;
+        const dragState = { mode: null, startX: 0, startY: 0, curX: 0, curY: 0, moved: false, srcNodeId: -1, hoverId: -1 };
+        const captureRings = [];
 
         let nodes = [];
         let links = [];
@@ -3035,19 +3347,89 @@
                 }
             }
 
+            // Clamp & resolve node overlaps cleanly within HUD-safe SVG padding
+            const clampNodeSafe = (n) => {
+                n.x = clamp(n.x, 86, W - 86);
+                n.y = clamp(n.y, 88, H - 84);
+                // Keep bottom-left [SELECT ALL] button clear
+                if (n.x < 192 && n.y > H - 72) {
+                    n.y = H - 72;
+                }
+            };
+
             if (d3 && typeof d3.forceSimulation === 'function') {
                 sim = d3.forceSimulation(nodes)
-                    .force('link', d3.forceLink(links).id(d => d.id).distance(145).strength(0.55))
-                    .force('charge', d3.forceManyBody().strength(-460))
+                    .force('link', d3.forceLink(links).id(d => d.id).distance(140).strength(0.5))
+                    .force('charge', d3.forceManyBody().strength(-480))
                     .force('center', d3.forceCenter(W * 0.5, H * 0.5))
-                    .force('x', d3.forceX(d => d.owner === 'player' ? 160 : (d.owner === 'neutral' ? W * 0.5 : W - 165)).strength(0.14))
-                    .force('collide', d3.forceCollide(54))
+                    .force('x', d3.forceX(d => d.owner === 'player' ? 175 : (d.owner === 'neutral' ? W * 0.5 : W - 175)).strength(0.14))
+                    .force('collide', d3.forceCollide(58))
                     .stop();
                 for (let t = 0; t < 110; t++) {
                     sim.tick();
-                    for (let i = 0; i < nodes.length; i++) {
-                        nodes[i].x = clamp(nodes[i].x, 76, W - 76);
-                        nodes[i].y = clamp(nodes[i].y, 70, H - 72);
+                    for (let i = 0; i < nodes.length; i++) clampNodeSafe(nodes[i]);
+                }
+            }
+
+            // Pairwise overlap separation after final clamping so no stars ever stack on borders
+            const MIN_NODE_SEP = 74;
+            for (let pass = 0; pass < 18; pass++) {
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const a = nodes[i];
+                        const b = nodes[j];
+                        let dx = b.x - a.x;
+                        let dy = b.y - a.y;
+                        let d = Math.hypot(dx, dy);
+                        if (d < 0.01) { dx = 1; dy = 0.5; d = 1.118; }
+                        if (d < MIN_NODE_SEP) {
+                            const push = (MIN_NODE_SEP - d) * 0.52;
+                            const ux = dx / d;
+                            const uy = dy / d;
+                            a.x -= ux * push;
+                            a.y -= uy * push;
+                            b.x += ux * push;
+                            b.y += uy * push;
+                            clampNodeSafe(a);
+                            clampNodeSafe(b);
+                        }
+                    }
+                }
+            }
+
+            // Explicit BFS reachability repair across the final galaxy graph (zero isolated nodes)
+            const visited = new Set([0]);
+            const queue = [0];
+            while (queue.length) {
+                const cur = queue.shift();
+                const nbrs = adj.get(cur) || [];
+                for (const nb of nbrs) {
+                    if (!visited.has(nb)) {
+                        visited.add(nb);
+                        queue.push(nb);
+                    }
+                }
+            }
+            for (let i = 0; i < nodes.length; i++) {
+                if (visited.has(i)) continue;
+                let bestV = 0;
+                let bestDist = Infinity;
+                for (const v of visited) {
+                    const d = dist(nodes[i].x, nodes[i].y, nodes[v].x, nodes[v].y);
+                    if (d < bestDist) { bestDist = d; bestV = v; }
+                }
+                links.push({ source: bestV, target: i });
+                adj.get(bestV).add(i);
+                adj.get(i).add(bestV);
+                const subQ = [i];
+                visited.add(i);
+                while (subQ.length) {
+                    const c = subQ.shift();
+                    for (const nb of (adj.get(c) || [])) {
+                        if (!visited.has(nb)) {
+                            visited.add(nb);
+                            subQ.push(nb);
+                        }
                     }
                 }
             }
@@ -3248,13 +3630,10 @@
                 .data(nodes, d => d.id)
                 .join((enter) => {
                     const gr = enter.append('g').attr('class', 'star-node');
-                    gr.append('circle').attr('class', 'sel-ring');
-                    gr.append('circle').attr('class', 'node-rim');
-                    gr.append('text').attr('class', 'ship-lbl');
-                    gr.on('click', (ev, d) => {
-                        ev.stopPropagation();
-                        handleNodeClick(d, false, ev.shiftKey);
-                    });
+                    gr.append('circle').attr('class', 'hit-area');
+                    gr.append('circle').attr('class', 'sel-ring').style('pointer-events', 'none');
+                    gr.append('circle').attr('class', 'node-rim').style('pointer-events', 'none');
+                    gr.append('text').attr('class', 'ship-lbl').style('pointer-events', 'none');
                     gr.on('dblclick', (ev, d) => {
                         ev.stopPropagation();
                         handleNodeClick(d, true, ev.shiftKey);
@@ -3263,6 +3642,9 @@
                 });
 
             groups.attr('transform', d => `translate(${d.x}, ${d.y})`);
+            groups.select('circle.hit-area')
+                .attr('r', d => d.radius + 16)
+                .attr('fill', 'transparent');
             groups.select('circle.sel-ring')
                 .attr('r', d => d.radius + 9)
                 .attr('fill', 'none')
@@ -3273,8 +3655,8 @@
             groups.select('circle.node-rim')
                 .attr('r', d => d.radius + 3)
                 .attr('fill', 'rgba(4, 8, 18, 0.18)')
-                .attr('stroke', d => FACTIONS[d.owner].color)
-                .attr('stroke-width', 2);
+                .attr('stroke', d => (dragState.hoverId === d.id ? PAL.cyan : FACTIONS[d.owner].color))
+                .attr('stroke-width', d => (dragState.hoverId === d.id ? 3.2 : 2));
             groups.select('text.ship-lbl')
                 .attr('y', d => d.radius + 17)
                 .attr('text-anchor', 'middle')
@@ -3288,15 +3670,113 @@
                 .text(d => String(Math.floor(d.ships)));
         }
 
-        // Fallback click on SVG if D3 missing
-        bag.on(svgEl, 'click', (e) => {
-            if (d3 || ended || ctx.getPaused()) return;
-            const pos = stageCoordsFromEvent(svgEl, e);
+        function findNodeAtStagePos(px, py) {
+            let best = null;
+            let bestD = Infinity;
             for (let i = 0; i < nodes.length; i++) {
-                if (dist(pos.x, pos.y, nodes[i].x, nodes[i].y) <= nodes[i].radius + 10) {
-                    handleNodeClick(nodes[i], false, e.shiftKey);
-                    break;
+                const n = nodes[i];
+                const d = dist(px, py, n.x, n.y);
+                if (d <= n.radius + 17 && d < bestD) {
+                    bestD = d;
+                    best = n;
                 }
+            }
+            return best;
+        }
+
+        // Scaled SVG pointer handling (supports click, drag-to-send beam, and marquee multi-select across any CSS resize!)
+        bag.on(svgEl, 'pointerdown', (e) => {
+            if (ended || ctx.getPaused()) return;
+            unlockAudio(ctx);
+            const pos = stageCoordsFromEvent(svgEl, e);
+            // Ignore clicks inside bottom-left [SELECT ALL] pill region (handled by btnG click)
+            if (pos.x >= 12 && pos.x <= 168 && pos.y >= H - 40 && pos.y <= H - 8) return;
+            const hit = findNodeAtStagePos(pos.x, pos.y);
+            dragState.startX = pos.x;
+            dragState.startY = pos.y;
+            dragState.curX = pos.x;
+            dragState.curY = pos.y;
+            dragState.moved = false;
+            dragState.hoverId = hit ? hit.id : -1;
+            if (hit && hit.owner === 'player') {
+                dragState.mode = 'aim';
+                dragState.srcNodeId = hit.id;
+            } else {
+                dragState.mode = hit ? 'clickNode' : 'marquee';
+                dragState.srcNodeId = hit ? hit.id : -1;
+            }
+        });
+
+        bag.on(window, 'pointermove', (e) => {
+            if (!dragState.mode || ended) return;
+            const pos = stageCoordsFromEvent(svgEl, e);
+            dragState.curX = pos.x;
+            dragState.curY = pos.y;
+            if (dist(pos.x, pos.y, dragState.startX, dragState.startY) >= 10) {
+                dragState.moved = true;
+            }
+            const hover = findNodeAtStagePos(pos.x, pos.y);
+            const nextHover = hover ? hover.id : -1;
+            if (nextHover !== dragState.hoverId) {
+                dragState.hoverId = nextHover;
+                updateSvgScene();
+            }
+        });
+
+        bag.on(window, 'pointerup', (e) => {
+            if (!dragState.mode || ended) return;
+            const pos = stageCoordsFromEvent(svgEl, e);
+            const targetHit = findNodeAtStagePos(pos.x, pos.y);
+            const mode = dragState.mode;
+            const srcId = dragState.srcNodeId;
+            const wasMoved = dragState.moved;
+            dragState.mode = null;
+            dragState.hoverId = -1;
+
+            if (mode === 'aim' && wasMoved) {
+                if (!selectedIds.has(srcId)) {
+                    if (!e.shiftKey) selectedIds.clear();
+                    selectedIds.add(srcId);
+                }
+                if (targetHit && targetHit.id !== srcId) {
+                    let launched = false;
+                    selectedIds.forEach((sid) => {
+                        const sn = nodes[sid];
+                        if (sn && sn.owner === 'player' && launchFleet(sn, targetHit.id)) launched = true;
+                    });
+                    if (launched) playSfx(ctx, targetHit.owner === 'player' ? 'shootLaser' : 'shootMissile');
+                }
+                updateSvgScene();
+                return;
+            }
+
+            if (mode === 'marquee' && wasMoved) {
+                const minX = Math.min(dragState.startX, pos.x);
+                const maxX = Math.max(dragState.startX, pos.x);
+                const minY = Math.min(dragState.startY, pos.y);
+                const maxY = Math.max(dragState.startY, pos.y);
+                if (!e.shiftKey) selectedIds.clear();
+                let picked = 0;
+                for (let i = 0; i < nodes.length; i++) {
+                    const n = nodes[i];
+                    if (n.owner === 'player' && n.x >= minX && n.x <= maxX && n.y >= minY && n.y <= maxY) {
+                        selectedIds.add(n.id);
+                        picked++;
+                    }
+                }
+                if (picked > 0) playSfx(ctx, 'uiClick');
+                updateSvgScene();
+                return;
+            }
+
+            // Simple click (not a drag)
+            if (targetHit) {
+                handleNodeClick(targetHit, false, e.shiftKey);
+            } else if (srcId >= 0 && nodes[srcId]) {
+                handleNodeClick(nodes[srcId], false, e.shiftKey);
+            } else if (!e.shiftKey) {
+                selectedIds.clear();
+                updateSvgScene();
             }
         });
 
@@ -3311,32 +3791,60 @@
         });
 
         function runFactionAi(factionId) {
-            const owned = nodes.filter(n => n.owner === factionId && n.ships >= 8);
+            const owned = nodes.filter(n => n.owner === factionId);
             if (!owned.length) return;
-            owned.sort((a, b) => b.ships - a.ships);
-            const src = owned[0];
-            const neighborIds = Array.from(adj.get(src.id) || []);
-            if (!neighborIds.length) return;
+            const frontier = [];
+            const senders = owned.filter(n => n.ships >= 6).sort((a, b) => b.ships - a.ships);
+            if (!senders.length) return;
 
-            let bestTarget = null;
-            let bestScore = -9999;
-            for (let i = 0; i < neighborIds.length; i++) {
-                const nb = nodes[neighborIds[i]];
-                if (nb.owner === factionId) {
-                    // Reinforce threatened border
-                    if (nb.ships < src.ships * 0.45) {
-                        const s = 10;
-                        if (s > bestScore) { bestScore = s; bestTarget = nb; }
-                    }
-                    continue;
-                }
-                const advantage = src.ships * 0.5 - nb.ships;
-                if (advantage > 1) {
-                    const s = advantage + (nb.owner === 'neutral' ? 8 : 14) + nb.tier * 3;
-                    if (s > bestScore) { bestScore = s; bestTarget = nb; }
+            for (let i = 0; i < owned.length; i++) {
+                const n = owned[i];
+                for (const nbId of (adj.get(n.id) || [])) {
+                    if (nodes[nbId].owner !== factionId) { frontier.push(n); break; }
                 }
             }
-            if (bestTarget) launchFleet(src, bestTarget.id);
+
+            let bestAction = null;
+            let bestScore = -9999;
+
+            // Evaluate all owned stars so strong rear/flank worlds never freeze behind a capped neighbor
+            for (let s = 0; s < senders.length; s++) {
+                const src = senders[s];
+                const neighborIds = Array.from(adj.get(src.id) || []);
+                let hasHostileNeighbor = false;
+                for (let i = 0; i < neighborIds.length; i++) {
+                    const nb = nodes[neighborIds[i]];
+                    if (nb.owner !== factionId) {
+                        hasHostileNeighbor = true;
+                        const advantage = src.ships * 0.5 - nb.ships;
+                        // Allow aggressive attack if clear advantage, OR pressure poke if capped near maxCap
+                        if (advantage > 0.5 || (src.ships >= src.maxCap * 0.78 && src.ships * 0.5 >= nb.ships * 0.65)) {
+                            const sc = advantage + (nb.owner === 'neutral' ? 10 : 15) + nb.tier * 3 + (src.ships >= src.maxCap * 0.75 ? 12 : 0);
+                            if (sc > bestScore) { bestScore = sc; bestAction = { src, tgtId: nb.id }; }
+                        }
+                    } else if (nb.ships < src.ships * 0.55) {
+                        const sc = 8 + (src.ships - nb.ships) * 0.25;
+                        if (sc > bestScore) { bestScore = sc; bestAction = { src, tgtId: nb.id }; }
+                    }
+                }
+                // Interior stars feed frontline nodes instead of stalling at capacity
+                if (!hasHostileNeighbor && src.ships >= 10 && frontier.length) {
+                    let nearFront = frontier[0];
+                    let nearD = Infinity;
+                    for (let f = 0; f < frontier.length; f++) {
+                        if (frontier[f].id === src.id) continue;
+                        const d = dist(src.x, src.y, frontier[f].x, frontier[f].y);
+                        if (d < nearD) { nearD = d; nearFront = frontier[f]; }
+                    }
+                    if (nearFront && nearFront.id !== src.id) {
+                        const sc = 11 + src.ships * 0.12;
+                        if (sc > bestScore) { bestScore = sc; bestAction = { src, tgtId: nearFront.id }; }
+                    }
+                }
+            }
+            if (bestAction) {
+                launchFleet(bestAction.src, bestAction.tgtId);
+            }
         }
 
         function syncHud() {
@@ -3386,7 +3894,8 @@
                         hopNode.ships = Math.min(hopNode.maxCap + 40, hopNode.ships + f.count);
                     } else {
                         hopNode.ships -= f.count;
-                        hopNode.pulse = 0.25;
+                        hopNode.pulse = 0.28;
+                        captureRings.push({ x: hopNode.x, y: hopNode.y, r: hopNode.radius, maxR: hopNode.radius + 32, life: 0.35, maxLife: 0.35, color: FACTIONS[f.owner].color });
                         spawnBurstParticles(particles, hopNode.x, hopNode.y, FACTIONS[f.owner].color, 12, 140, 3, 0.38);
                         if (hopNode.ships < 0) {
                             const prevOwner = hopNode.owner;
@@ -3472,17 +3981,114 @@
                 g.fillRect(s.x, s.y, s.r, s.r);
             }
 
-            // Star sprites
+            // Fallback Starlanes if D3 is absent (still playable even offline without D3 CDN)
+            if (!d3) {
+                g.save();
+                g.strokeStyle = 'rgba(148, 163, 184, 0.28)';
+                g.setLineDash([5, 5]);
+                for (let i = 0; i < links.length; i++) {
+                    const l = links[i];
+                    const a = typeof l.source === 'object' ? l.source : nodes[l.source];
+                    const b = typeof l.target === 'object' ? l.target : nodes[l.target];
+                    if (!a || !b) continue;
+                    g.beginPath();
+                    g.moveTo(a.x, a.y);
+                    g.lineTo(b.x, b.y);
+                    g.stroke();
+                }
+                g.restore();
+            }
+
+            // Active Orbital Supply Beams for traveling fleets
+            if (fleets.length) {
+                g.save();
+                g.lineWidth = 2;
+                g.setLineDash([6, 6]);
+                g.lineDashOffset = -time * 42;
+                for (let i = 0; i < fleets.length; i++) {
+                    const f = fleets[i];
+                    const tgt = nodes[f.finalTargetId];
+                    if (!tgt) continue;
+                    g.strokeStyle = FACTIONS[f.owner].color;
+                    g.globalAlpha = 0.32;
+                    g.beginPath();
+                    g.moveTo(f.x, f.y);
+                    g.lineTo(tgt.x, tgt.y);
+                    g.stroke();
+                }
+                g.restore();
+            }
+
+            // Capture / Clash Pulse Rings
+            for (let i = captureRings.length - 1; i >= 0; i--) {
+                const r = captureRings[i];
+                r.life -= dt;
+                if (r.life <= 0) { captureRings.splice(i, 1); continue; }
+                const p = 1 - r.life / r.maxLife;
+                g.save();
+                g.globalAlpha = 1 - p;
+                g.strokeStyle = r.color;
+                g.lineWidth = 2.5 * (1 - p) + 0.6;
+                g.beginPath();
+                g.arc(r.x, r.y, lerp(r.r, r.maxR, p), 0, TAU);
+                g.stroke();
+                g.restore();
+            }
+
+            // Star sprites + Tier orbital production rings
             for (let i = 0; i < nodes.length; i++) {
                 const n = nodes[i];
                 const fCol = FACTIONS[n.owner].color;
                 const rad = n.radius * 2.1;
+                if (n.tier >= 2 && n.owner !== 'neutral') {
+                    g.save();
+                    g.strokeStyle = fCol;
+                    g.globalAlpha = 0.25 + 0.1 * Math.sin(time * 3 + i);
+                    g.lineWidth = 1.4;
+                    g.setLineDash([4, 5]);
+                    g.lineDashOffset = -time * (n.tier === 3 ? 28 : 16);
+                    g.beginPath();
+                    g.arc(n.x, n.y, n.radius + 7, 0, TAU);
+                    g.stroke();
+                    g.restore();
+                }
                 drawSprite(g, sprites, n.sprite, n.x, n.y, rad, rad, {
                     glow: fCol,
                     glowBlur: n.pulse > 0 ? 22 : 12,
                     hitFlash: n.pulse > 0,
                     fallbackColor: fCol
                 });
+            }
+
+            // Drag Targeting Beam or Marquee Multi-Select Overlay
+            if (dragState.mode === 'aim' && dragState.moved) {
+                g.save();
+                g.strokeStyle = PAL.cyan;
+                g.lineWidth = 2.4;
+                g.setLineDash([8, 5]);
+                g.lineDashOffset = -time * 60;
+                const sources = selectedIds.has(dragState.srcNodeId) ? Array.from(selectedIds) : [dragState.srcNodeId];
+                for (let i = 0; i < sources.length; i++) {
+                    const sn = nodes[sources[i]];
+                    if (!sn || sn.owner !== 'player') continue;
+                    g.beginPath();
+                    g.moveTo(sn.x, sn.y);
+                    g.lineTo(dragState.curX, dragState.curY);
+                    g.stroke();
+                }
+                g.restore();
+            } else if (dragState.mode === 'marquee' && dragState.moved) {
+                const mx = Math.min(dragState.startX, dragState.curX);
+                const my = Math.min(dragState.startY, dragState.curY);
+                const mw = Math.abs(dragState.curX - dragState.startX);
+                const mh = Math.abs(dragState.curY - dragState.startY);
+                g.save();
+                g.fillStyle = 'rgba(56, 189, 248, 0.12)';
+                g.strokeStyle = PAL.cyan;
+                g.lineWidth = 1.5;
+                g.fillRect(mx, my, mw, mh);
+                g.strokeRect(mx, my, mw, mh);
+                g.restore();
             }
 
             // Live flying fleet swarms
@@ -3546,6 +4152,9 @@
                 score = 0;
                 aiTimer = 1.2;
                 sectorBannerTimer = 0;
+                dragState.mode = null;
+                dragState.hoverId = -1;
+                captureRings.length = 0;
                 particles.length = 0;
                 floatTexts.length = 0;
                 buildGalaxy(sector);
@@ -3743,12 +4352,21 @@ void main() {
                             danger: gl.getUniformLocation(glProgram, 'u_danger')
                         };
                         webgl2Ready = true;
+                    } else {
+                        gl.deleteProgram(glProgram);
+                        glProgram = null;
                     }
+                }
+                if (!webgl2Ready) {
+                    if (glVs) { gl.deleteShader(glVs); glVs = null; }
+                    if (glFs) { gl.deleteShader(glFs); glFs = null; }
                 }
             }
         } catch (_) {
             webgl2Ready = false;
         }
+
+        const SHIP_COLLISION_DZ = 3.25;
 
         // Tunnel surfing state
         let zPos = 0;
@@ -3767,10 +4385,14 @@ void main() {
         let beatPhase = 0;
 
         const keys = new Set();
-        let steerPointer = { down: false, x: W * 0.5 };
+        let steerPointer = { down: false, startX: W * 0.5, x: W * 0.5, dragged: false };
         const objects = []; // { kind: 'gate'|'laser', z, angle, span, hit }
         const particles = [];
         const floatTexts = [];
+        const speedStreaks = Array.from({ length: 24 }, (_, i) => ({
+            ang: (i / 24) * TAU,
+            phase: Math.random()
+        }));
 
         function tunnelCenterWorld(z) {
             return {
@@ -3809,17 +4431,30 @@ void main() {
             unlockAudio(ctx);
             const p = stageCoordsFromEvent(hudCanvas, e);
             steerPointer.down = true;
+            steerPointer.startX = p.x;
             steerPointer.x = p.x;
-            triggerHop();
+            steerPointer.dragged = false;
         });
-        bag.on(hudCanvas, 'pointermove', (e) => {
-            if (!steerPointer.down) return;
+        bag.on(window, 'pointermove', (e) => {
+            if (!steerPointer.down || ended) return;
             const p = stageCoordsFromEvent(hudCanvas, e);
             const dx = p.x - steerPointer.x;
             steerPointer.x = p.x;
-            playerAngle += dx * 0.0065;
+            if (Math.abs(p.x - steerPointer.startX) > 7) {
+                steerPointer.dragged = true;
+            }
+            playerAngle = wrapAngle(playerAngle + dx * 0.0075);
+            angVel = clamp(dx * 0.4, -3.2, 3.2);
         });
-        bag.on(window, 'pointerup', () => { steerPointer.down = false; });
+        bag.on(window, 'pointerup', () => {
+            if (!steerPointer.down) return;
+            const wasTap = !steerPointer.dragged;
+            steerPointer.down = false;
+            steerPointer.dragged = false;
+            if (wasTap && !ended && !ctx.getPaused()) {
+                triggerHop();
+            }
+        });
 
         function spawnPattern() {
             const gateAngle = wrapAngle(playerAngle + randRange(-1.35, 1.35));
@@ -3918,15 +4553,18 @@ void main() {
             }
 
             const isHopping = hopTimer > 0.08;
+            const colMinZ = zPos + SHIP_COLLISION_DZ - 0.65;
+            const colMaxZ = zPos + SHIP_COLLISION_DZ + 0.65;
             for (let i = objects.length - 1; i >= 0; i--) {
                 const obj = objects[i];
-                if (obj.z < zPos - 1) {
+                if (obj.z < zPos + 0.35) {
                     objects.splice(i, 1);
                     continue;
                 }
-                if (!obj.hit && obj.z <= zPos + 1.25 && obj.z >= zPos - 0.5) {
+                // Check collision right as projected 3D objects pass through the craft screen depth (SHIP_COLLISION_DZ)
+                if (!obj.hit && obj.z <= colMaxZ && obj.z >= colMinZ) {
                     const angDiff = Math.abs(wrapAngle(obj.angle - playerAngle));
-                    if (obj.kind === 'gate' && angDiff <= obj.span + 0.16) {
+                    if (obj.kind === 'gate' && angDiff <= obj.span + 0.14) {
                         obj.hit = true;
                         multiplier = Math.min(8, multiplier + 1);
                         const pts = 75 * multiplier;
@@ -3934,7 +4572,7 @@ void main() {
                         playSfx(ctx, 'xpPickup', 0.15);
                         spawnBurstParticles(particles, W * 0.5, H * 0.78, PAL.cyan, 16, 200, 3.2, 0.4);
                         floatTexts.push({ x: W * 0.5, y: H * 0.65, text: `WARP GATE x${multiplier} +${pts}`, color: PAL.cyan, life: 0.9, maxLife: 0.9, size: 15 });
-                    } else if (obj.kind === 'laser' && !isHopping && invuln <= 0 && angDiff <= obj.span * 0.52) {
+                    } else if (obj.kind === 'laser' && !isHopping && invuln <= 0 && angDiff <= obj.span * 0.48) {
                         obj.hit = true;
                         shields--;
                         multiplier = 1;
@@ -3987,16 +4625,62 @@ void main() {
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
                 gl.bindVertexArray(null);
             } else {
-                // Safe 2D fallback backdrop if WebGL2 unavailable
-                const gr = g.createRadialGradient(W * 0.5, H * 0.5, 10, W * 0.5, H * 0.5, 520);
-                gr.addColorStop(0, '#1e1b4b');
-                gr.addColorStop(1, '#050811');
+                // True perspective 2D Synthwave Tunnel fallback if WebGL2 unavailable
+                const gr = g.createRadialGradient(W * 0.5, H * 0.5, 10, W * 0.5, H * 0.5, 540);
+                gr.addColorStop(0, '#2e1065');
+                gr.addColorStop(0.45, '#0f172a');
+                gr.addColorStop(1, '#04060e');
                 g.fillStyle = gr;
                 g.fillRect(0, 0, W, H);
+
+                g.save();
+                for (let s = 0; s < 14; s++) {
+                    const fz = ((s * 2.4) - (zPos % 2.4));
+                    const wz = zPos + Math.max(0.8, fz + 2.4);
+                    const cPt = projectTunnelPoint(wz, playerAngle, 0);
+                    const wPt = projectTunnelPoint(wz, playerAngle, 1.85);
+                    if (!cPt || !wPt) continue;
+                    const rad = Math.hypot(wPt.x - cPt.x, wPt.y - cPt.y);
+                    const alpha = clamp(1 - (wz - zPos) / 36, 0.08, 0.75);
+                    g.strokeStyle = s % 2 === 0 ? `rgba(34, 211, 238, ${alpha})` : `rgba(232, 121, 249, ${alpha * 0.85})`;
+                    g.lineWidth = clamp(wPt.scale * 0.015, 1, 3.5);
+                    g.beginPath();
+                    g.arc(cPt.x, cPt.y, Math.max(4, rad), 0, TAU);
+                    g.stroke();
+                }
+                const vp = projectTunnelPoint(zPos + 36, playerAngle, 0) || { x: W * 0.5, y: H * 0.5 };
+                g.strokeStyle = 'rgba(56, 189, 248, 0.22)';
+                g.lineWidth = 1.2;
+                for (let r = 0; r < 12; r++) {
+                    const ra = (r / 12) * TAU - playerAngle;
+                    g.beginPath();
+                    g.moveTo(vp.x, vp.y);
+                    g.lineTo(vp.x + Math.cos(ra) * 620, vp.y + Math.sin(ra) * 620);
+                    g.stroke();
+                }
+                g.restore();
             }
 
             // Clear transparent 2D overlay canvas
             if (webgl2Ready) g.clearRect(0, 0, W, H);
+
+            // Neon peripheral speedlines synchronized with warp velocity
+            g.save();
+            const speedNorm = clamp((speed - 11) / 22, 0.2, 1.0);
+            for (let i = 0; i < speedStreaks.length; i++) {
+                const st = speedStreaks[i];
+                const prog = (st.phase + time * (1.1 + speedNorm * 1.3)) % 1;
+                const r0 = lerp(110, 480, prog * prog);
+                const r1 = r0 + lerp(16, 72, prog) * speedNorm;
+                const cx = W * 0.5, cy = H * 0.5;
+                g.strokeStyle = i % 2 === 0 ? `rgba(34, 211, 238, ${0.28 * prog * speedNorm})` : `rgba(232, 121, 249, ${0.24 * prog * speedNorm})`;
+                g.lineWidth = 1.5;
+                g.beginPath();
+                g.moveTo(cx + Math.cos(st.ang) * r0, cy + Math.sin(st.ang) * r0);
+                g.lineTo(cx + Math.cos(st.ang) * r1, cy + Math.sin(st.ang) * r1);
+                g.stroke();
+            }
+            g.restore();
 
             // Project oncoming 3D Warp Gates & Crimson Firewall Laser Arcs back-to-front
             const sorted = objects.slice().sort((a, b) => b.z - a.z);
@@ -4019,12 +4703,12 @@ void main() {
                     });
                     g.restore();
                 } else {
-                    // Crimson Firewall Laser Arc curved along tunnel rim
+                    // Crimson Firewall Laser Arc curved along tunnel floor radius (matches SHIP_COLLISION_DZ alignment)
                     const pts = [];
-                    const segs = 8;
+                    const segs = 10;
                     for (let k = 0; k <= segs; k++) {
                         const a = obj.angle - obj.span * 0.5 + (obj.span * k) / segs;
-                        const p = projectTunnelPoint(obj.z, a, 1.56);
+                        const p = projectTunnelPoint(obj.z, a, 1.48);
                         if (p) pts.push(p);
                     }
                     if (pts.length >= 2) {
@@ -4078,7 +4762,13 @@ void main() {
             const pw = drawPill(g, webgl2Ready ? 'WEBGL2 GLSL 300ES RAYMARCH [60 FPS]' : 'GLSL RAYMARCH [2D FALLBACK]', 14, 12, PAL.magenta, 'rgba(14,8,28,0.86)', 'rgba(232,121,249,0.5)');
             drawPill(g, `MULT x${multiplier} · WARP ${speed.toFixed(0)}`, 24 + pw, 12, PAL.cyan);
             drawPill(g, `SHIELDS ${'◆'.repeat(Math.max(0, shields))}${'◇'.repeat(Math.max(0, 3 - shields))}`, W - 165, 12, shields > 1 ? PAL.mint : PAL.coral);
-            drawPill(g, `HOP [SPC] ${hopCd <= 0 ? 'READY' : hopCd.toFixed(1) + 's'}`, 14, H - 34, hopCd <= 0 ? PAL.cyan : PAL.muted);
+            drawPill(g, `HOP [SPC / CLICK] ${hopCd <= 0 ? 'READY' : hopCd.toFixed(1) + 's'}`, 14, H - 34, hopCd <= 0 ? PAL.cyan : PAL.muted);
+            g.save();
+            g.fillStyle = `rgba(34, 211, 238, ${0.35 + beatPhase * 0.65})`;
+            g.beginPath();
+            g.arc(W - 26, H - 22, 4 + beatPhase * 4, 0, TAU);
+            g.fill();
+            g.restore();
         }
 
         function loop(now) {
@@ -4111,6 +4801,9 @@ void main() {
                 score = 0;
                 multiplier = 1;
                 tier = Math.max(1, Number(lv) || 1);
+                beatPhase = 0;
+                steerPointer.down = false;
+                steerPointer.dragged = false;
                 nextSpawnZ = 22;
                 objects.length = 0;
                 particles.length = 0;

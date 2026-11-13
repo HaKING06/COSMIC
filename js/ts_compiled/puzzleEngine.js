@@ -298,7 +298,8 @@
             state.undoStack.push({
                 player: { r: state.player.r, c: state.player.c },
                 boxes: state.boxes.map((b) => ({ r: b.r, c: b.c })),
-                moves: state.moves
+                moves: state.moves,
+                pushes: state.pushes
             });
             state.boxes[boxIdx] = { r: br, c: bc };
             state.pushes++;
@@ -308,7 +309,8 @@
             state.undoStack.push({
                 player: { r: state.player.r, c: state.player.c },
                 boxes: state.boxes.map((b) => ({ r: b.r, c: b.c })),
-                moves: state.moves
+                moves: state.moves,
+                pushes: state.pushes
             });
         }
         state.player = { r: nr, c: nc };
@@ -328,6 +330,7 @@
         state.player = snap.player;
         state.boxes = snap.boxes;
         state.moves = snap.moves;
+        state.pushes = snap.pushes;
         return true;
     }
     function solveSokobanInternal(rows, cols, walls, targets, startPlayer, startBoxes, maxStates) {
@@ -1451,6 +1454,32 @@
         }
         return null;
     }
+    function injectGuaranteedMatch3Move(state) {
+        const N = state.size;
+        for (let r = 0; r < N - 1; r++) {
+            for (let c = 0; c < N - 2; c++) {
+                for (let k = 0; k < state.typesCount; k++) {
+                    const prevA = state.grid[r][c];
+                    const prevB = state.grid[r][c + 1];
+                    const prevC = state.grid[r + 1][c + 2];
+                    if (!prevA || !prevB || !prevC)
+                        continue;
+                    const ka = prevA.kind;
+                    const kb = prevB.kind;
+                    const kc = prevC.kind;
+                    prevA.kind = k;
+                    prevB.kind = k;
+                    prevC.kind = k;
+                    if (findMatchRuns(state.grid).length === 0 && findValidMatch3Move(state.grid)) {
+                        return;
+                    }
+                    prevA.kind = ka;
+                    prevB.kind = kb;
+                    prevC.kind = kc;
+                }
+            }
+        }
+    }
     function fillCleanMatch3Grid(state) {
         const N = state.size;
         for (let attempt = 0; attempt < 40; attempt++) {
@@ -1479,6 +1508,7 @@
             if (findValidMatch3Move(state.grid))
                 return;
         }
+        injectGuaranteedMatch3Move(state);
     }
     function createMatch3State(levelIndex, seed = Date.now()) {
         const idx = clampLevelIndex(levelIndex, MATCH3_LEVELS.length);
@@ -1504,15 +1534,57 @@
         return state;
     }
     function shuffleMatch3Board(state) {
+        const N = state.size;
+        const pool = [];
+        for (let r = 0; r < N; r++) {
+            for (let c = 0; c < N; c++) {
+                const g = state.grid[r][c];
+                if (g)
+                    pool.push(g);
+            }
+        }
+        if (pool.length === N * N) {
+            for (let attempt = 0; attempt < 30; attempt++) {
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const rr = nextRand(state.rngState);
+                    state.rngState = rr.next;
+                    const j = Math.floor(rr.val * (i + 1));
+                    const tmp = pool[i];
+                    pool[i] = pool[j];
+                    pool[j] = tmp;
+                }
+                for (let r = 0; r < N; r++) {
+                    for (let c = 0; c < N; c++) {
+                        state.grid[r][c] = pool[r * N + c];
+                    }
+                }
+                if (findMatchRuns(state.grid).length === 0 && findValidMatch3Move(state.grid)) {
+                    return;
+                }
+            }
+        }
+        const novaCount = pool.filter((g) => g.special === 'nova_row').length;
         fillCleanMatch3Grid(state);
+        for (let n = 0; n < novaCount; n++) {
+            const rr = nextRand(state.rngState);
+            state.rngState = rr.next;
+            const cr = Math.floor(rr.val * N);
+            const rr2 = nextRand(state.rngState);
+            state.rngState = rr2.next;
+            const cc = Math.floor(rr2.val * N);
+            if (state.grid[cr][cc])
+                state.grid[cr][cc].special = 'nova_row';
+        }
     }
     function tryMatch3Swap(state, a, b) {
+        if (state.score >= state.targetScore)
+            return { valid: false, won: true };
         const dr = Math.abs(a.r - b.r);
         const dc = Math.abs(a.c - b.c);
         if (dr + dc !== 1)
-            return { valid: false, won: state.score >= state.targetScore };
+            return { valid: false, won: false };
         if (state.movesLeft <= 0)
-            return { valid: false, won: state.score >= state.targetScore };
+            return { valid: false, won: false };
         if (!state.grid[a.r][a.c] || !state.grid[b.r][b.c]) {
             return { valid: false, won: state.score >= state.targetScore };
         }
@@ -2202,13 +2274,16 @@
         return { lineDone: false, groupDone };
     }
     function autoCrossCompletedLines(state) {
+        const crossed = [];
         for (let r = 0; r < state.rows; r++) {
             const line = state.board[r];
             const res = computeGroupMatch(line, state.rowClues[r]);
             if (res.lineDone) {
                 for (let c = 0; c < state.cols; c++) {
-                    if (state.board[r][c] === 0)
+                    if (state.board[r][c] === 0) {
                         state.board[r][c] = 2;
+                        crossed.push({ r, c });
+                    }
                 }
             }
         }
@@ -2217,27 +2292,37 @@
             const res = computeGroupMatch(line, state.colClues[c]);
             if (res.lineDone) {
                 for (let r = 0; r < state.rows; r++) {
-                    if (state.board[r][c] === 0)
+                    if (state.board[r][c] === 0) {
                         state.board[r][c] = 2;
+                        crossed.push({ r, c });
+                    }
                 }
             }
         }
+        return crossed;
     }
     function setNonogramCell(state, r, c, mark) {
         if (r < 0 || r >= state.rows || c < 0 || c >= state.cols)
             return false;
         if (state.board[r][c] === mark)
             return false;
-        state.undoStack.push({ r, c, prev: state.board[r][c], moves: state.moves });
+        const prev = state.board[r][c];
+        const prevMoves = state.moves;
         state.board[r][c] = mark;
         state.moves++;
-        autoCrossCompletedLines(state);
+        const autoCrossed = autoCrossCompletedLines(state);
+        state.undoStack.push({ r, c, prev, moves: prevMoves, autoCrossed });
         return true;
     }
     function undoNonogram(state) {
         const last = state.undoStack.pop();
         if (!last)
             return false;
+        if (last.autoCrossed) {
+            for (const p of last.autoCrossed) {
+                state.board[p.r][p.c] = 0;
+            }
+        }
         state.board[last.r][last.c] = last.prev;
         state.moves = last.moves;
         return true;

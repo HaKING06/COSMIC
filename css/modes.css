@@ -711,3 +711,64 @@
         padding: 0.55rem;
     }
 }
+
+/* v12.0 Dark Neon Control Parity Across Modes, Daily Ship & Sector Selectors */
+.filter-pill {
+    appearance: none;
+    -webkit-appearance: none;
+    color-scheme: dark;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.filter-pill:hover {
+    border-color: var(--border-medium);
+    color: var(--text-primary);
+}
+
+.filter-pill:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.42);
+}
+
+.daily-decoder-card .cs-select,
+.op-mode-card .cs-select,
+#dailyShipSelect,
+#modesSectorSelect,
+#modesDiffSelect,
+select.mode-ship-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    color-scheme: dark;
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    background-color: #0e1526;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.72rem center;
+    background-size: 14px;
+    padding-right: 2.2rem;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.daily-decoder-card .cs-select:hover,
+.op-mode-card .cs-select:hover,
+#dailyShipSelect:hover,
+#modesSectorSelect:hover,
+#modesDiffSelect:hover,
+select.mode-ship-select:hover {
+    border-color: rgba(56, 189, 248, 0.52);
+    background-color: #131c31;
+}
+
+.daily-decoder-card .cs-select option,
+.op-mode-card .cs-select option,
+#dailyShipSelect option,
+#modesSectorSelect option,
+#modesDiffSelect option,
+select.mode-ship-select option {
+    background-color: #0d1320;
+    color: #f1f5f9;
+}

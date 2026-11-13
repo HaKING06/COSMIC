@@ -350,17 +350,23 @@
         }
     }
 
-    function createInput(canvas, handlers) {
+    function createInput(canvas, handlers, ctx) {
         const keys = new Set();
         const pointer = { x: W * 0.5, y: H * 0.5, down: false, id: null };
+
+        function isPaused() {
+            return !!(ctx && typeof ctx.getPaused === 'function' && ctx.getPaused());
+        }
 
         function toLogical(ev) {
             const rect = canvas.getBoundingClientRect();
             const rw = rect.width || W;
             const rh = rect.height || H;
+            const cx = Number.isFinite(ev.clientX) ? ev.clientX : rect.left + rw * 0.5;
+            const cy = Number.isFinite(ev.clientY) ? ev.clientY : rect.top + rh * 0.5;
             return {
-                x: (ev.clientX - rect.left) * (W / rw),
-                y: (ev.clientY - rect.top) * (H / rh)
+                x: (cx - rect.left) * (W / rw),
+                y: (cy - rect.top) * (H / rh)
             };
         }
 
@@ -370,7 +376,7 @@
         }
 
         function onKeyDown(e) {
-            if (isTypingTarget(e)) return;
+            if (isTypingTarget(e) || isPaused()) return;
             const code = e.code || e.key;
             if (code === 'Space' || code === 'ArrowUp' || code === 'ArrowDown' || code === 'ArrowLeft' || code === 'ArrowRight') {
                 e.preventDefault();
@@ -383,40 +389,59 @@
         function onKeyUp(e) {
             const code = e.code || e.key;
             keys.delete(code);
-            if (handlers && handlers.onKeyUp) handlers.onKeyUp(code, e);
+            if (handlers && handlers.onKeyUp && !isPaused()) handlers.onKeyUp(code, e);
         }
 
         function onPointerDown(e) {
+            if (isPaused()) return;
             if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
+            if (pointer.down && pointer.id !== null && e.pointerId !== undefined && e.pointerId !== pointer.id) return;
             const pt = toLogical(e);
             pointer.x = pt.x;
             pointer.y = pt.y;
             pointer.down = true;
-            pointer.id = e.pointerId;
+            pointer.id = e.pointerId !== undefined ? e.pointerId : null;
             if (handlers && handlers.onPointerDown) handlers.onPointerDown(pt.x, pt.y, e);
         }
 
         function onPointerMove(e) {
+            if (pointer.down && pointer.id !== null && e.pointerId !== undefined && e.pointerId !== pointer.id) return;
             const pt = toLogical(e);
             pointer.x = pt.x;
             pointer.y = pt.y;
+            if (isPaused()) return;
             if (handlers && handlers.onPointerMove) handlers.onPointerMove(pt.x, pt.y, e);
         }
 
         function onPointerUp(e) {
-            if (!pointer.down && e.pointerId !== pointer.id) return;
+            if (!pointer.down) return;
+            if (pointer.id !== null && e.pointerId !== undefined && e.pointerId !== pointer.id) return;
             const pt = toLogical(e);
             pointer.x = pt.x;
             pointer.y = pt.y;
             pointer.down = false;
             pointer.id = null;
+            if (isPaused()) {
+                if (handlers && handlers.onPointerCancel) handlers.onPointerCancel();
+                return;
+            }
             if (handlers && handlers.onPointerUp) handlers.onPointerUp(pt.x, pt.y, e);
+        }
+
+        function onPointerCancel(e) {
+            if (!pointer.down) return;
+            if (pointer.id !== null && e && e.pointerId !== undefined && e.pointerId !== pointer.id) return;
+            pointer.down = false;
+            pointer.id = null;
+            if (handlers && handlers.onPointerCancel) handlers.onPointerCancel();
         }
 
         function onBlur() {
             keys.clear();
+            const wasDown = pointer.down;
             pointer.down = false;
             pointer.id = null;
+            if (wasDown && handlers && handlers.onPointerCancel) handlers.onPointerCancel();
         }
 
         const prevTouchAction = canvas.style.touchAction;
@@ -427,13 +452,14 @@
         canvas.addEventListener('pointerdown', onPointerDown);
         global.addEventListener('pointermove', onPointerMove);
         global.addEventListener('pointerup', onPointerUp);
-        global.addEventListener('pointercancel', onPointerUp);
+        global.addEventListener('pointercancel', onPointerCancel);
 
         return {
             keys,
             pointer,
-            has(code) { return keys.has(code); },
+            has(code) { return !isPaused() && keys.has(code); },
             any(list) {
+                if (isPaused()) return false;
                 for (let i = 0; i < list.length; i++) if (keys.has(list[i])) return true;
                 return false;
             },
@@ -445,7 +471,7 @@
                 canvas.removeEventListener('pointerdown', onPointerDown);
                 global.removeEventListener('pointermove', onPointerMove);
                 global.removeEventListener('pointerup', onPointerUp);
-                global.removeEventListener('pointercancel', onPointerUp);
+                global.removeEventListener('pointercancel', onPointerCancel);
                 keys.clear();
             }
         };
@@ -654,6 +680,7 @@
         let state = 'aim'; // aim | flight | reset_wait | cleared | victory | gameover
         let stateTimer = 0;
         let flightTime = 0;
+        let stallTime = 0;
         let probeBody = null;
         let planetBodies = [];
         let asteroidBodies = [];
@@ -736,6 +763,7 @@
             M.Composite.add(engine.world, probeBody);
             trail = [];
             flightTime = 0;
+            stallTime = 0;
             shotCoins = 0;
             for (let i = 0; i < coinStates.length; i++) {
                 coinStates[i].collected = false;
@@ -1012,8 +1040,11 @@
                 dragging = false;
                 const vec = getLaunchVector();
                 if (vec) fireProbe(vec);
+            },
+            onPointerCancel() {
+                dragging = false;
             }
-        });
+        }, ctx);
 
         loadLevel(levelIdx, false);
 
@@ -1050,14 +1081,36 @@
                 trail.push({ x: probeBody.position.x, y: probeBody.position.y });
                 if (trail.length > 75) trail.shift();
 
+                // Thruster flame sparks on launch & velocity exhaust
+                const pSpd = Math.hypot(probeBody.velocity.x, probeBody.velocity.y);
+                if (pSpd > 0.25 && (flightTime < 0.35 || Math.random() < 0.45)) {
+                    const ux = -probeBody.velocity.x / pSpd;
+                    const uy = -probeBody.velocity.y / pSpd;
+                    fx.jet(
+                        probeBody.position.x + ux * 11,
+                        probeBody.position.y + uy * 11,
+                        ux, uy,
+                        0.4,
+                        flightTime < 0.35 ? PAL.amber : PAL.sky,
+                        flightTime < 0.35 ? 3.2 : 2.1,
+                        0.2,
+                        2.5
+                    );
+                }
+
                 if (dist(probeBody.position.x, probeBody.position.y, cfg.portal.x, cfg.portal.y) < 28) {
                     handlePortalWin();
                     return;
                 }
 
                 const p = probeBody.position;
+                if (pSpd < 0.28) stallTime += dtSec;
+                else stallTime = Math.max(0, stallTime - dtSec * 2);
+
                 if (p.x < -55 || p.x > W + 55 || p.y < -55 || p.y > H + 55) {
                     failShot('LOST IN DEEP SPACE');
+                } else if (stallTime > 1.8) {
+                    failShot('STALLED IN ORBIT');
                 } else if (flightTime > 9.5) {
                     failShot('ORBIT TIMEOUT');
                 }
@@ -1456,9 +1509,13 @@
                     }
 
                     if (other.label === 'pad') {
-                        const onPadX = Math.abs(lander.position.x - padBounds.x) <= padBounds.w * 0.5 - 6;
-                        if (!onPadX || preSpeed >= 2.2 || Math.abs(preAngle) >= 0.28) {
-                            crashLander(preSpeed >= 2.2 ? 'HARD IMPACT' : 'TILT CRASH');
+                        const onPadX = Math.abs(lander.position.x - padBounds.x) <= padBounds.w * 0.5 - 3;
+                        const safeVy = Math.abs(lander.velocity.y) < 2.15;
+                        const safeVx = Math.abs(lander.velocity.x) < 1.55;
+                        const safeAng = Math.abs(preAngle) < 0.32;
+                        if (!onPadX || !safeVy || !safeVx || !safeAng) {
+                            const reason = !safeVy ? 'HARD VERTICAL IMPACT' : (!safeVx ? 'HIGH LATERAL SLIDE' : (!safeAng ? 'TILT CRASH' : 'MISSED PAD'));
+                            crashLander(reason);
                             return;
                         }
                         touchingPad = true;
@@ -1556,7 +1613,7 @@
                     loadLevel(levelIdx, false, false);
                 }
             }
-        });
+        }, ctx);
 
         loadLevel(levelIdx, false, false);
         let hudTimer = 0;
@@ -1614,23 +1671,28 @@
                 M.Body.setAngularVelocity(lander, lander.angularVelocity * 0.95);
             }
 
-            if (cfg.wind !== 0) {
+            if (cfg.wind !== 0 && !touchingPad) {
                 M.Body.applyForce(lander, lander.position, { x: cfg.wind * lander.mass, y: 0 });
             }
 
             preSpeed = Math.hypot(lander.velocity.x, lander.velocity.y);
             preAngle = normalizeAngle(lander.angle);
+            const wasTouchingPad = touchingPad;
             touchingPad = false;
 
             M.Engine.update(engine, dtMs);
+            if (wasTouchingPad && Math.abs(normalizeAngle(lander.angle)) < 0.32 && !thrustOn) {
+                // Gentle landing-strut grip prevents tiny wind/corner creep after clean touchdown
+                M.Body.setVelocity(lander, { x: lander.velocity.x * 0.85, y: lander.velocity.y * 0.85 });
+            }
 
             const curSpeed = Math.hypot(lander.velocity.x, lander.velocity.y);
             const curAngle = Math.abs(normalizeAngle(lander.angle));
-            const onPadX = Math.abs(lander.position.x - padBounds.x) <= padBounds.w * 0.5 - 6;
+            const onPadX = Math.abs(lander.position.x - padBounds.x) <= padBounds.w * 0.5 - 3;
 
-            if (touchingPad && onPadX && curSpeed < 0.42 && curAngle < 0.28) {
+            if (touchingPad && onPadX && Math.abs(lander.velocity.y) < 0.55 && Math.abs(lander.velocity.x) < 0.55 && curAngle < 0.32) {
                 settleTime += dtSec;
-                if (settleTime >= 0.25) {
+                if (settleTime >= 0.22) {
                     completeSector();
                     return;
                 }
@@ -1704,11 +1766,37 @@
                 }
             }
 
-            // Lunar Module
+            // Lunar Module + alignment plumb line + thruster glow
             if (lander && state !== 'respawn_wait') {
+                const onPadZone = Math.abs(lander.position.x - padBounds.x) <= padBounds.w * 0.5 - 3;
+                if (lander.position.y < padBounds.y - 18) {
+                    g.save();
+                    g.strokeStyle = onPadZone ? 'rgba(52, 211, 153, 0.42)' : 'rgba(56, 189, 248, 0.2)';
+                    g.setLineDash([4, 5]);
+                    g.lineWidth = 1.5;
+                    g.beginPath();
+                    g.moveTo(lander.position.x, lander.position.y + 18);
+                    g.lineTo(lander.position.x, padBounds.y - 4);
+                    g.stroke();
+                    g.restore();
+                }
                 g.save();
                 g.translate(lander.position.x, lander.position.y);
                 g.rotate(lander.angle);
+                if (fuel > 0 && input.any(['ArrowUp', 'KeyW']) && state === 'flying') {
+                    const flameH = 14 + Math.sin(simTime * 55) * 4;
+                    const fGrad = g.createLinearGradient(0, 14, 0, 14 + flameH);
+                    fGrad.addColorStop(0, '#ffffff');
+                    fGrad.addColorStop(0.45, PAL.amber);
+                    fGrad.addColorStop(1, 'rgba(251, 113, 133, 0)');
+                    g.fillStyle = fGrad;
+                    g.beginPath();
+                    g.moveTo(-6, 14);
+                    g.lineTo(6, 14);
+                    g.lineTo(0, 14 + flameH);
+                    g.closePath();
+                    g.fill();
+                }
                 if (!drawSprite(g, ctx, 'moon_lander', 0, 0, 40, 40, 0)) {
                     g.fillStyle = '#cbd5e1';
                     g.strokeStyle = PAL.sky;
@@ -1732,15 +1820,18 @@
 
             fx.render(g);
 
-            // Telemetry HUD inside canvas
-            const spd = lander ? Math.hypot(lander.velocity.x, lander.velocity.y) : 0;
+            // Telemetry HUD inside canvas (Readable green/red V-SPD, H-SPD & TILT gauges)
+            const vxAbs = lander ? Math.abs(lander.velocity.x) : 0;
+            const vyAbs = lander ? Math.abs(lander.velocity.y) : 0;
             const angAbs = lander ? Math.abs(normalizeAngle(lander.angle)) : 0;
-            const spdSafe = spd < 2.2;
-            const angSafe = angAbs < 0.28;
+            const vSafe = vyAbs < 2.15;
+            const hSafe = vxAbs < 1.55;
+            const angSafe = angAbs < 0.32;
 
             drawPill(g, 16, 14, `SECTOR ${levelIdx + 1}/${SECTORS.length}: ${cfg.name.toUpperCase()}`, PAL.sky, 'left');
-            drawPill(g, 16, 44, `SPD ${spd.toFixed(2)} (<2.20)`, spdSafe ? PAL.mint : PAL.coral, 'left');
-            drawPill(g, 16, 74, `TILT ${angAbs.toFixed(2)} (<0.28)`, angSafe ? PAL.mint : PAL.amber, 'left');
+            drawPill(g, 16, 44, `V-SPD ${vyAbs.toFixed(2)} (<2.15)`, vSafe ? PAL.mint : PAL.coral, 'left');
+            drawPill(g, 16, 74, `H-SPD ${vxAbs.toFixed(2)} (<1.55)`, hSafe ? PAL.mint : PAL.coral, 'left');
+            drawPill(g, 16, 104, `TILT ${angAbs.toFixed(2)} (<0.32)`, angSafe ? PAL.mint : PAL.amber, 'left');
 
             const windLabel = cfg.wind === 0 ? 'WIND 0.0' : (cfg.wind > 0 ? `WIND +${(cfg.wind * 1000).toFixed(2)} →` : `← WIND ${(cfg.wind * 1000).toFixed(2)}`);
             drawPill(g, W - 16, 14, `${windLabel}  ·  LIVES ${lives}`, PAL.amber, 'right');
@@ -1864,6 +1955,8 @@
                 label: 'pinball'
             });
             b._stuckSec = 0;
+            b._anchorPos = { x, y };
+            b._anchorSec = 0;
             if (vx !== undefined && vy !== undefined) {
                 M.Body.setVelocity(b, { x: vx, y: vy });
             }
@@ -2186,14 +2279,20 @@
                 leftTouch = false;
                 rightTouch = false;
                 if (chargingPlunger) releasePlunger();
+            },
+            onPointerCancel() {
+                leftTouch = false;
+                rightTouch = false;
+                chargingPlunger = false;
+                plungerCharge = 0;
             }
-        });
+        }, ctx);
 
         initTable();
         let hudTimer = 0;
 
         function updateFlipper(body, pivot, dir, currentAngle, targetAngle) {
-            const da = clamp(targetAngle - currentAngle, -0.2, 0.2);
+            const da = clamp(targetAngle - currentAngle, -0.11, 0.11);
             const nextAngle = currentAngle + da;
             const cx = pivot.x + Math.cos(nextAngle) * FLIP_LEN * dir;
             const cy = pivot.y + Math.sin(nextAngle) * FLIP_LEN * dir;
@@ -2205,6 +2304,54 @@
                 y: Math.cos(nextAngle) * FLIP_LEN * dir * da
             });
             return nextAngle;
+        }
+
+        // Anti-tunneling swept capsule check for fast upward flipper strokes
+        function enforceFlipperSweep(pivot, dir, prevAng, nextAng) {
+            const upwardSweep = dir > 0 ? (nextAng < prevAng - 0.002) : (nextAng > prevAng + 0.002);
+            if (!upwardSweep) return;
+            const tx = Math.cos(nextAng) * dir;
+            const ty = Math.sin(nextAng) * dir;
+            const bladeLen = 74;
+            const ax = pivot.x;
+            const ay = pivot.y;
+            const bx = ax + tx * bladeLen;
+            const by = ay + ty * bladeLen;
+            const ptx = Math.cos(prevAng) * dir;
+            const pty = Math.sin(prevAng) * dir;
+            const nx = Math.sin(nextAng);
+            const ny = -Math.cos(nextAng); // upward perpendicular normal (ny < 0)
+            const pnx = Math.sin(prevAng);
+            const pny = -Math.cos(prevAng);
+
+            for (let i = 0; i < activeBalls.length; i++) {
+                const b = activeBalls[i];
+                const px = b.position.x;
+                const py = b.position.y;
+                const u = clamp(((px - ax) * tx + (py - ay) * ty) / bladeLen, 0, 1);
+                const qx = ax + tx * bladeLen * u;
+                const qy = ay + ty * bladeLen * u;
+                const d = Math.hypot(px - qx, py - qy);
+                const prevSide = (px - ax) * pnx + (py - ay) * pny;
+                const currSide = (px - ax) * nx + (py - ay) * ny;
+                const uAlong = ((px - ax) * ptx + (py - ay) * pty) / bladeLen;
+                const crossedSweep = uAlong >= 0.05 && uAlong <= 1.04 && prevSide >= -10 && currSide <= 12;
+
+                if (d < 18.2 || crossedSweep) {
+                    M.Body.setPosition(b, { x: qx + nx * 19.2, y: qy + ny * 19.2 });
+                    const launch = 7.2 + u * 6.5;
+                    const curDot = b.velocity.x * nx + b.velocity.y * ny;
+                    if (curDot < launch) {
+                        const tangV = b.velocity.x * tx + b.velocity.y * ty;
+                        M.Body.setVelocity(b, {
+                            x: nx * launch + tx * tangV * 0.65,
+                            y: ny * launch + ty * tangV * 0.65
+                        });
+                    }
+                    playSfx(ctx, 'hitMetal', 0.14);
+                    fx.burst(qx, qy, PAL.sky, 6, 1.0, 2.5, 0.22, 1.8);
+                }
+            }
         }
 
         const loop = createLoop(ctx, canvas, (dtMs) => {
@@ -2233,9 +2380,11 @@
             const leftTarget = leftHeld ? -0.48 : 0.44;
             const rightTarget = rightHeld ? 0.48 : -0.44;
 
-            // 2 substeps per 16.67ms frame prevent pinball tunneling through fast flippers
-            const subDt = dtMs * 0.5;
-            for (let s = 0; s < 2; s++) {
+            // 4 substeps per frame + swept flipper capsule prevent fast pinball tunneling
+            const subDt = dtMs * 0.25;
+            for (let s = 0; s < 4; s++) {
+                const prevL = leftAngle;
+                const prevR = rightAngle;
                 leftAngle = updateFlipper(leftFlipper, LEFT_PIVOT, 1, leftAngle, leftTarget);
                 rightAngle = updateFlipper(rightFlipper, RIGHT_PIVOT, -1, rightAngle, rightTarget);
 
@@ -2250,6 +2399,8 @@
                 shooterGate.isSensor = ballInLane;
 
                 M.Engine.update(engine, subDt);
+                enforceFlipperSweep(LEFT_PIVOT, 1, prevL, leftAngle);
+                enforceFlipperSweep(RIGHT_PIVOT, -1, prevR, rightAngle);
 
                 for (let i = 0; i < activeBalls.length; i++) {
                     const b = activeBalls[i];
@@ -2261,19 +2412,38 @@
                 }
             }
 
-            // Anti-stuck horizontal/dormant ball guard + drain check
+            // Universal displacement progress monitor (rescues balls stuck in upper rails, shooter top, or gutters)
             for (let i = activeBalls.length - 1; i >= 0; i--) {
                 const b = activeBalls[i];
-                const spd = Math.hypot(b.velocity.x, b.velocity.y);
-                if (b.position.x < 666 && spd < 0.09) {
-                    b._stuckSec += dtSec;
-                    if (b._stuckSec > 2.0) {
-                        b._stuckSec = 0;
-                        M.Body.setVelocity(b, { x: (Math.random() - 0.5) * 3.0, y: -3.0 });
-                        fx.popup(b.position.x, b.position.y - 12, 'AUTO-UNSTICK', PAL.sky);
-                    }
+                const waitingOnPlunger = b.position.x > 670 && b.position.y > 460 && Math.hypot(b.velocity.x, b.velocity.y) < 0.3;
+                if (waitingOnPlunger) {
+                    b._anchorPos.x = b.position.x;
+                    b._anchorPos.y = b.position.y;
+                    b._anchorSec = 0;
                 } else {
-                    b._stuckSec = 0;
+                    const moved = Math.hypot(b.position.x - b._anchorPos.x, b.position.y - b._anchorPos.y);
+                    if (moved < 12) {
+                        b._anchorSec += dtSec;
+                        if (b._anchorSec > 1.6) {
+                            b._anchorSec = 0;
+                            if (b.position.x >= 662 && b.position.y < 145) {
+                                M.Body.setPosition(b, { x: 646, y: Math.max(85, b.position.y + 10) });
+                                M.Body.setVelocity(b, { x: -5.6, y: 1.8 });
+                            } else {
+                                M.Body.setVelocity(b, {
+                                    x: b.position.x < 465 ? 3.8 : -3.8,
+                                    y: -5.2
+                                });
+                            }
+                            fx.ring(b.position.x, b.position.y, PAL.sky, 30, 0.3);
+                            fx.popup(b.position.x, Math.max(40, b.position.y - 14), 'AUTO-RESCUE', PAL.sky);
+                            playSfx(ctx, 'emp', 0.12);
+                        }
+                    } else {
+                        b._anchorPos.x = b.position.x;
+                        b._anchorPos.y = b.position.y;
+                        b._anchorSec = 0;
+                    }
                 }
 
                 if (b.position.y > 532) {
@@ -2590,6 +2760,7 @@
         let shotSunkCount = 0;
         let state = 'aim'; // aim | moving | cleared | victory | gameover
         let stateTimer = 0;
+        let shotTimer = 0;
         let dragging = false;
         let dragStart = { x: 0, y: 0 };
         let dragCurr = { x: 0, y: 0 };
@@ -2631,7 +2802,18 @@
         function spawnCueOrb() {
             const cfg = TABLES[levelIdx];
             if (cueBall && engine) M.Composite.remove(engine.world, cueBall);
-            cueBall = M.Bodies.circle(cfg.cue.x, cfg.cue.y, 14, {
+            let spawnX = cfg.cue.x;
+            const spawnY = cfg.cue.y;
+            for (let tries = 0; tries < 9; tries++) {
+                const offset = tries === 0 ? 0 : (tries % 2 === 1 ? Math.ceil(tries * 0.5) * 20 : -Math.ceil(tries * 0.5) * 20);
+                const candX = clamp(cfg.cue.x + offset, TL + 36, TR - 36);
+                const blocked = targetBalls.some((tb) => dist(candX, spawnY, tb.position.x, tb.position.y) < 32);
+                if (!blocked) {
+                    spawnX = candX;
+                    break;
+                }
+            }
+            cueBall = M.Bodies.circle(spawnX, spawnY, 14, {
                 frictionAir: 0.018,
                 friction: 0.01,
                 restitution: 0.94,
@@ -2653,6 +2835,7 @@
             shotsLeft = cfg.shots;
             state = 'aim';
             stateTimer = 0;
+            shotTimer = 0;
             dragging = false;
             cueScratched = false;
             shotSunkCount = 0;
@@ -2702,9 +2885,20 @@
             M.Events.on(engine, 'collisionStart', (ev) => {
                 for (let i = 0; i < ev.pairs.length; i++) {
                     const p = ev.pairs[i];
-                    if ((p.bodyA.label === 'cue' || p.bodyB.label === 'cue') ||
-                        (p.bodyA.label === 'target' && p.bodyB.label === 'target')) {
+                    const bA = p.bodyA;
+                    const bB = p.bodyB;
+                    if ((bA.label === 'cue' || bB.label === 'cue') ||
+                        (bA.label === 'target' && bB.label === 'target')) {
                         playSfx(ctx, 'hitMetal', 0.16);
+                    }
+                    const dyn = !bA.isStatic ? bA : (!bB.isStatic ? bB : null);
+                    if (dyn) {
+                        const spd = Math.hypot(dyn.velocity.x, dyn.velocity.y);
+                        if (spd > 1.35) {
+                            const pt = p.collision?.supports?.[0] || dyn.position;
+                            const col = dyn.label === 'cue' ? PAL.sky : (dyn._kind === 'cryo' ? PAL.mint : PAL.amber);
+                            fx.burst(pt.x, pt.y, col, 5, 0.8, 2.5, 0.22, 1.8);
+                        }
                     }
                 }
             });
@@ -2776,14 +2970,18 @@
                 if (aim && state === 'aim') {
                     shotsLeft--;
                     shotSunkCount = 0;
+                    shotTimer = 0;
                     state = 'moving';
                     M.Body.setVelocity(cueBall, { x: aim.vx, y: aim.vy });
                     fx.burst(cueBall.position.x, cueBall.position.y, PAL.sky, 10, 1, 3.2, 0.28, 2.2);
                     playSfx(ctx, 'shootPlasma', 0.1);
                     syncHud();
                 }
+            },
+            onPointerCancel() {
+                dragging = false;
             }
-        });
+        }, ctx);
 
         loadLevel(levelIdx, false);
 
@@ -2797,6 +2995,7 @@
             }
             if (state !== 'moving') return;
 
+            shotTimer += dtSec;
             M.Engine.update(engine, dtMs);
 
             // Wormhole pocket checks
@@ -2836,13 +3035,18 @@
                 }
             }
 
-            // Check if all balls came to rest
+            // Check if all balls came to rest (with rolling low-speed threshold + timeout safety)
             let maxSpd = 0;
+            const forceSettle = shotTimer > 8.5;
             const checkBodies = cueBall ? [cueBall, ...targetBalls] : targetBalls;
             for (let i = 0; i < checkBodies.length; i++) {
                 const b = checkBodies[i];
-                const spd = Math.hypot(b.velocity.x, b.velocity.y);
-                if (spd < 0.065) {
+                let spd = Math.hypot(b.velocity.x, b.velocity.y);
+                if (spd > 0 && spd < 0.55) {
+                    M.Body.setVelocity(b, { x: b.velocity.x * 0.89, y: b.velocity.y * 0.89 });
+                    spd *= 0.89;
+                }
+                if (forceSettle || spd < 0.14) {
                     M.Body.setVelocity(b, { x: 0, y: 0 });
                 } else {
                     maxSpd = Math.max(maxSpd, spd);
@@ -2947,21 +3151,92 @@
                 g.stroke();
             }
 
-            // Aim guide
+            // Aim guide with cushion / orb / pillar ricochet preview
             if (dragging && state === 'aim' && cueBall) {
                 const aim = getAimVector();
                 if (aim) {
                     const cx = cueBall.position.x;
                     const cy = cueBall.position.y;
-                    const rayLen = 280;
+                    const maxRay = 260 + aim.power * 180;
+                    const minX = TL + 14;
+                    const maxX = TR - 14;
+                    const minY = TT + 14;
+                    const maxY = TB - 14;
+
+                    let hitT = maxRay;
+                    let hitType = 'none';
+                    let bounceNx = 0;
+                    let bounceNy = 0;
+
+                    if (aim.nx > 0.0001) {
+                        const tx = (maxX - cx) / aim.nx;
+                        if (tx > 0 && tx < hitT) { hitT = tx; hitType = 'wall'; bounceNx = -1; bounceNy = 0; }
+                    } else if (aim.nx < -0.0001) {
+                        const tx = (minX - cx) / aim.nx;
+                        if (tx > 0 && tx < hitT) { hitT = tx; hitType = 'wall'; bounceNx = 1; bounceNy = 0; }
+                    }
+                    if (aim.ny > 0.0001) {
+                        const ty = (maxY - cy) / aim.ny;
+                        if (ty > 0 && ty < hitT) { hitT = ty; hitType = 'wall'; bounceNx = 0; bounceNy = -1; }
+                    } else if (aim.ny < -0.0001) {
+                        const ty = (minY - cy) / aim.ny;
+                        if (ty > 0 && ty < hitT) { hitT = ty; hitType = 'wall'; bounceNx = 0; bounceNy = 1; }
+                    }
+
+                    const checkCircs = [];
+                    for (let i = 0; i < targetBalls.length; i++) {
+                        checkCircs.push({ x: targetBalls[i].position.x, y: targetBalls[i].position.y, r: 28, isOrb: true });
+                    }
+                    for (let i = 0; i < pillars.length; i++) {
+                        checkCircs.push({ x: pillars[i].position.x, y: pillars[i].position.y, r: (pillars[i]._r || 28) + 14, isOrb: false });
+                    }
+                    for (let i = 0; i < checkCircs.length; i++) {
+                        const c = checkCircs[i];
+                        const ocx = cx - c.x;
+                        const ocy = cy - c.y;
+                        const bProj = ocx * aim.nx + ocy * aim.ny;
+                        const cDist = ocx * ocx + ocy * ocy - c.r * c.r;
+                        const disc = bProj * bProj - cDist;
+                        if (disc >= 0) {
+                            const tHit = -bProj - Math.sqrt(disc);
+                            if (tHit > 0 && tHit < hitT) {
+                                hitT = tHit;
+                                hitType = c.isOrb ? 'orb' : 'pillar';
+                            }
+                        }
+                    }
+
+                    const hx = cx + aim.nx * hitT;
+                    const hy = cy + aim.ny * hitT;
+
                     g.save();
                     g.strokeStyle = PAL.mint;
                     g.setLineDash([6, 6]);
                     g.lineWidth = 2;
                     g.beginPath();
                     g.moveTo(cx, cy);
-                    g.lineTo(cx + aim.nx * rayLen, cy + aim.ny * rayLen);
+                    g.lineTo(hx, hy);
                     g.stroke();
+
+                    if (hitType === 'wall') {
+                        const rnx = bounceNx !== 0 ? -aim.nx : aim.nx;
+                        const rny = bounceNy !== 0 ? -aim.ny : aim.ny;
+                        const rem = Math.min(130, maxRay - hitT);
+                        if (rem > 14) {
+                            g.strokeStyle = 'rgba(45, 212, 191, 0.52)';
+                            g.beginPath();
+                            g.moveTo(hx, hy);
+                            g.lineTo(hx + rnx * rem, hy + rny * rem);
+                            g.stroke();
+                        }
+                    } else if (hitType === 'orb' || hitType === 'pillar') {
+                        g.setLineDash([]);
+                        g.strokeStyle = hitType === 'orb' ? 'rgba(248, 250, 252, 0.5)' : 'rgba(245, 158, 11, 0.5)';
+                        g.lineWidth = 1.5;
+                        g.beginPath();
+                        g.arc(hx, hy, 14, 0, TAU);
+                        g.stroke();
+                    }
                     g.setLineDash([]);
 
                     // Pullback stick
@@ -3156,8 +3431,17 @@
                     const a = p.bodyA;
                     const b = p.bodyB;
                     if ((a.label === 'crate' || b.label === 'crate') && (a.label === 'barge' || b.label === 'barge' || (a.label === 'crate' && b.label === 'crate'))) {
-                        const c = a.label === 'crate' ? a : b;
-                        c._hitBarge = true;
+                        const hitCrates = [];
+                        if (a.label === 'crate' && a !== activeCrate) hitCrates.push(a);
+                        if (b.label === 'crate' && b !== activeCrate) hitCrates.push(b);
+                        for (let k = 0; k < hitCrates.length; k++) {
+                            const c = hitCrates[k];
+                            const firstTouch = !c._hitBarge;
+                            c._hitBarge = true;
+                            if (firstTouch || Math.abs(c.velocity.y) > 0.75) {
+                                fx.burst(c.position.x, c.position.y + CRATE_H * 0.45, PAL.amber, 6, 0.8, 2.6, 0.24, 1.8);
+                            }
+                        }
                         playSfx(ctx, 'hitMetal', 0.12);
                     }
                 }
@@ -3191,7 +3475,7 @@
                 }
                 releaseCrate();
             }
-        });
+        }, ctx);
 
         initRun();
 
@@ -3227,11 +3511,12 @@
                 if (c === activeCrate) continue;
 
                 // Check dropped off barge
-                if (!c._lost && (c.position.y > BARGE_Y + 115 || c.position.x < -60 || c.position.x > W + 60)) {
+                if (!c._lost && (c.position.y > Math.max(BARGE_Y + 115, cameraY + H + 90) || c.position.x < -60 || c.position.x > W + 60)) {
                     c._lost = true;
                     droppedCount++;
-                    fx.burst(clamp(c.position.x, 40, W - 40), BARGE_Y + 30, PAL.coral, 20, 1.5, 4.8, 0.5, 3);
-                    fx.popup(clamp(c.position.x, 80, W - 80), BARGE_Y - 20, `LOST (${droppedCount}/3)`, PAL.coral);
+                    const fxY = clamp(c.position.y, cameraY + 70, Math.min(BARGE_Y - 20, cameraY + H - 45));
+                    fx.burst(clamp(c.position.x, 40, W - 40), fxY, PAL.coral, 20, 1.5, 4.8, 0.5, 3);
+                    fx.popup(clamp(c.position.x, 80, W - 80), fxY - 14, `LOST (${droppedCount}/3)`, PAL.coral);
                     playSfx(ctx, 'explodeSmall');
                     M.Composite.remove(engine.world, c);
                     crates.splice(i, 1);
@@ -3351,6 +3636,36 @@
                 g.moveTo(craneAnchor.x, craneAnchor.y);
                 g.lineTo(activeCrate.position.x, activeCrate.position.y - CRATE_H * 0.4);
                 g.stroke();
+
+                // Vertical drop alignment laser & landing target tick
+                const ax = activeCrate.position.x;
+                const startY = activeCrate.position.y + CRATE_H * 0.52;
+                let targetY = barge.position.y - 12;
+                for (let i = 0; i < crates.length; i++) {
+                    const other = crates[i];
+                    if (other === activeCrate) continue;
+                    if (Math.abs(other.position.x - ax) < CRATE_W * 0.92) {
+                        targetY = Math.min(targetY, other.position.y - CRATE_H * 0.5);
+                    }
+                }
+                if (targetY > startY + 8) {
+                    g.save();
+                    g.strokeStyle = 'rgba(56, 189, 248, 0.34)';
+                    g.setLineDash([5, 6]);
+                    g.lineWidth = 1.5;
+                    g.beginPath();
+                    g.moveTo(ax, startY);
+                    g.lineTo(ax, targetY);
+                    g.stroke();
+                    g.setLineDash([]);
+                    g.strokeStyle = 'rgba(45, 212, 191, 0.7)';
+                    g.lineWidth = 2;
+                    g.beginPath();
+                    g.moveTo(ax - CRATE_W * 0.44, targetY);
+                    g.lineTo(ax + CRATE_W * 0.44, targetY);
+                    g.stroke();
+                    g.restore();
+                }
             }
 
             // Crates
@@ -3510,12 +3825,13 @@
             const target = findNearestBuoy();
             if (!target) return;
             const d = dist(astro.position.x, astro.position.y, target.x, target.y);
+            const maxSafeLen = Math.max(58, 458 - target.y);
             tether = M.Constraint.create({
                 bodyA: astro,
                 pointB: { x: target.x, y: target.y },
-                length: Math.max(55, d * 0.87),
-                stiffness: 0.15,
-                damping: 0.04
+                length: clamp(d * 0.85, 52, maxSafeLen),
+                stiffness: 0.55,
+                damping: 0.05
             });
             attachedBuoy = target;
             M.Composite.add(engine.world, tether);
@@ -3524,6 +3840,7 @@
         }
 
         function spawnAstro() {
+            holdTether = false;
             detachTether();
             if (astro && engine) M.Composite.remove(engine.world, astro);
             astro = M.Bodies.circle(95, 290, 15, {
@@ -3632,6 +3949,7 @@
 
         function hitPlasmaFloor() {
             if (state !== 'swing') return;
+            holdTether = false;
             detachTether();
             hitsInSector++;
             lives--;
@@ -3728,8 +4046,12 @@
             onPointerUp() {
                 holdTether = false;
                 detachTether();
+            },
+            onPointerCancel() {
+                holdTether = false;
+                detachTether();
             }
-        });
+        }, ctx);
 
         loadLevel(levelIdx, false, false);
         let hudTimer = 0;
@@ -3762,12 +4084,16 @@
                 tryAttachTether();
             }
 
-            // Slight forward pendulum swing assist when tethered & slow, plus EVA micro-trim
+            // Slight forward pendulum swing assist when tethered & slow, plus bidirectional EVA micro-trim
             if (tether && astro.velocity.x < 4.5) {
                 M.Body.applyForce(astro, astro.position, { x: 0.00018 * astro.mass, y: 0 });
             }
             if (input.any(['ArrowRight', 'KeyD'])) {
                 M.Body.applyForce(astro, astro.position, { x: 0.00016 * astro.mass, y: 0 });
+                fx.jet(astro.position.x - 14, astro.position.y, Math.PI, PAL.sky, 1, 2.2);
+            } else if (input.any(['ArrowLeft', 'KeyA'])) {
+                M.Body.applyForce(astro, astro.position, { x: -0.00012 * astro.mass, y: 0 });
+                fx.jet(astro.position.x + 14, astro.position.y, 0, PAL.amber, 1, 2.0);
             }
 
             M.Engine.update(engine, dtMs);
@@ -3870,6 +4196,19 @@
                 }
             }
 
+            // Dotted lock-on indicator to nearest reachable buoy
+            if (candidate && astro) {
+                g.save();
+                g.strokeStyle = 'rgba(56, 189, 248, 0.34)';
+                g.setLineDash([4, 6]);
+                g.lineWidth = 1.6;
+                g.beginPath();
+                g.moveTo(astro.position.x, astro.position.y);
+                g.lineTo(candidate.x, candidate.y);
+                g.stroke();
+                g.restore();
+            }
+
             // Active Matter.Constraint Magnetic Tether Beam
             if (tether && attachedBuoy && astro) {
                 g.save();
@@ -3882,6 +4221,15 @@
                 g.strokeStyle = '#ffffff';
                 g.lineWidth = 1.1;
                 g.stroke();
+                for (let n = 0; n < 3; n++) {
+                    const tNode = ((simTime * 1.9 + n / 3) % 1);
+                    const nx = lerp(astro.position.x, attachedBuoy.x, tNode);
+                    const ny = lerp(astro.position.y, attachedBuoy.y, tNode);
+                    g.fillStyle = PAL.mint;
+                    g.beginPath();
+                    g.arc(nx, ny, 3, 0, TAU);
+                    g.fill();
+                }
                 g.restore();
             }
 
@@ -4065,6 +4413,7 @@
         let bumpers = [];
         let state = 'aim'; // aim | rolling | cleared | victory | gameover
         let stateTimer = 0;
+        let rollTimer = 0;
         let dragging = false;
         let dragStart = { x: 0, y: 0 };
         let dragCurr = { x: 0, y: 0 };
@@ -4101,6 +4450,7 @@
             maxStrokes = cfg.par + 4;
             state = 'aim';
             stateTimer = 0;
+            rollTimer = 0;
             dragging = false;
             reportedEnd = false;
             fx.clear();
@@ -4155,9 +4505,14 @@
                         const dy = golfBall.position.y - other.position.y;
                         const d = Math.hypot(dx, dy) || 1;
                         M.Body.setVelocity(golfBall, { x: (dx / d) * 7.8, y: (dy / d) * 7.8 });
+                        fx.burst(golfBall.position.x, golfBall.position.y, PAL.amber, 8, 1.2, 3.6, 0.28, 2.2);
                         fx.ring(other.position.x, other.position.y, PAL.amber, 30, 0.25);
                         playSfx(ctx, 'hitShield', 0.14);
                     } else {
+                        const spd = Math.hypot(golfBall.velocity.x, golfBall.velocity.y);
+                        if (spd > 1.2) {
+                            fx.burst(golfBall.position.x, golfBall.position.y, PAL.sky, 5, 0.7, 2.2, 0.2, 1.6);
+                        }
                         playSfx(ctx, 'hitMetal', 0.14);
                     }
                 }
@@ -4265,14 +4620,18 @@
                 const putt = getPuttVector();
                 if (putt && state === 'aim') {
                     strokes++;
+                    rollTimer = 0;
                     state = 'rolling';
                     M.Body.setVelocity(golfBall, { x: putt.vx, y: putt.vy });
                     fx.burst(golfBall.position.x, golfBall.position.y, PAL.sky, 9, 1, 3, 0.25, 2.2);
                     playSfx(ctx, 'shootLaser', 0.14);
                     syncHud();
                 }
+            },
+            onPointerCancel() {
+                dragging = false;
             }
-        });
+        }, ctx);
 
         loadLevel(levelIdx, false);
 
@@ -4290,6 +4649,7 @@
             }
             if (state !== 'rolling') return;
 
+            rollTimer += dtSec;
             const cfg = HOLES[levelIdx];
             const bx = golfBall.position.x;
             const by = golfBall.position.y;
@@ -4305,23 +4665,38 @@
                 }
             }
 
-            // Subtle planet gravity pockets
+            // Subtle planet gravity pockets (smooth inner core falloff + orbit decay to prevent trapped loops)
+            let inGrav = false;
             for (let i = 0; i < cfg.gravs.length; i++) {
                 const gp = cfg.gravs[i];
                 const dx = gp.x - bx;
                 const dy = gp.y - by;
                 const d = Math.hypot(dx, dy);
-                if (d > 8 && d < gp.r) {
-                    const mag = 0.00038 * golfBall.mass * gp.strength / Math.max(1200, d * d);
-                    M.Body.applyForce(golfBall, golfBall.position, { x: (dx / d) * mag, y: (dy / d) * mag });
+                if (d < gp.r) {
+                    inGrav = true;
+                    if (d > 16) {
+                        const coreFade = clamp((d - 16) / 22, 0, 1);
+                        const mag = coreFade * 0.00038 * golfBall.mass * gp.strength / Math.max(1200, d * d);
+                        M.Body.applyForce(golfBall, golfBall.position, { x: (dx / d) * mag, y: (dy / d) * mag });
+                    }
                 }
             }
 
             M.Engine.update(engine, dtMs);
 
+            if (inGrav) {
+                const gSpd = Math.hypot(golfBall.velocity.x, golfBall.velocity.y);
+                if (gSpd < 4.5) {
+                    M.Body.setVelocity(golfBall, {
+                        x: golfBall.velocity.x * 0.985,
+                        y: golfBall.velocity.y * 0.985
+                    });
+                }
+            }
+
             // Black-Hole Flag Cup capture check
             const cupD = dist(golfBall.position.x, golfBall.position.y, cfg.cup.x, cfg.cup.y);
-            const spd = Math.hypot(golfBall.velocity.x, golfBall.velocity.y);
+            let spd = Math.hypot(golfBall.velocity.x, golfBall.velocity.y);
             if (cupD < 19 && spd < 5.6) {
                 sinkBall();
                 return;
@@ -4335,7 +4710,13 @@
                 });
             }
 
-            if (spd < 0.065) {
+            // Crisp low-velocity rolling friction + timeout safety so slow balls don't creep endlessly
+            if (spd > 0 && spd < 0.50) {
+                M.Body.setVelocity(golfBall, { x: golfBall.velocity.x * 0.89, y: golfBall.velocity.y * 0.89 });
+                spd *= 0.89;
+            }
+
+            if (spd < 0.14 || rollTimer > 9.0) {
                 M.Body.setVelocity(golfBall, { x: 0, y: 0 });
                 if (strokes >= maxStrokes) {
                     lives--;
@@ -4487,20 +4868,86 @@
             g.closePath();
             g.fill();
 
-            // Aim ray
+            // Aim ray with wind/gravity curved trajectory preview
             if (dragging && state === 'aim' && golfBall) {
                 const putt = getPuttVector();
                 if (putt) {
                     const gx = golfBall.position.x;
                     const gy = golfBall.position.y;
-                    g.strokeStyle = PAL.mint;
-                    g.setLineDash([5, 5]);
-                    g.lineWidth = 2;
+                    const simDtSq = (1000 / 60) * (1000 / 60);
+                    let sx = gx;
+                    let sy = gy;
+                    let svx = putt.vx;
+                    let svy = putt.vy;
+
+                    g.save();
+                    const steps = Math.round(14 + putt.power * 18);
+                    for (let step = 0; step < steps; step++) {
+                        let ax = 0;
+                        let ay = 0;
+                        for (let i = 0; i < cfg.winds.length; i++) {
+                            const wz = cfg.winds[i];
+                            if (sx >= wz.x && sx <= wz.x + wz.w && sy >= wz.y && sy <= wz.y + wz.h) {
+                                ax += wz.fx;
+                                ay += wz.fy;
+                            }
+                        }
+                        let inG = false;
+                        for (let i = 0; i < cfg.gravs.length; i++) {
+                            const gp = cfg.gravs[i];
+                            const dx = gp.x - sx;
+                            const dy = gp.y - sy;
+                            const d = Math.hypot(dx, dy);
+                            if (d < gp.r) {
+                                inG = true;
+                                if (d > 16) {
+                                    const coreFade = clamp((d - 16) / 22, 0, 1);
+                                    const mag = coreFade * 0.00038 * gp.strength / Math.max(1200, d * d);
+                                    ax += (dx / d) * mag;
+                                    ay += (dy / d) * mag;
+                                }
+                            }
+                        }
+                        svx = svx * 0.981 + ax * simDtSq;
+                        svy = svy * 0.981 + ay * simDtSq;
+                        if (inG && Math.hypot(svx, svy) < 4.5) {
+                            svx *= 0.985;
+                            svy *= 0.985;
+                        }
+                        sx += svx;
+                        sy += svy;
+
+                        if (sx < COURSE_L + 9) { sx = COURSE_L + 9; svx = Math.abs(svx) * 0.84; }
+                        else if (sx > COURSE_R - 9) { sx = COURSE_R - 9; svx = -Math.abs(svx) * 0.84; }
+                        if (sy < COURSE_T + 9) { sy = COURSE_T + 9; svy = Math.abs(svy) * 0.84; }
+                        else if (sy > COURSE_B - 9) { sy = COURSE_B - 9; svy = -Math.abs(svy) * 0.84; }
+
+                        let hitBumper = false;
+                        for (let i = 0; i < bumpers.length; i++) {
+                            if (dist(sx, sy, bumpers[i].position.x, bumpers[i].position.y) <= bumpers[i]._r + 9) {
+                                hitBumper = true;
+                                break;
+                            }
+                        }
+                        if (hitBumper) break;
+                        if (step % 2 === 1) {
+                            const alpha = clamp(1 - step / (steps + 2), 0.15, 0.92);
+                            g.fillStyle = `rgba(52, 211, 153, ${alpha.toFixed(2)})`;
+                            g.beginPath();
+                            g.arc(sx, sy, 2.5, 0, TAU);
+                            g.fill();
+                        }
+                        if (dist(sx, sy, cfg.cup.x, cfg.cup.y) < 16) break;
+                    }
+
+                    // Pullback indicator behind ball
+                    g.strokeStyle = PAL.amber;
+                    g.lineWidth = 3;
                     g.beginPath();
-                    g.moveTo(gx, gy);
-                    g.lineTo(gx + putt.nx * (60 + putt.power * 165), gy + putt.ny * (60 + putt.power * 165));
+                    g.moveTo(gx - putt.nx * 14, gy - putt.ny * 14);
+                    g.lineTo(gx - putt.nx * (18 + putt.power * 64), gy - putt.ny * (18 + putt.power * 64));
                     g.stroke();
-                    g.setLineDash([]);
+                    g.restore();
                     drawPill(g, gx, gy - 32, `PUTT ${Math.round(putt.power * 100)}%`, PAL.mint, 'center');
                 }
             }

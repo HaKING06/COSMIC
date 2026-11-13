@@ -87,11 +87,11 @@
             if (!stageEl) {
                 return {
                     root: null,
-                    spawnPopup: () => {},
-                    flashDamage: () => {},
-                    setHint: () => {},
-                    update: () => {},
-                    destroy: () => {}
+                    spawnPopup: () => { },
+                    flashDamage: () => { },
+                    setHint: () => { },
+                    update: () => { },
+                    destroy: () => { }
                 };
             }
             try {
@@ -186,10 +186,43 @@
             };
         }
 
+        function zWindowHit(prevZ, currZ, targetZ, halfDepth) {
+            return Math.min(prevZ, currZ) <= targetZ + halfDepth && Math.max(prevZ, currZ) >= targetZ - halfDepth;
+        }
+
+        function segDistSq3D(ax, ay, az, bx, by, bz, px, py, pz) {
+            const dx = bx - ax;
+            const dy = by - ay;
+            const dz = bz - az;
+            const lenSq = dx * dx + dy * dy + dz * dz;
+            if (lenSq < 1e-8) {
+                const ux = px - ax, uy = py - ay, uz = pz - az;
+                return ux * ux + uy * uy + uz * uz;
+            }
+            const t = clamp(((px - ax) * dx + (py - ay) * dy + (pz - az) * dz) / lenSq, 0, 1);
+            const cx = ax + dx * t - px;
+            const cy = ay + dy * t - py;
+            const cz = az + dz * t - pz;
+            return cx * cx + cy * cy + cz * cz;
+        }
+
+        function syncCameraAspect(camera, canvas) {
+            if (!camera || !canvas) return;
+            const cw = canvas.clientWidth || STAGE_W;
+            const ch = canvas.clientHeight || STAGE_H;
+            if (ch <= 0) return;
+            const asp = cw / ch;
+            if (Math.abs(camera.aspect - asp) > 0.01) {
+                camera.aspect = asp;
+                camera.updateProjectionMatrix();
+            }
+        }
+
         function createInput(canvas) {
             const keys = new Set();
             const pointer = {
                 active: false,
+                usingPointer: false,
                 down: false,
                 nx: 0,
                 ny: 0,
@@ -206,6 +239,9 @@
                 const key = (e.key || '').toLowerCase();
                 keys.add(code);
                 if (key) keys.add(key);
+                if (/^(KeyW|KeyA|KeyS|KeyD|ArrowUp|ArrowDown|ArrowLeft|ArrowRight)$/.test(code)) {
+                    pointer.usingPointer = false;
+                }
                 if (code === 'Space' || code.startsWith('Arrow')) {
                     e.preventDefault();
                 }
@@ -223,6 +259,9 @@
                 if (!rect.width || !rect.height) return;
                 const nx = clamp(((e.clientX - rect.left) / rect.width) * 2 - 1, -1, 1);
                 const ny = clamp(((e.clientY - rect.top) / rect.height) * 2 - 1, -1, 1);
+                if (Math.hypot(nx - pointer.nx, ny - pointer.ny) >= 0.006 || e.type === 'pointerdown') {
+                    pointer.usingPointer = true;
+                }
                 pointer.nx = nx;
                 pointer.ny = ny;
                 pointer.active = true;
@@ -429,6 +468,9 @@
                             if (mat && !seenMat.has(mat)) {
                                 seenMat.add(mat);
                                 if (mat.map) mat.map.dispose();
+                                if (mat.emissiveMap) mat.emissiveMap.dispose();
+                                if (mat.alphaMap) mat.alphaMap.dispose();
+                                if (mat.roughnessMap) mat.roughnessMap.dispose();
                                 mat.dispose();
                             }
                         }
@@ -545,7 +587,8 @@
             createParticleSystem,
             disposeThree,
             buildFighterMesh,
-            createProceduralAsteroidGeo
+            createProceduralAsteroidGeo,
+            syncCameraAspect
         };
     }
 
@@ -607,6 +650,10 @@
             new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.35 })
         );
         playerMesh.add(shieldAura);
+
+        const shipLight = new THREE.PointLight(0x22d3ee, 2.2, 16);
+        shipLight.position.set(0, 0.3, 1.5);
+        playerMesh.add(shipLight);
 
         // Shared projectile & obstacle geometries/materials
         const boltGeo = new THREE.BoxGeometry(0.14, 0.14, 1.6);
@@ -857,7 +904,7 @@
                 const len = Math.hypot(mx, my) || 1;
                 pState.vx = lerp(pState.vx, (mx / len) * 11.5, clamp(dt * 12, 0, 1));
                 pState.vy = lerp(pState.vy, (my / len) * 8.5, clamp(dt * 12, 0, 1));
-            } else if (input.pointer.active) {
+            } else if (input.pointer.usingPointer) {
                 const tx = input.pointer.nx * 5.6;
                 const ty = -input.pointer.ny * 3.6;
                 pState.vx = lerp(pState.vx, clamp((tx - pState.x) * 6.5, -12, 12), clamp(dt * 10, 0, 1));
@@ -878,10 +925,11 @@
             shieldAura.rotation.z += dt * 1.8;
             shieldAura.material.opacity = invulnTimer > 0 ? 0.65 : (0.18 + mult * 0.06);
 
-            // Thruster pulse
+            // Thruster pulse & glow
             const thrScale = 0.85 + Math.sin(elapsed * 28) * 0.25 + (mult > 1 ? 0.3 : 0);
             playerShip.thrusters[0].scale.set(1, thrScale, 1);
             playerShip.thrusters[1].scale.set(1, thrScale, 1);
+            shipLight.intensity = (1.8 + mult * 0.5) * (0.9 + Math.sin(elapsed * 22) * 0.15);
 
             // Auto-fire + Space/Mouse boost fire
             fireCd -= dt;
@@ -919,9 +967,10 @@
                 warpSpawnTimer = 3.8 + Math.random() * 1.8;
             }
 
-            // Update bolts
+            // Update bolts (track prevZ for swept collision)
             for (let i = bolts.length - 1; i >= 0; i--) {
                 const b = bolts[i];
+                b.prevZ = b.mesh.position.z;
                 b.mesh.position.z -= 95 * dt;
                 if (b.mesh.position.z < -135) {
                     scene.remove(b.mesh);
@@ -929,9 +978,10 @@
                 }
             }
 
-            // Update enemies & collisions
+            // Update enemies & swept Z collisions
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const e = enemies[i];
+                const prevEz = e.mesh.position.z;
                 e.mesh.position.z += e.speed * dt;
                 if (e.kind === 'drone') {
                     e.phase += dt * 2.4;
@@ -943,38 +993,43 @@
                     e.mesh.rotation.y += dt * 1.9;
                 }
 
-                // Bolt hits
+                // Swept bolt vs enemy hits
                 let destroyedEnemy = false;
                 for (let j = bolts.length - 1; j >= 0; j--) {
                     const b = bolts[j];
-                    const dz = Math.abs(b.mesh.position.z - e.mesh.position.z);
-                    if (dz < 2.2) {
-                        const dx = b.mesh.position.x - e.mesh.position.x;
-                        const dy = b.mesh.position.y - e.mesh.position.y;
-                        if (dx * dx + dy * dy < (e.radius + 0.45) * (e.radius + 0.45)) {
-                            scene.remove(b.mesh);
-                            bolts.splice(j, 1);
-                            e.hp -= 1;
-                            if (e.hp <= 0) {
-                                const pts = (e.kind === 'drone' ? 100 : 120) * mult;
-                                particles.spawn(e.mesh.position.x, e.mesh.position.y, e.mesh.position.z, e.kind === 'drone' ? 0xfb7185 : 0xf59e0b, 12, 9);
-                                h.playAudio('explodeSmall', 0.18);
-                                addScore(pts, e.mesh.position, `+${pts}${mult > 1 ? ` x${mult}` : ''}`, '#38bdf8');
-                                scene.remove(e.mesh);
-                                enemies.splice(i, 1);
-                                destroyedEnemy = true;
-                                break;
-                            } else {
-                                particles.spawn(b.mesh.position.x, b.mesh.position.y, b.mesh.position.z, 0x67e8f9, 4, 5);
-                                h.playAudio('hitMetal', 0.12);
-                            }
+                    const bPrevZ = b.prevZ !== undefined ? b.prevZ : b.mesh.position.z;
+                    const hitD2 = segDistSq3D(
+                        b.mesh.position.x, b.mesh.position.y, bPrevZ,
+                        b.mesh.position.x, b.mesh.position.y, b.mesh.position.z,
+                        e.mesh.position.x, e.mesh.position.y, (prevEz + e.mesh.position.z) * 0.5
+                    );
+                    const relPrevZ = bPrevZ - prevEz;
+                    const relCurrZ = b.mesh.position.z - e.mesh.position.z;
+                    const zCross = Math.min(relPrevZ, relCurrZ) <= e.radius + 0.65 && Math.max(relPrevZ, relCurrZ) >= -(e.radius + 0.65);
+                    const xySq = (b.mesh.position.x - e.mesh.position.x) ** 2 + (b.mesh.position.y - e.mesh.position.y) ** 2;
+                    if (hitD2 < (e.radius + 0.6) ** 2 || (zCross && xySq < (e.radius + 0.48) ** 2)) {
+                        scene.remove(b.mesh);
+                        bolts.splice(j, 1);
+                        e.hp -= 1;
+                        if (e.hp <= 0) {
+                            const pts = (e.kind === 'drone' ? 100 : 120) * mult;
+                            particles.spawn(e.mesh.position.x, e.mesh.position.y, e.mesh.position.z, e.kind === 'drone' ? 0xfb7185 : 0xf59e0b, 12, 9);
+                            h.playAudio('explodeSmall', 0.18);
+                            addScore(pts, e.mesh.position, `+${pts}${mult > 1 ? ` x${mult}` : ''}`, '#38bdf8');
+                            scene.remove(e.mesh);
+                            enemies.splice(i, 1);
+                            destroyedEnemy = true;
+                            break;
+                        } else {
+                            particles.spawn(b.mesh.position.x, b.mesh.position.y, b.mesh.position.z, 0x67e8f9, 4, 5);
+                            h.playAudio('hitMetal', 0.12);
                         }
                     }
                 }
                 if (destroyedEnemy || ended) continue;
 
-                // Player collision check
-                if (Math.abs(e.mesh.position.z - playerMesh.position.z) < 1.35) {
+                // Player swept collision check
+                if (zWindowHit(prevEz, e.mesh.position.z, playerMesh.position.z, e.radius * 0.55 + 0.72)) {
                     const dx = e.mesh.position.x - pState.x;
                     const dy = e.mesh.position.y - pState.y;
                     if (dx * dx + dy * dy < (e.radius + 0.62) * (e.radius + 0.62)) {
@@ -992,14 +1047,15 @@
                 }
             }
 
-            // Update warp spheres
+            // Update warp spheres (swept Z check)
             for (let i = warps.length - 1; i >= 0; i--) {
                 const w = warps[i];
+                const prevWz = w.mesh.position.z;
                 w.mesh.position.z += w.speed * dt;
                 w.halo.rotation.x += dt * 3.5;
                 w.halo.rotation.y += dt * 2.5;
 
-                if (Math.abs(w.mesh.position.z - playerMesh.position.z) < 1.6) {
+                if (zWindowHit(prevWz, w.mesh.position.z, playerMesh.position.z, 1.45)) {
                     const dx = w.mesh.position.x - pState.x;
                     const dy = w.mesh.position.y - pState.y;
                     if (dx * dx + dy * dy < 1.85 * 1.85) {
@@ -1038,6 +1094,7 @@
             const dt = Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000));
             lastTime = now;
 
+            h.syncCameraAspect(camera, canvas);
             const paused = typeof ctx.getPaused === 'function' ? ctx.getPaused() : false;
             if (!paused && !ended) {
                 step(dt);
@@ -1134,6 +1191,20 @@
         const playerMesh = racerShip.group;
         playerMesh.position.set(0, 0, 3.6);
         scene.add(playerMesh);
+
+        const dodgeShieldGeo = new THREE.IcosahedronGeometry(1.55, 1);
+        const dodgeShieldMat = new THREE.MeshBasicMaterial({
+            color: 0x22d3ee,
+            transparent: true,
+            opacity: 0,
+            wireframe: true
+        });
+        const dodgeShieldMesh = new THREE.Mesh(dodgeShieldGeo, dodgeShieldMat);
+        playerMesh.add(dodgeShieldMesh);
+
+        const racerLight = new THREE.PointLight(0xa78bfa, 2.0, 16);
+        racerLight.position.set(0, 0.35, 1.5);
+        playerMesh.add(racerLight);
 
         // Gate & Meteor Shared Geometries
         const gateGeo = new THREE.TorusGeometry(2.65, 0.17, 12, 32);
@@ -1234,6 +1305,14 @@
             const m = new THREE.Mesh(meteorGeos[idx], meteorMat);
             let mx = (Math.random() - 0.5) * 12.2;
             let my = (Math.random() - 0.5) * 7.2;
+            // Ensure spawn clears both latest gates along -142 depth band
+            for (let gIdx = gates.length - 1; gIdx >= 0; gIdx--) {
+                const gt = gates[gIdx];
+                if (gt.mesh.position.z > -108) break;
+                if (Math.hypot(mx - gt.mesh.position.x, my - gt.mesh.position.y) < 3.6) {
+                    mx = clamp(gt.mesh.position.x + (mx >= gt.mesh.position.x ? 4.4 : -4.4), -6.2, 6.2);
+                }
+            }
             if (avoidX !== undefined && Math.hypot(mx - avoidX, my - avoidY) < 3.4) {
                 mx = clamp(mx + (mx >= 0 ? -4.2 : 4.2), -6.2, 6.2);
             }
@@ -1344,7 +1423,7 @@
                 const len = Math.hypot(mx, my) || 1;
                 pState.vx = lerp(pState.vx, (mx / len) * 13.0, clamp(dt * 12, 0, 1));
                 pState.vy = lerp(pState.vy, (my / len) * 9.5, clamp(dt * 12, 0, 1));
-            } else if (input.pointer.active) {
+            } else if (input.pointer.usingPointer) {
                 const tx = input.pointer.nx * 6.0;
                 const ty = -input.pointer.ny * 3.6;
                 pState.vx = lerp(pState.vx, clamp((tx - pState.x) * 7.2, -13.5, 13.5), clamp(dt * 11, 0, 1));
@@ -1361,15 +1440,19 @@
 
             if (barrelTimer > 0) {
                 playerMesh.rotation.z += dt * 18.5;
+                dodgeShieldMat.opacity = 0.45 * Math.sin(clamp(barrelTimer / 0.48, 0, 1) * Math.PI);
+                dodgeShieldMesh.rotation.y += dt * 8;
             } else {
+                dodgeShieldMat.opacity = 0;
                 playerMesh.rotation.z = lerp(playerMesh.rotation.z, -pState.vx * 0.055, clamp(dt * 12, 0, 1));
             }
             playerMesh.rotation.x = lerp(playerMesh.rotation.x, pState.vy * 0.045, clamp(dt * 12, 0, 1));
-            playerMesh.visible = invulnTimer <= 0 || Math.floor(invulnTimer * 18) % 2 === 0;
+            playerMesh.visible = invulnTimer <= 0 || barrelTimer > 0 || Math.floor(invulnTimer * 18) % 2 === 0;
 
             const thr = 0.9 + Math.sin(elapsed * 30) * 0.2 + (warpBoost > 0 ? 0.5 : 0);
             racerShip.thrusters[0].scale.set(1, thr, 1);
             racerShip.thrusters[1].scale.set(1, thr, 1);
+            racerLight.intensity = warpBoost > 0 ? 4.2 : 2.0;
 
             const forwardSpeed = 28 + Math.min(34, level * 3.2) + (warpBoost > 0 ? 15 : 0);
             score += forwardSpeed * 0.45 * dt;
@@ -1464,14 +1547,15 @@
                 }
             }
 
-            // Update meteors
+            // Update meteors (swept Z check prevents tunneling at warp speed)
             for (let i = meteors.length - 1; i >= 0; i--) {
                 const m = meteors[i];
+                const prevMz = m.mesh.position.z;
                 m.mesh.position.z += forwardSpeed * 1.06 * dt;
                 m.mesh.rotation.x += m.rx * dt;
                 m.mesh.rotation.y += m.ry * dt;
 
-                if (Math.abs(m.mesh.position.z - playerMesh.position.z) < 1.35) {
+                if (zWindowHit(prevMz, m.mesh.position.z, playerMesh.position.z, m.radius * 0.55 + 0.7)) {
                     const dist = Math.hypot(m.mesh.position.x - pState.x, m.mesh.position.y - pState.y);
                     if (dist < m.radius + 0.56) {
                         scene.remove(m.mesh);
@@ -1509,6 +1593,7 @@
             const dt = Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000));
             lastTime = now;
 
+            h.syncCameraAspect(camera, canvas);
             const paused = typeof ctx.getPaused === 'function' ? ctx.getPaused() : false;
             if (!paused && !ended) {
                 step(dt);
@@ -1540,6 +1625,8 @@
                 cyanGateMat.dispose();
                 gateInnerGoldMat.dispose();
                 gateInnerCyanMat.dispose();
+                dodgeShieldGeo.dispose();
+                dodgeShieldMat.dispose();
                 meteorGeos.forEach((g) => g.dispose());
                 meteorMat.dispose();
                 h.disposeThree(scene, renderer);
@@ -1657,6 +1744,19 @@
         podMesh.position.set(0, 2.2, POD_ORBIT_Z);
         scene.add(podMesh);
 
+        const podHaloGeo = new THREE.TorusGeometry(POD_R + 0.16, 0.04, 8, 24);
+        const podHaloMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.72 });
+        const podHaloMesh = new THREE.Mesh(podHaloGeo, podHaloMat);
+        podHaloMesh.rotation.x = Math.PI / 2;
+        podMesh.add(podHaloMesh);
+
+        const reticleGeo = new THREE.RingGeometry(0.24, 0.44, 20);
+        const reticleMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.72, side: THREE.DoubleSide });
+        const reticleMesh = new THREE.Mesh(reticleGeo, reticleMat);
+        reticleMesh.rotation.x = -Math.PI / 2;
+        reticleMesh.position.set(0, 0.08, POD_ORBIT_Z);
+        scene.add(reticleMesh);
+
         const podLight = new THREE.PointLight(0x38bdf8, 2.0, 14);
         podMesh.add(podLight);
 
@@ -1719,10 +1819,17 @@
                 slices[3] = 1;
                 slices[4] = 1;
             } else {
+                const prevRing = rings.length > 0 ? rings[rings.length - 1] : null;
                 const hazardChance = Math.min(4, 1 + Math.floor(index / 6));
-                for (let hIdx = 0; hIdx < hazardChance; hIdx++) {
+                let placedHazards = 0;
+                for (let tries = 0; tries < 14 && placedHazards < hazardChance; tries++) {
                     const s = Math.floor(Math.random() * SLICES);
-                    if (slices[s] === 1) slices[s] = 2;
+                    if (slices[s] !== 1) continue;
+                    // On first drop (index === 1) never place a hazard straight below index 0's gap or spawn
+                    if (index === 1 && prevRing && (prevRing.slices[s] === 0 || s === 3)) continue;
+                    // Ensure ring retains plenty of safe wedges around each gap
+                    slices[s] = 2;
+                    placedHazards++;
                 }
                 if (index % 5 === 3) {
                     const bs = (gapStart + gapCount + 2) % SLICES;
@@ -1807,15 +1914,20 @@
             nextRingIdx = 0;
             ended = false;
             towerGroup.rotation.y = 0;
+            coreMesh.position.y = -25;
             podMesh.position.set(0, podY, POD_ORBIT_Z);
             podMesh.scale.set(1, 1, 1);
             podMat.color.setHex(0x38bdf8);
             podMat.emissive.setHex(0x38bdf8);
             podLight.color.setHex(0x38bdf8);
+            podHaloMat.color.setHex(0x38bdf8);
+            camera.position.set(0, 6.2, 13.8);
+            camera.lookAt(0, -1.5, 0);
 
             for (let i = 0; i < 12; i++) {
                 spawnRing(nextRingIdx++);
             }
+            reticleMesh.visible = true;
             overlay.setHint(h.tr('A/D veya Sol/Sağ veya Sürükle ile kuleyi döndür · 3+ kat düşerek Parçalama Modu aç!', 'Rotate tower: A/D, Arrows or Drag · Drop 3+ floors for Smash Mode!'));
             syncHud(true);
         }
@@ -1825,7 +1937,8 @@
             if (invulnTimer > 0) invulnTimer -= dt;
             if (shakeMag > 0) shakeMag = Math.max(0, shakeMag - dt * 2.1);
 
-            // Tower rotation input
+            // Tower rotation input + horizontal wedge-wall block check while falling through a gap
+            const prevRotY = towerGroup.rotation.y;
             let dir = 0;
             if (input.hasKey('KeyA', 'ArrowLeft', 'a')) dir -= 1;
             if (input.hasKey('KeyD', 'ArrowRight', 'd')) dir += 1;
@@ -1837,28 +1950,53 @@
             rotVel = lerp(rotVel, targetRotVel, clamp(dt * 14, 0, 1));
             towerGroup.rotation.y += rotVel * dt;
 
-            // Pod gravity & squash recovery
+            if (!smashMode) {
+                const rotLocalAng = wrapAngle(Math.PI / 2 + towerGroup.rotation.y);
+                const rotSlice = Math.floor(rotLocalAng / SLICE_ANG) % SLICES;
+                for (let i = 0; i < rings.length; i++) {
+                    const r = rings[i];
+                    if (r.shattered) continue;
+                    // Inside ring thickness window: block sideways rotation into solid wedge walls
+                    if (podY - POD_R < r.y - 0.05 && podY + POD_R > r.y - WEDGE_THICK - 0.04) {
+                        if (r.slices[rotSlice] !== 0) {
+                            towerGroup.rotation.y = prevRotY;
+                            rotVel = 0;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Pod gravity (capped at -17.5 for smooth control) & squash recovery
             const prevPodY = podY;
-            podVy = Math.max(-24, podVy - 31 * dt);
+            podVy = Math.max(-17.5, podVy - 28 * dt);
             podY += podVy * dt;
             podMesh.scale.x = lerp(podMesh.scale.x, 1, clamp(dt * 12, 0, 1));
             podMesh.scale.z = lerp(podMesh.scale.z, 1, clamp(dt * 12, 0, 1));
-            podMesh.scale.y = lerp(podMesh.scale.y, podVy < -8 ? 1.16 : 1, clamp(dt * 12, 0, 1));
+            podMesh.scale.y = lerp(podMesh.scale.y, podVy < -8 ? 1.15 : 1, clamp(dt * 12, 0, 1));
 
-            // Pod smash visual tint
+            // Pod smash visual tint & halo glow
             if (smashMode) {
                 podMat.color.setHex(0xfbbf24);
                 podMat.emissive.setHex(0xf59e0b);
                 podLight.color.setHex(0xfbbf24);
+                podHaloMat.color.setHex(0xfbbf24);
+                podHaloMesh.scale.setScalar(1.18 + Math.sin(performance.now() * 0.02) * 0.08);
             } else {
                 podMat.color.setHex(0x38bdf8);
                 podMat.emissive.setHex(0x38bdf8);
                 podLight.color.setHex(0x38bdf8);
+                podHaloMat.color.setHex(0x38bdf8);
+                podHaloMesh.scale.setScalar(1.0);
             }
+            podHaloMesh.rotation.z += dt * 4.5;
 
             // Local angle at world pod (0, podY, +POD_ORBIT_Z) verified against Three.js
             const localAng = wrapAngle(Math.PI / 2 + towerGroup.rotation.y);
             const sliceIdx = Math.floor(localAng / SLICE_ANG) % SLICES;
+
+            // Track closest active ring directly underneath pod for aiming reticle
+            let targetRingBelow = null;
 
             // Check rings
             for (let i = 0; i < rings.length; i++) {
@@ -1886,7 +2024,7 @@
                 // Landing / collision with platform top surface
                 const podBottom = podY - POD_R;
                 const prevBottom = prevPodY - POD_R;
-                if (podVy < 0 && prevBottom >= r.y - 0.12 && podBottom <= r.y + 0.04) {
+                if (podVy < 0 && prevBottom >= r.y - 0.14 && podBottom <= r.y + 0.06) {
                     const wedgeType = r.slices[sliceIdx];
                     if (wedgeType === 0) {
                         // Open gap! Fall through
@@ -1933,12 +2071,28 @@
                     }
 
                     podY = r.y + POD_R;
-                    podVy = wedgeType === 3 ? 16.5 : 12.4;
+                    podVy = wedgeType === 3 ? 16.0 : 12.4;
                     podMesh.scale.set(1.28, 0.72, 1.28);
                     fallStreak = 0;
                     smashMode = false;
                     break;
                 }
+
+                if (!targetRingBelow && !r.passed && r.y <= podY - POD_R + 0.1) {
+                    targetRingBelow = r;
+                }
+            }
+
+            // Update dynamic landing reticle directly below pod
+            if (targetRingBelow) {
+                reticleMesh.visible = true;
+                reticleMesh.position.y = targetRingBelow.y + 0.08;
+                const wBelow = targetRingBelow.slices[sliceIdx];
+                reticleMat.color.setHex(wBelow === 2 ? 0xfb7185 : (wBelow === 3 ? 0x34d399 : (wBelow === 0 ? 0xa5f3fc : 0x38bdf8)));
+                reticleMat.opacity = wBelow === 0 ? 0.35 : 0.82;
+                reticleMesh.scale.setScalar(wBelow === 0 ? 0.85 : 1.05 + Math.sin(performance.now() * 0.014) * 0.08);
+            } else {
+                reticleMesh.visible = false;
             }
 
             // Spawn ahead & recycle old rings above
@@ -1971,7 +2125,8 @@
             podMesh.visible = invulnTimer <= 0 || Math.floor(invulnTimer * 18) % 2 === 0;
 
             lowestCamY = Math.min(lowestCamY, podY);
-            const camTargetY = lowestCamY + 4.4;
+            const bounceLift = Math.max(0, (podY - lowestCamY) * 0.45);
+            const camTargetY = lowestCamY + 4.8 + bounceLift;
             const sx = (Math.random() - 0.5) * shakeMag;
             const sy = (Math.random() - 0.5) * shakeMag;
             camera.position.x = sx;
@@ -1988,6 +2143,7 @@
             const dt = Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000));
             lastTime = now;
 
+            h.syncCameraAspect(camera, canvas);
             const paused = typeof ctx.getPaused === 'function' ? ctx.getPaused() : false;
             if (!paused && !ended) {
                 step(dt);
@@ -2012,6 +2168,10 @@
                 overlay.destroy();
                 particles.dispose();
                 wedgeGeos.forEach((g) => g.dispose());
+                podHaloGeo.dispose();
+                podHaloMat.dispose();
+                reticleGeo.dispose();
+                reticleMat.dispose();
                 safeMat.dispose();
                 hazardMat.dispose();
                 boostMat.dispose();

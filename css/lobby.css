@@ -1227,3 +1227,29 @@
         padding: 0.85rem 0.8rem 2rem;
     }
 }
+
+/* v12.0 Dark Neon Control Parity Across Hangar Rail, Cockpit & Records */
+.rail-btn,
+.ship-deck-card,
+.skin-pill-btn,
+.mode-pill-btn,
+.sector-pick-card,
+.diff-pill,
+.record-filter-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    color-scheme: dark;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.rail-btn:focus-visible,
+.ship-deck-card:focus-visible,
+.skin-pill-btn:focus-visible,
+.mode-pill-btn:focus-visible,
+.sector-pick-card:focus-visible,
+.diff-pill:focus-visible,
+.record-filter-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.42);
+}

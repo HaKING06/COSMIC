@@ -24,17 +24,17 @@
             'nav.about': 'Hakkında',
             'common.audioOn': 'Ses Açık',
             'common.audioOff': 'Sessiz',
-            'wiki.pageTitle': 'COSMIC SURVIVORS v11.0 — Taktik Ansiklopedi & Sentez Simülatörü',
-            'wiki.topbarVersion': 'V11.0 TACTICAL ENCYCLOPEDIA',
+            'wiki.pageTitle': 'COSMIC SURVIVORS v12.0 — Taktik Ansiklopedi & Sentez Simülatörü',
+            'wiki.topbarVersion': 'V12.0 TACTICAL ENCYCLOPEDIA',
             'wiki.hero.title': 'Taktik Ansiklopedi & Sentez Simülatörü',
-            'wiki.hero.sub': 'Cosmic Survivors v10.0 Genesis Edition için tüm 53 savaş modülü, 5600×5600 siperli arenalar, 5 oyun modu, Boss Kalkan Pylonları, [E] Overdrive ve [Q] +%12 Nişan Ustalığı rehberi.',
+            'wiki.hero.sub': 'Cosmic Survivors v12.0 Genesis Edition için tüm 53 savaş modülü, 5600×5600 siperli arenalar, 5 oyun modu, Boss Kalkan Pylonları, [E] Overdrive ve [Q] +%12 Nişan Ustalığı rehberi.',
             'wiki.hero.ctaModes': 'Modlar & Günlük',
             'wiki.hero.ctaTree': 'Evrim Laboratuvarına Git',
             'wiki.globalSearchPlaceholder': 'Global Hızlı Arama (Fuse.js): Modül, düşman veya boss yazın (ör. takyon, sentinel, kryos, pylon)...',
             'wiki.tab.db': 'Veritabanı (53 Modül)',
             'wiki.tab.synergy': 'Sektör & Gemi Sinerjisi',
             'wiki.tab.meta': 'Meta Kombolar & DPS Grafiği',
-            'wiki.tab.bestiary': 'Düşman, Boss & v10 Mekanikleri',
+            'wiki.tab.bestiary': 'Düşman, Boss & v12.0 Mekanikleri',
             'wiki.tab.calc': 'Sentez Simülatörü',
             'wiki.cat.all': 'Tümü (53)',
             'wiki.cat.weapon': 'Silahlar (14)',
@@ -53,7 +53,7 @@
             'wiki.meta.all': 'Tümü (Üst 12)',
             'wiki.meta.evo': 'Evrimler',
             'wiki.meta.mega': 'Mega Evrimler',
-            'wiki.bestiary.badge': 'V10.0 TAKTİK BRİFİNG',
+            'wiki.bestiary.badge': 'V12.0 TAKTİK BRİFİNG',
             'wiki.bestiary.title': 'Boss Kalkan Pylonları, Faz II & Dalga 25+ Kozmik Çürüme',
             'wiki.bestiary.desc': 'Her 5. dalgada bir Ana Boss Kalkan Pylonları (boss hasarını %65 azaltır) ile sahneye çıkar. Canı %50 altına indiğinde Öfke Fazı II (+%32 hız ve çift salvo) başlar. Dalga 25’ten itibaren Kozmik Çürüme kalkan ve şifa verimini %15 tabanına kadar düşürür.',
             'wiki.bestiary.bossHeading': '5 Ana Kozmik Boss',
@@ -79,17 +79,17 @@
             'nav.about': 'About',
             'common.audioOn': 'Audio On',
             'common.audioOff': 'Muted',
-            'wiki.pageTitle': 'COSMIC SURVIVORS v11.0 — Tactical Encyclopedia & Synthesis Simulator',
-            'wiki.topbarVersion': 'V11.0 TACTICAL ENCYCLOPEDIA',
+            'wiki.pageTitle': 'COSMIC SURVIVORS v12.0 — Tactical Encyclopedia & Synthesis Simulator',
+            'wiki.topbarVersion': 'V12.0 TACTICAL ENCYCLOPEDIA',
             'wiki.hero.title': 'Tactical Encyclopedia & Synthesis Simulator',
-            'wiki.hero.sub': 'Complete v10.0 Genesis Edition reference: all 53 combat modules, 5600×5600 cover arenas, 5 Game Modes, Boss Shield Pylons, [E] Cosmic Overdrive and [Q] +12% Aim Mastery.',
+            'wiki.hero.sub': 'Complete v12.0 Genesis Edition reference: all 53 combat modules, 5600×5600 cover arenas, 5 Game Modes, Boss Shield Pylons, [E] Cosmic Overdrive and [Q] +12% Aim Mastery.',
             'wiki.hero.ctaModes': 'Modes & Daily',
             'wiki.hero.ctaTree': 'Open Evolution Lab',
             'wiki.globalSearchPlaceholder': 'Global Quick Search (Fuse.js): type any module, enemy or boss (e.g. tachyon, sentinel, kryos, pylon)...',
             'wiki.tab.db': 'Database (53 Modules)',
             'wiki.tab.synergy': 'Sector & Ship Synergy',
             'wiki.tab.meta': 'Meta Combos & DPS Chart',
-            'wiki.tab.bestiary': 'Enemies, Bosses & v10 Systems',
+            'wiki.tab.bestiary': 'Enemies, Bosses & v12.0 Systems',
             'wiki.tab.calc': 'Synthesis Simulator',
             'wiki.cat.all': 'All (53)',
             'wiki.cat.weapon': 'Weapons (14)',
@@ -108,7 +108,7 @@
             'wiki.meta.all': 'All (Top 12)',
             'wiki.meta.evo': 'Evolutions',
             'wiki.meta.mega': 'Mega Evolutions',
-            'wiki.bestiary.badge': 'V10.0 TACTICAL BRIEFING',
+            'wiki.bestiary.badge': 'V12.0 TACTICAL BRIEFING',
             'wiki.bestiary.title': 'Boss Shield Pylons, Phase II & Wave 25+ Cosmic Decay',
             'wiki.bestiary.desc': 'Every 5th wave deploys a dreadnought Boss guarded by Shield Pylons (-65% incoming damage while active). Below 50% HP, Rage Phase II (+32% speed & double salvos) activates. From Wave 25+, Cosmic Decay reduces shield & heal efficacy down to a 15% floor.',
             'wiki.bestiary.bossHeading': '5 Dreadnought Cosmic Bosses',
@@ -190,7 +190,7 @@
             const key = el.getAttribute('data-i18n-placeholder');
             el.setAttribute('placeholder', t(key, el.getAttribute('placeholder'), el.getAttribute('placeholder')));
         });
-        document.title = t('wiki.pageTitle', document.title, 'COSMIC SURVIVORS v10.0 — Tactical Encyclopedia & Synthesis Simulator');
+        document.title = t('wiki.pageTitle', document.title, 'COSMIC SURVIVORS v12.0 — Tactical Encyclopedia & Synthesis Simulator');
     }
 
     function registerI18n() {
@@ -959,7 +959,7 @@
             </div>
 
             <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;margin-top:0.2rem;">
-                <h2 style="font-size:19px;">${isEn ? '5 v10.0 Playable Operation Modes' : '5 Oynanabilir v10.0 Operasyon Modu'}</h2>
+                <h2 style="font-size:19px;">${isEn ? '5 v12.0 Playable Operation Modes' : '5 Oynanabilir v12.0 Operasyon Modu'}</h2>
                 <a href="modes.html" class="cs-btn cs-btn-mint" style="padding:0.42rem 0.8rem;font-size:12.5px;">
                     <i data-lucide="gamepad-2"></i>
                     <span>${isEn ? 'Modes & Daily Decoder' : 'Modlar & Günlük Protokol Merkezi'}</span>
@@ -1101,8 +1101,22 @@
                             <div class="module-formula-line">
                                 ${enNow ? 'Recommended pair' : 'Önerilen eşleşme'}: <strong style="color:var(--accent-sky);">${loc(w, 'name')} + ${loc(pairT, 'name')}</strong>
                             </div>
+                            <div>
+                                <button type="button" id="simApplyPairBtn" class="cs-btn cs-btn-mint" style="font-size:12.5px;padding:0.42rem 0.85rem;">
+                                    <i data-lucide="zap"></i>
+                                    <span>${enNow ? `Auto-Match ${loc(pairT, 'name')}` : `${loc(pairT, 'name')} ile Otomatik Eşle`}</span>
+                                </button>
+                            </div>
                         ` : ''}
                     `;
+                    const applyPairBtn = document.getElementById('simApplyPairBtn');
+                    if (applyPairBtn && pairT) {
+                        applyPairBtn.addEventListener('click', () => {
+                            tSel.value = pairT.id;
+                            playUiSound('uiConfirm');
+                            updateSynth();
+                        });
+                    }
                 }
                 refreshIcons();
             };

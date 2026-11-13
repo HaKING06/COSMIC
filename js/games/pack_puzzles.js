@@ -82,8 +82,18 @@
 
     function setHudSafe(ctx, payload) {
         try {
-            if (ctx && typeof ctx.setHud === 'function') ctx.setHud(payload);
+            if (ctx && typeof ctx.setHud === 'function') {
+                const out = Object.assign({}, payload);
+                if (!out.statusText) {
+                    out.statusText = out.status || out.objective || '';
+                }
+                ctx.setHud(out);
+            }
         } catch (e) { /* ignore */ }
+    }
+
+    function initLevelIdx(ctx, maxLevels) {
+        return toLevelIdx(ctx && (ctx.initialLevel ?? ctx.level ?? ctx.startLevel), 0, maxLevels);
     }
 
     function toLevelIdx(levelArg, fallbackIdx, maxLevels) {
@@ -249,7 +259,7 @@
     function createPuzzleShell(ctx, cfg) {
         const { canvas, g } = resolveCanvas(ctx);
         if (!canvas || !g) {
-            return { destroy() {}, restart() {} };
+            return { destroy() { }, restart() { } };
         }
         const starsBg = makeStars(58);
         const particles = [];
@@ -478,11 +488,18 @@
             }
         };
 
+        const isPaused = () => !!(ctx && typeof ctx.getPaused === 'function' && ctx.getPaused());
+
         function toLogical(e) {
             const rect = canvas.getBoundingClientRect();
+            const rw = Math.max(1, rect.width || W);
+            const rh = Math.max(1, rect.height || H);
+            const src = (e && e.touches && e.touches[0]) ? e.touches[0] : (e || {});
+            const cx = typeof src.clientX === 'number' ? src.clientX : rect.left;
+            const cy = typeof src.clientY === 'number' ? src.clientY : rect.top;
             return {
-                x: ((e.clientX - rect.left) / (rect.width || W)) * W,
-                y: ((e.clientY - rect.top) / (rect.height || H)) * H
+                x: ((cx - rect.left) / rw) * W,
+                y: ((cy - rect.top) / rh) * H
             };
         }
 
@@ -504,10 +521,20 @@
             hoveredId = btn ? btn.id : null;
             api.hoveredId = hoveredId;
             canvas.style.cursor = btn ? 'pointer' : (cfg.boardCursor || 'default');
-            if (cfg.onPointerMove) cfg.onPointerMove(p.x, p.y, e);
+            if (!isPaused() && cfg.onPointerMove) cfg.onPointerMove(p.x, p.y, e);
+        }
+
+        function onPointerLeave() {
+            pointerX = -1;
+            pointerY = -1;
+            api.pointerX = -1;
+            api.pointerY = -1;
+            hoveredId = null;
+            api.hoveredId = null;
         }
 
         function onPointerDown(e) {
+            if (isPaused()) return;
             const p = toLogical(e);
             pointerX = p.x;
             pointerY = p.y;
@@ -525,10 +552,30 @@
             if (cfg.onPointerDown) cfg.onPointerDown(p.x, p.y, e);
         }
 
-        function onPointerUp(e) {
-            const p = toLogical(e);
-            if (cfg.onPointerUp) cfg.onPointerUp(p.x, p.y, e, pointerDownInfo);
+        function cancelActiveDrag() {
             pointerDownInfo = null;
+            if (cfg.onDragCancel) cfg.onDragCancel();
+        }
+
+        function onPointerUp(e) {
+            if (!pointerDownInfo && e && e.target !== canvas) return;
+            const p = toLogical(e);
+            if (!isPaused() && e && e.type !== 'pointercancel' && cfg.onPointerUp) {
+                cfg.onPointerUp(p.x, p.y, e, pointerDownInfo);
+            } else {
+                cancelActiveDrag();
+            }
+            pointerDownInfo = null;
+        }
+
+        function onWindowBlur() {
+            cancelActiveDrag();
+            hoveredId = null;
+            api.hoveredId = null;
+            pointerX = -1;
+            pointerY = -1;
+            api.pointerX = -1;
+            api.pointerY = -1;
         }
 
         function onContextMenu(e) {
@@ -536,7 +583,8 @@
         }
 
         function onKeyDown(e) {
-            const tag = document.activeElement && document.activeElement.tagName;
+            if (isPaused()) return;
+            const tag = typeof document !== 'undefined' && document.activeElement && document.activeElement.tagName;
             if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
                 e.preventDefault();
@@ -545,20 +593,27 @@
         }
 
         canvas.addEventListener('pointermove', onPointerMove);
+        canvas.addEventListener('pointerleave', onPointerLeave);
         canvas.addEventListener('pointerdown', onPointerDown);
-        canvas.addEventListener('pointerup', onPointerUp);
+        global.addEventListener('pointerup', onPointerUp);
+        global.addEventListener('pointercancel', onPointerUp);
+        global.addEventListener('blur', onWindowBlur);
         canvas.addEventListener('contextmenu', onContextMenu);
         global.addEventListener('keydown', onKeyDown);
 
         function loop(ts) {
             if (destroyed) return;
-            const dt = Math.min(0.05, Math.max(0.001, (ts - lastTs) / 1000));
+            const paused = isPaused();
+            const rawDt = Math.min(0.05, Math.max(0.001, (ts - lastTs) / 1000));
+            const dt = paused ? 0 : rawDt;
             lastTs = ts;
-            elapsed += dt;
-            api.elapsed = elapsed;
+            if (!paused) {
+                elapsed += dt;
+                api.elapsed = elapsed;
+            }
 
             drawStarfield(g, starsBg, elapsed);
-            if (cfg.onUpdate) cfg.onUpdate(dt, elapsed);
+            if (!paused && cfg.onUpdate) cfg.onUpdate(dt, elapsed);
             if (cfg.onRender) cfg.onRender(g, dt, elapsed);
 
             // Particles & floaters
@@ -609,10 +664,14 @@
             destroyed = true;
             if (rafId) global.cancelAnimationFrame(rafId);
             canvas.removeEventListener('pointermove', onPointerMove);
+            canvas.removeEventListener('pointerleave', onPointerLeave);
             canvas.removeEventListener('pointerdown', onPointerDown);
-            canvas.removeEventListener('pointerup', onPointerUp);
+            global.removeEventListener('pointerup', onPointerUp);
+            global.removeEventListener('pointercancel', onPointerUp);
+            global.removeEventListener('blur', onWindowBlur);
             canvas.removeEventListener('contextmenu', onContextMenu);
             global.removeEventListener('keydown', onKeyDown);
+            if (canvas && canvas.style) canvas.style.cursor = '';
         };
         return api;
     }
@@ -644,7 +703,7 @@
     // 1. QUANTUM SOKOBAN (12 Handcrafted Levels, Story Ch.2 Target: Level 3)
     // ========================================================================
     ENGINES['quantum-sokoban'] = function mountSokoban(ctx) {
-        let levelIdx = toLevelIdx(ctx && (ctx.level ?? ctx.startLevel), 0, Core.SOKOBAN_LEVELS.length);
+        let levelIdx = initLevelIdx(ctx, Core.SOKOBAN_LEVELS.length);
         let state = Core.createSokobanState(levelIdx);
         let won = false;
         let winReported = false;
@@ -946,7 +1005,7 @@
     // 2. LASER MIRROR GRID (10 Handcrafted Optical Prism Puzzles)
     // ========================================================================
     ENGINES['laser-mirror-grid'] = function mountLaser(ctx) {
-        let levelIdx = toLevelIdx(ctx && (ctx.level ?? ctx.startLevel), 0, Core.LASER_LEVELS.length);
+        let levelIdx = initLevelIdx(ctx, Core.LASER_LEVELS.length);
         let state = Core.createLaserState(levelIdx);
         let trace = Core.traceLasers(state.rows, state.cols, state.grid);
         let hintCell = null;
@@ -1017,7 +1076,7 @@
                 else if (e.key === 'Enter' && trace.solved && levelIdx + 1 < Core.LASER_LEVELS.length) loadLevel(levelIdx + 1);
             },
             onPointerDown(px, py, e) {
-                if (e.button !== 0 || trace.solved) return;
+                if ((e.button !== 0 && e.button !== 2) || trace.solved) return;
                 const geo = fitGridRect(state.rows, state.cols, 24);
                 const cell = hitCell(px, py, geo, state.rows, state.cols);
                 if (!cell) return;
@@ -1056,16 +1115,21 @@
                 const geo = fitGridRect(state.rows, state.cols, 24);
                 const { cell, ox, oy } = geo;
                 const litSet = new Set(trace.litReceivers);
+                const hovCell = !trace.solved && shell.pointerX > 0
+                    ? hitCell(shell.pointerX, shell.pointerY, geo, state.rows, state.cols)
+                    : null;
 
                 // Grid cells
                 for (let r = 0; r < state.rows; r++) {
                     for (let c = 0; c < state.cols; c++) {
                         const x = ox + c * cell;
                         const y = oy + r * cell;
-                        g.fillStyle = 'rgba(10, 17, 34, 0.85)';
+                        const item = state.grid[r][c];
+                        const isHovRot = hovCell && hovCell.r === r && hovCell.c === c && (item.type === 'mirror' || item.type === 'splitter');
+                        g.fillStyle = isHovRot ? 'rgba(30, 58, 108, 0.72)' : 'rgba(10, 17, 34, 0.85)';
                         g.fillRect(x + 1, y + 1, cell - 2, cell - 2);
-                        g.strokeStyle = 'rgba(56, 189, 248, 0.14)';
-                        g.lineWidth = 1;
+                        g.strokeStyle = isHovRot ? PAL.cyan : 'rgba(56, 189, 248, 0.14)';
+                        g.lineWidth = isHovRot ? 1.8 : 1;
                         g.strokeRect(x + 1, y + 1, cell - 2, cell - 2);
                     }
                 }
@@ -1098,6 +1162,16 @@
                     g.moveTo(x1, y1);
                     g.lineTo(x2, y2);
                     g.stroke();
+
+                    // Bounce node sparkle at segment end inside board
+                    const hitCellItem = Number.isInteger(seg.r2) && Number.isInteger(seg.c2)
+                        && state.grid[seg.r2] && state.grid[seg.r2][seg.c2];
+                    if (hitCellItem && (hitCellItem.type === 'mirror' || hitCellItem.type === 'splitter')) {
+                        g.fillStyle = hitCellItem.type === 'splitter' ? '#fde68a' : '#bae6fd';
+                        g.beginPath();
+                        g.arc(x2, y2, 4.2 + Math.sin(t * 10 + seg.r2 + seg.c2) * 1.1, 0, Math.PI * 2);
+                        g.fill();
+                    }
                 }
                 g.restore();
 
@@ -1116,12 +1190,25 @@
                             g.fill();
                             g.stroke();
                         } else if (item.type === 'emitter') {
+                            const ang = rotMap[item.dir || 'E'] || 0;
                             drawSprite(g, ctx, 'laser_turret', cx, cy, cell * 0.72, (gg, sz) => {
                                 gg.fillStyle = PAL.amber;
                                 gg.beginPath();
                                 gg.arc(0, 0, sz * 0.34, 0, Math.PI * 2);
                                 gg.fill();
-                            }, rotMap[item.dir || 'E'] || 0);
+                            }, ang);
+                            // Crisp emitter direction chevron
+                            g.save();
+                            g.translate(cx, cy);
+                            g.rotate(ang);
+                            g.fillStyle = '#fef08a';
+                            g.beginPath();
+                            g.moveTo(cell * 0.38, 0);
+                            g.lineTo(cell * 0.22, -cell * 0.10);
+                            g.lineTo(cell * 0.22, cell * 0.10);
+                            g.closePath();
+                            g.fill();
+                            g.restore();
                         } else if (item.type === 'receiver') {
                             const isLit = litSet.has(`${r},${c}`);
                             drawSprite(g, ctx, 'warp_ring', cx, cy, cell * 0.72, (gg, sz) => {
@@ -1139,10 +1226,11 @@
                             g.restore();
                         } else if (item.type === 'mirror' || item.type === 'splitter') {
                             const isSplit = item.type === 'splitter';
+                            const isHov = hovCell && hovCell.r === r && hovCell.c === c;
                             drawSprite(g, ctx, 'energy_prism', cx, cy, cell * 0.58, null, 0, isSplit ? 0.85 : 0.65);
                             g.save();
                             const pad = cell * 0.32;
-                            g.strokeStyle = isSplit ? PAL.amber : '#e0f2fe';
+                            g.strokeStyle = isSplit ? PAL.amber : (isHov ? '#bae6fd' : '#e0f2fe');
                             g.lineWidth = isSplit ? 3.5 : 4.2;
                             g.lineCap = 'round';
                             if (isSplit) g.setLineDash([5, 4]);
@@ -1200,7 +1288,7 @@
     // 3. CIRCUIT PIPE LINK (8 Levels, Story Ch.5 Target: Level 3)
     // ========================================================================
     ENGINES['circuit-pipe-link'] = function mountPipes(ctx) {
-        let levelIdx = toLevelIdx(ctx && (ctx.level ?? ctx.startLevel), 0, Core.PIPE_LEVELS.length);
+        let levelIdx = initLevelIdx(ctx, Core.PIPE_LEVELS.length);
         let state = Core.createPipeState(levelIdx);
         let flow = Core.evalPipeFlow(state.rows, state.cols, state.grid);
         let bonusLeft = state.bonusSec;
@@ -1320,6 +1408,9 @@
                 const geo = fitGridRect(state.rows, state.cols, 24);
                 const { cell, ox, oy } = geo;
                 const poweredSet = new Set(flow.powered);
+                const hovCell = !flow.solved && shell.pointerX > 0
+                    ? hitCell(shell.pointerX, shell.pointerY, geo, state.rows, state.cols)
+                    : null;
 
                 for (let r = 0; r < state.rows; r++) {
                     for (let c = 0; c < state.cols; c++) {
@@ -1327,11 +1418,17 @@
                         const y = oy + r * cell;
                         const item = state.grid[r][c];
                         const isPow = poweredSet.has(`${r},${c}`);
+                        const isRot = item.kind === 'I' || item.kind === 'L' || item.kind === 'T';
+                        const isHovRot = hovCell && hovCell.r === r && hovCell.c === c && isRot;
 
-                        g.fillStyle = isPow ? 'rgba(6, 78, 59, 0.25)' : 'rgba(11, 18, 34, 0.85)';
+                        g.fillStyle = isPow
+                            ? 'rgba(6, 78, 59, 0.30)'
+                            : (isHovRot ? 'rgba(30, 58, 108, 0.72)' : 'rgba(11, 18, 34, 0.85)');
                         g.fillRect(x + 1, y + 1, cell - 2, cell - 2);
-                        g.strokeStyle = isPow ? 'rgba(52, 211, 153, 0.28)' : 'rgba(148, 163, 184, 0.12)';
-                        g.lineWidth = 1;
+                        g.strokeStyle = isHovRot
+                            ? PAL.cyan
+                            : (isPow ? 'rgba(52, 211, 153, 0.38)' : 'rgba(148, 163, 184, 0.12)');
+                        g.lineWidth = isHovRot ? 1.8 : 1;
                         g.strokeRect(x + 1, y + 1, cell - 2, cell - 2);
 
                         if (item.kind === '#') {
@@ -1576,6 +1673,9 @@
                 if (Math.abs(dx) > Math.abs(dy)) doSlide(dx > 0 ? 'E' : 'W');
                 else doSlide(dy > 0 ? 'S' : 'N');
             },
+            onDragCancel() {
+                dragStart = null;
+            },
             onRender(g) {
                 const mt = maxTile();
                 const meta = Core.ELEMENTS_2048[mt] || Core.ELEMENTS_2048[2048];
@@ -1683,7 +1783,7 @@
     // 5. NEBULA MINESWEEPER (3 Tiers: 8x8, 10x10, 12x12)
     // ========================================================================
     ENGINES['nebula-minesweeper'] = function mountMinesweeper(ctx) {
-        let levelIdx = toLevelIdx(ctx && (ctx.level ?? ctx.startLevel), 0, Core.MINE_LEVELS.length);
+        let levelIdx = initLevelIdx(ctx, Core.MINE_LEVELS.length);
         let state = Core.createMinesweeperState(levelIdx);
         let flagMode = false;
         let timer = 0;
@@ -1781,7 +1881,23 @@
                 const tile = state.grid[cell.r][cell.c];
 
                 if (e.button === 0 && tile.revealed && tile.adj > 0) {
-                    handleResult(Core.chordMineCell(state, cell.r, cell.c), geo);
+                    const chRes = Core.chordMineCell(state, cell.r, cell.c);
+                    if (!chRes.changed) {
+                        let adjFlags = 0;
+                        for (let dr = -1; dr <= 1; dr++) {
+                            for (let dc = -1; dc <= 1; dc++) {
+                                if (dr === 0 && dc === 0) continue;
+                                const nr = cell.r + dr, nc = cell.c + dc;
+                                if (nr >= 0 && nr < state.rows && nc >= 0 && nc < state.cols && state.grid[nr][nc].flagged) adjFlags++;
+                            }
+                        }
+                        if (adjFlags !== tile.adj) {
+                            playSfx(ctx, 'uiBack');
+                            shell.spawnFloater(geo.ox + (cell.c + 0.5) * geo.cell, geo.oy + cell.r * geo.cell, `Flag ${tile.adj} adjacent mines!`, PAL.amber);
+                        }
+                    } else {
+                        handleResult(chRes, geo);
+                    }
                     return;
                 }
                 if (isRightOrFlag) {
@@ -1826,39 +1942,79 @@
 
                 shell.registerButton('ms_flag_btn', PANEL_AREA.x + 16, PANEL_AREA.y + 198, PANEL_AREA.w - 32, 34,
                     flagMode ? 'Mode: FLAG BOMB [F]' : 'Mode: SWEEP TILE [F]', {
-                        active: flagMode,
-                        accent: flagMode ? PAL.amber : PAL.cyan,
-                        onClick: () => { flagMode = !flagMode; }
-                    });
+                    active: flagMode,
+                    accent: flagMode ? PAL.amber : PAL.cyan,
+                    onClick: () => { flagMode = !flagMode; }
+                });
 
                 const geo = fitGridRect(state.rows, state.cols, 20);
                 const { cell, ox, oy } = geo;
+                const hovCell = (!state.won && !state.lost && shell.pointerX > 0)
+                    ? hitCell(shell.pointerX, shell.pointerY, geo, state.rows, state.cols)
+                    : null;
 
                 for (let r = 0; r < state.rows; r++) {
                     for (let c = 0; c < state.cols; c++) {
                         const x = ox + c * cell;
                         const y = oy + r * cell;
                         const tile = state.grid[r][c];
+                        const isHov = hovCell && hovCell.r === r && hovCell.c === c && !tile.revealed;
+                        const isWrongFlag = state.lost && tile.flagged && !tile.mine;
+                        const isHit = state.lost && state.hitMine && state.hitMine.r === r && state.hitMine.c === c;
                         if (!tile.revealed) {
                             roundRect(g, x + 1.5, y + 1.5, cell - 3, cell - 3, 5);
-                            g.fillStyle = tile.flagged ? '#291a2e' : '#172542';
-                            g.strokeStyle = tile.flagged ? PAL.amber : 'rgba(56, 189, 248, 0.28)';
-                            g.lineWidth = 1.2;
+                            g.fillStyle = isWrongFlag
+                                ? 'rgba(127, 29, 29, 0.65)'
+                                : (tile.flagged ? '#291a2e' : (isHov ? '#1e355d' : '#172542'));
+                            g.strokeStyle = isWrongFlag
+                                ? PAL.crimson
+                                : (tile.flagged ? PAL.amber : (isHov ? PAL.cyan : 'rgba(56, 189, 248, 0.28)'));
+                            g.lineWidth = isHov || tile.flagged || isWrongFlag ? 1.8 : 1.2;
                             g.fill();
                             g.stroke();
                             if (tile.flagged) {
-                                drawSprite(g, ctx, 'plasma_bomb', x + cell / 2, y + cell / 2, cell * 0.65, (gg, sz) => {
-                                    gg.fillStyle = PAL.amber;
-                                    gg.beginPath();
-                                    gg.arc(0, 0, sz * 0.3, 0, Math.PI * 2);
-                                    gg.fill();
-                                });
+                                // Crisp tactical beacon flag icon (distinct from plasma_bomb mine sprite!)
+                                g.save();
+                                const cx = x + cell * 0.5;
+                                const cy = y + cell * 0.5;
+                                const mastX = cx - cell * 0.14;
+                                const topY = cy - cell * 0.28;
+                                const botY = cy + cell * 0.28;
+                                g.strokeStyle = '#f8fafc';
+                                g.lineWidth = Math.max(2, cell * 0.06);
+                                g.lineCap = 'round';
+                                g.beginPath();
+                                g.moveTo(mastX, topY);
+                                g.lineTo(mastX, botY);
+                                g.moveTo(mastX - cell * 0.12, botY);
+                                g.lineTo(mastX + cell * 0.20, botY);
+                                g.stroke();
+                                g.fillStyle = isWrongFlag ? PAL.crimson : PAL.amber;
+                                g.beginPath();
+                                g.moveTo(mastX + 1, topY);
+                                g.lineTo(cx + cell * 0.24, cy - cell * 0.12);
+                                g.lineTo(mastX + 1, cy + cell * 0.04);
+                                g.closePath();
+                                g.fill();
+                                if (isWrongFlag) {
+                                    g.strokeStyle = '#fecdd3';
+                                    g.lineWidth = 2.4;
+                                    g.beginPath();
+                                    g.moveTo(x + cell * 0.2, y + cell * 0.2);
+                                    g.lineTo(x + cell * 0.8, y + cell * 0.8);
+                                    g.moveTo(x + cell * 0.8, y + cell * 0.2);
+                                    g.lineTo(x + cell * 0.2, y + cell * 0.8);
+                                    g.stroke();
+                                }
+                                g.restore();
                             }
                         } else {
-                            g.fillStyle = tile.mine ? 'rgba(244, 63, 94, 0.25)' : 'rgba(9, 15, 29, 0.9)';
+                            g.fillStyle = isHit
+                                ? 'rgba(225, 29, 72, 0.55)'
+                                : (tile.mine ? 'rgba(244, 63, 94, 0.25)' : 'rgba(9, 15, 29, 0.9)');
                             g.fillRect(x + 1, y + 1, cell - 2, cell - 2);
-                            g.strokeStyle = 'rgba(148, 163, 184, 0.14)';
-                            g.lineWidth = 1;
+                            g.strokeStyle = isHit ? PAL.crimson : 'rgba(148, 163, 184, 0.14)';
+                            g.lineWidth = isHit ? 2 : 1;
                             g.strokeRect(x + 1, y + 1, cell - 2, cell - 2);
                             if (tile.mine) {
                                 drawSprite(g, ctx, 'plasma_bomb', x + cell / 2, y + cell / 2, cell * 0.72, (gg, sz) => {
@@ -1929,12 +2085,13 @@
     // 6. MATCH-3 ISOTOPE CORE (7x7, 8 Progressive Levels)
     // ========================================================================
     ENGINES['match3-isotope-core'] = function mountMatch3(ctx) {
-        let levelIdx = toLevelIdx(ctx && (ctx.level ?? ctx.startLevel), 0, Core.MATCH3_LEVELS.length);
+        let levelIdx = initLevelIdx(ctx, Core.MATCH3_LEVELS.length);
         let state = Core.createMatch3State(levelIdx, Date.now());
         let selected = null;
         let dragFrom = null;
         let hintMove = null;
         let cascadeTimer = 0;
+        let shuffleBannerTimer = 0;
         let resolving = false;
         let preferredNova = undefined;
         let won = false;
@@ -1965,6 +2122,7 @@
             hintMove = null;
             resolving = false;
             cascadeTimer = 0;
+            shuffleBannerTimer = 0;
             won = false;
             lost = false;
             winReported = false;
@@ -1979,6 +2137,8 @@
             hintMove = null;
             if (!sw.valid) {
                 playSfx(ctx, 'uiBack');
+                const geo = fitGridRect(state.size, state.size, 22);
+                shell.spawnFloater(geo.ox + (b.c + 0.5) * geo.cell, geo.oy + (b.r + 0.3) * geo.cell, 'No Match!', PAL.crimson);
                 return;
             }
             preferredNova = b;
@@ -1988,14 +2148,20 @@
         }
 
         function runCascadeStep() {
+            if (won || lost) {
+                resolving = false;
+                return;
+            }
             const geo = fitGridRect(state.size, state.size, 22);
             const res = Core.resolveMatch3CascadeStep(state, preferredNova);
             preferredNova = undefined;
+            if (res.shuffled) {
+                shuffleBannerTimer = 1.85;
+                playSfx(ctx, 'powerup');
+                shell.spawnFloater(BOARD_AREA.x + BOARD_AREA.w / 2, BOARD_AREA.y + 40, 'NO VALID SWAPS — COSMIC RESHUFFLE!', PAL.cyan);
+            }
             if (!res.hadMatches) {
                 resolving = false;
-                if (res.shuffled) {
-                    shell.spawnFloater(BOARD_AREA.x + BOARD_AREA.w / 2, BOARD_AREA.y + 40, 'AUTO-SHUFFLE!', PAL.cyan);
-                }
                 if (state.score >= state.targetScore) {
                     won = true;
                     if (!winReported) {
@@ -2063,6 +2229,7 @@
             title: 'MATCH-3 ISOTOPE CORE',
             boardCursor: 'pointer',
             onUpdate(dt) {
+                if (shuffleBannerTimer > 0) shuffleBannerTimer = Math.max(0, shuffleBannerTimer - dt);
                 if (resolving) {
                     cascadeTimer -= dt;
                     if (cascadeTimer <= 0) runCascadeStep();
@@ -2105,6 +2272,9 @@
                 }
             },
             onPointerUp() {
+                dragFrom = null;
+            },
+            onDragCancel() {
                 dragFrom = null;
             },
             onRender(g, _dt, t) {
@@ -2151,13 +2321,24 @@
 
                 const geo = fitGridRect(state.size, state.size, 22);
                 const { cell, ox, oy } = geo;
+                const hovCell = (!resolving && !won && !lost && shell.pointerX > 0)
+                    ? hitCell(shell.pointerX, shell.pointerY, geo, state.size, state.size)
+                    : null;
 
                 for (let r = 0; r < state.size; r++) {
                     for (let c = 0; c < state.size; c++) {
                         const x = ox + c * cell;
                         const y = oy + r * cell;
-                        g.fillStyle = (r + c) % 2 === 0 ? 'rgba(12, 20, 38, 0.85)' : 'rgba(16, 26, 48, 0.85)';
+                        const isHov = hovCell && hovCell.r === r && hovCell.c === c;
+                        g.fillStyle = isHov ? 'rgba(30, 58, 108, 0.72)' : ((r + c) % 2 === 0 ? 'rgba(12, 20, 38, 0.85)' : 'rgba(16, 26, 48, 0.85)');
                         g.fillRect(x + 1, y + 1, cell - 2, cell - 2);
+                        if (isHov) {
+                            g.save();
+                            g.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+                            g.lineWidth = 1.6;
+                            g.strokeRect(x + 2, y + 2, cell - 4, cell - 4);
+                            g.restore();
+                        }
 
                         const gem = state.grid[r][c];
                         if (!gem) continue;
@@ -2207,6 +2388,24 @@
                     }
                 }
 
+                if (shuffleBannerTimer > 0) {
+                    g.save();
+                    const bx = BOARD_AREA.x + BOARD_AREA.w / 2 - 170;
+                    const by = BOARD_AREA.y + 10;
+                    roundRect(g, bx, by, 340, 30, 8);
+                    g.fillStyle = 'rgba(8, 51, 68, 0.92)';
+                    g.strokeStyle = PAL.cyan;
+                    g.lineWidth = 1.6;
+                    g.fill();
+                    g.stroke();
+                    g.fillStyle = PAL.cyan;
+                    g.font = '700 12px "Space Grotesk", system-ui, sans-serif';
+                    g.textAlign = 'center';
+                    g.textBaseline = 'middle';
+                    g.fillText('COSMIC RESHUFFLE — NEW VALID SWAPS!', BOARD_AREA.x + BOARD_AREA.w / 2, by + 15);
+                    g.restore();
+                }
+
                 if (won) {
                     const stars = state.movesLeft >= 5 ? 3 : (state.movesLeft >= 2 ? 2 : 1);
                     const hasNext = levelIdx + 1 < Core.MATCH3_LEVELS.length;
@@ -2247,7 +2446,7 @@
     // 7. LIGHTS OUT ARRAY (10 Solvable Levels + GF(2) Optimal Hint)
     // ========================================================================
     ENGINES['lights-out-array'] = function mountLightsOut(ctx) {
-        let levelIdx = toLevelIdx(ctx && (ctx.level ?? ctx.startLevel), 0, Core.LIGHTS_OUT_LEVELS.length);
+        let levelIdx = initLevelIdx(ctx, Core.LIGHTS_OUT_LEVELS.length);
         let state = Core.createLightsOutState(levelIdx);
         let solved = false;
         let hintCell = null;
@@ -2370,21 +2569,25 @@
 
                 const geo = fitGridRect(state.size, state.size, 26);
                 const { cell, ox, oy } = geo;
+                const hovCell = (!solved && shell.pointerX > 0)
+                    ? hitCell(shell.pointerX, shell.pointerY, geo, state.size, state.size)
+                    : null;
 
                 for (let r = 0; r < state.size; r++) {
                     for (let c = 0; c < state.size; c++) {
                         const x = ox + c * cell;
                         const y = oy + r * cell;
                         const on = state.grid[r][c];
+                        const inCross = hovCell && (Math.abs(hovCell.r - r) + Math.abs(hovCell.c - c) <= 1);
                         roundRect(g, x + 4, y + 4, cell - 8, cell - 8, 10);
                         if (on) {
                             g.fillStyle = 'rgba(14, 116, 144, 0.72)';
-                            g.strokeStyle = '#38bdf8';
+                            g.strokeStyle = inCross ? '#fde68a' : '#38bdf8';
                         } else {
-                            g.fillStyle = 'rgba(15, 23, 42, 0.85)';
-                            g.strokeStyle = 'rgba(100, 116, 139, 0.35)';
+                            g.fillStyle = inCross ? 'rgba(30, 58, 108, 0.58)' : 'rgba(15, 23, 42, 0.85)';
+                            g.strokeStyle = inCross ? PAL.cyan : 'rgba(100, 116, 139, 0.35)';
                         }
-                        g.lineWidth = on ? 2.2 : 1.2;
+                        g.lineWidth = inCross ? 2.6 : (on ? 2.2 : 1.2);
                         g.fill();
                         g.stroke();
 
@@ -2437,7 +2640,7 @@
     // 8. MEMORY STAR MATRIX (6 Progressive Levels 4x3 .. 6x4, 1.2s Peek)
     // ========================================================================
     ENGINES['memory-star-matrix'] = function mountMemory(ctx) {
-        let levelIdx = toLevelIdx(ctx && (ctx.level ?? ctx.startLevel), 0, Core.MEMORY_LEVELS.length);
+        let levelIdx = initLevelIdx(ctx, Core.MEMORY_LEVELS.length);
         let state = Core.createMemoryState(levelIdx, Date.now());
         let peekTimer = 1.2;
         let mismatchTimer = 0;
@@ -2588,6 +2791,7 @@
                     const c = i % state.cols;
                     const { x, y, sz } = cardRect(r, c);
                     const faceUp = peekTimer > 0 || card.revealed || card.matched;
+                    const isHov = !won && peekTimer <= 0 && !faceUp && shell.pointerX >= x && shell.pointerX <= x + sz && shell.pointerY >= y && shell.pointerY <= y + sz;
 
                     roundRect(g, x, y, sz, sz, 10);
                     if (card.matched) {
@@ -2597,10 +2801,10 @@
                         g.fillStyle = 'rgba(14, 116, 144, 0.35)';
                         g.strokeStyle = PAL.cyan;
                     } else {
-                        g.fillStyle = 'rgba(15, 23, 42, 0.92)';
-                        g.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+                        g.fillStyle = isHov ? 'rgba(30, 58, 108, 0.85)' : 'rgba(15, 23, 42, 0.92)';
+                        g.strokeStyle = isHov ? PAL.cyan : 'rgba(148, 163, 184, 0.35)';
                     }
-                    g.lineWidth = faceUp ? 2 : 1.3;
+                    g.lineWidth = faceUp || isHov ? 2 : 1.3;
                     g.fill();
                     g.stroke();
 
@@ -2653,15 +2857,39 @@
     // 9. NONOGRAM STAR MAP (8 Handcrafted Uniquely-Solvable Picross Puzzles)
     // ========================================================================
     ENGINES['nonogram-star-map'] = function mountNonogram(ctx) {
-        let levelIdx = toLevelIdx(ctx && (ctx.level ?? ctx.startLevel), 0, Core.NONOGRAM_LEVELS.length);
+        let levelIdx = initLevelIdx(ctx, Core.NONOGRAM_LEVELS.length);
         let state = Core.createNonogramState(levelIdx);
         let clueStatus = Core.getNonogramClueStatus(state);
         let crossMode = false;
         let paintMark = null;
         let hintCell = null;
+        let showMistakes = false;
         let solved = false;
         let winReported = false;
         let shell;
+
+        function lineHasViolation(line, clues) {
+            const filledCount = line.filter((v) => v === 1).length;
+            const targetSum = clues.reduce((a, b) => a + b, 0);
+            if (filledCount > targetSum) return true;
+            const knownComplete = line.every((v) => v !== 0);
+            if (knownComplete) {
+                const actual = Core.computeLineClues(line);
+                if (actual.length !== clues.length) return true;
+                for (let i = 0; i < clues.length; i++) if (actual[i] !== clues[i]) return true;
+            }
+            return false;
+        }
+
+        function countMistakes() {
+            let wrong = 0;
+            for (let r = 0; r < state.rows; r++) {
+                for (let c = 0; c < state.cols; c++) {
+                    if (state.board[r][c] === 1 && state.solution[r][c] === 0) wrong++;
+                }
+            }
+            return wrong;
+        }
 
         function getLayout() {
             const maxRowClueLen = Math.max(...state.rowClues.map((a) => a.length));
@@ -2693,6 +2921,7 @@
             });
             if (solved && !winReported) {
                 winReported = true;
+                showMistakes = false;
                 playSfx(ctx, 'levelup');
                 const targetPixels = state.solution.flat().filter((v) => v === 1).length;
                 const stars = state.moves <= targetPixels + 6 ? 3 : (state.moves <= targetPixels + 18 ? 2 : 1);
@@ -2715,6 +2944,7 @@
             state = Core.createNonogramState(levelIdx);
             hintCell = null;
             paintMark = null;
+            showMistakes = false;
             winReported = false;
             refresh();
         }
@@ -2744,7 +2974,14 @@
                 if (k === 'x') { crossMode = !crossMode; playSfx(ctx, 'uiClick'); }
                 else if (k === 'z') doUndo();
                 else if (k === 'r') loadLevel(levelIdx);
-                else if (k === 'h' && !solved) {
+                else if (k === 'c' && !solved) {
+                    showMistakes = !showMistakes;
+                    const errCnt = countMistakes();
+                    playSfx(ctx, errCnt > 0 ? 'uiBack' : 'powerup');
+                    shell.spawnFloater(BOARD_AREA.x + BOARD_AREA.w / 2, BOARD_AREA.y + 22,
+                        errCnt > 0 ? `${errCnt} Mistake${errCnt > 1 ? 's' : ''} Highlighted!` : 'Zero Mistakes!',
+                        errCnt > 0 ? PAL.crimson : PAL.emerald);
+                } else if (k === 'h' && !solved) {
                     const h = Core.getNonogramHint(state);
                     if (h) {
                         hintCell = h;
@@ -2780,6 +3017,9 @@
             onPointerUp() {
                 paintMark = null;
             },
+            onDragCancel() {
+                paintMark = null;
+            },
             onRender(g) {
                 shell.drawChrome({
                     subtitle: `Star Map ${levelIdx + 1}: ${solved ? state.name : 'Classified Pattern'} (${state.rows}x${state.cols})`,
@@ -2811,14 +3051,39 @@
                     '[Z] Undo  [R] Reset  [H] Reveal 1'
                 ]);
 
-                shell.registerButton('ng_mode_btn', PANEL_AREA.x + 16, PANEL_AREA.y + 198, PANEL_AREA.w - 32, 34,
+                shell.registerButton('ng_mode_btn', PANEL_AREA.x + 16, PANEL_AREA.y + 196, PANEL_AREA.w - 32, 32,
                     crossMode ? 'Brush: MARK × [X]' : 'Brush: FILL CYAN [X]', {
-                        active: crossMode,
-                        accent: crossMode ? PAL.amber : PAL.cyan,
-                        onClick: () => { crossMode = !crossMode; }
-                    });
+                    active: crossMode,
+                    accent: crossMode ? PAL.amber : PAL.cyan,
+                    onClick: () => { crossMode = !crossMode; }
+                });
+                shell.registerButton('ng_check_btn', PANEL_AREA.x + 16, PANEL_AREA.y + 234, PANEL_AREA.w - 32, 32,
+                    showMistakes ? 'Errors Shown [C]' : 'Check Errors [C]', {
+                    active: showMistakes,
+                    accent: showMistakes ? PAL.crimson : PAL.emerald,
+                    disabled: solved,
+                    onClick: () => {
+                        showMistakes = !showMistakes;
+                        const errCnt = countMistakes();
+                        shell.spawnFloater(BOARD_AREA.x + BOARD_AREA.w / 2, BOARD_AREA.y + 22,
+                            errCnt > 0 ? `${errCnt} Mistake${errCnt > 1 ? 's' : ''} Highlighted!` : 'Zero Mistakes!',
+                            errCnt > 0 ? PAL.crimson : PAL.emerald);
+                    }
+                });
 
-                const { cell, ox, oy } = getLayout();
+                const { cell, ox, oy, clueLeftW, clueTopH } = getLayout();
+                const hovCell = !solved && shell.pointerX > 0
+                    ? hitCell(shell.pointerX, shell.pointerY, { ox, oy, cell }, state.rows, state.cols)
+                    : null;
+
+                // Row/column crosshair highlight backing
+                if (hovCell) {
+                    g.save();
+                    g.fillStyle = 'rgba(56, 189, 248, 0.12)';
+                    g.fillRect(ox - clueLeftW + 8, oy + hovCell.r * cell, clueLeftW - 8 + state.cols * cell, cell);
+                    g.fillRect(ox + hovCell.c * cell, oy - clueTopH + 6, cell, clueTopH - 6 + state.rows * cell);
+                    g.restore();
+                }
 
                 // Row clues (left)
                 g.save();
@@ -2827,12 +3092,14 @@
                 for (let r = 0; r < state.rows; r++) {
                     const clues = state.rowClues[r];
                     const groupsDone = clueStatus.rowGroupDone[r];
+                    const rowBad = lineHasViolation(state.board[r], clues);
+                    const rowHov = hovCell && hovCell.r === r;
                     const cy = oy + (r + 0.5) * cell;
                     let cx = ox - 10;
                     for (let i = clues.length - 1; i >= 0; i--) {
                         const done = clueStatus.rowDone[r] || groupsDone[i];
-                        g.fillStyle = done ? PAL.emerald : PAL.text;
-                        g.font = `700 ${Math.min(15, Math.floor(cell * 0.44))}px "JetBrains Mono", monospace`;
+                        g.fillStyle = rowBad ? PAL.crimson : (done ? PAL.emerald : (rowHov ? '#fde68a' : PAL.text));
+                        g.font = `${rowHov || rowBad ? '800' : '700'} ${Math.min(15, Math.floor(cell * 0.44))}px "JetBrains Mono", monospace`;
                         g.fillText(String(clues[i]), cx, cy);
                         cx -= 20;
                     }
@@ -2843,12 +3110,15 @@
                 for (let c = 0; c < state.cols; c++) {
                     const clues = state.colClues[c];
                     const groupsDone = clueStatus.colGroupDone[c];
+                    const colLine = state.board.map((row) => row[c]);
+                    const colBad = lineHasViolation(colLine, clues);
+                    const colHov = hovCell && hovCell.c === c;
                     const cx = ox + (c + 0.5) * cell;
                     let cy = oy - 12;
                     for (let i = clues.length - 1; i >= 0; i--) {
                         const done = clueStatus.colDone[c] || groupsDone[i];
-                        g.fillStyle = done ? PAL.emerald : PAL.text;
-                        g.font = `700 ${Math.min(15, Math.floor(cell * 0.44))}px "JetBrains Mono", monospace`;
+                        g.fillStyle = colBad ? PAL.crimson : (done ? PAL.emerald : (colHov ? '#fde68a' : PAL.text));
+                        g.font = `${colHov || colBad ? '800' : '700'} ${Math.min(15, Math.floor(cell * 0.44))}px "JetBrains Mono", monospace`;
                         g.fillText(String(clues[i]), cx, cy);
                         cy -= 18;
                     }
@@ -2861,14 +3131,20 @@
                         const x = ox + c * cell;
                         const y = oy + r * cell;
                         const v = state.board[r][c];
-                        g.fillStyle = v === 1 ? 'rgba(56, 189, 248, 0.85)' : 'rgba(11, 19, 36, 0.9)';
+                        const isWrong = showMistakes && v === 1 && state.solution[r][c] === 0;
+                        const isCrosshair = hovCell && (hovCell.r === r || hovCell.c === c);
+                        g.fillStyle = isWrong
+                            ? 'rgba(244, 63, 94, 0.72)'
+                            : (v === 1 ? 'rgba(56, 189, 248, 0.85)' : (isCrosshair ? 'rgba(22, 36, 64, 0.92)' : 'rgba(11, 19, 36, 0.9)'));
                         g.fillRect(x + 1, y + 1, cell - 2, cell - 2);
-                        g.strokeStyle = 'rgba(148, 163, 184, 0.22)';
-                        g.lineWidth = 1;
+                        g.strokeStyle = isWrong
+                            ? PAL.crimson
+                            : (hovCell && hovCell.r === r && hovCell.c === c ? PAL.amber : 'rgba(148, 163, 184, 0.22)');
+                        g.lineWidth = (hovCell && hovCell.r === r && hovCell.c === c) || isWrong ? 1.8 : 1;
                         g.strokeRect(x + 1, y + 1, cell - 2, cell - 2);
 
                         if (v === 1) {
-                            g.fillStyle = '#bae6fd';
+                            g.fillStyle = isWrong ? '#fda4af' : '#bae6fd';
                             g.fillRect(x + 5, y + 5, cell - 10, cell - 10);
                         } else if (v === 2) {
                             g.save();
@@ -2944,7 +3220,7 @@
     // 10. HANOI WARP CORES (5 Levels: 3 to 7 Concentric Rings)
     // ========================================================================
     ENGINES['hanoi-warp-cores'] = function mountHanoi(ctx) {
-        let levelIdx = toLevelIdx(ctx && (ctx.level ?? ctx.startLevel), 0, Core.HANOI_LEVELS.length);
+        let levelIdx = initLevelIdx(ctx, Core.HANOI_LEVELS.length);
         let state = Core.createHanoiState(levelIdx);
         let selectedPeg = null;
         let draggingFrom = null;
@@ -3087,6 +3363,9 @@
                 if (p >= 0 && p !== from && py >= BOARD_AREA.y && py <= BOARD_AREA.y + BOARD_AREA.h) {
                     attemptMove(from, p);
                 }
+            },
+            onDragCancel() {
+                draggingFrom = null;
             },
             onRender(g, _dt, t) {
                 shell.drawChrome({
@@ -3240,7 +3519,9 @@
                 fn(srcOff, dstOff, 3, 3);
                 const twos = [u8[dstOff + 1], u8[dstOff + 3], u8[dstOff + 4], u8[dstOff + 5], u8[dstOff + 7]].filter((v) => v === 2).length;
                 if (twos === 5) {
-                    return { available: true, order: 'wasm_mem', inf: 2, wall: 1, mem: w.memory, srcOff, dstOff, fn };
+                    u8.fill(0, srcOff, srcOff + 9);
+                    u8.fill(0, dstOff, dstOff + 9);
+                    return { available: true, viaWasm: !!w.viaWasm, order: 'wasm_mem', inf: 2, wall: 1, mem: w.memory, srcOff, dstOff, fn };
                 }
             }
             // Probe A: test (grid, w, h) where 1=infected spreads to 0
@@ -3255,7 +3536,7 @@
                 const outW = (rw && rw.length === 9) ? rw : gWall2;
                 const infCount = Array.from(outW).filter((v) => v === 1).length;
                 if (infCount === 1) {
-                    return { available: true, order: 'grid_w_h', inf: 1, wall: 2, fn };
+                    return { available: true, viaWasm: !!w.viaWasm, order: 'grid_w_h', inf: 1, wall: 2, fn };
                 }
             }
             // Probe B: test (grid, w, h) where 2=infected spreads and 1=wall
@@ -3264,21 +3545,21 @@
             const out2 = (r2 && r2.length === 9) ? r2 : g2;
             const twos2 = Array.from(out2).filter((v) => v === 2).length;
             if (twos2 >= 4) {
-                return { available: true, order: 'grid_w_h', inf: 2, wall: 1, fn };
+                return { available: true, viaWasm: !!w.viaWasm, order: 'grid_w_h', inf: 2, wall: 1, fn };
             }
             // Probe C: test (w, h, grid)
             const g3 = new Uint8Array([0, 0, 0, 0, 1, 0, 0, 0, 0]);
             const r3 = fn(3, 3, g3);
             const out3 = (r3 && r3.length === 9) ? r3 : g3;
             if (Array.from(out3).filter((v) => v === 1).length >= 4) {
-                return { available: true, order: 'w_h_grid', inf: 1, wall: 2, fn };
+                return { available: true, viaWasm: !!w.viaWasm, order: 'w_h_grid', inf: 1, wall: 2, fn };
             }
         } catch (e) { /* fallback cleanly if probe throws */ }
-        return { available: false, mode: 'fallback' };
+        return { available: false, viaWasm: false, mode: 'fallback' };
     }
 
     ENGINES['wasm-cellular-contain'] = function mountCellular(ctx) {
-        let levelIdx = toLevelIdx(ctx && (ctx.level ?? ctx.startLevel), 0, Core.CELLULAR_LEVELS.length);
+        let levelIdx = initLevelIdx(ctx, Core.CELLULAR_LEVELS.length);
         let state = Core.createCellularState(levelIdx);
         let metrics = Core.computeCellularMetrics(state);
         const wasmInfo = probeWasmCellular(ctx);
@@ -3408,16 +3689,29 @@
                 else if (k === 'r') loadLevel(levelIdx);
             },
             onPointerDown(px, py, e) {
-                if (e.button !== 0 || metrics.won || metrics.lost) return;
+                if ((e.button !== 0 && e.button !== 2) || metrics.won || metrics.lost) return;
                 const geo = fitGridRect(state.rows, state.cols, 24);
                 const cell = hitCell(px, py, geo, state.rows, state.cols);
                 if (!cell) return;
+                if (e.button === 2) {
+                    const isTurnWall = state.turnWallStack.some((p) => p.r === cell.r && p.c === cell.c);
+                    if (isTurnWall && Core.placeCellularFirewall(state, cell.r, cell.c)) {
+                        playSfx(ctx, 'uiBack');
+                        metrics = Core.computeCellularMetrics(state);
+                        syncHud();
+                    }
+                    return;
+                }
+                const wasPlaced = state.turnWallStack.some((p) => p.r === cell.r && p.c === cell.c);
                 if (Core.placeCellularFirewall(state, cell.r, cell.c)) {
-                    playSfx(ctx, 'hitShield');
-                    shell.spawnBurst(geo.ox + (cell.c + 0.5) * geo.cell, geo.oy + (cell.r + 0.5) * geo.cell, PAL.cyan, 8);
+                    playSfx(ctx, wasPlaced ? 'uiBack' : 'hitShield');
+                    shell.spawnBurst(geo.ox + (cell.c + 0.5) * geo.cell, geo.oy + (cell.r + 0.5) * geo.cell, wasPlaced ? PAL.amber : PAL.cyan, 8);
                     metrics = Core.computeCellularMetrics(state);
                     checkOutcome();
                     syncHud();
+                } else if (state.grid[cell.r][cell.c] === 0 && state.wallsPlacedThisTurn >= state.wallsPerTurn) {
+                    playSfx(ctx, 'uiBack');
+                    shell.spawnFloater(geo.ox + (cell.c + 0.5) * geo.cell, geo.oy + cell.r * geo.cell, 'Quota Full! Run Step [Space]', PAL.amber);
                 }
             },
             onRender(g, _dt, t) {
@@ -3438,30 +3732,44 @@
                     { label: 'FIREWALLS LEFT', value: `${quotaLeft} / ${state.wallsPerTurn}`, color: quotaLeft === 0 ? PAL.emerald : PAL.amber },
                     { label: 'STATION LOST', value: `${lossPct}% (<35%)`, color: metrics.lossRatio >= 0.25 ? PAL.crimson : PAL.emerald },
                     { label: 'AT-RISK CELLS', value: metrics.reachableEmpty, color: metrics.reachableEmpty === 0 ? PAL.emerald : PAL.text },
-                    { label: 'ENGINE', value: wasmInfo.available ? 'WASM ACTIVE' : 'TS FALLBACK', color: wasmInfo.available ? PAL.emerald : PAL.amber }
+                    { label: 'ENGINE', value: wasmInfo.available ? (wasmInfo.viaWasm ? 'WASM ACTIVE' : 'BRIDGE JS') : 'TS FALLBACK', color: wasmInfo.viaWasm ? PAL.emerald : (wasmInfo.available ? PAL.cyan : PAL.amber) }
                 ], [
                     'Click empty tiles to place Firewalls',
-                    'Run WASM step to advance swarm 1 turn',
+                    'Amber dashed = Next spread vectors',
                     'Seal ALL reachable rooms <35% loss',
                     '[SPACE] Step  [Z] Undo  [R] Reset'
                 ]);
 
                 shell.registerButton('cell_step_btn', PANEL_AREA.x + 16, PANEL_AREA.y + 240, PANEL_AREA.w - 32, 42,
                     'RUN WASM STEP [SPACE]', {
-                        active: quotaLeft === 0,
-                        accent: quotaLeft === 0 ? PAL.emerald : PAL.cyan,
-                        disabled: metrics.won || metrics.lost,
-                        onClick: runWasmStep
-                    });
+                    active: quotaLeft === 0,
+                    accent: quotaLeft === 0 ? PAL.emerald : PAL.cyan,
+                    disabled: metrics.won || metrics.lost,
+                    onClick: runWasmStep
+                });
 
                 const geo = fitGridRect(state.rows, state.cols, 24);
                 const { cell, ox, oy } = geo;
+                const hovCell = (!metrics.won && !metrics.lost && shell.pointerX > 0)
+                    ? hitCell(shell.pointerX, shell.pointerY, geo, state.rows, state.cols)
+                    : null;
 
                 for (let r = 0; r < state.rows; r++) {
                     for (let c = 0; c < state.cols; c++) {
                         const x = ox + c * cell;
                         const y = oy + r * cell;
                         const v = state.grid[r][c];
+                        // Compute spread telegraphing for empty cells adjacent to infected (1)
+                        let threatTop = false, threatBot = false, threatLeft = false, threatRight = false;
+                        if (v === 0) {
+                            if (r > 0 && state.grid[r - 1][c] === 1) threatTop = true;
+                            if (r + 1 < state.rows && state.grid[r + 1][c] === 1) threatBot = true;
+                            if (c > 0 && state.grid[r][c - 1] === 1) threatLeft = true;
+                            if (c + 1 < state.cols && state.grid[r][c + 1] === 1) threatRight = true;
+                        }
+                        const isThreatened = threatTop || threatBot || threatLeft || threatRight;
+                        const isHovEmpty = hovCell && hovCell.r === r && hovCell.c === c && v === 0;
+
                         roundRect(g, x + 2, y + 2, cell - 4, cell - 4, 6);
                         if (v === 2) {
                             g.fillStyle = '#1e293b';
@@ -3473,13 +3781,24 @@
                             const pulse = 0.55 + 0.25 * Math.sin(t * 5 + r + c);
                             g.fillStyle = `rgba(244, 63, 94, ${pulse.toFixed(2)})`;
                             g.strokeStyle = PAL.crimson;
+                        } else if (isThreatened) {
+                            const tp = 0.14 + 0.10 * Math.sin(t * 6 + r + c);
+                            g.fillStyle = `rgba(251, 146, 60, ${tp.toFixed(2)})`;
+                            g.strokeStyle = isHovEmpty && quotaLeft > 0 ? PAL.cyan : 'rgba(251, 191, 36, 0.85)';
                         } else {
-                            g.fillStyle = 'rgba(12, 20, 38, 0.85)';
-                            g.strokeStyle = 'rgba(56, 189, 248, 0.16)';
+                            g.fillStyle = isHovEmpty && quotaLeft > 0 ? 'rgba(30, 58, 108, 0.58)' : 'rgba(12, 20, 38, 0.85)';
+                            g.strokeStyle = isHovEmpty && quotaLeft > 0 ? PAL.cyan : 'rgba(56, 189, 248, 0.16)';
                         }
-                        g.lineWidth = (v === 1 || v === 3) ? 2 : 1;
+                        g.lineWidth = (v === 1 || v === 3 || isThreatened || isHovEmpty) ? 2 : 1;
                         g.fill();
-                        g.stroke();
+                        if (isThreatened && !isHovEmpty) {
+                            g.save();
+                            g.setLineDash([4, 3]);
+                            g.stroke();
+                            g.restore();
+                        } else {
+                            g.stroke();
+                        }
 
                         if (v === 1) {
                             drawSprite(g, ctx, 'alien_drone', x + cell / 2, y + cell / 2, cell * 0.65, (gg, sz) => {
@@ -3494,6 +3813,31 @@
                                 gg.lineWidth = 2.5;
                                 gg.strokeRect(-sz * 0.28, -sz * 0.28, sz * 0.56, sz * 0.56);
                             });
+                        } else if (v === 0) {
+                            if (isThreatened) {
+                                // Clear inward breach chevrons on edge touching infection
+                                g.save();
+                                g.fillStyle = 'rgba(251, 191, 36, 0.9)';
+                                const cx = x + cell * 0.5;
+                                const cy = y + cell * 0.5;
+                                const s = Math.max(4, cell * 0.12);
+                                const drawTri = (px, py, dx, dy) => {
+                                    g.beginPath();
+                                    g.moveTo(px + dx * s, py + dy * s);
+                                    g.lineTo(px - dy * s * 0.7 - dx * s * 0.4, py + dx * s * 0.7 - dy * s * 0.4);
+                                    g.lineTo(px + dy * s * 0.7 - dx * s * 0.4, py - dx * s * 0.7 - dy * s * 0.4);
+                                    g.closePath();
+                                    g.fill();
+                                };
+                                if (threatTop) drawTri(cx, y + s * 1.2, 0, 1);
+                                if (threatBot) drawTri(cx, y + cell - s * 1.2, 0, -1);
+                                if (threatLeft) drawTri(x + s * 1.2, cy, 1, 0);
+                                if (threatRight) drawTri(x + cell - s * 1.2, cy, -1, 0);
+                                g.restore();
+                            }
+                            if (isHovEmpty && quotaLeft > 0) {
+                                drawSprite(g, ctx, 'shield_battery', x + cell / 2, y + cell / 2, cell * 0.52, null, 0, 0.42);
+                            }
                         }
                     }
                 }
@@ -3538,13 +3882,22 @@
     // 12. ORBITAL SUDOKU MINI (6 Uniquely-Solvable 6x6 2x3-Box Hex Ciphers)
     // ========================================================================
     ENGINES['orbital-sudoku-mini'] = function mountSudoku(ctx) {
-        let levelIdx = toLevelIdx(ctx && (ctx.level ?? ctx.startLevel), 0, Core.SUDOKU_LEVELS.length);
+        let levelIdx = initLevelIdx(ctx, Core.SUDOKU_LEVELS.length);
         let state = Core.createSudokuState(levelIdx);
         let conflicts = Core.getSudokuConflicts(state.board);
         let selected = { r: 0, c: 0 };
+        let showErrors = false;
         let won = false;
         let winReported = false;
         let shell;
+
+        function countErrors() {
+            let errs = 0;
+            for (let idx = 0; idx < 36; idx++) {
+                if (state.board[idx] !== 0 && state.board[idx] !== state.solution[idx]) errs++;
+            }
+            return errs;
+        }
 
         function refresh() {
             conflicts = Core.getSudokuConflicts(state.board);
@@ -3580,15 +3933,29 @@
             levelIdx = toLevelIdx(idx + 1, 0, Core.SUDOKU_LEVELS.length);
             state = Core.createSudokuState(levelIdx);
             selected = { r: 0, c: 0 };
+            showErrors = false;
             winReported = false;
             refresh();
         }
 
         function inputDigit(val) {
             if (won) return;
+            const idx = selected.r * 6 + selected.c;
+            const geo = fitGridRect(6, 6, 26);
+            const fx = geo.ox + (selected.c + 0.5) * geo.cell;
+            const fy = geo.oy + selected.r * geo.cell;
+            if (state.given[idx]) {
+                playSfx(ctx, 'uiBack');
+                shell.spawnFloater(fx, fy, 'Locked Clue!', PAL.amber);
+                return;
+            }
             if (Core.setSudokuCell(state, selected.r, selected.c, val)) {
                 playSfx(ctx, val === 0 ? 'uiBack' : 'uiClick');
                 refresh();
+                if (val !== 0 && conflicts[idx]) {
+                    playSfx(ctx, 'uiBack');
+                    shell.spawnFloater(fx, fy, 'Row/Col/Box Conflict!', PAL.crimson);
+                }
             } else {
                 playSfx(ctx, 'hitMetal');
             }
@@ -3617,24 +3984,38 @@
             title: 'ORBITAL SUDOKU MINI',
             boardCursor: 'pointer',
             onKeyDown(e) {
+                const numMatch = /^Numpad([1-6])$/.exec(e.code || '');
                 if (e.key >= '1' && e.key <= '6') inputDigit(parseInt(e.key, 10));
-                else if (e.key === '0' || e.key === 'Backspace' || e.key === 'Delete') inputDigit(0);
+                else if (numMatch) inputDigit(parseInt(numMatch[1], 10));
+                else if (e.key === '0' || e.code === 'Numpad0' || e.key === 'Backspace' || e.key === 'Delete') inputDigit(0);
                 else if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') selected.r = (selected.r + 5) % 6;
                 else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') selected.r = (selected.r + 1) % 6;
                 else if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') selected.c = (selected.c + 5) % 6;
                 else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') selected.c = (selected.c + 1) % 6;
+                else if (e.key.toLowerCase() === 'c' && !won) {
+                    showErrors = !showErrors;
+                    const errCnt = countErrors();
+                    playSfx(ctx, errCnt > 0 ? 'uiBack' : 'powerup');
+                    shell.spawnFloater(BOARD_AREA.x + BOARD_AREA.w / 2, BOARD_AREA.y + 22,
+                        errCnt > 0 ? `${errCnt} Wrong Digit${errCnt > 1 ? 's' : ''}!` : 'All Filled Digits Correct!',
+                        errCnt > 0 ? PAL.crimson : PAL.emerald);
+                }
                 else if (e.key.toLowerCase() === 'z') doUndo();
                 else if (e.key.toLowerCase() === 'r') loadLevel(levelIdx);
                 else if (e.key.toLowerCase() === 'h') doHint();
                 else if (e.key === 'Enter' && won && levelIdx + 1 < Core.SUDOKU_LEVELS.length) loadLevel(levelIdx + 1);
             },
             onPointerDown(px, py, e) {
-                if (e.button !== 0 || won) return;
+                if ((e.button !== 0 && e.button !== 2) || won) return;
                 const geo = fitGridRect(6, 6, 26);
                 const cell = hitCell(px, py, geo, 6, 6);
                 if (cell) {
                     selected = cell;
-                    playSfx(ctx, 'uiClick');
+                    if (e.button === 2) {
+                        inputDigit(0);
+                    } else {
+                        playSfx(ctx, 'uiClick');
+                    }
                 }
             },
             onRender(g) {
@@ -3658,8 +4039,8 @@
                     { label: 'EDITS', value: state.moves, color: PAL.amber }
                 ], [
                     'Click cell + press 1..6 (or palette)',
-                    'Fill rows, cols & 2x3 boxes 1..6',
-                    '[Z] Undo  [R] Reset  [H] Hint'
+                    'Right-Click / [Del]: Clear cell',
+                    '[C] Check Errors · [Z] Undo · [H] Hint'
                 ]);
 
                 // On-canvas 1..6 + Erase palette in Right Panel
@@ -3682,12 +4063,39 @@
                     disabled: won,
                     onClick: () => inputDigit(0)
                 });
+                shell.registerButton('sdk_check', px0, py0 + 138, PANEL_AREA.w - 32, 32, showErrors ? 'Errors Highlighted [C]' : 'Check Errors [C]', {
+                    active: showErrors,
+                    accent: showErrors ? PAL.crimson : PAL.emerald,
+                    disabled: won,
+                    onClick: () => {
+                        showErrors = !showErrors;
+                        const errCnt = countErrors();
+                        shell.spawnFloater(BOARD_AREA.x + BOARD_AREA.w / 2, BOARD_AREA.y + 22,
+                            errCnt > 0 ? `${errCnt} Wrong Digit${errCnt > 1 ? 's' : ''}!` : 'All Filled Digits Correct!',
+                            errCnt > 0 ? PAL.crimson : PAL.emerald);
+                    }
+                });
 
                 const geo = fitGridRect(6, 6, 26);
                 const { cell, ox, oy } = geo;
                 const selVal = state.board[selected.r * 6 + selected.c];
                 const selBoxR = Math.floor(selected.r / 2);
                 const selBoxC = Math.floor(selected.c / 3);
+                const hovCell = !won && shell.pointerX > 0 ? hitCell(shell.pointerX, shell.pointerY, geo, 6, 6) : null;
+
+                // Coordinate hint labels around grid
+                g.save();
+                g.fillStyle = PAL.muted;
+                g.font = '700 10px "JetBrains Mono", monospace';
+                g.textAlign = 'center';
+                g.textBaseline = 'middle';
+                for (let i = 0; i < 6; i++) {
+                    g.fillStyle = selected.c === i ? PAL.amber : PAL.muted;
+                    g.fillText('C' + (i + 1), ox + (i + 0.5) * cell, oy - 12);
+                    g.fillStyle = selected.r === i ? PAL.amber : PAL.muted;
+                    g.fillText('R' + (i + 1), ox - 14, oy + (i + 0.5) * cell);
+                }
+                g.restore();
 
                 for (let r = 0; r < 6; r++) {
                     for (let c = 0; c < 6; c++) {
@@ -3696,13 +4104,16 @@
                         const y = oy + r * cell;
                         const val = state.board[idx];
                         const isSel = selected.r === r && selected.c === c;
+                        const isHov = hovCell && hovCell.r === r && hovCell.c === c;
                         const isPeer = r === selected.r || c === selected.c || (Math.floor(r / 2) === selBoxR && Math.floor(c / 3) === selBoxC);
                         const isMatch = selVal !== 0 && val === selVal;
                         const isConflict = conflicts[idx];
+                        const isWrong = showErrors && val !== 0 && val !== state.solution[idx];
                         const isGiven = state.given[idx];
 
-                        if (isConflict) g.fillStyle = 'rgba(244, 63, 94, 0.28)';
+                        if (isConflict || isWrong) g.fillStyle = 'rgba(244, 63, 94, 0.30)';
                         else if (isSel) g.fillStyle = 'rgba(56, 189, 248, 0.30)';
+                        else if (isHov) g.fillStyle = 'rgba(56, 189, 248, 0.16)';
                         else if (isMatch) g.fillStyle = 'rgba(52, 211, 153, 0.18)';
                         else if (isPeer) g.fillStyle = 'rgba(30, 41, 59, 0.72)';
                         else g.fillStyle = 'rgba(11, 18, 34, 0.88)';
@@ -3714,7 +4125,7 @@
 
                         if (val !== 0) {
                             g.save();
-                            g.fillStyle = isConflict ? PAL.crimson : (isGiven ? '#f8fafc' : PAL.cyan);
+                            g.fillStyle = (isConflict || isWrong) ? PAL.crimson : (isGiven ? '#f8fafc' : PAL.cyan);
                             g.font = `${isGiven ? '700' : '600'} ${Math.floor(cell * 0.48)}px "JetBrains Mono", monospace`;
                             g.textAlign = 'center';
                             g.textBaseline = 'middle';

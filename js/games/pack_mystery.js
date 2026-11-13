@@ -132,7 +132,7 @@
                     breaks: 'lyra'
                 },
                 {
-                    id: 'ev3', room: 'airlock', x: 492, y: 245, sprite: 'cargo_crate',
+                    id: 'ev3', room: 'airlock', x: 501, y: 214, sprite: 'cargo_crate',
                     name: { tr: 'Kargo Envanter Mührü', en: 'Cargo Manifest Seal' },
                     clue: {
                         tr: 'Korg ve Orin o saatte mühürlü kargo envanterindeydi (çift imza kaydı).',
@@ -146,12 +146,12 @@
                     id: 'lyra', room: 'bridge', x: 165, y: 185, name: 'Navigator Lyra', role: { tr: 'Rota Subayı', en: 'Navigator' }, color: '#38bdf8',
                     alibi: { tr: 'Köprü terminallerimden asla Kriyo Lab\'a bağlanamam; yetkim sadece rotadır.', en: 'Bridge Nav-Terminals cannot reach Cryo-Lab; I only chart courses!' },
                     crackText: {
-                        tr: 'İTİRAF: "Nav-Terminal 02 köprü alt devresinden kriyo valfine sızdım... Koordinaatları biliyordu!"',
+                        tr: 'İTİRAF: "Nav-Terminal 02 köprü alt devresinden kriyo valfine sızdım... Koordinatları biliyordu!"',
                         en: 'CRACKED: "I bridged Nav-02 over the maintenance bus... She knew about the stolen star charts!"'
                     }
                 },
                 {
-                    id: 'orin', room: 'airlock', x: 468, y: 292, name: 'Dr. Orin Vance', role: { tr: 'Yardımcı Hekim', en: 'Ship Medic' }, color: '#34d399',
+                    id: 'orin', room: 'airlock', x: 462, y: 292, name: 'Dr. Orin Vance', role: { tr: 'Yardımcı Hekim', en: 'Ship Medic' }, color: '#34d399',
                     alibi: { tr: 'Kargo bölümünde Korg ile acil tıbbi sandık sayıyorduk.', en: 'Counting emergency cargo medkits alongside Chief Korg.' }
                 },
                 {
@@ -159,7 +159,7 @@
                     alibi: { tr: 'Güç dağıtım hattı arızasını onarıyordum.', en: 'Patching plasma conduit faults inside Reactor bay.' }
                 },
                 {
-                    id: 'korg', room: 'airlock', x: 530, y: 292, name: 'Chief Korg', role: { tr: 'Güvenlik', en: 'Security' }, color: '#a78bfa',
+                    id: 'korg', room: 'airlock', x: 538, y: 292, name: 'Chief Korg', role: { tr: 'Güvenlik', en: 'Security' }, color: '#a78bfa',
                     alibi: { tr: 'Kargo kapısını Dr. Orin gözetiminde kontrol ettim.', en: 'Secured Cargo Bay seals with Dr. Orin present.' }
                 }
             ],
@@ -247,31 +247,167 @@
         }
     ];
 
+    function generateEndlessCase(caseNum) {
+        const seed = caseNum * 7919;
+        const rng = (i) => ((seed + i * 2654435761) >>> 0) % 1000 / 1000;
+        const crewTemplates = [
+            { id: 'orin', name: 'Dr. Orin Vance', role: { tr: 'Baş Tabip', en: 'Chief Medic' }, color: '#34d399', home: 'medbay', token: 'MED-SIGMA', weaponId: 'cryo_toxin', weaponLabel: { tr: 'Biyo-Kriyo Aerosolü', en: 'Bio-Cryo Aerosol' }, fakeAlibi: { tr: 'Revirde stok sayıyordum; olay odasına adım atmadım.', en: 'Inventorying med-lockers; never stepped inside that deck.' } },
+            { id: 'lyra', name: 'Navigator Lyra', role: { tr: 'Rota Subayı', en: 'Navigator' }, color: '#38bdf8', home: 'bridge', token: 'NAV-PROXY', weaponId: 'nav_override', weaponLabel: { tr: 'Nav-09 Uzaktan Hava Kilidi', en: 'Nav-09 Remote Venting' }, fakeAlibi: { tr: 'Köprüde yıldız haritalarını kalibre ediyordum.', en: 'Calibrating warp charts from Bridge helm all watch.' } },
+            { id: 'vane', name: 'Tech Vane', role: { tr: 'Baş Mühendis', en: 'Chief Tech' }, color: '#f59e0b', home: 'reactor', token: 'ENG-BYPASS', weaponId: 'plasma_flare', weaponLabel: { tr: 'Plazma Valf Aşırı Basıncı', en: 'Plasma Manifold Surge' }, fakeAlibi: { tr: 'Reaktör soğutucu pompalarında arıza gideriyordum.', en: 'Patching primary coolant valves inside Reactor core.' } },
+            { id: 'korg', name: 'Chief Korg', role: { tr: 'Güvenlik Şefi', en: 'Security Chief' }, color: '#a78bfa', home: 'cryolab', token: 'SEC-BLACKOUT', weaponId: 'arc_pulse', weaponLabel: { tr: 'Güvenlik Arc-Baton Boşalımı', en: 'Security Arc-Baton Discharge' }, fakeAlibi: { tr: 'Kriyo Lab kapı sensörlerini devriye geziyordum.', en: 'Patrolling Cryo-Lab bulkhead sensors on schedule.' } }
+        ];
+        const roomDefs = [
+            { id: 'bridge', x: 56, y: 112, w: 155, h: 120, color: '#38bdf8', label: { tr: 'KÖPRÜ', en: 'BRIDGE' }, evPos: { x: 108, y: 162 }, spPos: { x: 166, y: 184 } },
+            { id: 'medbay', x: 236, y: 112, w: 165, h: 120, color: '#34d399', label: { tr: 'REVİR', en: 'MED-BAY' }, evPos: { x: 286, y: 162 }, spPos: { x: 356, y: 184 } },
+            { id: 'cryolab', x: 56, y: 262, w: 155, h: 125, color: '#a78bfa', label: { tr: 'KRİYO LAB', en: 'CRYO-LAB' }, evPos: { x: 108, y: 316 }, spPos: { x: 166, y: 334 } },
+            { id: 'reactor', x: 236, y: 262, w: 165, h: 125, color: '#f59e0b', label: { tr: 'REAKTÖR', en: 'REACTOR' }, evPos: { x: 286, y: 316 }, spPos: { x: 356, y: 334 } },
+            { id: 'airlock', x: 426, y: 170, w: 150, h: 160, color: '#fb7185', label: { tr: 'AMBAR 0' + ((caseNum % 8) + 1), en: 'BAY 0' + ((caseNum % 8) + 1) }, evPos: { x: 501, y: 224 }, spPos: { x: 501, y: 292 } }
+        ];
+        const culpritIdx = Math.floor(rng(1) * crewTemplates.length);
+        const crimeRoomIdx = Math.floor(rng(2) * roomDefs.length);
+        const culprit = crewTemplates[culpritIdx];
+        const crimeRoom = roomDefs[crimeRoomIdx];
+        const alibiWitnesses = crewTemplates.filter((_, idx) => idx !== culpritIdx);
+        const clearedPair = [alibiWitnesses[0], alibiWitnesses[1]];
+        const extraRoom = roomDefs.find((r) => r.id !== culprit.home && r.id !== crimeRoom.id) || roomDefs[4];
+        const culpritHomeRoom = roomDefs.find((r) => r.id === culprit.home) || roomDefs[0];
+
+        const rooms = roomDefs.map((r, idx) => ({
+            id: r.id, x: r.x, y: r.y, w: r.w, h: r.h, color: r.color, label: r.label, crime: idx === crimeRoomIdx
+        }));
+
+        const hour = `0${1 + (caseNum % 4)}:${12 + ((caseNum * 7) % 40)}`;
+        const sprites = ['plasma_bomb', 'cryo_crystal', 'cargo_crate', 'energy_prism'];
+        const crimeEv = {
+            id: 'ev1',
+            room: crimeRoom.id,
+            x: crimeRoom.evPos.x,
+            y: crimeRoom.evPos.y,
+            sprite: sprites[caseNum % sprites.length],
+            name: { tr: `${trStatic(crimeRoom.label, 'tr')} Adli Kalıntısı`, en: `${trStatic(crimeRoom.label, 'en')} Forensic Residue` },
+            clue: {
+                tr: `LOG #${hour} -> Olay yerinde [${culprit.token}] protokolü ve ${trStatic(culprit.weaponLabel, 'tr')} izi tespit edildi.`,
+                en: `LOG #${hour} -> Scene scan matched [${culprit.token}] override and ${trStatic(culprit.weaponLabel, 'en')} trace.`
+            },
+            breaks: culprit.id
+        };
+        const originEv = {
+            id: 'ev2',
+            room: culpritHomeRoom.id === crimeRoom.id ? extraRoom.id : culpritHomeRoom.id,
+            x: culpritHomeRoom.id === crimeRoom.id ? extraRoom.evPos.x : culpritHomeRoom.evPos.x,
+            y: culpritHomeRoom.id === crimeRoom.id ? extraRoom.evPos.y : culpritHomeRoom.evPos.y,
+            sprite: 'laser_turret',
+            name: { tr: 'Şifreli Erişim Logu', en: 'Encrypted Access Audit' },
+            clue: {
+                tr: `${culprit.name} terminalinden ${hour}'de silinmiş [${culprit.token}] yetki paketi kurtarıldı!`,
+                en: `Recovered wiped [${culprit.token}] packet from ${culprit.name}'s terminal at ${hour}!`
+            },
+            breaks: culprit.id
+        };
+        const clearEv = {
+            id: 'ev3',
+            room: extraRoom.id === crimeRoom.id || extraRoom.id === originEv.room ? roomDefs[(crimeRoomIdx + 3) % roomDefs.length].id : extraRoom.id,
+            x: roomDefs[(crimeRoomIdx + 3) % roomDefs.length].evPos.x,
+            y: roomDefs[(crimeRoomIdx + 3) % roomDefs.length].evPos.y,
+            sprite: 'warp_ring',
+            name: { tr: 'Çift Biometrik Devriye Kaydı', en: 'Dual Biometric Patrol Sync' },
+            clue: {
+                tr: `${clearedPair[0].name} ve ${clearedPair[1].name} ${hour}'de ortak sensör doğrulamasındaydı.`,
+                en: `${clearedPair[0].name} and ${clearedPair[1].name} verified each other on bulkhead cams at ${hour}.`
+            },
+            breaks: null
+        };
+        if (extraRoom.id !== crimeRoom.id && extraRoom.id !== originEv.room) {
+            clearEv.x = extraRoom.evPos.x;
+            clearEv.y = extraRoom.evPos.y;
+        }
+
+        const suspects = crewTemplates.map((c) => {
+            const rm = roomDefs.find((r) => r.id === c.home) || roomDefs[0];
+            const isCulprit = c.id === culprit.id;
+            return {
+                id: c.id,
+                room: rm.id,
+                x: rm.spPos.x,
+                y: rm.spPos.y,
+                name: c.name,
+                role: c.role,
+                color: c.color,
+                alibi: c.fakeAlibi,
+                crackText: isCulprit ? {
+                    tr: `İTİRAF: "Evet! ${culprit.token} anahtarını ${trStatic(culprit.weaponLabel, 'tr')} ile birleştirip kanıtları sildim!"`,
+                    en: `CRACKED: "Fine! I triggered ${culprit.token} with ${trStatic(culprit.weaponLabel, 'en')} and purged the logs!"`
+                } : undefined
+            };
+        });
+
+        const weapons = [culprit, alibiWitnesses[0], alibiWitnesses[1]]
+            .map((c, idx) => ({ id: c.weaponId, label: c.weaponLabel, sortKey: rng(10 + idx) }))
+            .sort((a, b) => a.sortKey - b.sortKey)
+            .map(({ id, label }) => ({ id, label }));
+
+        return {
+            id: caseNum,
+            culprit: culprit.id,
+            weapon: culprit.weaponId,
+            title: {
+                tr: `Vaka ${String(caseNum).padStart(2, '0')}: ${trStatic(crimeRoom.label, 'tr')} Sabotajı`,
+                en: `Case ${String(caseNum).padStart(2, '0')}: ${trStatic(crimeRoom.label, 'en')} Conspiracy`
+            },
+            brief: {
+                tr: `Kurye Subayı Vesta-9 ${trStatic(crimeRoom.label, 'tr')} bölümünde ${hour}'de etkisiz bulundu. Sabotaj izlerini tara.`,
+                en: `Courier Liaison was found downed in ${trStatic(crimeRoom.label, 'en')} at ${hour}. Scan forensic anomalies to expose the culprit.`
+            },
+            rooms,
+            evidence: [crimeEv, originEv, clearEv],
+            suspects,
+            weapons
+        };
+    }
+
+    function trStatic(obj, lang) {
+        if (!obj) return '';
+        if (typeof obj === 'string') return obj;
+        return obj[lang] || obj.tr || obj.en || '';
+    }
+
     global.COSMIC_GAME_ENGINES['starship-murder-mystery'] = function mountMystery(ctx) {
         const W = 960;
         const H = 540;
         const canvas = ctx.createCanvas('2d', W, H);
         const g = canvas.getContext('2d');
 
-        let level = Math.max(1, Math.min(CASES.length, Number(ctx.initialLevel) || 1));
+        let level = Math.max(1, Number(ctx.initialLevel || ctx.level) || 1);
         let lives = 3;
         let score = 0;
+        let caseStartScore = 0;
+        let wonCase = false;
+        let ended = false;
         let destroyed = false;
         let rafId = 0;
         let time = 0;
 
         let scannedEv = new Set();
         let brokenSuspects = new Set();
-        let selectedTarget = null; // { kind: 'evidence' | 'suspect' | 'accuse', data }
+        let interrogationLog = [];
+        let selectedTarget = null; // { kind: 'brief' | 'evidence' | 'suspect', data }
         let selectedSuspectAccuse = null;
         let selectedWeaponAccuse = null;
         let toastText = '';
         let toastColor = '#38bdf8';
         let toastTimer = 0;
+        let shakeTimer = 0;
+        let hintRoomId = null;
+        let hintTimer = 0;
+        let kbNodeIdx = -1;
+        let hoverPos = { x: -1, y: -1 };
         let hotboxes = [];
+        const caseCache = new Map();
 
         function curCase() {
-            return CASES[level - 1] || CASES[0];
+            if (level <= CASES.length) return CASES[level - 1];
+            if (!caseCache.has(level)) caseCache.set(level, generateEndlessCase(level));
+            return caseCache.get(level);
         }
 
         function tr(obj) {
@@ -283,14 +419,38 @@
         function setToast(txt, col) {
             toastText = txt;
             toastColor = col || '#38bdf8';
-            toastTimer = 2.6;
+            toastTimer = 2.8;
+        }
+
+        function pushLog(msg) {
+            if (!msg) return;
+            if (interrogationLog[0] === msg) return;
+            interrogationLog.unshift(msg);
+            if (interrogationLog.length > 4) interrogationLog.pop();
         }
 
         function resetCaseState(newLvl) {
-            level = Math.max(1, Math.min(CASES.length, newLvl || 1));
+            const targetLvl = Math.max(1, Number(newLvl) || 1);
+            if (targetLvl <= 1) {
+                score = 0;
+                caseStartScore = 0;
+            } else if (wonCase && targetLvl > level) {
+                caseStartScore = score;
+            } else {
+                score = caseStartScore;
+            }
+            wonCase = false;
+            ended = false;
+            level = targetLvl;
             lives = 3;
             scannedEv = new Set();
             brokenSuspects = new Set();
+            interrogationLog = [];
+            toastTimer = 0;
+            shakeTimer = 0;
+            hintRoomId = null;
+            hintTimer = 0;
+            kbNodeIdx = -1;
             const cs = curCase();
             selectedTarget = { kind: 'brief', data: cs };
             selectedSuspectAccuse = cs.suspects[0].id;
@@ -303,7 +463,7 @@
             ctx.setHud({
                 score,
                 level,
-                maxLevel: CASES.length,
+                maxLevel: Math.max(CASES.length, level),
                 lives,
                 statusText: `${tr(cs.title)} · ${scannedEv.size}/${cs.evidence.length} ${ctx.t('Delil', 'Clues')}`
             });
@@ -345,9 +505,40 @@
             }
         }
 
+        function triggerClueHint() {
+            const cs = curCase();
+            const nextEv = cs.evidence.find((ev) => !scannedEv.has(ev.id));
+            if (nextEv) {
+                hintRoomId = nextEv.room;
+                hintTimer = 3.2;
+                selectedTarget = { kind: 'brief', data: cs };
+                ctx.audio?.play?.('powerup');
+                const rm = cs.rooms.find((r) => r.id === nextEv.room);
+                setToast(
+                    ctx.t(`Tarayıcı Sinyali: ${rm ? tr(rm.label) : nextEv.room} odasını kontrol et!`, `Scanner Ping: Inspect ${rm ? tr(rm.label) : nextEv.room}!`),
+                    '#fbbf24'
+                );
+            } else {
+                const uncracked = cs.suspects.find((sp) => !brokenSuspects.has(sp.id) && cs.evidence.some((e) => e.breaks === sp.id));
+                if (uncracked) {
+                    selectedTarget = { kind: 'suspect', data: uncracked };
+                    ctx.audio?.play?.('uiClick');
+                    setToast(ctx.t(`${uncracked.name} ile çelişkiyi çürüt!`, `Present contradiction to ${uncracked.name}!`), '#38bdf8');
+                } else {
+                    ctx.audio?.play?.('uiClick');
+                    setToast(ctx.t('Tüm deliller hazır — aşağıdan suçlamayı sun!', 'All clues verified — submit Verdict below!'), '#34d399');
+                }
+            }
+        }
+
         function drawFrame() {
             hotboxes = [];
             const cs = curCase();
+
+            g.save();
+            if (shakeTimer > 0) {
+                g.translate((Math.random() - 0.5) * 7, (Math.random() - 0.5) * 7);
+            }
 
             // Noir Blueprint Backdrop
             g.fillStyle = '#060a14';
@@ -389,13 +580,14 @@
 
             // Draw Rooms
             cs.rooms.forEach((rm) => {
-                g.fillStyle = rm.crime ? 'rgba(251, 113, 133, 0.11)' : 'rgba(15, 23, 42, 0.88)';
+                const isHinted = hintTimer > 0 && hintRoomId === rm.id;
+                g.fillStyle = rm.crime ? 'rgba(251, 113, 133, 0.11)' : (isHinted ? 'rgba(251, 191, 36, 0.10)' : 'rgba(15, 23, 42, 0.88)');
                 g.fillRect(rm.x, rm.y, rm.w, rm.h);
-                g.strokeStyle = rm.color;
-                g.lineWidth = rm.crime ? 2 : 1.3;
+                g.strokeStyle = isHinted ? '#fbbf24' : rm.color;
+                g.lineWidth = isHinted ? 2.6 : (rm.crime ? 2 : 1.3);
                 g.strokeRect(rm.x, rm.y, rm.w, rm.h);
 
-                g.fillStyle = rm.color;
+                g.fillStyle = isHinted ? '#fbbf24' : rm.color;
                 g.font = '700 11px JetBrains Mono, monospace';
                 g.fillText(tr(rm.label), rm.x + 10, rm.y + 18);
 
@@ -473,6 +665,20 @@
             g.fillStyle = '#38bdf8';
             g.font = '700 11px JetBrains Mono, monospace';
             g.fillText(ctx.t('TOPLANAN ADLİ DELİLLER', 'COLLECTED FORENSIC CLUES'), 38, 432);
+
+            // Scanner Hint Button [H]
+            const hintHov = hoverPos.x >= 476 && hoverPos.x <= 578 && hoverPos.y >= 417 && hoverPos.y <= 439;
+            g.fillStyle = hintHov ? 'rgba(251, 191, 36, 0.25)' : 'rgba(251, 191, 36, 0.12)';
+            g.fillRect(476, 417, 102, 22);
+            g.strokeStyle = '#fbbf24';
+            g.strokeRect(476, 417, 102, 22);
+            g.fillStyle = '#fde68a';
+            g.font = '700 10px JetBrains Mono, monospace';
+            g.fillText(ctx.t('[H] İPUCU TARA', '[H] SCAN HINT'), 484, 432);
+            hotboxes.push({
+                x: 476, y: 417, w: 102, h: 22,
+                onClick: () => triggerClueHint()
+            });
 
             let cy = 450;
             cs.evidence.forEach((ev) => {
@@ -616,7 +822,8 @@
             });
 
             // Final Submit Accusation Button
-            g.fillStyle = 'rgba(244, 63, 94, 0.9)';
+            const submitHov = hoverPos.x >= 626 && hoverPos.x <= 920 && hoverPos.y >= 470 && hoverPos.y <= 508;
+            g.fillStyle = submitHov ? 'rgba(244, 63, 94, 1)' : 'rgba(244, 63, 94, 0.9)';
             g.fillRect(626, 470, 294, 38);
             g.strokeStyle = '#fda4af';
             g.strokeRect(626, 470, 294, 38);
@@ -626,7 +833,10 @@
             hotboxes.push({
                 x: 626, y: 470, w: 294, h: 38,
                 onClick: () => {
+                    if (ended) return;
                     if (selectedSuspectAccuse === cs.culprit && selectedWeaponAccuse === cs.weapon) {
+                        wonCase = true;
+                        ended = true;
                         score += 500 + lives * 150;
                         ctx.audio?.play?.('levelup');
                         const stars = lives === 3 ? 3 : (lives === 2 ? 2 : 1);
@@ -642,9 +852,11 @@
                         });
                     } else {
                         lives = Math.max(0, lives - 1);
+                        shakeTimer = 0.28;
                         ctx.audio?.play?.('playerHurt');
                         syncHud();
                         if (lives <= 0) {
+                            ended = true;
                             ctx.onGameOver({
                                 score,
                                 level,
@@ -668,50 +880,115 @@
                 g.font = '600 12px JetBrains Mono, monospace';
                 g.fillText(toastText, 64, 412);
             }
+            g.restore();
         }
 
-        function handlePointer(e) {
-            if (ctx.getPaused() || destroyed) return;
-            const rect = canvas.getBoundingClientRect();
-            const px = (e.clientX - rect.left) * (W / rect.width);
-            const py = (e.clientY - rect.top) * (H / rect.height);
-            for (let i = hotboxes.length - 1; i >= 0; i--) {
-                const hb = hotboxes[i];
-                if (px >= hb.x && px <= hb.x + hb.w && py >= hb.y && py <= hb.y + hb.h) {
-                    hb.onClick();
-                    break;
+            function mapPointer(e) {
+                const rect = canvas.getBoundingClientRect();
+                const rw = Math.max(1, rect.width || W);
+                const rh = Math.max(1, rect.height || H);
+                return {
+                    x: Math.max(0, Math.min(W, ((e.clientX - rect.left) / rw) * W)),
+                    y: Math.max(0, Math.min(H, ((e.clientY - rect.top) / rh) * H))
+                };
+            }
+
+            function handlePointerMove(e) {
+                if (ctx.getPaused() || destroyed || ended) {
+                    hoverPos = { x: -1, y: -1 };
+                    if (canvas.style) canvas.style.cursor = '';
+                    return;
                 }
-            }
-        }
+                const p = mapPointer(e);
+                hoverPos = p;
+                let hit = false;
+                for (let i = hotboxes.length - 1; i >= 0; i--) {
+                    const hb = hotboxes[i];
+                        if (p.x >= hb.x && p.x <= hb.x + hb.w && p.y >= hb.y && p.y <= hb.y + hb.h) {
+                            hit = true;
+                            break;
+                        }
+                    }
+                    if (canvas.style) canvas.style.cursor = hit ? 'pointer' : 'default';
+                }
 
-        canvas.addEventListener('pointerdown', handlePointer);
+                function handlePointerLeave() {
+                    hoverPos = { x: -1, y: -1 };
+                    if (canvas.style) canvas.style.cursor = '';
+                }
 
-        let lastTs = performance.now();
-        function loop(ts) {
-            if (destroyed) return;
-            const dt = Math.min(0.05, (ts - lastTs) / 1000);
-            lastTs = ts;
-            if (!ctx.getPaused()) {
-                time += dt;
-                if (toastTimer > 0) toastTimer = Math.max(0, toastTimer - dt);
-                drawFrame();
-            }
-            rafId = requestAnimationFrame(loop);
-        }
+                function handlePointer(e) {
+                    if (ctx.getPaused() || destroyed || ended) return;
+                    if (typeof e.button === 'number' && e.button !== 0) return;
+                    const p = mapPointer(e);
+                    hoverPos = p;
+                    for (let i = hotboxes.length - 1; i >= 0; i--) {
+                        const hb = hotboxes[i];
+                        if (p.x >= hb.x && p.x <= hb.x + hb.w && p.y >= hb.y && p.y <= hb.y + hb.h) {
+                            hb.onClick();
+                            break;
+                        }
+                    }
+                }
 
-        resetCaseState(level);
-        rafId = requestAnimationFrame(loop);
+                function handleKeyDown(e) {
+                    if (ctx.getPaused() || destroyed || ended) return;
+                    const tag = typeof document !== 'undefined' && document.activeElement && document.activeElement.tagName;
+                    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+                    const k = (e.key || '').toLowerCase();
+                    if (k === 'h') {
+                        triggerClueHint();
+                    } else if (k >= '1' && k <= '4') {
+                        const cs = curCase();
+                        const sp = cs.suspects[Number(k) - 1];
+                        if (sp) {
+                            selectedTarget = { kind: 'suspect', data: sp };
+                            ctx.audio?.play?.('uiClick');
+                        }
+                    }
+                }
 
-        return {
-            destroy() {
-                destroyed = true;
-                cancelAnimationFrame(rafId);
-                canvas.removeEventListener('pointerdown', handlePointer);
-                if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
-            },
-            restart(nextLvl) {
-                resetCaseState(nextLvl || level);
-            }
-        };
-    };
-})(typeof window !== 'undefined' ? window : globalThis);
+                canvas.addEventListener('pointerdown', handlePointer);
+                canvas.addEventListener('pointermove', handlePointerMove);
+                canvas.addEventListener('pointerleave', handlePointerLeave);
+                if (typeof global.addEventListener === 'function') {
+                    global.addEventListener('keydown', handleKeyDown);
+                }
+
+                let lastTs = performance.now();
+                function loop(ts) {
+                    if (destroyed) return;
+                    const dt = Math.min(0.05, Math.max(0.001, (ts - lastTs) / 1000));
+                    lastTs = ts;
+                    if (!ctx.getPaused()) {
+                        time += dt;
+                        if (toastTimer > 0) toastTimer = Math.max(0, toastTimer - dt);
+                        if (shakeTimer > 0) shakeTimer = Math.max(0, shakeTimer - dt);
+                        if (hintTimer > 0) hintTimer = Math.max(0, hintTimer - dt);
+                        drawFrame();
+                    }
+                    rafId = requestAnimationFrame(loop);
+                }
+
+                resetCaseState(level);
+                rafId = requestAnimationFrame(loop);
+
+                return {
+                    destroy() {
+                        destroyed = true;
+                        cancelAnimationFrame(rafId);
+                        canvas.removeEventListener('pointerdown', handlePointer);
+                        canvas.removeEventListener('pointermove', handlePointerMove);
+                        canvas.removeEventListener('pointerleave', handlePointerLeave);
+                        if (typeof global.removeEventListener === 'function') {
+                            global.removeEventListener('keydown', handleKeyDown);
+                        }
+                        if (canvas.style) canvas.style.cursor = '';
+                        if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
+                    },
+                    restart(nextLvl) {
+                        resetCaseState(nextLvl || level);
+                    }
+                };
+            };
+        }) (typeof window !== 'undefined' ? window : globalThis);

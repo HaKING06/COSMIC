@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC UNIVERSE v11.5 — Kaptan Nova Vex: Hikâye Modu (24 Bölüm · Sezon 1)</title>
-    <meta name="description" content="Kaptan Nova Vex'in 24 bölümlük Parçalanan Sonsuzluk Sezon 1 destanını animasyonlu ara sahneler ve farklı kozmik evren oyunlarıyla oyna.">
-    <meta property="og:title" content="COSMIC UNIVERSE v11.5 — Captain Nova Vex Season 1 Story Saga (24 Chapters)">
+    <title>COSMIC UNIVERSE v12.0 — Kaptan Nova Vex: Hikâye Modu (24 Bölüm · Sezon 1)</title>
+    <meta name="description" content="Kaptan Nova Vex'in 24 bölümlük Parçalanan Sonsuzluk Sezon 1 destanını 60 FPS çok katmanlı animasyonlu ara sahneler ve farklı kozmik evren oyunlarıyla oyna.">
+    <meta property="og:title" content="COSMIC UNIVERSE v12.0 — Captain Nova Vex Season 1 Story Saga (24 Chapters)">
     <meta property="og:image" content="assets/og-banner.png">
     <meta name="theme-color" content="#070b12">
 
@@ -24,10 +24,10 @@
 <body>
     <header class="cosmic-topbar">
         <a href="index.html" class="topbar-brand">
-            <img src="assets/icon-192.png" alt="Cosmic Universe v11" class="topbar-logo-img">
+            <img src="assets/icon-192.png" alt="Cosmic Universe v12" class="topbar-logo-img">
             <div class="topbar-title-wrap">
                 <span class="topbar-title">COSMIC UNIVERSE</span>
-                <span class="topbar-version" id="storyTopbarSub">V11.5 SEASON 1 SAGA</span>
+                <span class="topbar-version" id="storyTopbarSub">V12.0 SEASON 1 SAGA</span>
             </div>
         </a>
 
@@ -111,9 +111,19 @@
             </div>
         </section>
 
-        <!-- 4-Act Tabs & 6-Node Constellation Chapter Map (24 Chapters Total) -->
-        <section class="chapter-map-panel" aria-label="Bölüm Haritası">
+        <!-- 4-Act Tabs & 6-Node Constellation Navigation Route (24 Chapters Total) -->
+        <section class="chapter-map-panel" id="chapterMapPanel" data-act="1" aria-label="Bölüm Haritası">
             <div class="act-tabs-row" id="actTabsRow"></div>
+            <div class="act-progress-bar-row" id="actProgressRow">
+                <div class="act-progress-meta">
+                    <span class="act-progress-code font-mono" id="actProgressCode">ACT I</span>
+                    <span class="act-progress-label" id="actProgressLabel">Perde İlerlemesi</span>
+                </div>
+                <div class="act-progress-meter" role="progressbar" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0" id="actProgressMeter">
+                    <div class="act-progress-fill" id="actProgressFill"></div>
+                </div>
+                <span class="act-progress-count font-mono" id="actProgressCount">0 / 6</span>
+            </div>
             <div class="chapter-map-track" id="chapterMapTrack"></div>
         </section>
 
@@ -125,10 +135,19 @@
                 <div class="cinema-scrim"></div>
 
                 <div class="cinema-top-chips">
-                    <span class="cs-badge cs-badge-sky font-mono" id="cinemaChapterBadge">BÖL.1 / 24</span>
-                    <span class="cs-badge cs-badge-violet font-mono" id="cinemaSectorBadge">Sector 01</span>
-                    <span class="cs-badge cs-badge-amber font-mono" id="cinemaEngineBadge">Neo-Pixel</span>
-                    <button type="button" class="cs-badge cs-badge-mint font-mono autoplay-pill" id="btnCutsceneAutoplay" title="Toggle Auto-Play Cutscene">▶ OTO SAHNE: AÇIK</button>
+                    <div class="cinema-meta-chips">
+                        <span class="cs-badge cs-badge-sky font-mono" id="cinemaChapterBadge">BÖL.1 / 24</span>
+                        <span class="cs-badge cs-badge-violet font-mono" id="cinemaSectorBadge">Sector 01</span>
+                        <span class="cs-badge cs-badge-amber font-mono" id="cinemaEngineBadge">Neo-Pixel</span>
+                    </div>
+                    <div class="cinema-top-controls">
+                        <div class="cinema-beat-stepper" id="cinemaBeatStepper" role="group" aria-label="Sahne Adımları"></div>
+                        <button type="button" class="cinema-icon-pill font-mono" id="btnReplayCutscene" title="Ara Sahneyi Baştan Oynat">
+                            <span aria-hidden="true">↻</span>
+                            <span class="hide-mobile" id="btnReplayCutsceneLabel">Tekrar</span>
+                        </button>
+                        <button type="button" class="cs-badge cs-badge-mint font-mono autoplay-pill" id="btnCutsceneAutoplay" title="Toggle Auto-Play Cutscene">▶ OTO SAHNE: AÇIK</button>
+                    </div>
                 </div>
 
                 <!-- Season 1 Tragic Finale Epilogue Card (shown on Ch.24 clear / Epilogue replay) -->
@@ -140,16 +159,27 @@
                 </div>
 
                 <!-- Visual Novel Dialogue Overlay -->
-                <div class="vn-dialogue-box" id="vnDialogueBox">
-                    <div class="vn-portrait-wrap" id="vnPortraitWrap">
+                <div class="vn-dialogue-box" id="vnDialogueBox" data-speaker="nova">
+                    <div class="vn-portrait-wrap" id="vnPortraitWrap" data-mood="focused" data-speaker="nova">
                         <img src="assets/v11/nova_portrait.png" alt="Captain Nova Vex" class="vn-portrait-img" id="vnSpeakerImg">
                         <div class="vn-ai-holo hidden" id="vnAiHolo">
                             <i data-lucide="cpu"></i>
                         </div>
+                        <span class="vn-portrait-scan" aria-hidden="true"></span>
                     </div>
                     <div class="vn-content">
                         <div class="vn-speaker-row">
-                            <span class="vn-speaker-name font-mono" id="vnSpeakerName">CAPTAIN NOVA VEX</span>
+                            <div class="vn-speaker-identity">
+                                <span class="vn-speaker-name font-mono" id="vnSpeakerName">CAPTAIN NOVA VEX</span>
+                                <span class="vn-speaker-role font-mono" id="vnSpeakerRole">PILOT · NOVA VEX</span>
+                                <div class="vn-voice-eq" id="vnVoiceEq" aria-hidden="true">
+                                    <span class="eq-bar"></span>
+                                    <span class="eq-bar"></span>
+                                    <span class="eq-bar"></span>
+                                    <span class="eq-bar"></span>
+                                    <span class="eq-bar"></span>
+                                </div>
+                            </div>
                             <span class="vn-step-count font-mono" id="vnStepCount">1 / 3</span>
                         </div>
                         <p class="vn-dialogue-text" id="vnDialogueText"></p>
@@ -161,6 +191,7 @@
                             <button type="button" class="cs-btn cs-btn-ghost" id="btnSkipDialogue">
                                 <span id="btnSkipDialogueLabel">Hemen Başla</span>
                             </button>
+                            <span class="vn-key-hint font-mono" id="vnKeyHint">[SPACE / ENTER]</span>
                         </div>
                     </div>
                 </div>
@@ -215,7 +246,10 @@
 
         <!-- Earned Hero Badges Showcase -->
         <section class="story-badges-panel">
-            <h2 class="badges-heading" id="badgesHeading">Kaptan Nova Vex Nişanları</h2>
+            <div class="badges-panel-head">
+                <h2 class="badges-heading" id="badgesHeading">Kaptan Nova Vex Nişanları</h2>
+                <span class="cs-badge cs-badge-amber font-mono" id="badgesCountPill">0 / 24</span>
+            </div>
             <div class="badges-grid" id="storyBadgesGrid"></div>
         </section>
     </main>

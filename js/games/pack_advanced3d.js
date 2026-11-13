@@ -184,6 +184,7 @@
             const justReleased = new Set();
             const pointer = {
                 active: false,
+                usingPointer: false,
                 down: false,
                 nx: 0,
                 ny: 0,
@@ -203,6 +204,9 @@
                 if (key && !keys.has(key)) justPressed.add(key);
                 if (code) keys.add(code);
                 if (key) keys.add(key);
+                if (/^(KeyW|KeyA|KeyS|KeyD|ArrowUp|ArrowDown|ArrowLeft|ArrowRight)$/.test(code)) {
+                    pointer.usingPointer = false;
+                }
                 if (code === 'Space' || code.startsWith('Arrow')) {
                     e.preventDefault();
                 }
@@ -222,10 +226,15 @@
                 if (!rect.width || !rect.height) return;
                 const nx = clamp(((e.clientX - rect.left) / rect.width) * 2 - 1, -1, 1);
                 const ny = clamp(((e.clientY - rect.top) / rect.height) * 2 - 1, -1, 1);
+                const px = (nx * 0.5 + 0.5) * STAGE_W;
+                const py = (ny * 0.5 + 0.5) * STAGE_H;
+                if (Math.hypot(px - pointer.px, py - pointer.py) >= 2.5 || e.type === 'pointerdown') {
+                    pointer.usingPointer = true;
+                }
                 pointer.nx = nx;
                 pointer.ny = ny;
-                pointer.px = (nx * 0.5 + 0.5) * STAGE_W;
-                pointer.py = (ny * 0.5 + 0.5) * STAGE_H;
+                pointer.px = px;
+                pointer.py = py;
                 pointer.active = true;
             };
 
@@ -1038,8 +1047,8 @@
         const rimMat = new THREE.MeshStandardMaterial({
             color: 0x38bdf8,
             emissive: 0x0ea5e9,
-            emissiveIntensity: 0.5,
-            roughness: 0.25
+            emissiveIntensity: 0.85,
+            roughness: 0.2
         });
 
         for (let i = 0; i < 4; i++) {
@@ -1072,6 +1081,7 @@
         let gatesCleared = 0;
         let distanceMeters = 0;
         let bestZ = 0;
+        let prevChassisZ = 0;
         let combo = 1;
         let comboTimer = 0;
         let airTime = 0;
@@ -1079,6 +1089,7 @@
         let thrusterActive = false;
         let invulnTimer = 0;
         let flipCooldown = 0;
+        let flippedTimer = 0;
         let shakeMag = 0;
         let damageFlash = 0;
         let nextChunkIdx = 0;
@@ -1258,23 +1269,33 @@
                 }
             });
 
-            // Procedural Lunar Crater Rims & Low Ridge Hills (visual + gentle physics bumps)
+            // Procedural Lunar Crater Rims (strictly over solid terrain, clear of chasms & ramps)
+            function isBlockedChunkZ(zWorld) {
+                const offset = zStart - zWorld;
+                if (offset < 10 || offset > CHUNK_LEN - 12) return true; // Keep spawn & checkpoint gate clear
+                if (sec.hasChasms) {
+                    return offset >= 42 && offset <= 78; // Ramp approach & chasm pit
+                }
+                return (offset >= 29 && offset <= 47) || (offset >= 77 && offset <= 96);
+            }
+
             for (let c = 0; c < 4; c++) {
-                const cx = (rng() - 0.5) * (laneW * 1.45);
-                const cz = zStart - 18 - rng() * (CHUNK_LEN - 32);
+                const cx = (rng() - 0.5) * (laneW * 1.4);
+                const cz = zStart - 16 - rng() * (CHUNK_LEN - 30);
+                if (isBlockedChunkZ(cz)) continue;
                 const crater = new THREE.Mesh(craterRingGeo, wallMat);
                 crater.rotation.x = Math.PI / 2;
-                crater.position.set(cx, -0.15, cz);
-                crater.scale.setScalar(0.8 + rng() * 0.7);
+                crater.position.set(cx, -0.18, cz);
+                crater.scale.setScalar(0.75 + rng() * 0.5);
                 group.add(crater);
             }
 
             // Dynamic Basalt Boulders (CANNON.Sphere)
             for (let i = 0; i < sec.boulderCount; i++) {
-                const radius = 0.85 + rng() * 0.75;
-                const bx = (rng() - 0.5) * (laneW * 1.45);
+                const radius = 0.85 + rng() * 0.72;
+                const bx = (rng() - 0.5) * (laneW * 1.42);
                 const bz = zStart - 16 - rng() * (CHUNK_LEN - 28);
-                if (sec.hasChasms && bz < zStart - 54 && bz > zStart - 74) continue;
+                if (isBlockedChunkZ(bz)) continue;
 
                 const body = new CANNON.Body({
                     mass: 28 * radius,
@@ -1298,7 +1319,7 @@
             for (let i = 0; i < sec.barrelCount; i++) {
                 const bx = (rng() - 0.5) * (laneW * 1.25);
                 const bz = zStart - 22 - rng() * (CHUNK_LEN - 38);
-                if (sec.hasChasms && bz < zStart - 52 && bz > zStart - 76) continue;
+                if (isBlockedChunkZ(bz)) continue;
 
                 const body = new CANNON.Body({
                     mass: 16,
@@ -1329,20 +1350,21 @@
                 spawnFuelPod(fx, 1.45 + rng() * 1.1, fz);
             }
 
-            // CHECKPOINT GATE at chunk end!
+            // CHECKPOINT GATE spanning corridor width at chunk end
             const gateZ = zEnd + 3;
+            const gateHalfW = Math.max(8.5, laneW - 1.1);
             const gateGroup = new THREE.Group();
-            const pillarL = new THREE.Mesh(new THREE.BoxGeometry(0.9, 9, 0.9), gateArchMat);
-            pillarL.position.set(-7.5, 4.5, 0);
+            const pillarL = new THREE.Mesh(new THREE.BoxGeometry(0.95, 10.2, 0.95), gateArchMat);
+            pillarL.position.set(-gateHalfW, 5.1, 0);
             gateGroup.add(pillarL);
-            const pillarR = new THREE.Mesh(new THREE.BoxGeometry(0.9, 9, 0.9), gateArchMat);
-            pillarR.position.set(7.5, 4.5, 0);
+            const pillarR = new THREE.Mesh(new THREE.BoxGeometry(0.95, 10.2, 0.95), gateArchMat);
+            pillarR.position.set(gateHalfW, 5.1, 0);
             gateGroup.add(pillarR);
-            const crossbar = new THREE.Mesh(new THREE.BoxGeometry(16, 1.0, 1.1), gateArchMat);
-            crossbar.position.set(0, 8.8, 0);
+            const crossbar = new THREE.Mesh(new THREE.BoxGeometry(gateHalfW * 2 + 1.2, 1.05, 1.1), gateArchMat);
+            crossbar.position.set(0, 10.0, 0);
             gateGroup.add(crossbar);
-            const portalPlane = new THREE.Mesh(new THREE.PlaneGeometry(14.2, 8.2), gateRingMat);
-            portalPlane.position.set(0, 4.2, 0);
+            const portalPlane = new THREE.Mesh(new THREE.PlaneGeometry(gateHalfW * 2 - 0.9, 9.4), gateRingMat);
+            portalPlane.position.set(0, 4.8, 0);
             gateGroup.add(portalPlane);
 
             gateGroup.position.set(0, 0, gateZ);
@@ -1351,6 +1373,8 @@
                 index: chunkIdx + 1,
                 sectorName: sectorForIndex(chunkIdx + 1).name,
                 z: gateZ,
+                halfW: gateHalfW + 0.8,
+                maxY: 11.2,
                 safeY: 1.5,
                 mesh: gateGroup,
                 portalPlane,
@@ -1458,25 +1482,40 @@
             }
         }
 
-        function uprightFlipRover() {
-            if (flipCooldown > 0 || ended) return;
-            flipCooldown = 0.65;
+        function isOverChasmZone(zWorld) {
+            const absZ = Math.max(0, -zWorld);
+            const chunkIdx = Math.floor(absZ / CHUNK_LEN);
+            const sec = sectorForIndex(chunkIdx);
+            if (!sec.hasChasms) return false;
+            const offset = absZ - chunkIdx * CHUNK_LEN;
+            return offset >= 44 && offset <= 78;
+        }
+
+        function uprightFlipRover(isAuto = false) {
+            if ((!isAuto && flipCooldown > 0) || ended) return;
+            flipCooldown = 0.45;
+            flippedTimer = 0;
+
+            const curChunkIdx = Math.max(0, Math.floor(Math.max(0, -chassisBody.position.z) / CHUNK_LEN));
+            const curLaneW = sectorForIndex(curChunkIdx).laneHalfW - 2.6;
 
             // Extract current yaw from chassis forward vector so player keeps facing downrange
             const fwd = new CANNON.Vec3(0, 0, -1);
             chassisBody.quaternion.vmult(fwd, fwd);
-            const yaw = Math.atan2(-fwd.x, -fwd.z);
+            let yaw = Math.atan2(-fwd.x, -fwd.z);
+            if (!Number.isFinite(yaw)) yaw = 0;
 
-            chassisBody.position.y = Math.max(chassisBody.position.y + 1.25, 1.65);
+            chassisBody.position.x = clamp(chassisBody.position.x, -curLaneW, curLaneW);
+            chassisBody.position.y = Math.max(chassisBody.position.y + 1.4, 1.75);
             chassisBody.quaternion.setFromEuler(0, yaw, 0);
             chassisBody.angularVelocity.set(0, 0, 0);
-            chassisBody.velocity.x *= 0.4;
-            chassisBody.velocity.z *= 0.5;
-            chassisBody.velocity.y = Math.max(chassisBody.velocity.y, 2.2);
+            chassisBody.velocity.x *= 0.35;
+            chassisBody.velocity.z = Math.min(chassisBody.velocity.z * 0.5, -2.5);
+            chassisBody.velocity.y = Math.max(chassisBody.velocity.y, 2.8);
 
-            particles.spawn(chassisBody.position.x, chassisBody.position.y, chassisBody.position.z, 0x38bdf8, 14, 7, 0.45, 0.9);
+            particles.spawn(chassisBody.position.x, chassisBody.position.y, chassisBody.position.z, 0x38bdf8, 16, 7.5, 0.45, 0.95);
             h.playAudio('dash');
-            addPopup(h.tr('DENGE DÜZELTİLDİ', 'UPRIGHT STABILIZED'), '#22d3ee');
+            addPopup(isAuto ? h.tr('OTOMATİK GYRO DENGE', 'AUTO GYRO RIGHTED') : h.tr('DENGE DÜZELTİLDİ', 'UPRIGHT STABILIZED'), '#22d3ee');
         }
 
         function resetGame(startLevel) {
@@ -1491,6 +1530,7 @@
             distanceMeters = 0;
             const startZ = -startIdx * CHUNK_LEN - 4;
             bestZ = startZ;
+            prevChassisZ = startZ;
             combo = 1;
             comboTimer = 0;
             airTime = 0;
@@ -1498,6 +1538,7 @@
             thrusterActive = false;
             invulnTimer = 0;
             flipCooldown = 0;
+            flippedTimer = 0;
             shakeMag = 0;
             damageFlash = 0;
             ended = false;
@@ -1618,13 +1659,33 @@
                 fuel = Math.min(100, fuel + regenRate * dt);
             }
 
-            // Subtle mid-air pitch/roll self-damping so big lunar jumps feel heroic and controllable
+            // Smooth active anti-roll & gyro self-righting stabilizer (prevents turtle-flipping on craters)
+            const localUp = new CANNON.Vec3(0, 1, 0);
+            chassisBody.quaternion.vmult(localUp, localUp);
             if (vehicle.numWheelsOnGround === 0) {
-                chassisBody.angularVelocity.x *= Math.pow(0.55, dt);
-                chassisBody.angularVelocity.z *= Math.pow(0.45, dt);
+                chassisBody.angularVelocity.x *= Math.pow(0.45, dt);
+                chassisBody.angularVelocity.z *= Math.pow(0.35, dt);
+                if (localUp.y < 0.92) {
+                    const rightAxis = localUp.cross(new CANNON.Vec3(0, 1, 0));
+                    chassisBody.applyTorque(new CANNON.Vec3(rightAxis.x * 180, 0, rightAxis.z * 210));
+                }
                 if (steerL) chassisBody.applyTorque(new CANNON.Vec3(0, 180, 0));
                 if (steerR) chassisBody.applyTorque(new CANNON.Vec3(0, -180, 0));
+            } else if (localUp.y < 0.72) {
+                const rightAxis = localUp.cross(new CANNON.Vec3(0, 1, 0));
+                chassisBody.applyTorque(new CANNON.Vec3(rightAxis.x * 240, 0, rightAxis.z * 280));
             }
+
+            if (localUp.y < 0.28 || (vehicle.numWheelsOnGround === 0 && speedMs < 0.9 && chassisBody.position.y > -0.8 && !isOverChasmZone(chassisBody.position.z))) {
+                flippedTimer += dt;
+                if (flippedTimer > 1.15) {
+                    uprightFlipRover(true);
+                }
+            } else {
+                flippedTimer = Math.max(0, flippedTimer - dt * 2.5);
+            }
+
+            prevChassisZ = chassisBody.position.z;
 
             // Step Cannon-es physics
             world.step(1 / 60, dt, 3);
@@ -1673,8 +1734,8 @@
             } else if (vehicle.numWheelsOnGround >= 2) {
                 airTime = 0;
                 wasAirborne = false;
-                if (chassisBody.position.y > -0.5) {
-                    lastSafePos.set(chassisBody.position.x, 1.45, chassisBody.position.z);
+                if (chassisBody.position.y > 0.1 && !isOverChasmZone(chassisBody.position.z)) {
+                    lastSafePos.set(clamp(chassisBody.position.x, -10, 10), 1.45, chassisBody.position.z);
                 }
             }
 
@@ -1689,14 +1750,17 @@
                 }
             }
 
-            // Fall into Zero-G chasm recovery
+            // Fall into Zero-G chasm recovery (strictly places rover back on solid approach deck)
             if (chassisBody.position.y < -6.8) {
                 damageRover(h.tr('Sıfır-G yarığına düşüldü!', 'Fell into a Zero-G canyon chasm!'));
                 if (!ended) {
-                    chassisBody.position.set(0, 1.85, lastSafePos.z + 6);
+                    let safeZ = lastSafePos.z + 5;
+                    if (isOverChasmZone(safeZ)) safeZ += 16;
+                    chassisBody.position.set(clamp(lastSafePos.x * 0.4, -7, 7), 1.9, safeZ);
                     chassisBody.velocity.set(0, 0, -4);
                     chassisBody.angularVelocity.set(0, 0, 0);
                     chassisBody.quaternion.set(0, 0, 0, 1);
+                    flippedTimer = 0;
                 }
             }
 
@@ -1765,11 +1829,14 @@
                 }
             }
 
-            // Checkpoint Gates
+            // Checkpoint Gates (swept Z crossing matching 3D portal width & height)
             for (let i = gates.length - 1; i >= 0; i--) {
                 const g = gates[i];
-                g.portalPlane.material.opacity = 0.38 + Math.sin(performance.now() * 0.006) * 0.14;
-                if (!g.cleared && chassisBody.position.z <= g.z + 1.4) {
+                g.portalPlane.material.opacity = 0.4 + Math.sin(performance.now() * 0.006) * 0.14;
+                const crossedZ = prevChassisZ >= g.z - 2.0 && chassisBody.position.z <= g.z + 1.8;
+                const passedPlane = chassisBody.position.z <= g.z + 1.4;
+                const insidePortal = Math.abs(chassisBody.position.x) <= g.halfW && chassisBody.position.y <= g.maxY;
+                if (!g.cleared && ((crossedZ && insidePortal) || (passedPlane && insidePortal))) {
                     g.cleared = true;
                     gatesCleared += 1;
                     fuel = Math.min(100, fuel + 45);
@@ -1783,6 +1850,11 @@
                     h.playAudio('levelup');
                     const secTitle = sectorForIndex(level - 1).name;
                     awardScore(220, `${h.tr('KAPI GEÇİLDİ', 'CHECKPOINT')} · ${secTitle}`, '#34d399');
+                } else if (!g.cleared && chassisBody.position.z < g.z - 6) {
+                    // Sync sector atmosphere quietly if vaulted high above gate crossbar
+                    g.cleared = true;
+                    level = isStory ? Math.min(4, g.index + 1) : (g.index + 1);
+                    applySectorAtmosphere(level);
                 }
                 if (g.z > chassisBody.position.z + 55) {
                     scene.remove(g.mesh);
@@ -2275,6 +2347,7 @@
         const dreadBridgeGeo = new THREE.BoxGeometry(4.2, 2.4, 5.2);
         const dreadProwGeo = new THREE.BoxGeometry(2.6, 1.8, 12.5);
         const turretGeo = new THREE.OctahedronGeometry(1, 1);
+        const turretRingGeo = new THREE.TorusGeometry(1.45, 0.08, 6, 20);
 
         const enemyHullMat = new THREE.MeshStandardMaterial({
             color: 0x3f1d2b,
@@ -2298,6 +2371,7 @@
             emissiveIntensity: 0.85,
             roughness: 0.25
         });
+        const turretRingMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24, transparent: true, opacity: 0.72 });
 
         // Dynamic Entity Arrays
         const pillars = [];
@@ -2357,6 +2431,26 @@
 
         const tmpVecA = new THREE.Vector3();
         const tmpVecB = new THREE.Vector3();
+
+        function zWindowHit(prevZ, currZ, targetZ, halfDepth) {
+            return Math.min(prevZ, currZ) <= targetZ + halfDepth && Math.max(prevZ, currZ) >= targetZ - halfDepth;
+        }
+
+        function segPointDistSq(ax, ay, az, bx, by, bz, px, py, pz) {
+            const dx = bx - ax;
+            const dy = by - ay;
+            const dz = bz - az;
+            const lenSq = dx * dx + dy * dy + dz * dz;
+            if (lenSq < 1e-8) {
+                const ux = px - ax, uy = py - ay, uz = pz - az;
+                return ux * ux + uy * uy + uz * uz;
+            }
+            const t = clamp(((px - ax) * dx + (py - ay) * dy + (pz - az) * dz) / lenSq, 0, 1);
+            const cx = ax + dx * t - px;
+            const cy = ay + dy * t - py;
+            const cz = az + dz * t - pz;
+            return cx * cx + cy * cy + cz * cz;
+        }
 
         function addPopup(text, color) {
             popups.push({ text, color: color || '#22d3ee', life: 1.25, yOffset: 0 });
@@ -2585,6 +2679,8 @@
                 const tMesh = new THREE.Mesh(turretGeo, turretMat);
                 tMesh.scale.setScalar(td.r);
                 tMesh.position.set(td.x, td.y, td.z);
+                const tHalo = new THREE.Mesh(turretRingGeo, turretRingMat);
+                tMesh.add(tHalo);
                 grp.add(tMesh);
                 turrets.push({
                     id: Math.random(),
@@ -2818,7 +2914,7 @@
                 ship.vy = damp(ship.vy, iy * 12.5, 11, dt);
                 ship.aimX = clamp(ship.x + ix * 3.8, -BOUND_X * 1.1, BOUND_X * 1.1);
                 ship.aimY = clamp(ship.y + iy * 2.8, MIN_Y, MAX_Y + 0.8);
-            } else if (input.pointer.active) {
+            } else if (input.pointer.usingPointer) {
                 const targetX = input.pointer.nx * BOUND_X;
                 const targetY = clamp(-input.pointer.ny * 4.8 + 1.0, MIN_Y, MAX_Y);
                 ship.vx = clamp((targetX - ship.x) * 7.5, -18, 18);
@@ -2889,7 +2985,10 @@
 
             fighterGroup.position.set(ship.x, ship.y, 2.4);
             fighterGroup.visible = invulnTimer <= 0 || barrelRollTimer > 0 || Math.floor(invulnTimer * 18) % 2 === 0;
-            thrCone.scale.set(1, 0.85 + Math.sin(performance.now() * 0.04) * 0.28, 1);
+            const thrPulse = 0.88 + Math.sin(performance.now() * 0.04) * 0.25;
+            const boostScale = fovBoostTimer > 0 ? 1.45 : 1.0;
+            thrCone.scale.set(boostScale, thrPulse * boostScale, boostScale);
+            shipLight.intensity = (fovBoostTimer > 0 ? 4.4 : 2.5) * thrPulse;
 
             // Scroll Floor, Stars & Canyon Environment
             const activeSpeed = trenchSpeed * (fovBoostTimer > 0 ? 1.38 : 1.0);
@@ -2940,12 +3039,13 @@
                 }
             }
 
-            // Update Canyon Monolith Pillars
+            // Update Canyon Monolith Pillars (swept Z check prevents high-speed tunneling)
             for (let i = pillars.length - 1; i >= 0; i--) {
                 const p = pillars[i];
+                const prevZ = p.mesh.position.z;
                 p.mesh.position.z += activeSpeed * dt;
-                if (Math.abs(p.mesh.position.z - 2.4) < 1.35) {
-                    if (Math.abs(ship.x - p.x) < p.halfW + 0.9 && ship.y > p.minY && ship.y < p.maxY) {
+                if (zWindowHit(prevZ, p.mesh.position.z, 2.4, 1.2)) {
+                    if (Math.abs(ship.x - p.x) < p.halfW + 0.88 && ship.y > p.minY && ship.y < p.maxY) {
                         damageShip(h.tr('Kanyon monolit sütununa çarpıldı!', 'Collided with a canyon monolith pillar!'));
                     }
                 }
@@ -2955,13 +3055,14 @@
                 }
             }
 
-            // Update Energy Rings (TorusGeometry)
+            // Update Energy Rings (TorusGeometry, swept Z check)
             for (let i = energyRings.length - 1; i >= 0; i--) {
                 const r = energyRings[i];
+                const prevZ = r.mesh.position.z;
                 r.mesh.position.z += activeSpeed * dt;
                 r.mesh.rotation.z += dt * 1.8;
-                if (!r.passed && Math.abs(r.mesh.position.z - 2.4) < 1.45) {
-                    if (Math.hypot(ship.x - r.x, ship.y - r.y) < 2.55) {
+                if (!r.passed && zWindowHit(prevZ, r.mesh.position.z, 2.4, 1.35)) {
+                    if (Math.hypot(ship.x - r.x, ship.y - r.y) < 2.6) {
                         r.passed = true;
                         combo = Math.min(5, combo + 1);
                         comboTimer = 8.0;
@@ -2984,13 +3085,14 @@
             // Update Asteroids + Cannon-es Debris Impulses on Shatter
             for (let i = asteroids.length - 1; i >= 0; i--) {
                 const a = asteroids[i];
+                const prevZ = a.mesh.position.z;
                 a.mesh.position.z += (activeSpeed * 0.95) * dt;
                 a.mesh.position.x = clamp(a.mesh.position.x + a.vx * dt, -BOUND_X, BOUND_X);
                 a.mesh.position.y = clamp(a.mesh.position.y + a.vy * dt, MIN_Y + 0.5, MAX_Y);
                 a.mesh.rotation.x += a.spinX * dt;
                 a.mesh.rotation.y += a.spinY * dt;
 
-                if (Math.abs(a.mesh.position.z - 2.4) < 1.35) {
+                if (zWindowHit(prevZ, a.mesh.position.z, 2.4, a.radius + 0.45)) {
                     if (Math.hypot(ship.x - a.mesh.position.x, ship.y - a.mesh.position.y) < a.radius + 0.85) {
                         spawnCannonDebris(a.mesh.position.x, a.mesh.position.y, a.mesh.position.z, 0x64748b, 6, 16);
                         scene.remove(a.mesh);
@@ -3008,6 +3110,7 @@
             // Update Enemy Interceptor Squadron Ships
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const e = enemies[i];
+                const prevZ = e.mesh.position.z;
                 e.phase += dt * 2.5;
                 e.mesh.position.z += (activeSpeed * 0.72) * dt;
                 e.mesh.position.x = clamp(e.baseX + Math.sin(e.phase) * 2.4, -BOUND_X, BOUND_X);
@@ -3020,7 +3123,7 @@
                     spawnEnemyBolt(e.mesh.position, 48 + wave * 4, 3.2);
                 }
 
-                if (Math.abs(e.mesh.position.z - 2.4) < 1.5 && Math.hypot(ship.x - e.mesh.position.x, ship.y - e.mesh.position.y) < 1.8) {
+                if (zWindowHit(prevZ, e.mesh.position.z, 2.4, 1.4) && Math.hypot(ship.x - e.mesh.position.x, ship.y - e.mesh.position.y) < 1.8) {
                     spawnCannonDebris(e.mesh.position.x, e.mesh.position.y, e.mesh.position.z, 0xfb7185, 6, 15);
                     scene.remove(e.mesh);
                     enemies.splice(i, 1);
@@ -3040,6 +3143,9 @@
                 dn.group.position.z = damp(dn.group.position.z, dn.targetZ, 1.8, dt);
                 dn.group.position.x = Math.sin(dn.phase * 0.75) * 3.6;
                 dn.group.position.y = 2.4 + Math.cos(dn.phase * 1.1) * 1.2;
+                if (Math.abs(2.4 - dn.group.position.z) < 8.1 && Math.abs(ship.x - dn.group.position.x) < 5.9 && Math.abs(ship.y - dn.group.position.y) < 1.7) {
+                    damageShip(h.tr('Dretnot gövdesine çarpıldı!', 'Collided with Dreadnought armor hull!'));
+                }
 
                 let aliveCount = 0;
                 for (let t = 0; t < dn.turrets.length; t++) {
@@ -3080,19 +3186,26 @@
                 }
             }
 
-            // Update Player Twin Bolts & Deflected Bolts
+            // Update Player Twin Bolts & Deflected Bolts (swept segment distance check)
             for (let i = playerBolts.length - 1; i >= 0; i--) {
                 const b = playerBolts[i];
+                const prevX = b.mesh.position.x;
+                const prevY = b.mesh.position.y;
+                const prevZ = b.mesh.position.z;
                 b.life -= dt;
                 b.mesh.position.x += b.vx * dt;
                 b.mesh.position.y += b.vy * dt;
                 b.mesh.position.z += b.vz * dt;
+                const bx = b.mesh.position.x;
+                const by = b.mesh.position.y;
+                const bz = b.mesh.position.z;
                 let hit = false;
 
                 // Hit Asteroids
                 for (let j = asteroids.length - 1; j >= 0; j--) {
                     const a = asteroids[j];
-                    if (b.mesh.position.distanceTo(a.mesh.position) < a.radius + 0.9) {
+                    const hitR = a.radius + 0.9;
+                    if (segPointDistSq(prevX, prevY, prevZ, bx, by, bz, a.mesh.position.x, a.mesh.position.y, a.mesh.position.z) < hitR * hitR) {
                         hit = true;
                         a.hp -= b.dmg;
                         if (a.hp <= 0) {
@@ -3103,7 +3216,7 @@
                             scene.remove(a.mesh);
                             asteroids.splice(j, 1);
                         } else {
-                            particles.spawn(b.mesh.position.x, b.mesh.position.y, b.mesh.position.z, 0x22d3ee, 4, 5, 0.25, 0.6);
+                            particles.spawn(bx, by, bz, 0x22d3ee, 4, 5, 0.25, 0.6);
                             h.playAudio('hitMetal', 0.12);
                         }
                         break;
@@ -3114,7 +3227,8 @@
                 if (!hit) {
                     for (let j = enemies.length - 1; j >= 0; j--) {
                         const e = enemies[j];
-                        if (b.mesh.position.distanceTo(e.mesh.position) < e.radius + 0.9) {
+                        const hitR = e.radius + 0.9;
+                        if (segPointDistSq(prevX, prevY, prevZ, bx, by, bz, e.mesh.position.x, e.mesh.position.y, e.mesh.position.z) < hitR * hitR) {
                             hit = true;
                             e.hp -= b.dmg;
                             if (e.hp <= 0) {
@@ -3125,7 +3239,7 @@
                                 scene.remove(e.mesh);
                                 enemies.splice(j, 1);
                             } else {
-                                particles.spawn(b.mesh.position.x, b.mesh.position.y, b.mesh.position.z, 0xfbbf24, 5, 6, 0.25, 0.6);
+                                particles.spawn(bx, by, bz, 0xfbbf24, 5, 6, 0.25, 0.6);
                                 h.playAudio('hitMetal', 0.12);
                             }
                             break;
@@ -3133,13 +3247,14 @@
                     }
                 }
 
-                // Hit Dreadnought Turrets
+                // Hit Dreadnought Turrets (and spark ricochet off armored main hull)
                 if (!hit && dreadnought) {
                     for (let t = 0; t < dreadnought.turrets.length; t++) {
                         const tur = dreadnought.turrets[t];
                         if (!tur.alive) continue;
                         const tWorld = tur.getTargetPos(tmpVecA);
-                        if (b.mesh.position.distanceTo(tWorld) < tur.radius + 0.9) {
+                        const hitR = tur.radius + 0.9;
+                        if (segPointDistSq(prevX, prevY, prevZ, bx, by, bz, tWorld.x, tWorld.y, tWorld.z) < hitR * hitR) {
                             hit = true;
                             tur.hp -= b.dmg;
                             particles.spawn(tWorld.x, tWorld.y, tWorld.z, 0xfbbf24, 6, 7, 0.3, 0.75);
@@ -3157,9 +3272,14 @@
                             break;
                         }
                     }
+                    if (!hit && Math.abs(bx - dreadnought.group.position.x) < 5.75 && Math.abs(by - dreadnought.group.position.y) < 1.4 && Math.abs(bz - dreadnought.group.position.z) < 7.6) {
+                        hit = true;
+                        particles.spawn(bx, by, bz, 0x94a3b8, 4, 5, 0.22, 0.55);
+                        h.playAudio('hitMetal', 0.06);
+                    }
                 }
 
-                if (hit || b.life <= 0 || b.mesh.position.z < -150) {
+                if (hit || b.life <= 0 || bz < -150) {
                     scene.remove(b.mesh);
                     playerBolts.splice(i, 1);
                 }
@@ -3225,16 +3345,23 @@
                 }
             }
 
-            // Update Enemy Crimson Bolts + Barrel Roll Deflection!
+            // Update Enemy Crimson Bolts + Barrel Roll Deflection (swept segment distance check)
             for (let i = enemyBolts.length - 1; i >= 0; i--) {
                 const b = enemyBolts[i];
+                const prevX = b.mesh.position.x;
+                const prevY = b.mesh.position.y;
+                const prevZ = b.mesh.position.z;
                 b.life -= dt;
                 b.mesh.position.x += b.vx * dt;
                 b.mesh.position.y += b.vy * dt;
                 b.mesh.position.z += b.vz * dt;
 
-                const dShip = b.mesh.position.distanceTo(fighterGroup.position);
-                if (barrelRollTimer > 0 && dShip < 2.85) {
+                const dShipSq = segPointDistSq(
+                    prevX, prevY, prevZ,
+                    b.mesh.position.x, b.mesh.position.y, b.mesh.position.z,
+                    fighterGroup.position.x, fighterGroup.position.y, fighterGroup.position.z
+                );
+                if (barrelRollTimer > 0 && dShipSq < 2.9 * 2.9) {
                     // DEFLECTED BY BARREL ROLL!
                     const dvx = -b.vx * 0.7;
                     const dvy = -b.vy * 0.7;
@@ -3255,7 +3382,7 @@
                     h.playAudio('hitShield', 0.14);
                     awardScore(75, h.tr('LAZER YANSITILDI!', 'BOLT DEFLECTED!'), '#22d3ee');
                     continue;
-                } else if (dShip < 1.15) {
+                } else if (dShipSq < 1.18 * 1.18) {
                     scene.remove(b.mesh);
                     enemyBolts.splice(i, 1);
                     damageShip(h.tr('Kızıl plazma darbesi!', 'Struck by crimson laser fire!'));
@@ -3472,6 +3599,7 @@
                     dreadBridgeGeo,
                     dreadProwGeo,
                     turretGeo,
+                    turretRingGeo,
                     skyMat,
                     starMat,
                     floorMat,
@@ -3493,7 +3621,8 @@
                     enemyHullMat,
                     enemyWingMat,
                     dreadHullMat,
-                    turretMat
+                    turretMat,
+                    turretRingMat
                 ]);
                 if (hudCanvas.parentNode) hudCanvas.remove();
                 if (webglCanvas.parentNode) webglCanvas.remove();

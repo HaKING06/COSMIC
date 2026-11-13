@@ -1,5 +1,5 @@
 // =============================================================================
-// COSMIC UNIVERSE v11.0 — UNIVERSAL 50-GAME ARCADE PLAYER SHELL (js/arcadePlayer.js)
+// COSMIC UNIVERSE v12.0 — UNIVERSAL 60-GAME ARCADE PLAYER SHELL (js/arcadePlayer.js)
 // Mounts Three.js 3D, PixiJS v8, Matter.js, WebAssembly, TypeScript, GLSL & Pixel engines.
 // =============================================================================
 (function (global) {
@@ -65,7 +65,7 @@
             launchMenuBtn: 'OYUNA BAŞLA',
             backCatalog: 'Tüm Oyunlar',
             flagshipBadge: 'ANA OYUN · PIXIJS V8 ROGUELIKE',
-            flagshipTitle: 'Cosmic Survivors v11.5 — Tam Ölçek Uzay Arenası',
+            flagshipTitle: 'Cosmic Survivors v12.0 — Tam Ölçek Uzay Arenası',
             flagshipDesc: '8 yıldız gemisi, 4 adet 5600×5600 engelli arena, çok katmanlı Mega Evrim ağacı ve 5 operasyon moduyla tam sürüm hayatta kalma savaşına geçin.',
             launchHangar: 'Komuta Hangarını Aç',
             launchInstant: 'Hemen Arenaya Atla',
@@ -118,7 +118,7 @@
             launchMenuBtn: 'PLAY NOW',
             backCatalog: 'All Games',
             flagshipBadge: 'FLAGSHIP TITLE · PIXIJS V8 ROGUELIKE',
-            flagshipTitle: 'Cosmic Survivors v11.5 — Full Space Survival Arena',
+            flagshipTitle: 'Cosmic Survivors v12.0 — Full Space Survival Arena',
             flagshipDesc: 'Command 8 starships across four 5600×5600 cover arenas, multi-tier Mega Evolutions, and 5 operation modes in the full flagship arena.',
             launchHangar: 'Open Command Hangar',
             launchInstant: 'Deploy Now',
@@ -257,7 +257,7 @@
 
         if (meta) {
             const titleStr = meta.title[lang] || meta.title.tr;
-            document.title = `${titleStr} — COSMIC UNIVERSE v11.5`;
+            document.title = `${titleStr} — COSMIC UNIVERSE v12.0`;
             document.getElementById('gameTitleHeading').textContent = titleStr;
             document.getElementById('gameTaglineText').textContent = meta.tagline[lang] || meta.tagline.tr;
             document.getElementById('valControlsText').textContent = meta.controls[lang] || meta.controls.tr;
@@ -272,6 +272,8 @@
             }
             const novaAvatar = document.querySelector('#storyMissionBanner .mission-nova-avatar');
             if (novaAvatar) novaAvatar.src = asset('assets/v11/nova_avatar.png');
+            const saraAvatar = document.getElementById('storySaraAvatar');
+            if (saraAvatar) saraAvatar.src = asset('assets/v11/cast/sara_ai.png');
         }
 
         if (state.playMode === 'story' && state.chapterMeta) {
@@ -286,6 +288,7 @@
                 : (lang === 'en' ? `Target: Clear Level ${ch.targetValue}` : `Hedef: Seviye ${ch.targetValue}'i tamamla`);
             document.getElementById('storyMissionObjective').textContent = `${ch.title[lang]} — ${targetDesc}`;
             document.getElementById('storyMissionStatus').textContent = state.chapterAwarded ? c.missionDone : c.missionActive;
+            updateStoryMissionProgress(state.currentScore, state.currentLevel, state.chapterAwarded);
         } else {
             document.getElementById('storyMissionBanner')?.classList.add('hidden');
             document.getElementById('gameChapterBadge')?.classList.add('hidden');
@@ -354,6 +357,36 @@
         return asset(`games/${encodeURIComponent(pick.id)}/index.html`);
     }
 
+    function updateStoryMissionProgress(scoreVal, levelVal, completed = false) {
+        if (state.playMode !== 'story' || !state.chapterMeta) return;
+        const ch = state.chapterMeta;
+        const lang = getLang();
+        const isDone = Boolean(completed || state.chapterAwarded);
+        const target = Math.max(1, Number(ch.targetValue) || 1);
+        let pct = 0;
+        let counterText = '';
+
+        if (ch.targetType === 'score') {
+            const cur = Math.max(0, Math.floor(Number(scoreVal) || 0));
+            pct = isDone ? 100 : Math.min(100, Math.max(0, (cur / target) * 100));
+            counterText = `${Math.min(cur, target).toLocaleString(lang === 'en' ? 'en-US' : 'tr-TR')} / ${target.toLocaleString(lang === 'en' ? 'en-US' : 'tr-TR')} · ${Math.round(pct)}%`;
+        } else {
+            const cur = Math.max(1, Math.floor(Number(levelVal) || 1));
+            pct = isDone ? 100 : Math.min(96, Math.max(8, ((cur - 1) / target) * 100 + 8));
+            const lvLbl = lang === 'en' ? 'LV' : 'SV';
+            counterText = `${lvLbl} ${Math.min(cur, target)} / ${target} · ${Math.round(pct)}%`;
+        }
+
+        const banner = document.getElementById('storyMissionBanner');
+        const fill = document.getElementById('storyMissionProgressFill');
+        const counterEl = document.getElementById('storyMissionCounter');
+        const stEl = document.getElementById('storyMissionStatus');
+        if (banner) banner.classList.toggle('is-complete', isDone);
+        if (fill) fill.style.width = `${pct.toFixed(1)}%`;
+        if (counterEl) counterEl.textContent = counterText;
+        if (stEl) stEl.textContent = isDone ? copy().missionDone : copy().missionActive;
+    }
+
     function checkStoryCompletion(score, level, explicitWin) {
         if (state.playMode !== 'story' || !state.chapterMeta || state.chapterAwarded || !global.CosmicStoryStore) return false;
         const ch = state.chapterMeta;
@@ -365,8 +398,7 @@
         state.chapterAwarded = true;
         const stars = Math.min(3, Math.max(1, Number(score) >= ch.targetValue * 2 ? 3 : 2));
         global.CosmicStoryStore.completeChapter(ch.id, stars, Math.floor(Number(score) || 0));
-        const stEl = document.getElementById('storyMissionStatus');
-        if (stEl) stEl.textContent = copy().missionDone;
+        updateStoryMissionProgress(score, level, true);
         updateCreditsPill();
         if (typeof global.confetti === 'function') {
             global.confetti({ particleCount: 70, spread: 68, origin: { y: 0.65 } });
@@ -578,6 +610,12 @@
                 if (hud.level !== undefined) {
                     state.currentLevel = Math.max(1, Math.floor(Number(hud.level) || 1));
                     document.getElementById('valHudLevel').textContent = hud.maxLevel ? `${state.currentLevel}/${hud.maxLevel}` : String(state.currentLevel);
+                    if (state.playMode === 'story' && state.chapterMeta && state.chapterMeta.targetType === 'level') {
+                        checkStoryCompletion(state.currentScore, state.currentLevel, false);
+                    }
+                }
+                if (state.playMode === 'story' && state.chapterMeta && (hud.score !== undefined || hud.level !== undefined)) {
+                    updateStoryMissionProgress(state.currentScore, state.currentLevel, state.chapterAwarded);
                 }
                 if (hud.lives !== undefined) {
                     document.getElementById('valHudLives').textContent = String(hud.lives);

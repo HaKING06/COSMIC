@@ -371,13 +371,21 @@
                     return false;
                 },
                 consumePress(...list) {
+                    let matched = false;
                     for (let i = 0; i < list.length; i++) {
-                        if (justPressed.has(list[i])) {
-                            justPressed.clear();
-                            return true;
+                        const k = list[i];
+                        if (justPressed.has(k)) {
+                            matched = true;
+                            break;
                         }
                     }
-                    return false;
+                    if (!matched) return false;
+                    for (let i = 0; i < list.length; i++) {
+                        const k = list[i];
+                        justPressed.delete(k);
+                        if (typeof k === 'string') justPressed.delete(k.toLowerCase());
+                    }
+                    return true;
                 },
                 consumePointerTap() {
                     if (pointer.justDown) {
@@ -498,6 +506,7 @@
             boss.laserTimer = 3.2;
             boss.laserPhase = 'idle';
             boss.laserAngle = Math.PI;
+            boss.phase = 0;
             boss.regenTimer = 0;
             pylons = [];
             for (let i = 0; i < def.pylons; i++) {
@@ -677,8 +686,8 @@
             boss.phase += dt;
             const targetX = 720 + Math.cos(boss.phase * 0.85) * 95;
             const targetY = H * 0.5 + Math.sin(boss.phase * 1.25) * 145;
-            boss.x = lerp(boss.x, targetX, clamp(dt * 2.2, 0, 1));
-            boss.y = lerp(boss.y, targetY, clamp(dt * 2.2, 0, 1));
+            boss.x = clamp(lerp(boss.x, targetX, clamp(dt * 2.2, 0, 1)), 430, W - 75);
+            boss.y = clamp(lerp(boss.y, targetY, clamp(dt * 2.2, 0, 1)), 80, H - 75);
             boss.angle = Math.atan2(player.y - boss.y, player.x - boss.x);
 
             // Pylons orbit & regen if all down for 8s
@@ -850,9 +859,17 @@
                 const ly2 = boss.y + Math.sin(boss.laserAngle) * 1100;
                 g.save();
                 if (boss.laserPhase === 'telegraph') {
+                    const tp = clamp(1 - boss.laserTimer / 0.95, 0, 1);
+                    const sweepDir = boss.laserAngle + (0.95 * (0.95 + boss.idx * 0.25) * 0.55);
+                    g.fillStyle = `rgba(251, 113, 133, ${0.10 + tp * 0.14})`;
+                    g.beginPath();
+                    g.moveTo(boss.x, boss.y);
+                    g.arc(boss.x, boss.y, 1100, boss.laserAngle, sweepDir);
+                    g.closePath();
+                    g.fill();
                     g.setLineDash([12, 10]);
-                    g.strokeStyle = 'rgba(251, 113, 133, 0.65)';
-                    g.lineWidth = 3;
+                    g.strokeStyle = `rgba(251, 113, 133, ${0.5 + tp * 0.45})`;
+                    g.lineWidth = 2 + tp * 3;
                 } else {
                     g.strokeStyle = 'rgba(251, 113, 133, 0.55)';
                     g.lineWidth = 22;
@@ -864,7 +881,18 @@
                 g.restore();
             }
 
-            // Pylons
+            // Shield Pylon Aura + Pylons
+            const activePylonsCount = pylons.filter((p) => p.alive).length;
+            if (activePylonsCount > 0) {
+                g.save();
+                g.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+                g.lineWidth = 2;
+                g.setLineDash([6, 6]);
+                g.beginPath();
+                g.arc(boss.x, boss.y, 58, 0, TAU);
+                g.stroke();
+                g.restore();
+            }
             for (let i = 0; i < pylons.length; i++) {
                 const py = pylons[i];
                 if (!py.alive) continue;
@@ -992,17 +1020,21 @@
                 const lx2 = boss.x + Math.cos(boss.laserAngle) * 1100;
                 const ly2 = boss.y + Math.sin(boss.laserAngle) * 1100;
                 if (boss.laserPhase === 'telegraph') {
-                    beamGfx.moveTo(boss.x, boss.y).lineTo(lx2, ly2).stroke({ color: 0xfb7185, width: 3, alpha: 0.6 });
+                    const sweepEnd = boss.laserAngle + (0.95 + boss.idx * 0.25) * 0.55;
+                    beamGfx.moveTo(boss.x, boss.y).arc(boss.x, boss.y, 1100, boss.laserAngle, sweepEnd).closePath().fill({ color: 0xfb7185, alpha: 0.14 });
+                    beamGfx.moveTo(boss.x, boss.y).lineTo(lx2, ly2).stroke({ color: 0xfb7185, width: 3.5, alpha: 0.8 });
                 } else {
                     beamGfx.moveTo(boss.x, boss.y).lineTo(lx2, ly2).stroke({ color: 0xfb7185, width: 22, alpha: 0.45 });
                     beamGfx.moveTo(boss.x, boss.y).lineTo(lx2, ly2).stroke({ color: 0xffffff, width: 7, alpha: 0.95 });
                 }
             }
 
+            let pixiAlivePylons = 0;
             for (let i = 0; i < pylonNodes.length; i++) {
                 const pn = pylonNodes[i];
                 const py = pylons[i];
                 if (py && py.alive) {
+                    pixiAlivePylons++;
                     const px = boss.x + Math.cos(py.ang) * py.dist;
                     const pyY = boss.y + Math.sin(py.ang) * py.dist;
                     pn.visible = true;
@@ -1012,6 +1044,9 @@
                 } else {
                     pn.visible = false;
                 }
+            }
+            if (pixiAlivePylons > 0) {
+                beamGfx.circle(boss.x, boss.y, 58).stroke({ color: 0x38bdf8, width: 2, alpha: 0.38 });
             }
 
             bossNode.position.set(boss.x, boss.y);
@@ -1186,8 +1221,10 @@
                     } else {
                         wasm.stepBullets(bulletData, activeCount, dt, W, H, player.x, player.y);
                     }
-                    const movedX = Math.abs(bulletData[0] - beforeX) > 0.0001 || Math.abs(beforeVx) < 0.05;
-                    const movedY = Math.abs(bulletData[1] - beforeY) > 0.0001 || Math.abs(beforeVy) < 0.05;
+                    const minDx = Math.abs(beforeVx * dt) * 0.25;
+                    const minDy = Math.abs(beforeVy * dt) * 0.25;
+                    const movedX = Math.abs(bulletData[0] - beforeX) >= minDx || Math.abs(beforeVx) < 0.05;
+                    const movedY = Math.abs(bulletData[1] - beforeY) >= minDy || Math.abs(beforeVy) < 0.05;
                     if (Number.isFinite(bulletData[0]) && Number.isFinite(bulletData[1]) && movedX && movedY) {
                         wasmEngineMode = wasm.viaWasm === false ? 'fallback-bridge' : 'wasm';
                         return;
@@ -1324,7 +1361,7 @@
                 const idx = i * 4;
                 const bx = bulletData[idx];
                 const by = bulletData[idx + 1];
-                if (bx < -25 || bx > W + 25 || by < -25 || by > H + 25) {
+                if (!Number.isFinite(bx) || !Number.isFinite(by) || bx < -25 || bx > W + 25 || by < -25 || by > H + 25) {
                     const last = activeCount - 1;
                     if (i !== last) {
                         const lidx = last * 4;
@@ -1540,14 +1577,16 @@
                     width: W,
                     height: H
                 });
-                if (s) return s;
+                if (s && s.isWebGL) return s;
+                s?.destroy?.();
                 cleanupOrphans();
             } catch (e) {
                 cleanupOrphans();
             }
             try {
                 const s2 = ctx.shaders.createShaderSurface(ctx.stageEl, FRAG_SRC, initialUniforms);
-                if (s2) return s2;
+                if (s2 && s2.isWebGL) return s2;
+                s2?.destroy?.();
                 cleanupOrphans();
             } catch (e) {
                 cleanupOrphans();
@@ -1566,16 +1605,32 @@
             const vsSrc = `attribute vec2 a_pos; void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }`;
             const compile = (type, src) => {
                 const sh = gl.createShader(type);
+                if (!sh) return null;
                 gl.shaderSource(sh, src);
                 gl.compileShader(sh);
+                if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+                    gl.deleteShader(sh);
+                    return null;
+                }
                 return sh;
             };
             const vs = compile(gl.VERTEX_SHADER, vsSrc);
             const fs = compile(gl.FRAGMENT_SHADER, FRAG_SRC);
+            if (!vs || !fs) {
+                if (vs) gl.deleteShader(vs);
+                if (fs) gl.deleteShader(fs);
+                return { canvas: c, gl: null };
+            }
             const prog = gl.createProgram();
             gl.attachShader(prog, vs);
             gl.attachShader(prog, fs);
             gl.linkProgram(prog);
+            if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+                gl.deleteProgram(prog);
+                gl.deleteShader(vs);
+                gl.deleteShader(fs);
+                return { canvas: c, gl: null };
+            }
             gl.useProgram(prog);
 
             const buf = gl.createBuffer();
@@ -1640,6 +1695,8 @@
         const safeZone = { x: W * 0.5, y: H * 0.5, tx: W * 0.5, ty: H * 0.5, r: 122, moveTimer: 4 };
         const shockwaves = [];
         const prisms = [];
+        const isStory = ctx.isStory !== undefined ? Boolean(ctx.isStory) : Boolean(ctx.chapterId || ctx.chapterTarget);
+        const storyTarget = ctx.chapterTarget || 1400;
 
         let score = 0;
         let level = 1;
@@ -1839,6 +1896,12 @@
             fx.update(dt);
             input.endFrame();
             syncHud(false);
+            if (!ended && isStory && score >= storyTarget) {
+                ended = true;
+                core.playAudio('levelup');
+                syncHud(true);
+                ctx.onWin?.({ score: Math.floor(score), level, stars: lives >= 3 ? 3 : 2 });
+            }
         }
 
         function render() {
@@ -1875,7 +1938,7 @@
                 g.fillRect(0, 0, W, H);
             }
 
-            // Orbital Safe Zone ring
+            // Orbital Safe Zone ring + Void Collapse countdown telegraph arc
             g.save();
             g.strokeStyle = collapsePhase > 0.2 ? '#fbbf24' : '#34d399';
             g.lineWidth = 2.5;
@@ -1884,23 +1947,38 @@
             g.arc(safeZone.x, safeZone.y, safeZone.r, 0, TAU);
             g.stroke();
             g.setLineDash([]);
+            if (collapsePhase > 0.05) {
+                g.strokeStyle = collapsePhase > 0.72 ? '#fb7185' : '#fbbf24';
+                g.lineWidth = 4.5;
+                g.beginPath();
+                g.arc(safeZone.x, safeZone.y, safeZone.r + 6, -Math.PI * 0.5, -Math.PI * 0.5 + TAU * collapsePhase);
+                g.stroke();
+            }
             g.font = '700 11px "Space Grotesk", sans-serif';
-            g.fillStyle = '#34d399';
+            g.fillStyle = collapsePhase > 0.5 ? '#fbbf24' : '#34d399';
             g.textAlign = 'center';
-            g.fillText(core.tr('GÜVENLİ ALAN', 'SAFE ZONE'), safeZone.x, safeZone.y - safeZone.r - 10);
+            g.fillText(collapsePhase > 0.35 ? core.tr('ÇÖKÜŞ YAKLAŞIYOR — ALANA GİR!', 'VOID COLLAPSE — HOLD ZONE!') : core.tr('GÜVENLİ ALAN', 'SAFE ZONE'), safeZone.x, safeZone.y - safeZone.r - 12);
             g.restore();
 
-            // Shockwaves
+            // Shockwaves (crisp spawn countdown ring -> expanding shock ring)
             for (let i = 0; i < shockwaves.length; i++) {
                 const wv = shockwaves[i];
                 if (wv.telegraph > 0) {
-                    g.strokeStyle = 'rgba(251,113,133,0.75)';
-                    g.lineWidth = 2;
+                    const p = clamp(1 - wv.telegraph / 0.9, 0, 1);
+                    g.save();
+                    g.strokeStyle = `rgba(251,113,133,${0.45 + p * 0.5})`;
+                    g.lineWidth = 2 + p * 2.5;
+                    g.setLineDash([5, 4]);
                     g.beginPath();
-                    g.arc(wv.x, wv.y, 18 + (1 - wv.telegraph) * 14, 0, TAU);
+                    g.arc(wv.x, wv.y, 38 - p * 24, 0, TAU);
                     g.stroke();
+                    g.fillStyle = 'rgba(251,113,133,0.35)';
+                    g.beginPath();
+                    g.arc(wv.x, wv.y, 5 + p * 4, 0, TAU);
+                    g.fill();
+                    g.restore();
                 } else {
-                    g.strokeStyle = 'rgba(251,113,133,0.82)';
+                    g.strokeStyle = 'rgba(251,113,133,0.85)';
                     g.lineWidth = 4;
                     g.beginPath();
                     g.arc(wv.x, wv.y, wv.r, 0, TAU);
@@ -1965,7 +2043,7 @@
         const storyTarget = ctx.chapterTarget || 8;
 
         const NOVA_X = 220;
-        const HIT_R = 13;
+        const HIT_R = 12;
         const player = { y: H * 0.48, vy: 0, rot: 0, invuln: 0 };
         const gates = [];
         const coins = [];
@@ -1977,14 +2055,21 @@
         let started = false;
         let elapsed = 0;
         let spawnTimer = 0.8;
+        let lastGateCy = H * 0.48;
         let ended = false;
 
         function spawnGate() {
             const idx = gatesCleared + gates.length;
-            const gap = idx < 4 ? 155 : (idx < 10 ? 142 : 132);
-            const margin = 74 + gap * 0.5;
-            const cy = margin + Math.random() * (H - margin * 2);
+            const gap = idx < 4 ? 158 : (idx < 10 ? 144 : 134);
             const moving = idx >= 4 && Math.random() < 0.45;
+            const amp = moving ? (22 + Math.min(26, level * 4)) : 0;
+            const margin = 64 + gap * 0.5 + amp;
+            const minCy = margin;
+            const maxCy = Math.max(minCy + 10, H - margin);
+            const rawCy = minCy + Math.random() * (maxCy - minCy);
+            // Bound consecutive vertical gate delta so transitions are always flyable
+            const cy = clamp(clamp(rawCy, lastGateCy - 148, lastGateCy + 148), minCy, maxCy);
+            lastGateCy = cy;
             gates.push({
                 x: W + 60,
                 w: 58,
@@ -1993,7 +2078,7 @@
                 gap,
                 moving,
                 phase: Math.random() * TAU,
-                amp: moving ? (22 + Math.min(28, level * 4)) : 0,
+                amp,
                 scored: false
             });
             if (idx % 2 === 1) {
@@ -2040,7 +2125,8 @@
             if (player.invuln > 0 || ended) return;
             lives -= 1;
             player.invuln = 1.15;
-            player.vy = -220;
+            // Bounce away from top vs bottom boundary instead of slamming back into ceiling
+            player.vy = player.y < H * 0.35 ? 140 : -220;
             player.y = clamp(player.y, 70, H - 70);
             fx.burst(NOVA_X, player.y, '#fb7185', 18, 220);
             if (lives <= 0) {
@@ -2072,6 +2158,7 @@
             started = false;
             elapsed = 0;
             spawnTimer = 0.6;
+            lastGateCy = H * 0.48;
             ended = false;
             player.y = H * 0.48;
             player.vy = 0;
@@ -2119,8 +2206,9 @@
                 const gt = gates[i];
                 gt.x -= speed * dt;
                 if (gt.moving) {
-                    gt.phase += dt * 2.3;
-                    gt.cy = gt.baseCy + Math.sin(gt.phase) * gt.amp;
+                    gt.phase += dt * 2.2;
+                    const halfGap = gt.gap * 0.5 + 48;
+                    gt.cy = clamp(gt.baseCy + Math.sin(gt.phase) * gt.amp, halfGap, H - halfGap);
                 }
 
                 const topBottom = gt.cy - gt.gap * 0.5;
@@ -2255,6 +2343,7 @@
         let lives = 3;
         let elapsed = 0;
         let spawnCd = 1.2;
+        let lastHazardSide = 1;
         let scrollOffset = 0;
         let ended = false;
 
@@ -2266,19 +2355,37 @@
             fx.burst(PX, player.y, '#38bdf8', 9, 140);
         }
 
-        function spawnPattern() {
+        function spawnPattern(runSpeed) {
             const side = Math.random() < 0.5 ? 1 : -1; // 1 = floor, -1 = ceiling
+            // Guarantee enough horizontal distance for mid-air flip when switching tracks
+            let rightmostX = W + 60;
+            const minFlipGap = Math.max(255, (runSpeed || 350) * 0.58);
+            for (let i = 0; i < obstacles.length; i++) {
+                const edge = obstacles[i].x + obstacles[i].w;
+                if (edge > rightmostX - minFlipGap && obstacles[i].side !== side) {
+                    rightmostX = Math.max(rightmostX, edge + minFlipGap);
+                }
+            }
+            for (let i = 0; i < gaps.length; i++) {
+                const edge = gaps[i].x + gaps[i].w;
+                if (edge > rightmostX - minFlipGap && gaps[i].side !== side) {
+                    rightmostX = Math.max(rightmostX, edge + minFlipGap);
+                }
+            }
+            lastHazardSide = side;
+
             const r = Math.random();
-            if (r < 0.45 && elapsed > 3.5) {
+            if (r < 0.44 && elapsed > 3.5) {
                 // Void gap on one track only (safe track on opposite side)
-                gaps.push({ x: W + 60, w: 120 + Math.min(60, level * 8), side });
-                collectibles.push({ x: W + 120, y: side === 1 ? CEIL_Y + 34 : FLOOR_Y - 34, bob: 0 });
+                const gw = 116 + Math.min(52, level * 7);
+                gaps.push({ x: rightmostX, w: gw, side });
+                collectibles.push({ x: rightmostX + gw * 0.5, y: side === 1 ? CEIL_Y + 34 : FLOOR_Y - 34, bob: 0 });
             } else {
                 // Laser wall or cargo crusher on one side
                 const isLaser = Math.random() < 0.55;
-                const h = isLaser ? 135 : 74;
+                const h = isLaser ? 122 : 72;
                 obstacles.push({
-                    x: W + 60,
+                    x: rightmostX,
                     w: isLaser ? 22 : 66,
                     h,
                     side,
@@ -2286,7 +2393,7 @@
                     y: side === 1 ? FLOOR_Y - h : CEIL_Y
                 });
                 collectibles.push({
-                    x: W + 90,
+                    x: rightmostX + 30,
                     y: side === 1 ? CEIL_Y + 40 : FLOOR_Y - 40,
                     bob: 0
                 });
@@ -2392,8 +2499,8 @@
 
             spawnCd -= dt;
             if (spawnCd <= 0) {
-                spawnPattern();
-                spawnCd = elapsed < 3.5 ? 1.45 : Math.max(0.68, 1.25 - level * 0.05);
+                spawnPattern(runSpeed);
+                spawnCd = elapsed < 3.5 ? 1.45 : Math.max(0.84, 1.30 - level * 0.045);
             }
 
             for (let i = obstacles.length - 1; i >= 0; i--) {
@@ -2538,11 +2645,22 @@
 
         function spawnSpike() {
             const track = Math.random() < 0.5 ? 0 : 1;
-            const ang = (player.ang + Math.PI + (Math.random() - 0.5) * 0.8) % TAU;
+            let ang = (player.ang + Math.PI + (Math.random() - 0.5) * 1.1 + TAU) % TAU;
+            // Ensure we never spawn opposite-track simultaneous pinch spikes or right on the player
+            for (let attempt = 0; attempt < 8; attempt++) {
+                let conflict = Math.abs(angleDiff(ang, player.ang)) < 1.1;
+                for (let i = 0; i < spikes.length && !conflict; i++) {
+                    if (spikes[i].track !== track && Math.abs(angleDiff(ang, spikes[i].ang)) < 0.65) {
+                        conflict = true;
+                    }
+                }
+                if (!conflict) break;
+                ang = (ang + 0.72) % TAU;
+            }
             spikes.push({
                 track,
                 ang,
-                omega: -(1.1 + level * 0.18) * (Math.random() < 0.25 ? -1 : 1),
+                omega: -(1.1 + level * 0.16) * (Math.random() < 0.25 ? -1 : 1),
                 life: 7.0,
                 grazed: false
             });
@@ -2649,7 +2767,8 @@
                 const sx = CX + Math.cos(sp.ang) * sr;
                 const sy = CY + Math.sin(sp.ang) * sr;
                 const d2 = dist2(px, py, sx, sy);
-                if (d2 < 21 * 21) {
+                // 0.7s fade-in telegraph grace (sp.life > 6.3) so fresh spawns never cheap-shot player
+                if (sp.life <= 6.3 && d2 < 20 * 20) {
                     if (player.invuln <= 0) {
                         lives -= 1;
                         streak = 1;
@@ -2713,7 +2832,18 @@
                 const sr = sp.track === 0 ? R_INNER : R_OUTER;
                 const sx = CX + Math.cos(sp.ang) * sr;
                 const sy = CY + Math.sin(sp.ang) * sr;
-                const alpha = sp.life > 6.3 ? 0.5 : 1;
+                const spawning = sp.life > 6.3;
+                const alpha = spawning ? 0.45 : 1;
+                if (spawning) {
+                    const p = clamp((7.0 - sp.life) / 0.7, 0, 1);
+                    g.save();
+                    g.strokeStyle = 'rgba(251, 113, 133, 0.75)';
+                    g.lineWidth = 2;
+                    g.beginPath();
+                    g.arc(sx, sy, 28 - p * 12, 0, TAU);
+                    g.stroke();
+                    g.restore();
+                }
                 core.drawSprite(g, 'plasma_bomb', sx, sy, 30, 30, elapsed * 4, alpha, (c) => {
                     c.fillStyle = '#fb7185';
                     c.beginPath(); c.arc(0, 0, 12, 0, TAU); c.fill();
@@ -2771,6 +2901,7 @@
         let roadScroll = 0;
         let spawnCd = 1.1;
         let fuelCd = 2.8;
+        let lastOpenLane = 1;
         let ended = false;
 
         function setLane(idx) {
@@ -2779,7 +2910,10 @@
 
         function spawnRow() {
             const openLane = Math.floor(Math.random() * 4);
+            lastOpenLane = openLane;
             const maxHazards = elapsed < 3.5 ? 1 : Math.min(3, 1 + Math.floor(Math.random() * (1 + Math.min(2, level * 0.4))));
+            // Keep row speed uniform (small variance) so consecutive rows never overtake into a 4-lane wall
+            const rowSpeedBias = Math.random() < 0.45 ? -14 : 16;
             let placed = 0;
             for (let l = 0; l < 4; l++) {
                 if (l === openLane || placed >= maxHazards) continue;
@@ -2789,10 +2923,10 @@
                     traffic.push({
                         lane: l,
                         x: LANES[l],
-                        y: -50 - Math.random() * 45,
+                        y: -60 - Math.random() * 24,
                         w: isFreighter ? 66 : 54,
                         h: isFreighter ? 76 : 56,
-                        speedOffset: isFreighter ? -30 : 35,
+                        speedOffset: rowSpeedBias + (isFreighter ? -6 : 8),
                         sprite: isFreighter ? (Math.random() < 0.5 ? 'cargo_crate' : 'moon_lander') : (Math.random() < 0.5 ? 'ufo' : 'alien_drone')
                     });
                 }
@@ -2800,7 +2934,9 @@
         }
 
         function spawnPickup() {
-            const l = Math.floor(Math.random() * 4);
+            // Prefer open lane and avoid overlapping top traffic hazards
+            const safeLanes = [0, 1, 2, 3].filter((l) => !traffic.some((t) => t.lane === l && t.y < 140));
+            const l = safeLanes.length ? safeLanes[Math.floor(Math.random() * safeLanes.length)] : lastOpenLane;
             const isNitro = Math.random() < 0.4;
             pickups.push({
                 lane: l,
@@ -2814,7 +2950,7 @@
         function syncHud(force) {
             const st = player.nitro > 0
                 ? core.tr(`NİTRO AKTİF! · Yakıt: %${Math.ceil(player.fuel)}`, `NITRO ACTIVE! · Fuel: ${Math.ceil(player.fuel)}%`)
-                : core.tr(`Yakıt: %${Math.ceil(player.fuel)} · [W/Yukarı] Nitro`, `Fuel: ${Math.ceil(player.fuel)}%`);
+                : core.tr(`Yakıt: %${Math.ceil(player.fuel)} · [W/Yukarı] Nitro`, `Fuel: ${Math.ceil(player.fuel)}% · [W/Up] Nitro`);
             hud.push({
                 score: Math.floor(score),
                 level,
@@ -2869,6 +3005,14 @@
             else if (input.consumePointerTap()) {
                 const pLane = clamp(Math.floor((input.pointer.x - (LANES[0] - LANE_W * 0.5)) / LANE_W), 0, 3);
                 setLane(pLane);
+            }
+
+            if (input.consumePress('KeyW', 'ArrowUp', 'w', 'Space', ' ') && player.nitro <= 0 && player.fuel >= 20) {
+                player.fuel = Math.max(0, player.fuel - 16);
+                player.nitro = 1.45;
+                core.playAudio('dash');
+                fx.burst(player.x, PLAYER_Y + 12, '#38bdf8', 14, 180);
+                fx.popup(player.x, PLAYER_Y - 26, core.tr('TURBO NİTRO!', 'NITRO BOOST!'), '#38bdf8', 15);
             }
 
             player.x = lerp(player.x, LANES[player.lane], clamp(dt * 18, 0, 1));
@@ -3080,7 +3224,7 @@
             if (laneOverride !== undefined) player.lane = laneOverride;
             if (player.parryCd > 0) return;
             player.parryFlash = 0.22;
-            player.parryCd = 0.28;
+            player.parryCd = 0.18;
 
             // Check incoming shot inside timing ring on active lane
             let parried = false;
@@ -3090,6 +3234,8 @@
                 const d = Math.abs(s.x - RING_X);
                 if (d <= 44) {
                     parried = true;
+                    // Reward chain parries with instant cooldown reset
+                    player.parryCd = 0;
                     const perfect = d <= 20;
                     shots.splice(i, 1);
                     const dmg = perfect ? 26 : 13;
@@ -3237,17 +3383,34 @@
         function render() {
             core.renderBackdrop(g, stars, '#050814', '#12102c', 'rgba(167,139,250,0.14)');
 
-            // 3 Trajectory lanes + Cyan Timing Ring
+            // 3 Trajectory lanes + Dual-Zone Parry/Perfect Timing Ring
             for (let l = 0; l < 3; l++) {
                 const y = LANES_Y[l];
                 const active = l === player.lane;
+                const liveShot = shots.find((s) => s.lane === l && Math.abs(s.x - RING_X) <= 44);
+                const shotPerf = liveShot && Math.abs(liveShot.x - RING_X) <= 20;
+
                 g.strokeStyle = active ? 'rgba(56,189,248,0.45)' : 'rgba(148,163,184,0.15)';
                 g.lineWidth = active ? 2.5 : 1.2;
                 g.beginPath(); g.moveTo(PLAYER_X, y); g.lineTo(SENTINEL_X, y); g.stroke();
 
-                g.strokeStyle = active && player.parryFlash > 0 ? '#fbbf24' : (active ? '#22d3ee' : 'rgba(56,189,248,0.3)');
-                g.lineWidth = active && player.parryFlash > 0 ? 5 : 2.5;
-                g.beginPath(); g.arc(RING_X, y, 22, 0, TAU); g.stroke();
+                // Outer PARRY ring (±44px window)
+                g.save();
+                g.strokeStyle = shotPerf ? '#fbbf24' : (liveShot ? '#22d3ee' : (active ? 'rgba(34,211,238,0.55)' : 'rgba(56,189,248,0.22)'));
+                g.lineWidth = liveShot ? 3 : 1.5;
+                g.setLineDash(liveShot ? [] : [5, 5]);
+                g.beginPath(); g.arc(RING_X, y, 36, 0, TAU); g.stroke();
+                g.setLineDash([]);
+
+                // Inner PERFECT ring (±20px sweet-spot)
+                g.strokeStyle = (active && player.parryFlash > 0) || shotPerf ? '#fbbf24' : (active ? '#22d3ee' : 'rgba(56,189,248,0.3)');
+                g.lineWidth = (active && player.parryFlash > 0) || shotPerf ? 4.5 : 2;
+                g.beginPath(); g.arc(RING_X, y, 18, 0, TAU); g.stroke();
+                if (liveShot && active) {
+                    g.fillStyle = shotPerf ? 'rgba(251,191,36,0.22)' : 'rgba(34,211,238,0.16)';
+                    g.beginPath(); g.arc(RING_X, y, 36, 0, TAU); g.fill();
+                }
+                g.restore();
             }
 
             // Shield Arc on active trajectory
@@ -3338,26 +3501,34 @@
         let level = 1;
         let lives = 3;
         let highestGenY = 480;
+        let lastPlatKind = 'solid';
+        let lastPlatHadDrone = false;
         let elapsed = 0;
         let ended = false;
 
         function spawnPlatformAt(y, forceSafe) {
-            const w = forceSafe ? 150 : Math.max(82, 126 - level * 3);
-            const x = 60 + Math.random() * (W - 120);
+            const w = forceSafe ? 150 : Math.max(88, 128 - level * 3);
+            const pad = w * 0.5 + 16;
+            const x = pad + Math.random() * (W - pad * 2);
             const r = Math.random();
             let kind = 'solid';
             if (!forceSafe) {
                 if (r < 0.22) kind = 'moving';
                 else if (r < 0.34) kind = 'spring';
-                else if (r < 0.48) kind = 'fragile';
+                else if (r < 0.46 && lastPlatKind !== 'fragile') kind = 'fragile';
             }
+            lastPlatKind = kind;
             platforms.push({ x, y, w, h: 16, kind, dir: Math.random() < 0.5 ? -1 : 1, broken: false });
 
             if (!forceSafe && Math.random() < 0.28) {
                 starsPickups.push({ x, y: y - 28, bob: Math.random() * TAU });
             }
-            if (!forceSafe && level >= 2 && Math.random() < 0.16) {
-                drones.push({ x: 80 + Math.random() * (W - 160), y: y - 42, dir: Math.random() < 0.5 ? -1 : 1 });
+            // Never place drones over springs or back-to-back rows
+            if (!forceSafe && kind !== 'spring' && !lastPlatHadDrone && level >= 2 && Math.random() < 0.16) {
+                lastPlatHadDrone = true;
+                drones.push({ x: 95 + Math.random() * (W - 190), y: y - 52, dir: Math.random() < 0.5 ? -1 : 1 });
+            } else {
+                lastPlatHadDrone = false;
             }
         }
 
@@ -3383,6 +3554,8 @@
             camY = 0;
             maxHeight = 0;
             lavaY = 580;
+            lastPlatKind = 'solid';
+            lastPlatHadDrone = false;
             elapsed = 0;
             ended = false;
             player.x = W * 0.5;
@@ -3540,6 +3713,11 @@
                 player.invuln = 1.4;
                 player.vy = -820;
                 player.y = lavaY - 30;
+                // Ensure a solid safety foothold above so emergency thrust never drops player back into lava
+                const hasReachablePlat = platforms.some((p) => !p.broken && p.kind !== 'fragile' && p.y < player.y - 60 && p.y > player.y - 260);
+                if (!hasReachablePlat) {
+                    platforms.push({ x: clamp(player.x, 95, W - 95), y: player.y - 165, w: 140, h: 16, kind: 'solid', dir: 1, broken: false });
+                }
                 core.playAudio('playerHurt');
                 fx.popup(player.x, player.y - camY - 24, core.tr('ACİL İTİCİ!', 'EMERGENCY THRUST!'), '#fb7185', 16);
                 syncHud(true);
@@ -3639,17 +3817,26 @@
             const pattern = Math.floor(Math.random() * 3);
             const warnDur = level >= 3 ? 0.8 : 0.88;
             if (pattern === 0) {
-                // Horizontal or Vertical sweep
+                // Horizontal or Vertical sweep with guaranteed minimum lane spacing
                 const horiz = Math.random() < 0.5;
-                const count = Math.min(4, 1 + Math.floor(level * 0.5));
+                const count = Math.min(3, 1 + Math.floor(level * 0.45));
+                const spanMax = horiz ? (H - 160) : (W - 200);
+                const baseOff = horiz ? 80 : 100;
+                const chosen = [];
                 for (let i = 0; i < count; i++) {
-                    const pos = horiz ? (80 + Math.random() * (H - 160)) : (100 + Math.random() * (W - 200));
+                    let pos = baseOff + Math.random() * spanMax;
+                    for (let attempt = 0; attempt < 8; attempt++) {
+                        if (chosen.every((p) => Math.abs(p - pos) >= 95)) break;
+                        pos = baseOff + Math.random() * spanMax;
+                    }
+                    chosen.push(pos);
                     lasers.push({
                         x1: horiz ? 0 : pos,
                         y1: horiz ? pos : 0,
                         x2: horiz ? W : pos,
                         y2: horiz ? pos : H,
                         warn: warnDur,
+                        warnMax: warnDur,
                         active: 0.45,
                         hit: false
                     });
@@ -3667,6 +3854,7 @@
                         x2: cx + Math.cos(a) * 1100,
                         y2: cy + Math.sin(a) * 1100,
                         warn: warnDur,
+                        warnMax: warnDur,
                         active: 0.45,
                         hit: false
                     });
@@ -3682,6 +3870,7 @@
                     x2: tx + Math.cos(ang) * 1200,
                     y2: ty + Math.sin(ang) * 1200,
                     warn: warnDur,
+                    warnMax: warnDur,
                     active: 0.48,
                     hit: false
                 });
@@ -3745,7 +3934,7 @@
 
             if ((input.consumePress('Space', ' ', 'ShiftLeft', 'ShiftRight') || input.consumePointerTap()) && player.dashCd <= 0) {
                 player.dashTimer = 0.25;
-                player.dashCd = 1.1;
+                player.dashCd = 0.85;
                 core.playAudio('dash');
                 fx.burst(player.x, player.y, '#38bdf8', 12, 160);
             }
@@ -3772,7 +3961,7 @@
             waveCd -= dt;
             if (waveCd <= 0) {
                 spawnLaserPattern();
-                waveCd = elapsed < 3.5 ? 1.85 : Math.max(0.72, 1.5 - level * 0.1);
+                waveCd = elapsed < 3.5 ? 1.85 : Math.max(1.05, 1.55 - level * 0.08);
             }
 
             for (let i = lasers.length - 1; i >= 0; i--) {
@@ -3843,9 +4032,13 @@
                 const l = lasers[i];
                 g.save();
                 if (l.warn > 0) {
+                    const wp = clamp(1 - l.warn / (l.warnMax || 0.88), 0, 1);
+                    g.strokeStyle = `rgba(251,113,133,${0.12 + wp * 0.22})`;
+                    g.lineWidth = 18 * (1 - wp * 0.55);
+                    g.beginPath(); g.moveTo(l.x1, l.y1); g.lineTo(l.x2, l.y2); g.stroke();
                     g.setLineDash([12, 10]);
-                    g.strokeStyle = `rgba(251,113,133,${0.4 + 0.4 * Math.sin(elapsed * 26)})`;
-                    g.lineWidth = 3;
+                    g.strokeStyle = wp > 0.72 ? '#fda4af' : `rgba(251,113,133,${0.48 + wp * 0.48})`;
+                    g.lineWidth = 2 + wp * 3;
                 } else {
                     g.strokeStyle = 'rgba(251,113,133,0.5)';
                     g.lineWidth = 22;
@@ -4045,6 +4238,7 @@
 
         function resetGame() {
             notes.length = 0;
+            for (let i = 0; i < 4; i++) laneFlash[i] = 0;
             fx.clear();
             score = 0;
             combo = 0;
@@ -4117,6 +4311,21 @@
             g.lineWidth = 2;
             g.strokeRect(LANE_X[0] - 60, -2, 480, H + 4);
 
+            // GOOD (±46px) & PERFECT (±24px) Timing Windows + BPM Receptor Beat Pulse
+            const bpm = Math.min(136, 104 + (level - 1) * 6);
+            const beatInterval = 60 / bpm;
+            const beatGlow = Math.pow(clamp(beatTimer / beatInterval, 0, 1), 2);
+            g.fillStyle = 'rgba(52, 211, 153, 0.08)';
+            g.fillRect(LANE_X[0] - 60, RECEPTOR_Y - 46, 480, 92);
+            g.fillStyle = 'rgba(251, 191, 36, 0.14)';
+            g.fillRect(LANE_X[0] - 60, RECEPTOR_Y - 24, 480, 48);
+            g.strokeStyle = 'rgba(251, 191, 36, 0.35)';
+            g.lineWidth = 1.5;
+            g.beginPath();
+            g.moveTo(LANE_X[0] - 60, RECEPTOR_Y);
+            g.lineTo(LANE_X[0] + 420, RECEPTOR_Y);
+            g.stroke();
+
             for (let i = 0; i < 4; i++) {
                 const lx = LANE_X[i];
                 if (laneFlash[i] > 0) {
@@ -4125,6 +4334,14 @@
                 }
                 g.strokeStyle = 'rgba(148,163,184,0.16)';
                 g.beginPath(); g.moveTo(lx, 0); g.lineTo(lx, H); g.stroke();
+
+                // BPM expanding halo on beat
+                g.save();
+                g.strokeStyle = LANE_COLORS[i];
+                g.globalAlpha = 0.25 + beatGlow * 0.4;
+                g.lineWidth = 1.5;
+                g.beginPath(); g.arc(lx, RECEPTOR_Y, 27 + (1 - beatGlow) * 9, 0, TAU); g.stroke();
+                g.restore();
 
                 // Receptor circle
                 g.fillStyle = laneFlash[i] > 0 ? LANE_COLORS[i] : 'rgba(15,23,42,0.9)';
@@ -4143,6 +4360,14 @@
             for (let i = 0; i < notes.length; i++) {
                 const n = notes[i];
                 const nx = LANE_X[n.lane];
+                const dRec = Math.abs(n.y - RECEPTOR_Y);
+                if (dRec <= 46) {
+                    g.save();
+                    g.strokeStyle = dRec <= 24 ? '#fbbf24' : '#34d399';
+                    g.lineWidth = 2.5;
+                    g.beginPath(); g.arc(nx, n.y, 26, 0, TAU); g.stroke();
+                    g.restore();
+                }
                 g.fillStyle = LANE_COLORS[n.lane];
                 g.beginPath();
                 g.moveTo(nx, n.y - 16);
@@ -4211,9 +4436,11 @@
         let ended = false;
 
         function nextDockArc() {
-            targetAng = (shuttleAng + Math.PI * 0.65 + Math.random() * Math.PI * 1.1) % TAU;
-            arcWidth = Math.max(0.24, 0.78 - (level - 1) * 0.065);
-            if (level >= 3 && Math.random() < 0.45) shuttleDir *= -1;
+            if (level >= 3 && Math.random() < 0.42) shuttleDir *= -1;
+            arcWidth = Math.max(0.36, 0.78 - (level - 1) * 0.05);
+            // Place next dock comfortably ahead along active rotation direction
+            const lead = Math.PI * 0.7 + Math.random() * Math.PI * 0.9;
+            targetAng = (shuttleAng + shuttleDir * lead + TAU) % TAU;
         }
 
         function attemptDock() {
@@ -4307,7 +4534,7 @@
             core.stepStarfield(stars, dt, 0.2, 0.15);
             if (lockFlash > 0) lockFlash = Math.max(0, lockFlash - dt);
 
-            const omega = (1.9 + Math.min(2.6, (level - 1) * 0.34)) * shuttleDir;
+            const omega = (1.9 + Math.min(2.1, (level - 1) * 0.28)) * shuttleDir;
             shuttleAng = (shuttleAng + omega * dt + TAU) % TAU;
 
             fx.update(dt);
@@ -4327,18 +4554,45 @@
             g.lineWidth = 10;
             g.beginPath(); g.arc(CX, CY, RING_R, 0, TAU); g.stroke();
 
-            // Target Cyan Alignment Arc & Bullseye Center
-            g.strokeStyle = lockFlash > 0 ? '#fbbf24' : '#22d3ee';
-            g.lineWidth = 14;
+            // Target Cyan Alignment Arc & Bullseye Center (lights up brightly when shuttle enters dock window)
+            const curDiff = Math.abs(angleDiff(shuttleAng, targetAng));
+            const inArc = curDiff <= arcWidth * 0.5;
+            const inBullseye = curDiff <= arcWidth * 0.18;
+
+            g.save();
+            if (inArc) {
+                g.strokeStyle = inBullseye ? 'rgba(251, 191, 36, 0.45)' : 'rgba(34, 211, 238, 0.35)';
+                g.lineWidth = 24;
+                g.beginPath();
+                g.arc(CX, CY, RING_R, targetAng - arcWidth * 0.5, targetAng + arcWidth * 0.5);
+                g.stroke();
+            }
+            g.strokeStyle = lockFlash > 0 || inBullseye ? '#fbbf24' : (inArc ? '#67e8f9' : '#22d3ee');
+            g.lineWidth = inArc ? 16 : 14;
             g.beginPath();
             g.arc(CX, CY, RING_R, targetAng - arcWidth * 0.5, targetAng + arcWidth * 0.5);
             g.stroke();
 
-            g.strokeStyle = '#fbbf24';
-            g.lineWidth = 14;
+            g.strokeStyle = inBullseye ? '#ffffff' : '#fbbf24';
+            g.lineWidth = inBullseye ? 16 : 14;
             g.beginPath();
             g.arc(CX, CY, RING_R, targetAng - arcWidth * 0.16, targetAng + arcWidth * 0.16);
             g.stroke();
+
+            // Shuttle direction chevron indicator along orbit track
+            const leadAng = shuttleAng + shuttleDir * 0.22;
+            const lx = CX + Math.cos(leadAng) * (RING_R + 28);
+            const ly = CY + Math.sin(leadAng) * (RING_R + 28);
+            g.translate(lx, ly);
+            g.rotate(leadAng + (shuttleDir > 0 ? Math.PI * 0.5 : -Math.PI * 0.5));
+            g.fillStyle = '#38bdf8';
+            g.beginPath();
+            g.moveTo(8, 0);
+            g.lineTo(-5, -5);
+            g.lineTo(-5, 5);
+            g.closePath();
+            g.fill();
+            g.restore();
 
             // Shuttle alignment needle + sprite
             const sx = CX + Math.cos(shuttleAng) * RING_R;

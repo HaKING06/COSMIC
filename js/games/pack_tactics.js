@@ -499,6 +499,7 @@
             if (!force && hudCooldown > 0) return;
             const out = Object.assign({}, payload);
             if (out.objective && !out.status) out.status = out.objective;
+            if (!out.statusText) out.statusText = out.status || out.objective || '';
             const json = JSON.stringify(out);
             if (!force && json === lastHudJson) return;
             lastHudJson = json;
@@ -735,6 +736,15 @@
             pointer.down = false;
         }
 
+        function onWindowMouseUp() {
+            pointer.down = false;
+        }
+
+        function onWindowBlur() {
+            pointer.down = false;
+            pointer.inside = false;
+        }
+
         function onTouchStart(e) {
             if (!e.touches || !e.touches[0]) return;
             const t = e.touches[0];
@@ -783,6 +793,8 @@
         if (typeof global.addEventListener === 'function') {
             global.addEventListener('keydown', keyDownHandler);
             global.addEventListener('keyup', keyUpHandler);
+            global.addEventListener('mouseup', onWindowMouseUp);
+            global.addEventListener('blur', onWindowBlur);
         }
 
         function frame(now) {
@@ -860,6 +872,8 @@
             if (typeof global.removeEventListener === 'function') {
                 global.removeEventListener('keydown', keyDownHandler);
                 global.removeEventListener('keyup', keyUpHandler);
+                global.removeEventListener('mouseup', onWindowMouseUp);
+                global.removeEventListener('blur', onWindowBlur);
             }
             if (typeof gameApi.destroy === 'function') {
                 gameApi.destroy();
@@ -999,7 +1013,7 @@
         return createEngine(ctx, 'tower-defense-bastion', (api) => {
             const { g, W, H, L, sfx, shake, spawnParticles, spawnRing, spawnFloat, drawSprite, drawNovaPortrait, drawPanel, drawBar, drawBeam, addButton, syncHud, triggerWin, triggerGameOver } = api;
 
-            let sector = clamp(Number(ctx.level || 1), 1, 6);
+            let sector = clamp(Number(ctx.initialLevel || ctx.level || 1), 1, 6);
             let layout = SECTOR_LAYOUTS[(sector - 1) % SECTOR_LAYOUTS.length];
             let bgCanvas = buildSpaceBackdrop(810 + sector * 37, layout.accent, true);
 
@@ -1007,6 +1021,8 @@
             let lives = 20;
             let maxLives = 20;
             let score = 0;
+            let sectorStartScore = 0;
+            let wonSector = false;
             let kills = 0;
             let wave = 0;
             const maxWaves = 6;
@@ -1264,8 +1280,17 @@
 
             return {
                 restart(lvl) {
-                    score = lvl && lvl > 1 ? score : 0;
-                    initSector(lvl || 1);
+                    const nextSec = clamp(Number(lvl || 1), 1, 6);
+                    if (nextSec <= 1) {
+                        score = 0;
+                        sectorStartScore = 0;
+                    } else if (wonSector && nextSec > sector) {
+                        sectorStartScore = score;
+                    } else {
+                        score = sectorStartScore;
+                    }
+                    wonSector = false;
+                    initSector(nextSec);
                 },
                 onPointerDown(x, y, btn) {
                     if (btn === 2) {
@@ -1373,14 +1398,17 @@
                             e.slowTimer -= dt;
                             if (e.slowTimer <= 0) e.slowFactor = 0;
                         }
-                        const effSpeed = e.speed * (1 - e.slowFactor);
+                        const effSpeed = Math.max(8, e.speed * (1 - clamp(e.slowFactor, 0, 0.72)));
                         let moveLeft = effSpeed * dt;
-                        while (moveLeft > 0 && e.segIdx < wps.length - 1) {
+                        let guard = 0;
+                        while (moveLeft > 0 && e.segIdx < wps.length - 1 && guard++ < wps.length + 2) {
                             const tgt = wps[e.segIdx + 1];
                             const dx = tgt.x - e.x;
                             const dy = tgt.y - e.y;
                             const d = Math.hypot(dx, dy);
-                            if (d <= moveLeft) {
+                            if (d <= 0.0001) {
+                                e.segIdx++;
+                            } else if (d <= moveLeft) {
                                 e.x = tgt.x;
                                 e.y = tgt.y;
                                 e.progress += d;
@@ -1522,6 +1550,7 @@
                         prepTimer = 5.5;
                         sfx('xpPickup');
                         if (wave >= maxWaves) {
+                            wonSector = true;
                             triggerWin({ score, level: sector, wave: maxWaves, kills, credits: gold }, {
                                 title: L(`SEKTÖR ${sector} SAVUNULDU!`, `SECTOR ${sector} DEFENDED!`),
                                 sub: sector === 3 ? L('Hikaye Bölüm 8 Hedefi Tamamlandı!', 'Story Ch.8 Target Cleared!') : L('Tüm 6 dalga püskürtüldü.', 'All 6 waves repelled.'),
@@ -1606,21 +1635,33 @@
                         const isSel = selectedPadIdx === pad.idx;
                         const hovered = dist(api.pointer.x, api.pointer.y, pad.x, pad.y) <= 26;
                         g.save();
-                        if (isSel && pad.turret) {
+                        if ((isSel || hovered) && pad.turret) {
                             const st = turretStats(pad.turret);
-                            g.fillStyle = TURRET_TYPES[pad.turret.type].color + '14';
-                            g.strokeStyle = TURRET_TYPES[pad.turret.type].color + '66';
-                            g.lineWidth = 1.5;
+                            const tColor = TURRET_TYPES[pad.turret.type].color;
+                            g.fillStyle = tColor + (isSel ? '18' : '0e');
+                            g.strokeStyle = tColor + (isSel ? '88' : '55');
+                            g.lineWidth = isSel ? 1.75 : 1.25;
                             g.beginPath();
                             g.arc(pad.x, pad.y, st.range, 0, TAU);
                             g.fill();
                             g.stroke();
-                        } else if (isSel && !pad.turret) {
+                            if (pad.turret.tier < 3) {
+                                g.strokeStyle = tColor + '44';
+                                g.setLineDash([4, 4]);
+                                g.beginPath();
+                                g.arc(pad.x, pad.y, st.range + 18, 0, TAU);
+                                g.stroke();
+                                g.setLineDash([]);
+                            }
+                        } else if ((isSel || hovered) && !pad.turret) {
                             const previewCfg = TURRET_TYPES[buildBrush];
-                            g.strokeStyle = previewCfg.color + '44';
+                            g.fillStyle = previewCfg.color + '0c';
+                            g.strokeStyle = previewCfg.color + (hovered ? '88' : '44');
+                            g.lineWidth = hovered ? 1.5 : 1.2;
                             g.setLineDash([5, 5]);
                             g.beginPath();
                             g.arc(pad.x, pad.y, previewCfg.range, 0, TAU);
+                            g.fill();
                             g.stroke();
                             g.setLineDash([]);
                         }
@@ -1635,15 +1676,17 @@
                         g.stroke();
 
                         if (!pad.turret) {
-                            g.strokeStyle = hovered ? TURRET_TYPES[buildBrush].color : 'rgba(148, 163, 184, 0.45)';
-                            g.lineWidth = 2;
-                            g.beginPath();
-                            g.moveTo(pad.x - 7, pad.y); g.lineTo(pad.x + 7, pad.y);
-                            g.moveTo(pad.x, pad.y - 7); g.lineTo(pad.x, pad.y + 7);
-                            g.stroke();
+                            const c = TURRET_TYPES[buildBrush];
                             if (hovered) {
-                                const c = TURRET_TYPES[buildBrush];
-                                api.setTooltip(pad.x, pad.y, L('Boş Kule Yuvası', 'Empty Turret Pad'), L(`Tıkla -> ${c.nameTr} (${c.cost} CRD)`, `Click -> Build ${c.nameEn} (${c.cost} CRD)`));
+                                drawSprite(c.sprite, pad.x, pad.y, 32, { alpha: 0.48, glow: c.color });
+                                api.setTooltip(pad.x, pad.y, L('Boş Kule Yuvası', 'Empty Turret Pad'), L(`Tıkla -> ${c.nameTr} (${c.cost} CRD · Menzil ${c.range})`, `Click -> Build ${c.nameEn} (${c.cost} CRD · Range ${c.range})`));
+                            } else {
+                                g.strokeStyle = 'rgba(148, 163, 184, 0.45)';
+                                g.lineWidth = 2;
+                                g.beginPath();
+                                g.moveTo(pad.x - 7, pad.y); g.lineTo(pad.x + 7, pad.y);
+                                g.moveTo(pad.x, pad.y - 7); g.lineTo(pad.x, pad.y + 7);
+                                g.stroke();
                             }
                         } else {
                             const t = pad.turret;
@@ -1663,7 +1706,13 @@
                                 g.fill();
                             }
                             if (hovered) {
-                                api.setTooltip(pad.x, pad.y, (langLabel(cfg) + ' LVL ' + t.tier), L(`İmha: ${t.kills} · Yükselt [U] / Sat [S]`, `Kills: ${t.kills} · Upgrade [U] / Sell [S]`));
+                                const st = turretStats(t);
+                                const upC = upgradeCost(t);
+                                const refC = Math.round(t.invested * 0.7);
+                                const upLine = t.tier >= 3
+                                    ? L('MAKS SEVİYE', 'MAX TIER')
+                                    : L(`Yükselt [U]: ${upC} CRD (+%62 Hasar, +18 Menzil)`, `Upgrade [U]: ${upC} CRD (+62% DMG, +18 RNG)`);
+                                api.setTooltip(pad.x, pad.y, `${langLabel(cfg)} LVL ${t.tier}/3`, `DMG ${Math.round(st.dmg)} · RNG ${Math.round(st.range)} · KILLS ${t.kills}\n${upLine} · ${L(`Sat [S]: +${refC} CRD`, `Sell [S]: +${refC} CRD`)}`);
                             }
                         }
                         g.restore();
@@ -1793,12 +1842,18 @@
                         });
 
                         const upCost = upgradeCost(t);
+                        const upCfg = TURRET_TYPES[t.type];
+                        const curSt = turretStats(t);
                         addButton({
                             x: 495, y: 480, w: 195, h: 40,
                             label: t.tier >= 3 ? L('MAKS SEVİYE', 'MAX TIER') : L(`YÜKSELT [U]`, `UPGRADE [U]`),
                             sub: t.tier >= 3 ? 'TIER 3/3' : `${upCost} CRD · LVL ${t.tier + 1}`,
                             accent: PAL.mint,
                             disabled: t.tier >= 3 || gold < upCost,
+                            tooltipTitle: t.tier >= 3 ? L('Maks Seviye', 'Max Tier') : L(`${upCfg.nameTr} LVL ${t.tier + 1}`, `${upCfg.nameEn} LVL ${t.tier + 1}`),
+                            tooltip: t.tier >= 3
+                                ? L('Bu kule tam kapasitede!', 'Turret at maximum capacity!')
+                                : L(`Maliyet: ${upCost} CRD · Menzil ${Math.round(curSt.range)} -> ${Math.round(curSt.range + 18)}`, `Cost: ${upCost} CRD · Range ${Math.round(curSt.range)} -> ${Math.round(curSt.range + 18)}`),
                             onClick: () => upgradeTurret(selPad)
                         });
 
@@ -1808,6 +1863,8 @@
                             label: L('SAT [S]', 'SELL [S]'),
                             sub: `+${refund} CRD`,
                             accent: PAL.coral,
+                            tooltipTitle: L('Kuleyi Sök [S]', 'Sell Turret [S]'),
+                            tooltip: L(`Yatırımın %70'ini (+${refund} CRD) geri al`, `Refund 70% invested value (+${refund} CRD)`),
                             onClick: () => { sellTurret(selPad); selectedPadIdx = -1; }
                         });
                         addButton({
@@ -1844,12 +1901,12 @@
                             });
                         });
                         g.save();
-                        g.font = '500 11px ' + FONT_BODY;
+                        g.font = '500 10.5px ' + FONT_BODY;
                         g.fillStyle = PAL.muted;
                         g.textAlign = 'left';
                         g.textBaseline = 'middle';
-                        g.fillText(selPad ? L('Kule seç & kur!', 'Pick turret to build!') : L('Bir boş yuvaya tıkla\nveya [1-3] seç.', 'Click any pad\nor press [1-3].').split('\n')[0], 758, 492);
-                        g.fillText(L('Sağ tık: Seçimi iptal', 'Right-click: Deselect'), 758, 510);
+                        g.fillText(selPad ? L('Kule seç & kur!', 'Pick turret to build!') : L('Boş yuvaya tıkla / [1-3]', 'Click a pad / [1-3]'), 758, 488);
+                        g.fillText(L('Sağ tık / ESC: İptal', 'Right-click / ESC: Cancel'), 758, 508);
                         g.restore();
                     }
 
@@ -1972,10 +2029,10 @@
         return createEngine(ctx, 'deck-breach-tactics', (api) => {
             const { g, W, H, L, sfx, shake, spawnParticles, spawnRing, spawnFloat, drawSprite, drawNovaPortrait, drawPanel, drawBar, drawBeam, addButton, syncHud, triggerWin, triggerGameOver } = api;
 
-            let level = clamp(Number(ctx.level || 1), 1, 6);
+            let level = clamp(Number(ctx.initialLevel || ctx.level || 1), 1, 6);
             const bgCanvas = buildSpaceBackdrop(912, PAL.violet, true);
 
-            let player = { c: 0, r: 1, hp: 38, maxHp: 38, block: 0, energy: 3, maxEnergy: 3, animX: 0, animY: 0 };
+            let player = { c: 0, r: 1, hp: 38, dispHp: 38, maxHp: 38, block: 0, dispBlock: 0, energy: 3, maxEnergy: 3, animX: 0, animY: 0 };
             let crates = [];
             let enemies = [];
             let drawPile = [];
@@ -1985,6 +2042,10 @@
             let turn = 1;
             let score = 0;
             let kills = 0;
+            let sectorStartScore = 0;
+            let sectorStartKills = 0;
+            let sectorStartHp = 38;
+            let wonEncounter = false;
             let phase = 'PLAYER'; // 'PLAYER' | 'ENEMY'
             let enemyTimer = 0;
             let enemyQueueIdx = 0;
@@ -2011,14 +2072,21 @@
             }
 
             function drawCards(count) {
+                let reshuffled = false;
                 for (let i = 0; i < count; i++) {
                     if (hand.length >= 6) break;
                     if (drawPile.length === 0) {
                         if (discardPile.length === 0) break;
                         drawPile = shuffle(discardPile.slice());
                         discardPile = [];
+                        reshuffled = true;
                     }
                     hand.push(drawPile.pop());
+                }
+                if (reshuffled) {
+                    const pPos = tileCenter(player.c, player.r);
+                    spawnFloat(pPos.x, pPos.y - 36, L('DESTE KARIŞTIRILDI!', 'DECK RESHUFFLED!'), PAL.violet, 1.0);
+                    addLog(L('Atık destesi karıştırıldı.', 'Discard reshuffled into Draw.'));
                 }
             }
 
@@ -2104,7 +2172,7 @@
                     return {
                         kind: sp.kind,
                         c: sp.c, r: sp.r,
-                        hp: sp.hp, maxHp: sp.hp,
+                        hp: sp.hp, dispHp: sp.hp, maxHp: sp.hp,
                         sprite: sp.kind === 'drone' ? 'alien_drone' : sp.kind === 'turret' ? 'laser_turret' : sp.kind === 'ufo' ? 'ufo' : 'boss_core',
                         stunned: false,
                         animX: pos.x, animY: pos.y,
@@ -2189,10 +2257,17 @@
                 const cfg = CARDS[cardId];
                 if (!cfg || player.energy < cfg.cost) {
                     sfx('uiBack');
+                    const pPos = tileCenter(player.c, player.r);
+                    spawnFloat(pPos.x, pPos.y - 26, L('YETERSİZ ENERJİ!', 'LOW ENERGY!'), PAL.coral, 0.95);
                     return;
                 }
                 const valid = validTargetsForCard(cardId).some((t) => t.c === tc && t.r === tr);
-                if (!valid) return;
+                if (!valid) {
+                    sfx('uiBack');
+                    const tPosBad = tileCenter(tc, tr);
+                    spawnFloat(tPosBad.x, tPosBad.y - 16, L('MENZİL DIŞI', 'INVALID TARGET'), PAL.amber, 0.9);
+                    return;
+                }
 
                 player.energy -= cfg.cost;
                 hand.splice(cardIdx, 1);
@@ -2274,6 +2349,7 @@
 
                 // Check encounter win
                 if (enemies.every((e) => e.hp <= 0)) {
+                    wonEncounter = true;
                     triggerWin({ score, level, turns: turn, kills }, {
                         title: L(`BÖLÜM ${level} TEMİZLENDİ!`, `BREACH ${level} CLEARED!`),
                         sub: L(`${turn} turda tüm birimler etkisiz.`, `Sector secured in ${turn} turns.`),
@@ -2372,8 +2448,23 @@
 
             return {
                 restart(lvl) {
-                    if (!lvl || lvl === 1) { score = 0; kills = 0; player.hp = 38; }
-                    initEncounter(lvl || 1);
+                    const nextLvl = clamp(Number(lvl || 1), 1, 6);
+                    if (nextLvl <= 1) {
+                        score = 0; kills = 0; player.hp = 38;
+                        sectorStartScore = 0; sectorStartKills = 0; sectorStartHp = 38;
+                    } else if (wonEncounter && nextLvl > level) {
+                        sectorStartScore = score;
+                        sectorStartKills = kills;
+                        sectorStartHp = player.hp;
+                    } else {
+                        score = sectorStartScore;
+                        kills = sectorStartKills;
+                        player.hp = sectorStartHp;
+                    }
+                    wonEncounter = false;
+                    player.dispHp = player.hp;
+                    player.dispBlock = 0;
+                    initEncounter(nextLvl);
                 },
                 onPointerDown(x, y, btn) {
                     if (btn === 2) { selectedCardIdx = -1; return; }
@@ -2413,10 +2504,13 @@
                     const pPos = tileCenter(player.c, player.r);
                     player.animX = lerp(player.animX, pPos.x, Math.min(1, dt * 14));
                     player.animY = lerp(player.animY, pPos.y, Math.min(1, dt * 14));
+                    player.dispHp = lerp(player.dispHp, player.hp, Math.min(1, dt * 12));
+                    player.dispBlock = lerp(player.dispBlock, player.block, Math.min(1, dt * 12));
                     for (const e of enemies) {
                         const ep = tileCenter(e.c, e.r);
                         e.animX = lerp(e.animX, ep.x, Math.min(1, dt * 14));
                         e.animY = lerp(e.animY, ep.y, Math.min(1, dt * 14));
+                        e.dispHp = lerp(e.dispHp !== undefined ? e.dispHp : e.hp, e.hp, Math.min(1, dt * 12));
                     }
                     for (let i = beams.length - 1; i >= 0; i--) {
                         beams[i].life -= dt;
@@ -2488,7 +2582,7 @@
                     g.fillText('CAPT. NOVA VEX', 111, 154);
                     g.restore();
 
-                    drawBar(26, 172, 170, 14, player.hp / player.maxHp, player.hp > 12 ? PAL.mint : PAL.coral, '#070b12');
+                    drawBar(26, 172, 170, 14, clamp(player.dispHp / player.maxHp, 0, 1), player.hp > 12 ? PAL.mint : PAL.coral, '#070b12');
                     g.save();
                     g.textAlign = 'center';
                     g.textBaseline = 'middle';
@@ -2609,7 +2703,7 @@
                             flipX: e.kind === 'turret',
                             glow: e.stunned ? PAL.teal : PAL.coral
                         });
-                        drawBar(e.animX - 22, e.animY + 23, 44, 5, e.hp / e.maxHp, PAL.coral, '#070b12', null);
+                        drawBar(e.animX - 22, e.animY + 23, 44, 5, clamp((e.dispHp !== undefined ? e.dispHp : e.hp) / e.maxHp, 0, 1), PAL.coral, '#070b12', null);
                         g.save();
                         g.textAlign = 'center';
                         g.textBaseline = 'middle';
@@ -2770,7 +2864,7 @@
         return createEngine(ctx, 'fleet-commander-auto', (api) => {
             const { g, W, H, L, sfx, shake, spawnParticles, spawnRing, spawnFloat, drawSprite, drawPanel, drawBar, drawBeam, addButton, syncHud, triggerWin, triggerGameOver } = api;
 
-            let level = clamp(Number(ctx.level || 1), 1, 6);
+            let level = clamp(Number(ctx.initialLevel || ctx.level || 1), 1, 6);
             let bgCanvas = buildSpaceBackdrop(700 + level * 41, PAL.sky, true);
 
             let energy = 4.5;
@@ -2782,7 +2876,10 @@
             let shots = [];
             let beams = [];
             let aiTimer = 2.0;
+            let stalemateTimer = 0;
             let score = 0;
+            let sectorStartScore = 0;
+            let wonFront = false;
             let kills = 0;
 
             function initFront(lvl) {
@@ -2797,6 +2894,7 @@
                 shots = [];
                 beams = [];
                 aiTimer = 1.8;
+                stalemateTimer = 0;
                 kills = 0;
             }
 
@@ -2865,6 +2963,7 @@
 
             function damageUnit(u, dmg) {
                 if (u.dead) return;
+                stalemateTimer = 0;
                 let d = dmg;
                 if (u.shield > 0) {
                     const ab = Math.min(u.shield, d);
@@ -2887,8 +2986,17 @@
 
             return {
                 restart(lvl) {
-                    if (!lvl || lvl === 1) score = 0;
-                    initFront(lvl || 1);
+                    const nextLvl = clamp(Number(lvl || 1), 1, 6);
+                    if (nextLvl <= 1) {
+                        score = 0;
+                        sectorStartScore = 0;
+                    } else if (wonFront && nextLvl > level) {
+                        sectorStartScore = score;
+                    } else {
+                        score = sectorStartScore;
+                    }
+                    wonFront = false;
+                    initFront(nextLvl);
                 },
                 onPointerDown(x, y) {
                     if (y < 58 || y > 416) return;
@@ -2907,6 +3015,7 @@
                 update(dt) {
                     if (api.isEnded()) return;
 
+                    stalemateTimer += dt;
                     energy = Math.min(maxEnergy, energy + dt * (1.28 + level * 0.05));
 
                     // Enemy AI Spawner
@@ -2961,13 +3070,14 @@
                             continue;
                         }
 
-                        // Combat units look for closest enemy in same lane
+                        // Combat units look for closest enemy in same lane (or converge on stalemate)
                         let target = null;
                         let bestD = Infinity;
+                        const effRange = stalemateTimer > 7.5 ? u.range + Math.min(180, (stalemateTimer - 7.5) * 26) : u.range;
                         for (const o of units) {
                             if (o.dead || o.team === u.team || o.lane !== u.lane) continue;
                             const d = Math.abs(o.x - u.x);
-                            if (d <= u.range && d < bestD) {
+                            if (d <= effRange && d < bestD) {
                                 bestD = d;
                                 target = o;
                             }
@@ -2976,7 +3086,7 @@
                         const coreTargetX = u.team === 'ally' ? 864 : 96;
                         const distToCore = Math.abs(coreTargetX - u.x);
 
-                        if (target || distToCore <= u.range) {
+                        if (target || distToCore <= effRange) {
                             if (u.cd <= 0) {
                                 u.cd = u.maxCd;
                                 const tx = target ? target.x : coreTargetX;
@@ -2996,8 +3106,27 @@
                                     speed: u.aoe ? 340 : 480
                                 });
                             }
+                            if (stalemateTimer > 5.0 && distToCore > 38) {
+                                const driftDir = u.team === 'ally' ? 1 : -1;
+                                u.x = clamp(u.x + driftDir * Math.max(14, u.speed * 0.35) * dt, 96, 864);
+                            }
                         } else {
                             u.x += (u.team === 'ally' ? 1 : -1) * u.speed * dt;
+                            if (stalemateTimer > 5.0) {
+                                // Drift toward nearest opposing lane if lane is empty during a stall
+                                let nearFoe = null;
+                                let nearDist = Infinity;
+                                for (const o of units) {
+                                    if (!o.dead && o.team !== u.team) {
+                                        const dd = dist(u.x, u.y, o.x, o.y);
+                                        if (dd < nearDist) { nearDist = dd; nearFoe = o; }
+                                    }
+                                }
+                                if (nearFoe && nearFoe.lane !== u.lane) {
+                                    u.y += Math.sign(LANES_Y[nearFoe.lane] - u.y) * Math.min(48, u.speed * 0.6) * dt;
+                                    if (Math.abs(u.y - LANES_Y[nearFoe.lane]) < 26) u.lane = nearFoe.lane;
+                                }
+                            }
                         }
                     }
 
@@ -3033,11 +3162,13 @@
                                 damageUnit(s.target, s.dmg);
                             }
                             if (s.targetCore) {
+                                stalemateTimer = 0;
                                 if (s.team === 'ally') {
                                     enemyCore.hp = Math.max(0, enemyCore.hp - s.dmg);
                                     score += s.dmg * 4;
                                     spawnFloat(880, ty - 20, '-' + s.dmg, PAL.amber, 1.0);
                                     if (enemyCore.hp <= 0) {
+                                        wonFront = true;
                                         score += 500 + level * 150;
                                         shake(8, 0.3);
                                         triggerWin({ score, level, kills }, {
@@ -3274,11 +3405,11 @@
         return createEngine(ctx, 'wormhole-roulette-rpg', (api) => {
             const { g, W, H, L, sfx, shake, spawnParticles, spawnRing, spawnFloat, drawSprite, drawNovaPortrait, drawPanel, drawBar, drawBeam, addButton, syncHud, triggerWin, triggerGameOver } = api;
 
-            let tier = Math.max(1, Number(ctx.level || 1));
+            let tier = Math.max(1, Number(ctx.initialLevel || ctx.level || 1));
             const bgCanvas = buildSpaceBackdrop(551 + tier * 19, PAL.amber, true);
 
             let nodeIdx = 0;
-            let player = { hp: 46, maxHp: 46, shield: 0, energy: 0, shards: 35, relics: [] };
+            let player = { hp: 46, dispHp: 46, maxHp: 46, shield: 0, dispShield: 0, energy: 0, shards: 35, relics: [] };
             let enemy = null;
             let dice = [0, 1, 2].map(() => ({ face: DIE_FACES[0], locked: false, spin: 0 }));
             let rerollsLeft = 2;
@@ -3346,11 +3477,13 @@
                         nameTr: n.nameTr,
                         nameEn: n.nameEn,
                         hp: Math.round(n.hp * scale),
+                        dispHp: Math.round(n.hp * scale),
                         maxHp: Math.round(n.hp * scale),
                         atk: Math.round(n.atk * scale),
                         reward: n.reward,
                         isBoss: n.type === 'boss',
-                        shield: n.type === 'boss' ? 10 : 0
+                        shield: n.type === 'boss' ? 10 : 0,
+                        dispShield: n.type === 'boss' ? 10 : 0
                     };
                     if (n.type === 'boss') sfx('bossAlarm');
                     startTurn();
@@ -3369,7 +3502,7 @@
 
             function initRun(lvl) {
                 tier = Math.max(1, Number(lvl || 1));
-                player = { hp: 46, maxHp: 46, shield: 0, energy: 0, shards: 35, relics: [] };
+                player = { hp: 46, dispHp: 46, maxHp: 46, shield: 0, dispShield: 0, energy: 0, shards: 35, relics: [] };
                 score = 0;
                 beams = [];
                 busyTimer = 0;
@@ -3493,21 +3626,6 @@
 
                 if (hasRelic('thorns')) {
                     hitEnemy(4, true, PAL.teal);
-                    if (enemy.hp <= 0) {
-                        player.shards += enemy.reward;
-                        if (nodeIdx >= NODES.length - 1) {
-                            triggerWin({ score, level: tier, node: 8 }, {
-                                title: L('GEÇİT BEKÇİSİ YENİLDİ!', 'GATEKEEPER SLAIN!'),
-                                sub: L('Plazma dikenleri son darbeyi vurdu!', 'Thorns finished the Gatekeeper!'),
-                                statLine: `SCORE ${score}`,
-                                nextLevel: tier + 1,
-                                replayLevel: 1
-                            });
-                            return;
-                        }
-                        enterNode(nodeIdx + 1);
-                        return;
-                    }
                 }
 
                 if (player.hp <= 0) {
@@ -3517,6 +3635,22 @@
                         statLine: `SCORE ${score} · RELICS ${player.relics.length}`,
                         replayLevel: tier
                     });
+                    return;
+                }
+
+                if (enemy && enemy.hp <= 0) {
+                    player.shards += enemy.reward;
+                    if (nodeIdx >= NODES.length - 1) {
+                        triggerWin({ score, level: tier, node: 8 }, {
+                            title: L('GEÇİT BEKÇİSİ YENİLDİ!', 'GATEKEEPER SLAIN!'),
+                            sub: L('Plazma dikenleri son darbeyi vurdu!', 'Thorns finished the Gatekeeper!'),
+                            statLine: `SCORE ${score}`,
+                            nextLevel: tier + 1,
+                            replayLevel: 1
+                        });
+                        return;
+                    }
+                    enterNode(nodeIdx + 1);
                     return;
                 }
                 startTurn();
@@ -3546,6 +3680,12 @@
                     }
                 },
                 update(dt) {
+                    player.dispHp = lerp(player.dispHp !== undefined ? player.dispHp : player.hp, player.hp, Math.min(1, dt * 11));
+                    player.dispShield = lerp(player.dispShield !== undefined ? player.dispShield : player.shield, player.shield, Math.min(1, dt * 12));
+                    if (enemy) {
+                        enemy.dispHp = lerp(enemy.dispHp !== undefined ? enemy.dispHp : enemy.hp, enemy.hp, Math.min(1, dt * 11));
+                        enemy.dispShield = lerp(enemy.dispShield !== undefined ? enemy.dispShield : enemy.shield, enemy.shield, Math.min(1, dt * 12));
+                    }
                     for (const d of dice) {
                         if (d.spin > 0) d.spin = Math.max(0, d.spin - dt);
                     }
@@ -3607,6 +3747,16 @@
                         g.stroke();
                         g.restore();
                         drawSprite(n.sprite, nx, ny, 24, { alpha: done ? 0.55 : 1 });
+                        if (dist(api.pointer.x, api.pointer.y, nx, ny) <= 22) {
+                            const typeDesc = n.type === 'boss'
+                                ? L('Geçit Bekçisi Boss · Kazan ve turu bitir!', 'Gatekeeper Boss · Defeat to clear tier!')
+                                : (n.type === 'shop'
+                                    ? L('Tüccar: Shard ile Kalıntı veya Onarım al', 'Merchant: Spend Shards on Relics & Hull repair')
+                                    : (n.type === 'event'
+                                        ? L('Anomali Olayı: Ücretsiz Kalıntı veya Şifa seç', 'Event Node: Pick a free Relic or Repair reward')
+                                        : L('Çatışma Düğümü · Ödül kazan!', 'Combat Node · Defeat enemy for Shards!')));
+                            api.setTooltip(nx, ny, `${i + 1}/8 · ${api.lang() === 'tr' ? n.nameTr : n.nameEn}`, typeDesc);
+                        }
                     }
 
                     // Arena Platforms (Left: Player, Right: Enemy/Event)
@@ -3629,17 +3779,20 @@
                     g.font = '700 14px ' + FONT_DISPLAY;
                     g.fillStyle = PAL.text;
                     g.fillText('CAPT. NOVA VEX', 148, 114);
-                    drawBar(148, 130, 175, 14, player.hp / player.maxHp, player.hp > 14 ? PAL.mint : PAL.coral, '#070b12');
+                    drawBar(148, 130, 175, 14, clamp((player.dispHp !== undefined ? player.dispHp : player.hp) / player.maxHp, 0, 1), player.hp > 14 ? PAL.mint : PAL.coral, '#070b12');
+                    if (player.dispShield > 0.2) {
+                        drawBar(148, 146, 175, 4, clamp(player.dispShield / Math.max(15, player.maxHp * 0.4), 0, 1), PAL.sky, '#070b12', null);
+                    }
                     g.font = '700 10.5px ' + FONT_MONO;
                     g.fillStyle = '#ffffff';
                     g.fillText(`HP ${player.hp}/${player.maxHp}`, 156, 137);
 
                     g.fillStyle = PAL.sky;
-                    g.fillText(`SHD: ${player.shield}`, 148, 162);
+                    g.fillText(`SHD: ${player.shield}`, 148, 164);
                     g.fillStyle = PAL.violet;
-                    g.fillText(`ENERGY: ${player.energy}/3`, 235, 162);
+                    g.fillText(`ENERGY: ${player.energy}/3`, 235, 164);
                     g.fillStyle = PAL.gold;
-                    g.fillText(`SHARDS: ${player.shards}`, 148, 182);
+                    g.fillText(`SHARDS: ${player.shards}`, 148, 184);
                     g.restore();
 
                     // Relics Strip inside Player Panel
@@ -3668,7 +3821,10 @@
                         g.font = '700 16px ' + FONT_DISPLAY;
                         g.fillStyle = PAL.coral;
                         g.fillText(api.lang() === 'tr' ? enemy.nameTr : enemy.nameEn, 710, 112);
-                        drawBar(585, 130, 250, 15, enemy.hp / enemy.maxHp, PAL.coral, '#070b12');
+                        drawBar(585, 130, 250, 15, clamp((enemy.dispHp !== undefined ? enemy.dispHp : enemy.hp) / enemy.maxHp, 0, 1), PAL.coral, '#070b12');
+                        if (enemy.dispShield > 0.2) {
+                            drawBar(585, 147, 250, 4, clamp(enemy.dispShield / Math.max(15, enemy.maxHp * 0.4), 0, 1), PAL.sky, '#070b12', null);
+                        }
                         g.font = '700 11px ' + FONT_MONO;
                         g.fillStyle = '#ffffff';
                         g.fillText(`HP ${enemy.hp}/${enemy.maxHp}` + (enemy.shield > 0 ? ` (+${enemy.shield} SHD)` : ''), 710, 138);
@@ -3682,6 +3838,9 @@
                         g.fillStyle = PAL.coral;
                         g.fillText(L(`NİYET: ${enemy.atk} HASAR SALDIRI`, `INTENT: STRIKE ${enemy.atk} DMG`), 710, 289);
                         g.restore();
+                        if (pointInRect(api.pointer.x, api.pointer.y, { x: 605, y: 272, w: 210, h: 34 })) {
+                            api.setTooltip(710, 272, L('Düşman Tur Saldırısı', 'Enemy Turn Intent'), L(`Tur sonunda ${enemy.atk} hasar vurur. Önce Kalkan (SHD) emilir!`, `Strikes for ~${enemy.atk} DMG after your dice roll. Blocked by Shield first!`));
+                        }
                     } else {
                         const node = NODES[nodeIdx];
                         drawSprite(node.sprite, 710, 185, 76, { glow: PAL.gold });
@@ -3718,10 +3877,19 @@
                             const dx = 54 + idx * 172;
                             const dy = 384;
                             const wob = d.spin > 0 ? Math.sin(time * 40 + idx) * 6 : 0;
+                            const dieTipMap = {
+                                ATK: L('Düşmana 6 lazer hasarı verir (+Kalıntı bonusu).', 'Deals 6 laser damage to the enemy (+Relic bonuses).'),
+                                SHD: L('Bu tur düşman saldırısını emen +5 Kalkan verir.', 'Grants +5 Shield for this turn to absorb enemy strikes.'),
+                                CRIT: L('10 Yüksek Kritik Hasar vurur!', 'Unleashes 10 heavy Critical damage!'),
+                                HEAL: L('Gövdeden +5 HP onarır.', 'Restores +5 Hull HP immediately.'),
+                                ENERGY: L('+1 Enerji verir. 3 Enerji Kuantum Nova (14 Hasar + 5 Kalkan) tetikler!', 'Grants +1 Energy. 3 Energy fires Quantum Nova (14 DMG + 5 SHD)!')
+                            };
                             addButton({
                                 x: dx, y: dy + wob, w: 152, h: 126,
                                 accent: d.locked ? PAL.gold : d.face.color,
                                 active: d.locked,
+                                tooltipTitle: (api.lang() === 'tr' ? d.face.labelTr : d.face.labelEn) + (d.locked ? L(' (KİLİTLİ)', ' (LOCKED)') : ''),
+                                tooltip: (dieTipMap[d.face.id] || '') + '\n' + L('Tıkla veya [1-3] ile kilitle / aç.', 'Click or press [1-3] to Lock / Unlock.'),
                                 onClick: () => {
                                     if (busyTimer > 0) return;
                                     d.locked = !d.locked;
@@ -3835,7 +4003,7 @@
         return createEngine(ctx, 'mining-tycoon-idle', (api) => {
             const { g, W, H, L, sfx, shake, spawnParticles, spawnRing, spawnFloat, drawSprite, drawPanel, drawBar, drawBeam, addButton, syncHud, triggerWin } = api;
 
-            let prestigeTier = Math.max(1, Number(ctx.level || 1));
+            let prestigeTier = Math.max(1, Number(ctx.initialLevel || ctx.level || 1));
             const bgCanvas = buildSpaceBackdrop(322, PAL.teal, true);
 
             let shards = 0;
@@ -3852,6 +4020,7 @@
             let coreAngle = 0;
             let score = 0;
             let prestigeWonThisTier = false;
+            let milestoneMask = 0;
 
             const AST_X = 285;
             const AST_Y = 232;
@@ -3874,7 +4043,7 @@
                     baseSps += owned[u.id] * u.yield;
                     netHeat += owned[u.id] * u.heatRate;
                 }
-                const clickVal = (6 + (owned.click - 1) * 5) * pMult * surgeMult;
+                const clickVal = (6 + (owned.click - 1) * 5 + Math.floor(baseSps * 0.08)) * pMult * surgeMult;
                 const sps = baseSps * pMult * surgeMult;
                 const zoneHalf = Math.min(0.18, 0.11 + owned.cooler * 0.012);
                 return { clickVal, sps, netHeat, surgeMult, zoneMin: 0.5 - zoneHalf, zoneMax: 0.5 + zoneHalf };
@@ -3890,6 +4059,7 @@
                 overdriveTimer = 0;
                 throttleTimer = 0;
                 prestigeWonThisTier = false;
+                milestoneMask = 0;
             }
 
             function mineClick(x, y) {
@@ -3982,6 +4152,22 @@
                     shards += gained;
                     totalShards += gained;
                     score += gained * 0.5;
+
+                    // Milestone progression bonuses (25%, 50%, 75%, 100%)
+                    const mThresholds = [0.25, 0.5, 0.75, 1.0];
+                    for (let mi = 0; mi < mThresholds.length; mi++) {
+                        const bit = 1 << mi;
+                        if (!(milestoneMask & bit) && totalShards >= prestigeGoal * mThresholds[mi]) {
+                            milestoneMask |= bit;
+                            const pct = Math.round(mThresholds[mi] * 100);
+                            const bonus = Math.round(prestigeGoal * (mi === 3 ? 0.05 : 0.03));
+                            shards += bonus;
+                            score += bonus;
+                            sfx(mi === 3 ? 'powerup' : 'xpPickup');
+                            spawnRing(AST_X, AST_Y, PAL.gold, 155, 0.48);
+                            spawnFloat(AST_X, AST_Y - 96, mi === 3 ? L('WARP PRESTİJ HAZIR!', 'WARP PRESTIGE READY!') : L(`HEDEF %${pct} (+${fmtNum(bonus)})`, `MILESTONE ${pct}% (+${fmtNum(bonus)})`), PAL.gold, 1.25);
+                        }
+                    }
 
                     if (overdriveTimer > 0) overdriveTimer = Math.max(0, overdriveTimer - dt);
                     if (throttleTimer > 0) throttleTimer = Math.max(0, throttleTimer - dt);
@@ -4194,14 +4380,19 @@
         ];
 
         return createEngine(ctx, 'typing-cipher-defense', (api) => {
-            const { g, W, H, L, sfx, shake, spawnParticles, spawnRing, spawnFloat, drawSprite, drawNovaPortrait, drawPanel, drawBar, drawBeam, addButton, syncHud, triggerWin, triggerGameOver } = api;
+            const { canvas, g, W, H, L, sfx, shake, spawnParticles, spawnRing, spawnFloat, drawSprite, drawNovaPortrait, drawPanel, drawBar, drawBeam, addButton, syncHud, triggerWin, triggerGameOver } = api;
 
-            let level = clamp(Number(ctx.level || 1), 1, 6);
+            if (canvas && canvas.tabIndex < 0) canvas.tabIndex = 0;
+            try { if (canvas && typeof canvas.focus === 'function') canvas.focus({ preventScroll: true }); } catch (_) { }
+
+            let level = clamp(Number(ctx.initialLevel || ctx.level || 1), 1, 6);
             let bgCanvas = buildSpaceBackdrop(404 + level * 29, PAL.sky, true);
 
             let hp = 5;
             const maxHp = 5;
             let score = 0;
+            let sectorStartScore = 0;
+            let wonSector = false;
             let combo = 0;
             let bestCombo = 0;
             let empCharge = 0;
@@ -4219,11 +4410,16 @@
             let turretAngle = -Math.PI * 0.5;
             let wrongFlash = 0;
 
-            function normalizeChar(key) {
-                if (!key || key.length !== 1) return '';
-                const map = { 'ı': 'I', 'İ': 'I', 'ş': 'S', 'Ş': 'S', 'ğ': 'G', 'Ğ': 'G', 'ü': 'U', 'Ü': 'U', 'ö': 'O', 'Ö': 'O', 'ç': 'C', 'Ç': 'C' };
-                const ch = map[key] || key.toUpperCase();
-                return /^[A-Z]$/.test(ch) ? ch : '';
+            function normalizeChar(key, code) {
+                if (key && key.length === 1) {
+                    const map = { 'ı': 'I', 'i': 'I', 'İ': 'I', 'ş': 'S', 'Ş': 'S', 'ğ': 'G', 'Ğ': 'G', 'ü': 'U', 'Ü': 'U', 'ö': 'O', 'Ö': 'O', 'ç': 'C', 'Ç': 'C' };
+                    const ch = map[key] || key.toUpperCase();
+                    if (/^[A-Z]$/.test(ch)) return ch;
+                }
+                if (code && /^Key([A-Z])$/.test(code)) {
+                    return code.slice(3);
+                }
+                return '';
             }
 
             function pickWord(minLen, maxLen) {
@@ -4261,13 +4457,13 @@
                 const isWarhead = roll > 0.72;
                 const isDrone = roll < 0.35;
                 const word = isWarhead ? pickWord(6, 8) : (isDrone ? pickWord(4, 5) : pickWord(4, 6));
-                const laneX = 95 + Math.random() * (W - 190);
+                const laneX = clamp(120 + Math.random() * (W - 240), 120, W - 120);
                 enemies.push({
                     id: nextEnemyId++,
                     isBoss: false,
                     sprite: isWarhead ? 'plasma_bomb' : (isDrone ? 'alien_drone' : 'fighter'),
                     x: laneX,
-                    y: 52,
+                    y: 56,
                     vx: (Math.random() - 0.5) * 18,
                     speed: (isWarhead ? 24 : (isDrone ? 40 : 32)) + level * 4.5,
                     words: [word],
@@ -4300,12 +4496,26 @@
                 }
             }
 
+            function triggerSectorWin() {
+                if (wonSector || api.isEnded()) return;
+                wonSector = true;
+                const st = calcStats();
+                triggerWin({ score, level, wpm: st.wpm, accuracy: st.acc, combo: bestCombo }, {
+                    title: L(`SEKTÖR ${level} ŞİFRESİ KIRILDI!`, `SECTOR ${level} CIPHER CLEARED!`),
+                    sub: L(`WPM: ${st.wpm} · Doğruluk: %${st.acc} · En İyi Kombo: x${bestCombo}`, `WPM: ${st.wpm} · Accuracy: ${st.acc}% · Best Combo: x${bestCombo}`),
+                    statLine: `SCORE ${score}`,
+                    nextLevel: level < 6 ? level + 1 : null,
+                    replayLevel: level
+                });
+            }
+
             function triggerEmp() {
                 if (empCharge < 100 || api.isEnded()) return;
                 empCharge = 0;
                 sfx('emp');
                 shake(8, 0.28);
                 spawnRing(W * 0.5, 480, PAL.sky, 620, 0.55);
+                let bossKilled = false;
                 for (let i = enemies.length - 1; i >= 0; i--) {
                     const e = enemies[i];
                     if (e.isBoss) {
@@ -4317,6 +4527,7 @@
                             sfx('explodeBoss');
                             enemies.splice(i, 1);
                             score += 450;
+                            bossKilled = true;
                         }
                     } else {
                         spawnParticles(e.x, e.y, e.color, 12, 130, 3, 0.35);
@@ -4325,6 +4536,9 @@
                     }
                 }
                 lockedId = null;
+                if (bossKilled || (bossSpawned && enemies.length === 0)) {
+                    triggerSectorWin();
+                }
             }
 
             function calcStats() {
@@ -4354,7 +4568,22 @@
                     return;
                 }
 
-                const word = target.words[target.wordIdx];
+                let word = target.words[target.wordIdx];
+                if (word[target.typed] !== ch && target.typed >= 1) {
+                    // Seamless prefix disambiguation: switch lock to an overlapping prefix enemy
+                    const prefix = word.slice(0, target.typed);
+                    const alt = enemies
+                        .filter((e) => e.id !== target.id && e.words[e.wordIdx].startsWith(prefix) && e.words[e.wordIdx][target.typed] === ch)
+                        .sort((a, b) => b.y - a.y)[0];
+                    if (alt) {
+                        alt.typed = target.typed;
+                        target.typed = 0;
+                        lockedId = alt.id;
+                        target = alt;
+                        word = alt.words[alt.wordIdx];
+                    }
+                }
+
                 if (word[target.typed] === ch) {
                     correctKeys++;
                     target.typed++;
@@ -4381,14 +4610,7 @@
                                 shake(8, 0.3);
                                 enemies = enemies.filter((e) => e.id !== target.id);
                                 lockedId = null;
-                                const st = calcStats();
-                                triggerWin({ score, level, wpm: st.wpm, accuracy: st.acc, combo: bestCombo }, {
-                                    title: L(`SEKTÖR ${level} ŞİFRESİ KIRILDI!`, `SECTOR ${level} CIPHER CLEARED!`),
-                                    sub: L(`WPM: ${st.wpm} · Doğruluk: %${st.acc} · En İyi Kombo: x${bestCombo}`, `WPM: ${st.wpm} · Accuracy: ${st.acc}% · Best Combo: x${bestCombo}`),
-                                    statLine: `SCORE ${score}`,
-                                    nextLevel: level < 6 ? level + 1 : null,
-                                    replayLevel: level
-                                });
+                                triggerSectorWin();
                             } else {
                                 sfx('hitShield');
                                 spawnFloat(target.x, target.y - 28, L('ZIRH KIRILDI!', 'PLATE SHATTERED!'), PAL.gold, 1.15);
@@ -4400,7 +4622,7 @@
                         }
                     } else {
                         sfx('shootLaser', 0.16);
-                        target.y = Math.max(48, target.y - 5);
+                        target.y = Math.max(54, target.y - 5);
                         beams.push({ x1: W * 0.5, y1: 486, x2: target.x, y2: target.y, color: PAL.sky, width: 2.2, life: 0.12, maxLife: 0.12 });
                     }
                 } else {
@@ -4414,7 +4636,21 @@
 
             return {
                 restart(lvl) {
-                    initSector(lvl || 1);
+                    const nextLvl = clamp(Number(lvl || 1), 1, 6);
+                    if (nextLvl <= 1) {
+                        score = 0;
+                        sectorStartScore = 0;
+                    } else if (wonSector && nextLvl > level) {
+                        sectorStartScore = score;
+                    } else {
+                        score = sectorStartScore;
+                        combo = 0;
+                    }
+                    wonSector = false;
+                    initSector(nextLvl);
+                },
+                onPointerDown() {
+                    try { if (canvas && typeof canvas.focus === 'function') canvas.focus({ preventScroll: true }); } catch (_) { }
                 },
                 onKeyDown(e) {
                     if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -4423,13 +4659,30 @@
                         triggerEmp();
                         return;
                     }
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        if (enemies.length > 0) {
+                            const sorted = enemies.slice().sort((a, b) => b.y - a.y);
+                            const curIdx = sorted.findIndex((item) => item.id === lockedId);
+                            const nextTarget = sorted[(curIdx + 1) % sorted.length];
+                            if (lockedId && lockedId !== nextTarget.id) {
+                                const prev = enemies.find((item) => item.id === lockedId);
+                                if (prev) prev.typed = 0;
+                            }
+                            lockedId = nextTarget.id;
+                            sfx('uiClick');
+                        }
+                        return;
+                    }
                     if (e.key === 'Escape' || e.key === 'Backspace') {
                         e.preventDefault();
+                        const prev = enemies.find((item) => item.id === lockedId);
+                        if (prev) prev.typed = 0;
                         lockedId = null;
                         sfx('uiClick');
                         return;
                     }
-                    const ch = normalizeChar(e.key);
+                    const ch = normalizeChar(e.key, e.code);
                     if (ch) {
                         e.preventDefault();
                         processTypedChar(ch);
@@ -4453,9 +4706,9 @@
 
                     for (let i = enemies.length - 1; i >= 0; i--) {
                         const e = enemies[i];
-                        e.y += e.speed * dt;
-                        e.x = clamp(e.x + e.vx * dt, 78, W - 78);
-                        if (e.x <= 80 || e.x >= W - 80) e.vx *= -1;
+                        e.y = Math.max(52, e.y + Math.max(8, e.speed) * dt);
+                        e.x = clamp(e.x + e.vx * dt, 108, W - 108);
+                        if (e.x <= 110 || e.x >= W - 110) e.vx *= -1;
 
                         if (e.y >= 452) {
                             hp = Math.max(0, hp - (e.isBoss ? 3 : 1));
@@ -4483,6 +4736,7 @@
 
                     // Check win if boss destroyed by EMP or already cleared
                     if (bossSpawned && !enemies.some((e) => e.isBoss)) {
+                        wonSector = true;
                         const st = calcStats();
                         triggerWin({ score, level, wpm: st.wpm, accuracy: st.acc, combo: bestCombo }, {
                             title: L(`SEKTÖR ${level} ŞİFRESİ KIRILDI!`, `SECTOR ${level} CIPHER CLEARED!`),
@@ -4539,13 +4793,19 @@
                     }
 
                     // Descending Enemies + Typing Pills
+                    const lockedEnemy = enemies.find((en) => en.id === lockedId);
+                    const lockedPrefix = (lockedEnemy && lockedEnemy.typed > 0)
+                        ? lockedEnemy.words[lockedEnemy.wordIdx].slice(0, lockedEnemy.typed)
+                        : '';
                     for (const e of enemies) {
                         const isLocked = e.id === lockedId;
+                        const word = e.words[e.wordIdx];
+                        const sharesPrefix = !isLocked && lockedPrefix && word.startsWith(lockedPrefix);
                         const rot = (e.sprite === 'fighter' || e.sprite === 'alien_drone') ? Math.PI : 0;
-                        if (isLocked) {
+                        if (isLocked || sharesPrefix) {
                             g.save();
-                            g.strokeStyle = wrongFlash > 0 ? PAL.coral : PAL.mint;
-                            g.lineWidth = 2;
+                            g.strokeStyle = isLocked ? (wrongFlash > 0 ? PAL.coral : PAL.mint) : PAL.amber;
+                            g.lineWidth = isLocked ? 2 : 1.4;
                             g.setLineDash([5, 4]);
                             g.beginPath();
                             g.arc(e.x, e.y, e.size * 0.72, 0, TAU);
@@ -4554,15 +4814,14 @@
                         }
                         drawSprite(e.sprite, e.x, e.y, e.size, { angle: rot, glow: e.color });
 
-                        // Word Pill
-                        const word = e.words[e.wordIdx];
+                        // Word Pill (strictly clamped within visible playfield)
                         const typedStr = word.slice(0, e.typed);
                         const remStr = word.slice(e.typed);
                         g.save();
                         g.font = '700 13.5px ' + FONT_MONO;
                         const tw = g.measureText(word).width + 20;
                         const px = clamp(e.x - tw * 0.5, 14, W - tw - 14);
-                        const py = e.y + e.size * 0.5 + 4;
+                        const py = clamp(e.y + e.size * 0.5 + 4, 54, 434);
                         roundRectPath(g, px, py, tw, 24, 6);
                         g.fillStyle = isLocked ? 'rgba(13, 19, 32, 0.96)' : 'rgba(7, 11, 18, 0.88)';
                         g.fill();

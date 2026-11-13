@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC UNIVERSE v11.0 — Evrensel Oyun Oynatıcısı</title>
-    <meta name="description" content="Cosmic Universe v11.0 evrensel tarayıcı oyun kabuğu: Three.js 3D, PixiJS v8, Matter.js, WebAssembly, TypeScript ve GLSL shader uzay oyunları.">
+    <title>COSMIC UNIVERSE v12.0 — Evrensel Oyun Oynatıcısı</title>
+    <meta name="description" content="Cosmic Universe v12.0 evrensel tarayıcı oyun kabuğu: Three.js 3D, PixiJS v8, Matter.js, WebAssembly, TypeScript ve GLSL shader uzay oyunları.">
     <meta name="theme-color" content="#070b12">
 
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
@@ -22,10 +22,10 @@
 <body>
     <header class="cosmic-topbar">
         <a href="index.html" class="topbar-brand">
-            <img src="assets/icon-192.png" alt="Cosmic Universe v11" class="topbar-logo-img">
+            <img src="assets/icon-192.png" alt="Cosmic Universe v12" class="topbar-logo-img">
             <div class="topbar-title-wrap">
                 <span class="topbar-title">COSMIC UNIVERSE</span>
-                <span class="topbar-version" id="playerTopbarSub">V11.5 ARCADE PLAYER</span>
+                <span class="topbar-version" id="playerTopbarSub">V12.0 ARCADE PLAYER</span>
             </div>
         </a>
 
@@ -127,14 +127,22 @@
             </div>
         </section>
 
-        <!-- Captain Nova Vex Story Objective Banner (shown when ?chapter=N) -->
+        <!-- Captain Nova Vex & S.A.R.A. Story Objective Banner (shown when ?chapter=N) -->
         <section class="story-mission-banner hidden" id="storyMissionBanner">
-            <img src="assets/v11/nova_avatar.png" alt="Captain Nova Vex" class="mission-nova-avatar">
+            <div class="mission-avatars-stack" title="Captain Nova Vex &amp; S.A.R.A. AI">
+                <img src="assets/v11/nova_avatar.png" alt="Captain Nova Vex" class="mission-nova-avatar">
+                <img src="assets/v11/cast/sara_ai.png" alt="S.A.R.A. AI" class="mission-sara-avatar" id="storySaraAvatar">
+                <span class="mission-ai-tag font-mono">AI</span>
+            </div>
             <div class="mission-copy">
                 <div class="mission-eyebrow font-mono" id="storyMissionTitle">CHAPTER 1 MISSION</div>
                 <div class="mission-objective-text" id="storyMissionObjective">Clear objective</div>
+                <div class="mission-progress-bar-track" id="storyMissionProgressTrack">
+                    <div class="mission-progress-bar-fill" id="storyMissionProgressFill" style="width: 0%"></div>
+                </div>
             </div>
             <div class="mission-progress-wrap">
+                <span class="mission-progress-counter font-mono" id="storyMissionCounter">0 / 0 · 0%</span>
                 <span class="mission-progress-label font-mono" id="storyMissionStatus">ACTIVE</span>
             </div>
         </section>
@@ -183,6 +191,7 @@
                         <img src="assets/v11/sprites/fighter.png" alt="" class="pregame-logo" id="preGameLogo">
                         <div class="pregame-title-col">
                             <div class="pregame-badges">
+                                <span class="cs-badge cs-badge-violet cs-badge-sm font-mono" id="preGameVersionPill">COSMIC v12.0</span>
                                 <span class="cs-badge cs-badge-sky cs-badge-sm font-mono" id="preGameEnginePill">Engine</span>
                                 <span class="cs-badge cs-badge-amber cs-badge-sm font-mono" id="preGameBestPill">BEST: 0</span>
                                 <span class="cs-badge cs-badge-mint cs-badge-sm font-mono" id="preGameStarsPill">☆☆☆</span>

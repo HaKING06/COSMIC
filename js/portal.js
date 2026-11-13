@@ -1,5 +1,5 @@
 // =============================================================================
-// COSMIC UNIVERSE v11.5 — CLEAN STOREFRONT & 60-GAME PORTAL CONTROLLER (js/portal.js)
+// COSMIC UNIVERSE v12.0 — CLEAN STOREFRONT & 60-GAME PORTAL CONTROLLER (js/portal.js)
 // Renders 60 Games (Clean Text-Free Posters + Corner Logos), 4-Act Story Jump & Fuse Search
 // =============================================================================
 (function (global) {
@@ -15,8 +15,8 @@
 
     const COPY = {
         tr: {
-            pageTitle: 'COSMIC UNIVERSE v11.5 — 60 Uzay Oyunu & 24 Bölümlük Hikâye Portalı',
-            topbarSub: 'V11.5 MULTIVERSE PORTAL',
+            pageTitle: 'COSMIC UNIVERSE v12.0 — 60 Uzay Oyunu & 24 Bölümlük Hikâye Portalı',
+            topbarSub: 'V12.0 MULTIVERSE PORTAL',
             eyebrow: 'TEK KAHRAMAN · 60 KOZMİK DÜNYA',
             heroTitle: 'Cosmic Universe Arcade',
             heroSub: 'Kaptan Nova Vex\'in 24 bölümlük Sezon 1 destanını oyna veya 11 farklı oyun motoruyla geliştirilmiş 60 sonsuz tarayıcı oyunundan birini hemen başlat.',
@@ -30,7 +30,7 @@
             kpiStars: 'Yıldızlar',
             kpiStory: 'Hikâye',
             kpiScore: 'Toplam Skor',
-            featuredNew: 'YENİ V11.5 AMİRAL GEMİSİ OYUNLAR',
+            featuredNew: 'V12.0 AMİRAL GEMİSİ OYUNLAR',
             storyStripTitle: 'Kaptan Nova Vex — Sezon 1 Perdeleri (24 Bölüm)',
             storyMore: 'Hikâye Haritasına Git',
             searchPlaceholder: '60 oyun ara (Phaser, Lua, WASM, 3D, gizem...)',
@@ -51,15 +51,15 @@
                 tactics: 'Taktik & Gizem'
             },
             allEngines: 'Motor: Tümü',
-            flagshipTag: 'V11.5 YENİ',
+            flagshipTag: 'V12.0',
             storyBadge: (n) => `BÖL.${n}`,
             playCta: 'OYNA →',
             hangarCta: 'HANGAR →',
             bestPrefix: 'Rekor'
         },
         en: {
-            pageTitle: 'COSMIC UNIVERSE v11.5 — 60 Space Games & 24-Chapter Story Portal',
-            topbarSub: 'V11.5 MULTIVERSE PORTAL',
+            pageTitle: 'COSMIC UNIVERSE v12.0 — 60 Space Games & 24-Chapter Story Portal',
+            topbarSub: 'V12.0 MULTIVERSE PORTAL',
             eyebrow: 'ONE HERO · 60 COSMIC WORLDS',
             heroTitle: 'Cosmic Universe Arcade',
             heroSub: 'Follow Captain Nova Vex across a 24-Chapter Season 1 saga or launch any of 60 endless browser games powered by 11 distinct engines.',
@@ -73,7 +73,7 @@
             kpiStars: 'Stars Earned',
             kpiStory: 'Story Progress',
             kpiScore: 'Total Score',
-            featuredNew: 'NEW V11.5 FLAGSHIP RELEASES',
+            featuredNew: 'V12.0 FLAGSHIP RELEASES',
             storyStripTitle: 'Captain Nova Vex — Season 1 Acts (24 Chapters)',
             storyMore: 'Open Story Map',
             searchPlaceholder: 'Search all 60 games (Phaser, Lua, WASM, 3D, mystery...)',
@@ -94,7 +94,7 @@
                 tactics: 'Tactics & Mystery'
             },
             allEngines: 'Engine: All',
-            flagshipTag: 'V11.5 NEW',
+            flagshipTag: 'V12.0',
             storyBadge: (n) => `CH.${n}`,
             playCta: 'PLAY →',
             hangarCta: 'HANGAR →',

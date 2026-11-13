@@ -1,5 +1,5 @@
 /**
- * COSMIC SURVIVORS v10.0 — GENESIS EDITION Arena Combat Engine
+ * COSMIC SURVIVORS v12.0 — GENESIS EDITION Arena Combat Engine
  * Driven by PixiJS v8 Renderer (with Canvas2D fallback & Corner Tactical Minimap),
  * 5600x5600 Dynamic Sector Director with Solid Cover Obstacles & Vault POIs,
  * 5 Playable Modes (Survival, Endless, Boss Rush, Time Attack, Daily Seeded Protocol),
@@ -55,6 +55,92 @@
     function clampWorldCoord(v, maxBound) {
         if (!Number.isFinite(v)) return maxBound * 0.5;
         return Math.max(2, Math.min(maxBound - 2, v));
+    }
+
+    function clampToArena(ent, radius = 16) {
+        if (!ent) return ent;
+        const r = Math.max(4, Number.isFinite(radius) ? radius : (ent.r || 16));
+        const margin = Math.max(24, r + 6);
+        ent.x = Number.isFinite(ent.x) ? Math.max(margin, Math.min(WORLD_W - margin, ent.x)) : WORLD_W * 0.5;
+        ent.y = Number.isFinite(ent.y) ? Math.max(margin, Math.min(WORLD_H - margin, ent.y)) : WORLD_H * 0.5;
+        return ent;
+    }
+
+    function rayClipEnd(ox, oy, ang, maxLen) {
+        const dx = Math.cos(ang);
+        const dy = Math.sin(ang);
+        let maxT = maxLen;
+        const minB = 2;
+        const maxX = WORLD_W - 2;
+        const maxY = WORLD_H - 2;
+        if (dx > 0.0001) maxT = Math.min(maxT, (maxX - ox) / dx);
+        else if (dx < -0.0001) maxT = Math.min(maxT, (minB - ox) / dx);
+        if (dy > 0.0001) maxT = Math.min(maxT, (maxY - oy) / dy);
+        else if (dy < -0.0001) maxT = Math.min(maxT, (minB - oy) / dy);
+        maxT = Math.max(0, maxT);
+        return {
+            x: clampWorldCoord(ox + dx * maxT, WORLD_W),
+            y: clampWorldCoord(oy + dy * maxT, WORLD_H)
+        };
+    }
+
+    function resolveObstacleCollisions(ent, radius) {
+        if (!ent) return false;
+        const r = Math.max(4, Number.isFinite(radius) ? radius : (ent.r || 16));
+        clampToArena(ent, r);
+        const dir = global.CosmicMapDirector;
+        if (!dir || typeof dir.resolveCircleCollision !== 'function') return false;
+
+        let collided = dir.resolveCircleCollision(ent, r);
+        const checkPad = Math.max(3, r - 2);
+        if (typeof dir._isPointClearOfObstacles === 'function' && !dir._isPointClearOfObstacles(ent.x, ent.y, checkPad)) {
+            for (let pass = 0; pass < 3; pass++) {
+                if (dir.resolveCircleCollision(ent, r)) collided = true;
+                if (dir._isPointClearOfObstacles(ent.x, ent.y, checkPad)) break;
+            }
+            if (!dir._isPointClearOfObstacles(ent.x, ent.y, checkPad) && typeof dir._findClearPoint === 'function') {
+                const clear = dir._findClearPoint(ent.x, ent.y, r + 6, 240);
+                ent.x = clear.x;
+                ent.y = clear.y;
+                collided = true;
+            }
+        }
+        clampToArena(ent, r);
+        return collided;
+    }
+
+    function resolveDropPosition(x, y, radius = 14, spread = 180) {
+        const pos = { x: clampWorldCoord(x, WORLD_W), y: clampWorldCoord(y, WORLD_H), r: radius };
+        clampToArena(pos, radius);
+        const dir = global.CosmicMapDirector;
+        if (dir) {
+            if (typeof dir._isPointClearOfObstacles === 'function' && !dir._isPointClearOfObstacles(pos.x, pos.y, radius + 4)) {
+                if (typeof dir._findClearPoint === 'function') {
+                    const clear = dir._findClearPoint(pos.x, pos.y, radius + 8, spread);
+                    pos.x = clear.x;
+                    pos.y = clear.y;
+                }
+            }
+            resolveObstacleCollisions(pos, radius);
+        }
+        return { x: pos.x, y: pos.y };
+    }
+
+    function getClearPerimeterPoint(cx, cy, minDist = 520, maxDist = 720, pad = 26) {
+        const dir = global.CosmicMapDirector;
+        const margin = Math.max(100, pad + 16);
+        for (let tries = 0; tries < 10; tries++) {
+            const ang = randVal() * Math.PI * 2;
+            const d = minDist + randVal() * Math.max(40, maxDist - minDist);
+            const sx = Math.max(margin, Math.min(WORLD_W - margin, cx + Math.cos(ang) * d));
+            const sy = Math.max(margin, Math.min(WORLD_H - margin, cy + Math.sin(ang) * d));
+            if (!dir || typeof dir._isPointClearOfObstacles !== 'function' || dir._isPointClearOfObstacles(sx, sy, pad)) {
+                return { x: sx, y: sy };
+            }
+        }
+        const ang = randVal() * Math.PI * 2;
+        const d = (minDist + maxDist) * 0.5;
+        return resolveDropPosition(cx + Math.cos(ang) * d, cy + Math.sin(ang) * d, pad, 260);
     }
 
     // ── Rebalanced v10.0 Difficulty Scaling (Synced with DATA.DIFFICULTIES) ─────────
@@ -198,7 +284,8 @@
         weaponDamageStats: {}, keys: {}, mouse: { x: 640, y: 360, active: false },
         aimMode: 'mouse', joy: { active: false, dx: 0, dy: 0 },
         settings: { vfxMode: 'normal', showDmg: true, aimMode: 'mouse', minimapOpen: true },
-        currentOffers: [], goChart: null, lastFrameTs: 0, eventBannerTimer: 0
+        currentOffers: [], goChart: null, lastFrameTs: 0, eventBannerTimer: 0,
+        rafId: 0, destroyed: false
     };
 
     const el = {};
@@ -574,6 +661,9 @@
 
         if (en.hp <= 0 && !en.dead) {
             en.dead = true;
+            en.telegraphRadius = 0;
+            en.telegraphLine = null;
+            en.telegraphTarget = null;
             G.kills++;
             const scoreBase = en.isBoss ? 1400 : (en.isElite ? 105 : 20);
             G.score += Math.round(scoreBase * G.diff.score * G.modeScoreMult * (G.wave > 15 ? 1 + (G.wave - 15) * 0.04 : 1));
@@ -591,10 +681,12 @@
                     const s = 70 + Math.random() * 240;
                     spawnParticle(en.x, en.y, k % 2 ? '#f59e0b' : '#fb7185', 8 + Math.random() * 8, 0.78, Math.cos(a) * s, Math.sin(a) * s);
                 }
-                G.chests.push({ x: en.x, y: en.y });
+                G.chests.push(resolveDropPosition(en.x, en.y, 20));
                 if (G.modeId === 'bossrush') {
-                    G.pickups.push({ x: en.x - 28, y: en.y + 12, kind: 'heal' });
-                    G.pickups.push({ x: en.x + 28, y: en.y + 12, kind: 'shield' });
+                    const hpPos = resolveDropPosition(en.x - 28, en.y + 12, 16);
+                    const shPos = resolveDropPosition(en.x + 28, en.y + 12, 16);
+                    G.pickups.push({ x: hpPos.x, y: hpPos.y, kind: 'heal' });
+                    G.pickups.push({ x: shPos.x, y: shPos.y, kind: 'shield' });
                 }
 
                 // Wave 15 Campaign / Daily Apex Victory Choice!
@@ -606,9 +698,11 @@
                 }
             } else {
                 spawnParticle(en.x, en.y, en.isElite ? '#f59e0b' : '#fb7185', en.isElite ? 16 : 9, 0.35, 0, 0, true);
-                G.crystals.push({ x: en.x, y: en.y, val: en.xp || 5, big: !!en.isElite });
+                const cPos = resolveDropPosition(en.x, en.y, 12, 140);
+                G.crystals.push({ x: cPos.x, y: cPos.y, val: en.xp || 5, big: !!en.isElite });
                 if (en.isElite || Math.random() < 0.025) {
-                    G.pickups.push({ x: en.x + 12, y: en.y, kind: Math.random() < 0.55 ? 'heal' : 'shield' });
+                    const pPos = resolveDropPosition(en.x + 12, en.y, 15, 160);
+                    G.pickups.push({ x: pPos.x, y: pPos.y, kind: Math.random() < 0.55 ? 'heal' : 'shield' });
                 }
                 if (en.splits && !en.isChild) {
                     spawnEnemy('swarmer', en.x - 18, en.y + 10, false, true);
@@ -789,14 +883,16 @@
             const zx = clampWorldCoord(target ? target.x : p.x + Math.cos(aim) * 180, WORLD_W);
             const zy = clampWorldCoord(target ? target.y : p.y + Math.sin(aim) * 180, WORLD_H);
             const rad = isEvo ? 115 : (72 + lv * 6);
-            G.floorZones.push({ x: zx, y: zy, r: rad, color: col, dmgPerSec: 36 * dmgScale, life: 3.4, tick: 0, sourceId: id });
+            if (G.floorZones.length > 24) G.floorZones.shift();
+            G.floorZones.push({ x: zx, y: zy, r: rad, color: col, dmgPerSec: 36 * dmgScale, life: 3.4, tick: 0.45, sourceId: id });
             G.enemies.concat(G.bosses).forEach(en => {
                 if (!en.dead && Math.hypot(en.x - zx, en.y - zy) < rad + en.r) hurtEnemy(en, 34 * dmgScale, id);
             });
             if (global.CosmicAudio) global.CosmicAudio.play('shootPlasma', 0.2);
         } else if (id === 'photonRailgun' || id === 'tachyonLance') {
-            const x2 = clampWorldCoord(p.x + Math.cos(aim) * 920, WORLD_W);
-            const y2 = clampWorldCoord(p.y + Math.sin(aim) * 920, WORLD_H);
+            const endPt = rayClipEnd(p.x, p.y, aim, 920);
+            const x2 = endPt.x;
+            const y2 = endPt.y;
             addArc(p.x, p.y, x2, y2, '#38bdf8', isEvo ? 7 : 4);
             G.bosses.forEach(b => {
                 (b.shieldPylons || []).forEach(py => {
@@ -934,7 +1030,7 @@
             p.invuln = 1.25;
             p.x += Math.cos(p.aimAngle) * 175;
             p.y += Math.sin(p.aimAngle) * 175;
-            global.CosmicMapDirector.resolveCircleCollision(p, 16);
+            resolveObstacleCollisions(p, 16);
             spawnParticle(p.x, p.y, '#38bdf8', 70, 0.35, 0, 0, true);
         } else if (sid === 'dreadnought') {
             for (let i = 0; i < 16; i++) {
@@ -958,7 +1054,7 @@
             p.cloakCycle = 0;
             p.x += Math.cos(p.aimAngle) * 185;
             p.y += Math.sin(p.aimAngle) * 185;
-            global.CosmicMapDirector.resolveCircleCollision(p, 16);
+            resolveObstacleCollisions(p, 16);
             spawnParticle(p.x, p.y, '#a78bfa', 68, 0.35, 0, 0, true);
         } else if (sid === 'solarflare') {
             spawnParticle(p.x, p.y, '#f97316', 230, 0.5, 0, 0, true);
@@ -988,9 +1084,12 @@
         const spScale = G.diff.speed * G.modeEnemySpMult * waveSpScale * (isElite ? 1.12 : (isHunter ? 1.38 : 1));
         const dmgScale = waveDmgScale * (isElite ? 1.35 : (isHunter ? 1.25 : 1));
 
+        const rad = isElite ? tpl.r * 1.35 : (isChild ? tpl.r * 0.72 : tpl.r);
+        const clearPos = resolveDropPosition(x, y, rad + 4, 220);
+
         const en = {
-            type: typeKey, spriteKey: tpl.spriteKey, x, y,
-            r: isElite ? tpl.r * 1.35 : (isChild ? tpl.r * 0.72 : tpl.r),
+            type: typeKey, spriteKey: tpl.spriteKey, x: clearPos.x, y: clearPos.y,
+            r: rad,
             hp: Math.round(tpl.hp * hpScale), maxHp: Math.round(tpl.hp * hpScale),
             sp: tpl.sp * spScale, dmg: Math.round(tpl.dmg * dmgScale),
             xp: isElite ? tpl.xp * 3 : tpl.xp, angle: 0,
@@ -998,9 +1097,12 @@
             shoots: !!tpl.shoots, sniper: !!tpl.sniper, teleports: !!tpl.teleports, splits: !!tpl.splits, summons: !!tpl.summons,
             fireCd: 1.4 + randVal() * 1.3, actionCd: 3.5 + randVal() * 2.0,
             stealthAlpha: 1, slideDir: randVal() < 0.5 ? 1 : -1,
+            stuckTimer: 0, farTimer: 0, progressTimer: 0, lastProgressX: clearPos.x, lastProgressY: clearPos.y,
             telegraphTarget: null, flashTimer: 0, frozenTimer: 0, burnTimer: 0, orbHitCd: 0, dead: false
         };
-        global.CosmicMapDirector.resolveCircleCollision(en, en.r);
+        resolveObstacleCollisions(en, en.r);
+        en.lastProgressX = en.x;
+        en.lastProgressY = en.y;
         G.enemies.push(en);
         return en;
     }
@@ -1037,22 +1139,26 @@
             : (1 + Math.max(0, G.wave - 5) * 0.16 + (G.wave > 15 ? (G.wave - 15) * 0.12 : 0));
         const hp = Math.round(cfg.baseHp * G.diff.bossHp * G.modeEnemyHpMult * waveScale);
         const p = G.player;
-        const a = randVal() * Math.PI * 2;
+        const spawnPt = getClearPerimeterPoint(p.x, p.y, 480, 620, cfg.r + 14);
         const boss = {
             isBoss: true, bossIdx, spriteKey: cfg.spriteKey, name: cfg.name,
             hint: isEn() ? cfg.hintEn : cfg.hint, hintTr: cfg.hint, hintEn: cfg.hintEn,
-            x: Math.max(240, Math.min(WORLD_W - 240, p.x + Math.cos(a) * 600)),
-            y: Math.max(240, Math.min(WORLD_H - 240, p.y + Math.sin(a) * 480)),
+            x: Math.max(240, Math.min(WORLD_W - 240, spawnPt.x)),
+            y: Math.max(240, Math.min(WORLD_H - 240, spawnPt.y)),
             r: cfg.r, hp, maxHp: hp, sp: cfg.sp * G.diff.speed * G.modeEnemySpMult, armor: 0.14, phase: 1,
             hasWeakspot: cfg.hasWeakspot, angle: 0, atkCd: 2.8, atkIdx: 0,
             state: 'chase', stateTimer: 0,
-            dashVx: 0, dashVy: 0, sweepAngle: 0, sweepDir: 1, sweepTick: 0,
+            dashVx: 0, dashVy: 0, dashAng: 0, sweepAngle: 0, sweepDir: 1, sweepTick: 0,
             spiralAngle: 0, spiralTick: 0,
+            slideDir: randVal() < 0.5 ? 1 : -1,
+            stuckTimer: 0, progressTimer: 0, lastProgressX: spawnPt.x, lastProgressY: spawnPt.y,
             telegraphRadius: 0, telegraphLine: null,
             shieldPylons: [], pylonsSpawned: false,
             flashTimer: 0, orbHitCd: 0, dead: false
         };
-        global.CosmicMapDirector.resolveCircleCollision(boss, boss.r);
+        resolveObstacleCollisions(boss, boss.r);
+        boss.lastProgressX = boss.x;
+        boss.lastProgressY = boss.y;
         G.bosses.push(boss);
         if (global.CosmicAudio) global.CosmicAudio.play('bossAlarm');
         showToast(bi(`TEHDİT ALARMI: ${cfg.name}`, `THREAT ALERT: ${cfg.name}`));
@@ -1130,10 +1236,39 @@
             const phaseSp = b.sp * (1 + (b.phase - 1) * 0.20);
             b.x += (dx / dist) * phaseSp * dt;
             b.y += (dy / dist) * phaseSp * dt;
-            if (global.CosmicMapDirector.resolveCircleCollision(b, b.r)) {
-                // Smooth flank slide around bulkheads
-                b.x += (-dy / dist) * phaseSp * 0.45 * dt;
-                b.y += (dx / dist) * phaseSp * 0.45 * dt;
+            if (resolveObstacleCollisions(b, b.r)) {
+                // Smooth flank slide around bulkheads with second collision resolution
+                const sDir = b.slideDir || 1;
+                b.x += (-dy / dist) * sDir * phaseSp * 0.55 * dt;
+                b.y += (dx / dist) * sDir * phaseSp * 0.55 * dt;
+                resolveObstacleCollisions(b, b.r);
+            }
+
+            b.progressTimer = (b.progressTimer || 0) + dt;
+            if (b.progressTimer >= 0.5) {
+                b.progressTimer = 0;
+                const moved = Math.hypot(b.x - (b.lastProgressX || b.x), b.y - (b.lastProgressY || b.y));
+                const dir = global.CosmicMapDirector;
+                const blockedObs = dir && typeof dir._isPointClearOfObstacles === 'function' && !dir._isPointClearOfObstacles(b.x, b.y, Math.max(6, b.r * 0.4));
+                if (blockedObs || (dist > b.r + 64 && moved < Math.max(12, phaseSp * 0.14))) {
+                    b.stuckTimer = (b.stuckTimer || 0) + 0.5;
+                    b.slideDir = -(b.slideDir || 1);
+                    resolveObstacleCollisions(b, b.r);
+                } else {
+                    b.stuckTimer = 0;
+                }
+                b.lastProgressX = b.x;
+                b.lastProgressY = b.y;
+                if (b.stuckTimer >= 3.0 || dist > 1800) {
+                    const reloc = getClearPerimeterPoint(p.x, p.y, 460, 620, b.r + 14);
+                    b.x = reloc.x;
+                    b.y = reloc.y;
+                    resolveObstacleCollisions(b, b.r);
+                    b.stuckTimer = 0;
+                    b.lastProgressX = b.x;
+                    b.lastProgressY = b.y;
+                    spawnParticle(b.x, b.y, '#fb7185', b.r * 1.4, 0.35, 0, 0, true);
+                }
             }
 
             b.atkCd -= dt * (1 + (b.phase - 1) * 0.28);
@@ -1147,13 +1282,13 @@
                     b.state = 'telegraph_dash';
                     b.stateTimer = 0.95;
                     const ang = Math.atan2(dy, dx);
+                    b.dashAng = ang;
+                    b.angle = ang;
                     const spd = 480 + b.phase * 65;
                     b.dashVx = Math.cos(ang) * spd;
                     b.dashVy = Math.sin(ang) * spd;
-                    b.telegraphLine = {
-                        x: clampWorldCoord(b.x + Math.cos(ang) * 480, WORLD_W),
-                        y: clampWorldCoord(b.y + Math.sin(ang) * 480, WORLD_H)
-                    };
+                    b.telegraphRadius = b.r * 1.35;
+                    b.telegraphLine = rayClipEnd(b.x, b.y, ang, 480);
                 } else if (pattern === 1) {
                     // Attack 2: Dual Counter-Rotating Spiral Bullet Curtains (dodgeable lanes!)
                     b.state = 'spiral_curtain';
@@ -1166,23 +1301,24 @@
                     b.stateTimer = 0.95;
                     b.sweepDir = (b.atkIdx % 2 === 0) ? 1 : -1;
                     b.sweepAngle = Math.atan2(dy, dx) - b.sweepDir * 0.78;
-                    b.telegraphLine = {
-                        x: clampWorldCoord(b.x + Math.cos(b.sweepAngle) * 760, WORLD_W),
-                        y: clampWorldCoord(b.y + Math.sin(b.sweepAngle) * 760, WORLD_H)
-                    };
+                    b.angle = b.sweepAngle;
+                    b.telegraphRadius = b.r * 1.30;
+                    b.telegraphLine = rayClipEnd(b.x, b.y, b.sweepAngle, 760);
                 } else {
                     // Attack 3: Telegraphed Plasma Nova Ring + Orbital Mortars
                     b.state = 'telegraph_nova';
                     b.stateTimer = 1.05;
-                    b.telegraphRadius = b.r * 2.7;
+                    b.telegraphRadius = b.r * 2.35;
+                    b.telegraphLine = null;
                     if (b.phase >= 2 && global.CosmicMapDirector && Array.isArray(global.CosmicMapDirector.meteors)) {
                         const mortarCount = b.phase >= 3 ? 4 : 3;
                         for (let m = 0; m < mortarCount; m++) {
                             const ma = (m * Math.PI * 2) / mortarCount + randVal() * 0.4;
                             const mr = 95 + randVal() * 145;
+                            const mPos = resolveDropPosition(p.x + Math.cos(ma) * mr, p.y + Math.sin(ma) * mr, 42, 120);
                             global.CosmicMapDirector.meteors.push({
-                                x: Math.max(180, Math.min(WORLD_W - 180, p.x + Math.cos(ma) * mr)),
-                                y: Math.max(180, Math.min(WORLD_H - 180, p.y + Math.sin(ma) * mr)),
+                                x: Math.max(180, Math.min(WORLD_W - 180, mPos.x)),
+                                y: Math.max(180, Math.min(WORLD_H - 180, mPos.y)),
                                 r: 96,
                                 delay: 1.45,
                                 maxDelay: 1.45,
@@ -1195,7 +1331,9 @@
             }
         } else if (b.state === 'telegraph_dash') {
             b.stateTimer -= dt;
+            if (Number.isFinite(b.dashAng)) b.telegraphLine = rayClipEnd(b.x, b.y, b.dashAng, 480);
             if (b.stateTimer <= 0) {
+                b.telegraphRadius = 0;
                 b.telegraphLine = null;
                 b.state = 'dashing';
                 b.stateTimer = 0.62;
@@ -1203,12 +1341,14 @@
         } else if (b.state === 'dashing') {
             b.x += b.dashVx * dt;
             b.y += b.dashVy * dt;
-            global.CosmicMapDirector.resolveCircleCollision(b, b.r);
+            resolveObstacleCollisions(b, b.r);
             b.stateTimer -= dt;
             if (b.stateTimer <= 0) b.state = 'chase';
         } else if (b.state === 'telegraph_sweep') {
             b.stateTimer -= dt;
+            b.telegraphLine = rayClipEnd(b.x, b.y, b.sweepAngle, 760);
             if (b.stateTimer <= 0) {
+                b.telegraphRadius = 0;
                 b.telegraphLine = null;
                 b.state = 'sweeping';
                 b.stateTimer = 1.55;
@@ -1219,13 +1359,12 @@
             b.stateTimer -= dt;
             b.sweepAngle += b.sweepDir * (0.95 + b.phase * 0.16) * dt;
             b.angle = b.sweepAngle;
-            const bx2 = clampWorldCoord(b.x + Math.cos(b.sweepAngle) * 780, WORLD_W);
-            const by2 = clampWorldCoord(b.y + Math.sin(b.sweepAngle) * 780, WORLD_H);
-            addArc(b.x, b.y, bx2, by2, '#fb7185', 8);
+            const endPt = rayClipEnd(b.x, b.y, b.sweepAngle, 780);
+            addArc(b.x, b.y, endPt.x, endPt.y, '#fb7185', 8);
             b.sweepTick -= dt;
             if (b.sweepTick <= 0) {
                 b.sweepTick = 0.18;
-                if (pointToSegDist(p.x, p.y, b.x, b.y, bx2, by2) < 22) {
+                if (pointToSegDist(p.x, p.y, b.x, b.y, endPt.x, endPt.y) < 22) {
                     hurtPlayer(20 + b.phase * 4, b.name);
                 }
             }
@@ -1275,10 +1414,10 @@
                         r: 8, dmg: 18 + b.phase * 3, life: 3.8, sprite: 'enemy'
                     });
                 }
-                if (Math.hypot(p.x - b.x, p.y - b.y) < b.r * 2.2) {
+                if (Math.hypot(p.x - b.x, p.y - b.y) < b.r * 2.35) {
                     hurtPlayer(26 + b.phase * 4, b.name);
                 }
-                spawnParticle(b.x, b.y, '#fb7185', b.r * 2.4, 0.35, 0, 0, true);
+                spawnParticle(b.x, b.y, '#fb7185', b.r * 2.35, 0.35, 0, 0, true);
                 if (global.CosmicAudio) global.CosmicAudio.play('shootPlasma');
             }
         }
@@ -1300,8 +1439,8 @@
                 spawnBoss(G.bossRushCount - 1);
                 // Escort elite wave
                 for (let e = 0; e < 3; e++) {
-                    const a = randVal() * Math.PI * 2;
-                    spawnEnemy(e % 2 === 0 ? 'tank' : 'shooter', p.x + Math.cos(a) * 520, p.y + Math.sin(a) * 440, true, false);
+                    const ep = getClearPerimeterPoint(p.x, p.y, 460, 580, 28);
+                    spawnEnemy(e % 2 === 0 ? 'tank' : 'shooter', ep.x, ep.y, true, false);
                 }
             }
         } else {
@@ -1316,17 +1455,15 @@
         G.spawnAcc += dt * G.diff.spawn * timeAttackDensity * (1.25 + G.wave * 0.25);
         while (G.spawnAcc >= 1 && G.enemies.length < targetMax) {
             G.spawnAcc -= 1;
-            const ang = randVal() * Math.PI * 2;
-            const dist = 560 + randVal() * 240;
-            const sx = Math.max(100, Math.min(WORLD_W - 100, p.x + Math.cos(ang) * dist));
-            const sy = Math.max(100, Math.min(WORLD_H - 100, p.y + Math.sin(ang) * dist));
+            const spPt = getClearPerimeterPoint(p.x, p.y, 560, 790, 28);
             const pool = ['swarmer', 'kamikaze'];
             if (G.wave >= 2) pool.push('shooter', 'tank');
             if (G.wave >= 4) pool.push('phantom', 'splitter');
             if (G.wave >= 6) pool.push('sniper', 'queen');
-            spawnEnemy(pool[Math.floor(randVal() * pool.length)], sx, sy, G.wave >= 3 && randVal() < 0.05, false);
+            spawnEnemy(pool[Math.floor(randVal() * pool.length)], spPt.x, spPt.y, G.wave >= 3 && randVal() < 0.05, false);
         }
 
+        const dir = global.CosmicMapDirector;
         for (let i = G.enemies.length - 1; i >= 0; i--) {
             const en = G.enemies[i];
             if (en.dead) { G.enemies.splice(i, 1); continue; }
@@ -1347,13 +1484,48 @@
             en.x += (dx / dist) * en.sp * moveMul * slowMult * dt;
             en.y += (dy / dist) * en.sp * moveMul * slowMult * dt;
 
-            if (global.CosmicMapDirector.resolveCircleCollision(en, en.r)) {
+            if (resolveObstacleCollisions(en, en.r)) {
                 // Slide around Bulkheads & Asteroid cover naturally
                 const perpX = (-dy / dist) * en.slideDir;
                 const perpY = (dx / dist) * en.slideDir;
-                en.x += perpX * en.sp * 0.72 * slowMult * dt;
-                en.y += perpY * en.sp * 0.72 * slowMult * dt;
-                global.CosmicMapDirector.resolveCircleCollision(en, en.r);
+                en.x += perpX * en.sp * 0.78 * slowMult * dt;
+                en.y += perpY * en.sp * 0.78 * slowMult * dt;
+                resolveObstacleCollisions(en, en.r);
+            }
+
+            // Anti-trap / straggler recovery (>3s stuck behind cover or far unreachable)
+            en.progressTimer = (en.progressTimer || 0) + dt;
+            if (en.progressTimer >= 0.5) {
+                en.progressTimer = 0;
+                const moved = Math.hypot(en.x - (en.lastProgressX || en.x), en.y - (en.lastProgressY || en.y));
+                const blockedObs = dir && typeof dir._isPointClearOfObstacles === 'function' && !dir._isPointClearOfObstacles(en.x, en.y, Math.max(3, en.r * 0.4));
+                const activelyChasing = !(en.frozenTimer > 0) && !((en.shoots || en.sniper) && dist < 440);
+                if (blockedObs || (activelyChasing && moved < Math.max(10, en.sp * 0.14))) {
+                    en.stuckTimer = (en.stuckTimer || 0) + 0.5;
+                    en.slideDir *= -1;
+                    resolveObstacleCollisions(en, en.r);
+                } else {
+                    en.stuckTimer = 0;
+                }
+                en.farTimer = dist > 1750 ? ((en.farTimer || 0) + 0.5) : 0;
+                en.lastProgressX = en.x;
+                en.lastProgressY = en.y;
+
+                if (en.stuckTimer >= 3.0 || en.farTimer >= 3.5) {
+                    if (!en.isElite && dist > 2200 && G.enemies.length >= targetMax - 4) {
+                        G.enemies.splice(i, 1);
+                        continue;
+                    }
+                    const reloc = getClearPerimeterPoint(p.x, p.y, 520, 720, en.r + 10);
+                    en.x = reloc.x;
+                    en.y = reloc.y;
+                    resolveObstacleCollisions(en, en.r);
+                    en.stuckTimer = 0;
+                    en.farTimer = 0;
+                    en.lastProgressX = en.x;
+                    en.lastProgressY = en.y;
+                    spawnParticle(en.x, en.y, en.isElite ? '#f59e0b' : '#38bdf8', en.r * 1.1, 0.24, 0, 0, true);
+                }
             }
 
             if (en.teleports) {
@@ -1362,9 +1534,13 @@
                 if (en.actionCd <= 0 && dist < 540) {
                     en.actionCd = 4.8;
                     const flankAng = en.angle + (randVal() > 0.5 ? 1.3 : -1.3);
-                    en.x = clampWorldCoord(p.x - Math.cos(flankAng) * 180, WORLD_W);
-                    en.y = clampWorldCoord(p.y - Math.sin(flankAng) * 180, WORLD_H);
-                    global.CosmicMapDirector.resolveCircleCollision(en, en.r);
+                    const tpPos = resolveDropPosition(p.x - Math.cos(flankAng) * 180, p.y - Math.sin(flankAng) * 180, en.r + 6, 160);
+                    en.x = tpPos.x;
+                    en.y = tpPos.y;
+                    resolveObstacleCollisions(en, en.r);
+                    en.stuckTimer = 0;
+                    en.lastProgressX = en.x;
+                    en.lastProgressY = en.y;
                     spawnParticle(en.x, en.y, '#a78bfa', 18, 0.25, 0, 0, true);
                 }
             }
@@ -1430,6 +1606,7 @@
                 if (b.graviton && !other.isBoss) {
                     other.x += (b.x - other.x) * 0.28;
                     other.y += (b.y - other.y) * 0.28;
+                    resolveObstacleCollisions(other, other.r);
                 }
             }
         }
@@ -1461,13 +1638,19 @@
                     b.vy = b.vy * 0.90 + Math.sin(desired) * spd * 0.10;
                 }
             }
+            const prevX = b.x;
+            const prevY = b.y;
             b.x += b.vx * dt;
             b.y += b.vy * dt;
 
             // Physical Cover Obstacle Collision for enemy shots & non-piercing player bullets
             const isNonPiercing = !b.pierce || b.pierce <= 1;
             if (dir && (b.isEnemy || isNonPiercing)) {
-                const obsHit = dir.checkProjectileObstacleHit(b.x, b.y, b.r || 5);
+                const br = b.r || 5;
+                let obsHit = dir.checkProjectileObstacleHit(b.x, b.y, br);
+                if ((!obsHit || !obsHit.hit) && Math.hypot(b.x - prevX, b.y - prevY) > br * 1.5) {
+                    obsHit = dir.checkProjectileObstacleHit((prevX + b.x) * 0.5, (prevY + b.y) * 0.5, br);
+                }
                 if (obsHit && obsHit.hit) {
                     const sparkCol = b.isEnemy ? '#fb7185' : (b.color || '#38bdf8');
                     for (let s = 0; s < 3; s++) {
@@ -1481,7 +1664,7 @@
             }
 
             if (b.isEnemy) {
-                if (Math.hypot(b.x - p.x, b.y - p.y) < 13 + (b.r || 6) * 0.55) {
+                if (pointToSegDist(p.x, p.y, prevX, prevY, b.x, b.y) < 13 + (b.r || 6) * 0.55) {
                     hurtPlayer(b.dmg, bi('Düşman Atışı', 'Hostile Fire'));
                     G.bullets.splice(i, 1);
                 }
@@ -1498,7 +1681,7 @@
                 for (let pj = 0; pj < pylons.length; pj++) {
                     const py = pylons[pj];
                     if (!py || py.alive === false || py.hp <= 0 || (b.hitSet && b.hitSet.has(py))) continue;
-                    if (Math.hypot(b.x - py.x, b.y - py.y) <= (py.r || 20) + b.r) {
+                    if (pointToSegDist(py.x, py.y, prevX, prevY, b.x, b.y) <= (py.r || 20) + b.r) {
                         if (b.hitSet) b.hitSet.add(py);
                         damageBossPylon(boss, py, b.dmg, b.sourceId);
                         applyBulletAoe(b, null, allHostiles);
@@ -1513,7 +1696,7 @@
             // Priority 2: Hostile units & Boss hulls
             for (const en of allHostiles) {
                 if (en.dead || (b.hitSet && b.hitSet.has(en))) continue;
-                if (Math.hypot(b.x - en.x, b.y - en.y) <= en.r + b.r) {
+                if (pointToSegDist(en.x, en.y, prevX, prevY, b.x, b.y) <= en.r + b.r) {
                     if (b.hitSet) b.hitSet.add(en);
                     hurtEnemy(en, b.dmg, b.sourceId, false, moveAng);
                     applyBulletAoe(b, en, allHostiles);
@@ -2219,7 +2402,7 @@
     }
 
     function tick(now) {
-        if (!G.running) return;
+        if (!G.running || G.destroyed) return;
         const dt = Math.min(0.05, Math.max(0.001, (now - (G.lastFrameTs || now)) / 1000));
         G.lastFrameTs = now;
 
@@ -2260,7 +2443,7 @@
             p.vy = my * effSpeed;
             p.x = Math.max(36, Math.min(WORLD_W - 36, p.x + p.vx * dt));
             p.y = Math.max(36, Math.min(WORLD_H - 36, p.y + p.vy * dt));
-            global.CosmicMapDirector.resolveCircleCollision(p, 16);
+            resolveObstacleCollisions(p, 16);
 
             // AFK Anti-Camp Hunter Protocol (stationary >= 7.0s within 52px triggers Hunter Squad)
             if (Math.hypot(p.x - G.lastMovedPos.x, p.y - G.lastMovedPos.y) > 52) {
@@ -2329,15 +2512,17 @@
                     if (!G.isLevelingUp && !G.isLooting && !G.isBossReward && !G.isVictoryChoice) {
                         openCosmicChestModal();
                     } else {
-                        G.chests.push({ x: p.x + 28, y: p.y });
+                        G.chests.push(resolveDropPosition(p.x + 28, p.y, 20));
                     }
                 },
                 onCargoOpened: (pod) => {
                     if (global.CosmicAudio) global.CosmicAudio.play('chestOpen');
                     for (let k = 0; k < 6; k++) {
-                        G.crystals.push({ x: pod.x + (Math.random() - 0.5) * 40, y: pod.y + (Math.random() - 0.5) * 40, val: 14, big: true });
+                        const cp = resolveDropPosition(pod.x + (Math.random() - 0.5) * 40, pod.y + (Math.random() - 0.5) * 40, 12, 140);
+                        G.crystals.push({ x: cp.x, y: cp.y, val: 14, big: true });
                     }
-                    G.pickups.push({ x: pod.x, y: pod.y, kind: Math.random() < 0.5 ? 'heal' : 'shield' });
+                    const pkPos = resolveDropPosition(pod.x, pod.y, 15, 140);
+                    G.pickups.push({ x: pkPos.x, y: pkPos.y, kind: Math.random() < 0.5 ? 'heal' : 'shield' });
                     showBanner(bi('KARGO KAPSÜLÜ AÇILDI (+XP & ONARIM)', 'CARGO POD OPENED (+XP & REPAIR)'));
                 }
             });
@@ -2392,7 +2577,9 @@
         }
 
         syncHud();
-        global.requestAnimationFrame(tick);
+        if (G.running && !G.destroyed) {
+            G.rafId = global.requestAnimationFrame(tick);
+        }
     }
 
     function toggleAimMode() {
@@ -2409,8 +2596,57 @@
         if (el.btnAimToggle) el.btnAimToggle.classList.toggle('active', G.aimMode === 'mouse');
     }
 
+    const _cleanupFns = [];
+    function addManagedListener(target, type, handler, opts) {
+        if (!target || typeof target.addEventListener !== 'function') return;
+        target.addEventListener(type, handler, opts);
+        _cleanupFns.push(() => {
+            try { target.removeEventListener(type, handler, opts); } catch (e) { /* ignore */ }
+        });
+    }
+
+    function teardownGame() {
+        if (G.destroyed) return;
+        G.destroyed = true;
+        G.running = false;
+        G.paused = true;
+        if (G.rafId) {
+            try { global.cancelAnimationFrame(G.rafId); } catch (e) { /* ignore */ }
+            G.rafId = 0;
+        }
+        clearTimeout(toastTimer);
+        toastTimer = null;
+        while (_cleanupFns.length) {
+            const fn = _cleanupFns.pop();
+            try { fn(); } catch (e) { /* ignore */ }
+        }
+        if (G.goChart && typeof G.goChart.destroy === 'function') {
+            try { G.goChart.destroy(); } catch (e) { /* ignore */ }
+            G.goChart = null;
+        }
+        G.keys = {};
+        G.joy.active = false;
+        G.enemies.length = 0;
+        G.bosses.length = 0;
+        G.bullets.length = 0;
+        G.crystals.length = 0;
+        G.pickups.length = 0;
+        G.chests.length = 0;
+        G.particles.length = 0;
+        G.floorZones.length = 0;
+        G.orbitals.length = 0;
+        G.arcs.length = 0;
+        G.floatTexts.length = 0;
+        if (global.CosmicAudio && typeof global.CosmicAudio.stopAmbient === 'function') {
+            try { global.CosmicAudio.stopAmbient(); } catch (e) { /* ignore */ }
+        }
+        if (global.CosmicRenderer && typeof global.CosmicRenderer.destroy === 'function') {
+            try { global.CosmicRenderer.destroy(); } catch (e) { /* ignore */ }
+        }
+    }
+
     function wireControls() {
-        global.addEventListener('keydown', (e) => {
+        addManagedListener(global, 'keydown', (e) => {
             G.keys[e.code] = true;
             if (global.CosmicAudio) global.CosmicAudio.unlock();
             if (G.isLevelingUp && !G.levelUpActionTaken) {
@@ -2442,23 +2678,26 @@
                 }
             }
         });
-        global.addEventListener('keyup', (e) => { G.keys[e.code] = false; });
-        global.addEventListener('mousemove', (e) => { G.mouse.x = e.clientX; G.mouse.y = e.clientY; G.mouse.active = true; });
-        global.addEventListener('pointerdown', () => {
+        addManagedListener(global, 'keyup', (e) => { G.keys[e.code] = false; });
+        addManagedListener(global, 'blur', () => { G.keys = {}; });
+        addManagedListener(global, 'mousemove', (e) => { G.mouse.x = e.clientX; G.mouse.y = e.clientY; G.mouse.active = true; });
+        addManagedListener(global, 'pointerdown', () => {
             if (global.CosmicAudio) { global.CosmicAudio.unlock(); global.CosmicAudio.startAmbient(); }
         }, { once: true });
-        global.addEventListener('resize', () => {
+        addManagedListener(global, 'resize', () => {
             if (global.CosmicRenderer) global.CosmicRenderer.resize(global.innerWidth, global.innerHeight);
         });
-        global.addEventListener('cosmic:langchange', syncStaticLanguage);
+        addManagedListener(global, 'cosmic:langchange', syncStaticLanguage);
+        addManagedListener(global, 'pagehide', teardownGame);
+        addManagedListener(global, 'beforeunload', teardownGame);
 
         if (el.btnAimToggle) el.btnAimToggle.onclick = toggleAimMode;
         if (el.hudOverdriveBtn) el.hudOverdriveBtn.onclick = activateOverdrive;
         if (el.btnToggleMinimap) el.btnToggleMinimap.onclick = () => toggleMinimap();
         if (el.btnPauseGame) el.btnPauseGame.onclick = () => togglePause();
         if (el.btnResumeGame) el.btnResumeGame.onclick = () => togglePause(false);
-        if (el.btnRestartRun) el.btnRestartRun.onclick = () => global.location.reload();
-        if (el.btnPlayAgain) el.btnPlayAgain.onclick = () => global.location.reload();
+        if (el.btnRestartRun) el.btnRestartRun.onclick = () => { teardownGame(); global.location.reload(); };
+        if (el.btnPlayAgain) el.btnPlayAgain.onclick = () => { teardownGame(); global.location.reload(); };
         if (el.btnAudioToggle && global.CosmicAudio) {
             el.btnAudioToggle.onclick = () => {
                 global.CosmicAudio.setMuted(!global.CosmicAudio.prefs.muted);
@@ -2553,14 +2792,14 @@
         if (el.vjoyZone) {
             let originX = 0;
             let originY = 0;
-            el.vjoyZone.addEventListener('pointerdown', (e) => {
+            addManagedListener(el.vjoyZone, 'pointerdown', (e) => {
                 G.joy.active = true;
                 const r = el.vjoyZone.getBoundingClientRect();
                 originX = r.left + r.width * 0.5;
                 originY = r.top + r.height * 0.5;
                 el.vjoyZone.setPointerCapture(e.pointerId);
             });
-            el.vjoyZone.addEventListener('pointermove', (e) => {
+            addManagedListener(el.vjoyZone, 'pointermove', (e) => {
                 if (!G.joy.active) return;
                 const dx = e.clientX - originX;
                 const dy = e.clientY - originY;
@@ -2576,8 +2815,8 @@
                 G.joy.dy = 0;
                 el.vjoyKnob.style.transform = 'translate(-50%, -50%)';
             };
-            el.vjoyZone.addEventListener('pointerup', endJoy);
-            el.vjoyZone.addEventListener('pointercancel', endJoy);
+            addManagedListener(el.vjoyZone, 'pointerup', endJoy);
+            addManagedListener(el.vjoyZone, 'pointercancel', endJoy);
         }
         if (el.touchAbilityBtn) el.touchAbilityBtn.onclick = activateAbility;
         if (el.touchOverdriveBtn) el.touchOverdriveBtn.onclick = activateOverdrive;
@@ -2611,6 +2850,7 @@
 
         global.CosmicMapDirector.init(G.mapId, WORLD_W, WORLD_H, G.rng);
         await global.CosmicRenderer.init(el.gameCanvas);
+        if (G.destroyed) return;
         global.CosmicRenderer.setMap(G.mapId);
         wireControls();
 
@@ -2625,9 +2865,10 @@
         startWave(1);
         G.running = true;
         G.lastFrameTs = performance.now();
-        global.requestAnimationFrame(tick);
+        G.rafId = global.requestAnimationFrame(tick);
     }
 
+    global.CosmicGameTeardown = teardownGame;
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
     else boot();
 })(window);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lazer Ayna Matrisi (Laser Mirror Grid) — COSMIC UNIVERSE v11.5</title>
+    <title>Lazer Ayna Matrisi (Laser Mirror Grid) — COSMIC UNIVERSE v12.0</title>
     <meta name="description" content="Lazer Ayna Matrisi: Aynaları ve prizmaları döndürerek foton ışınını tüm alıcı düğümlere ulaştır. Motor: TypeScript (TS). Sonsuz Serbest Mod & Kaptan Nova Vex Hikâyesi — COSMIC UNIVERSE'de ücretsiz oyna.">
     <meta name="keywords" content="Lazer Ayna Matrisi, Laser Mirror Grid, COSMIC UNIVERSE, Cosmic, puzzle, TypeScript, TS, tarayıcı oyunu, Halit Güneş">
     <meta name="author" content="Halit Güneş (HaKING)">
@@ -12,8 +12,8 @@
     <link rel="canonical" href="https://cosmic.haking.tr/games/laser-mirror-grid/">
 
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="COSMIC UNIVERSE v11.5">
-    <meta property="og:title" content="Lazer Ayna Matrisi — COSMIC UNIVERSE v11.5">
+    <meta property="og:site_name" content="COSMIC UNIVERSE v12.0">
+    <meta property="og:title" content="Lazer Ayna Matrisi — COSMIC UNIVERSE v12.0">
     <meta property="og:description" content="Aynaları ve prizmaları döndürerek foton ışınını tüm alıcı düğümlere ulaştır. (TypeScript · TS)">
     <meta property="og:url" content="https://cosmic.haking.tr/games/laser-mirror-grid/">
     <meta property="og:image" content="https://cosmic.haking.tr/assets/v11/banners/laser-mirror-grid.jpg">
@@ -21,7 +21,7 @@
     <meta property="og:image:height" content="360">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Lazer Ayna Matrisi — COSMIC UNIVERSE v11.5">
+    <meta name="twitter:title" content="Lazer Ayna Matrisi — COSMIC UNIVERSE v12.0">
     <meta name="twitter:description" content="Aynaları ve prizmaları döndürerek foton ışınını tüm alıcı düğümlere ulaştır.">
     <meta name="twitter:image" content="https://cosmic.haking.tr/assets/v11/banners/laser-mirror-grid.jpg">
 
@@ -101,10 +101,10 @@
 <body data-game-id="laser-mirror-grid">
     <header class="cosmic-topbar">
         <a href="../../index.html" class="topbar-brand">
-            <img src="../../assets/icon-192.png" alt="Cosmic Universe v11.5" class="topbar-logo-img">
+            <img src="../../assets/icon-192.png" alt="Cosmic Universe v12.0" class="topbar-logo-img">
             <div class="topbar-title-wrap">
                 <span class="topbar-title">COSMIC UNIVERSE</span>
-                <span class="topbar-version" id="playerTopbarSub">V11.5 ARCADE PLAYER</span>
+                <span class="topbar-version" id="playerTopbarSub">V12.0 ARCADE PLAYER</span>
             </div>
         </a>
 
@@ -182,7 +182,7 @@
             </div>
 
             <div class="arcade-action-bar">
-                <button type="button" class="cs-btn cs-btn-ghost" id="btnShowGameMenu" title="Menü">
+                <button type="button" class="cs-btn cs-btn-ghost" id="btnShowGameMenu" title="M">
                     <i data-lucide="sliders"></i>
                     <span id="btnMenuLabel">Oyun Menüsü</span>
                 </button>
@@ -206,12 +206,20 @@
         </section>
 
         <section class="story-mission-banner hidden" id="storyMissionBanner">
-            <img src="../../assets/v11/nova_avatar.png" alt="Captain Nova Vex" class="mission-nova-avatar">
+            <div class="mission-avatars-stack" title="Captain Nova Vex &amp; S.A.R.A. AI">
+                <img src="../../assets/v11/nova_avatar.png" alt="Captain Nova Vex" class="mission-nova-avatar">
+                <img src="../../assets/v11/cast/sara_ai.png" alt="S.A.R.A. AI" class="mission-sara-avatar" id="storySaraAvatar">
+                <span class="mission-ai-tag font-mono">AI</span>
+            </div>
             <div class="mission-copy">
-                <div class="mission-eyebrow font-mono" id="storyMissionTitle">STORY MISSION</div>
+                <div class="mission-eyebrow font-mono" id="storyMissionTitle">CHAPTER 1 MISSION</div>
                 <div class="mission-objective-text" id="storyMissionObjective">Clear objective</div>
+                <div class="mission-progress-bar-track" id="storyMissionProgressTrack">
+                    <div class="mission-progress-bar-fill" id="storyMissionProgressFill" style="width: 0%"></div>
+                </div>
             </div>
             <div class="mission-progress-wrap">
+                <span class="mission-progress-counter font-mono" id="storyMissionCounter">0 / 0 · 0%</span>
                 <span class="mission-progress-label font-mono" id="storyMissionStatus">ACTIVE</span>
             </div>
         </section>
@@ -257,6 +265,7 @@
                         <img src="../../assets/v11/thumbs/laser-mirror-grid.png" alt="" class="pregame-logo" id="preGameLogo">
                         <div class="pregame-title-col">
                             <div class="pregame-badges">
+                                <span class="cs-badge cs-badge-violet cs-badge-sm font-mono" id="preGameVersionPill">COSMIC v12.0</span>
                                 <span class="cs-badge cs-badge-sky cs-badge-sm font-mono" id="preGameEnginePill">TypeScript · TS</span>
                                 <span class="cs-badge cs-badge-amber cs-badge-sm font-mono" id="preGameBestPill">BEST: 0</span>
                                 <span class="cs-badge cs-badge-mint cs-badge-sm font-mono" id="preGameStarsPill">☆☆☆</span>
@@ -376,7 +385,7 @@
         <section class="seo-game-guide" style="margin-top:2rem;padding:1.25rem;background:rgba(15,23,42,0.55);border:1px solid rgba(148,163,184,0.16);border-radius:14px;">
             <h2 style="font-size:1.05rem;margin:0 0 0.5rem;color:#e2e8f0;">Lazer Ayna Matrisi (Laser Mirror Grid) — Teknik Oyun Rehberi</h2>
             <p style="font-size:0.88rem;line-height:1.55;color:#94a3b8;margin:0;">
-                <strong>Lazer Ayna Matrisi</strong>, Halit Güneş (HaKING) tarafından geliştirilen COSMIC UNIVERSE v11.5 portalının #27 numaralı resmi oyunudur.
+                <strong>Lazer Ayna Matrisi</strong>, Halit Güneş (HaKING) tarafından geliştirilen COSMIC UNIVERSE v12.0 portalının #27 numaralı resmi oyunudur.
                 <strong>TypeScript (TS)</strong> motoru üzerine kurulu olan bu puzzle deneyimi hem <em>Sonsuz / Serbest Mod</em>da rekor kırmaya hem de Kaptan Nova Vex'in 24 bölümlük Sezon 1 hikâyesine uyumludur.
                 Kurulum gerekmeden masaüstü ve mobilde doğrudan tarayıcıda çalışır.
             </p>

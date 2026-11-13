@@ -56,9 +56,8 @@
     }
 
     function wrappedDelta(from, to, span) {
-        let d = to - from;
+        let d = ((to - from) % span + span) % span;
         if (d > span * 0.5) d -= span;
-        if (d < -span * 0.5) d += span;
         return d;
     }
 
@@ -415,9 +414,13 @@
     function createInput(canvas) {
         const down = new Set();
         const pressed = new Set();
+        if (canvas && canvas.style) {
+            canvas.style.touchAction = 'none';
+        }
         const pointer = {
             x: W * 0.5,
             y: H * 0.5,
+            id: null,
             isDown: false,
             justDown: false,
             justUp: false,
@@ -441,9 +444,13 @@
             const rect = canvas.getBoundingClientRect();
             const rw = rect.width || W;
             const rh = rect.height || H;
+            const cx = Number.isFinite(e.clientX) ? e.clientX : rect.left + rw * 0.5;
+            const cy = Number.isFinite(e.clientY) ? e.clientY : rect.top + rh * 0.5;
+            const inside = cx >= rect.left && cx <= rect.left + rw && cy >= rect.top && cy <= rect.top + rh;
             return {
-                x: clamp((e.clientX - rect.left) * (W / rw), 0, W),
-                y: clamp((e.clientY - rect.top) * (H / rh), 0, H)
+                x: clamp((cx - rect.left) * (W / rw), 0, W),
+                y: clamp((cy - rect.top) * (H / rh), 0, H),
+                inside
             };
         }
 
@@ -473,11 +480,16 @@
             down.clear();
             pressed.clear();
             pointer.isDown = false;
+            pointer.id = null;
+            pointer.justDown = false;
+            pointer.justUp = false;
         }
 
         function onPointerDown(e) {
             if (e.button !== undefined && e.button !== 0) return;
+            if (pointer.isDown && pointer.id !== null && e.pointerId !== undefined && e.pointerId !== pointer.id) return;
             const pt = mapPoint(e);
+            pointer.id = e.pointerId !== undefined ? e.pointerId : null;
             pointer.x = pt.x;
             pointer.y = pt.y;
             pointer.startX = pt.x;
@@ -490,7 +502,9 @@
         }
 
         function onPointerMove(e) {
+            if (pointer.isDown && pointer.id !== null && e.pointerId !== undefined && e.pointerId !== pointer.id) return;
             const pt = mapPoint(e);
+            if (!pt.inside && !pointer.isDown) return;
             const movedDist = Math.hypot(pt.x - pointer.x, pt.y - pointer.y);
             pointer.x = pt.x;
             pointer.y = pt.y;
@@ -502,19 +516,30 @@
         }
 
         function onPointerUp(e) {
+            if (!pointer.isDown) return;
+            if (pointer.id !== null && e.pointerId !== undefined && e.pointerId !== pointer.id) return;
             const pt = mapPoint(e);
             pointer.x = pt.x;
             pointer.y = pt.y;
             pointer.isDown = false;
+            pointer.id = null;
             pointer.justUp = true;
+        }
+
+        function onPointerCancel(e) {
+            if (!pointer.isDown) return;
+            if (pointer.id !== null && e.pointerId !== undefined && e.pointerId !== pointer.id) return;
+            pointer.isDown = false;
+            pointer.id = null;
         }
 
         global.addEventListener('keydown', onKeyDown);
         global.addEventListener('keyup', onKeyUp);
         global.addEventListener('blur', onBlur);
         canvas.addEventListener('pointerdown', onPointerDown);
-        canvas.addEventListener('pointermove', onPointerMove);
+        global.addEventListener('pointermove', onPointerMove);
         global.addEventListener('pointerup', onPointerUp);
+        global.addEventListener('pointercancel', onPointerCancel);
 
         return {
             pointer,
@@ -549,8 +574,9 @@
                 global.removeEventListener('keyup', onKeyUp);
                 global.removeEventListener('blur', onBlur);
                 canvas.removeEventListener('pointerdown', onPointerDown);
-                canvas.removeEventListener('pointermove', onPointerMove);
+                global.removeEventListener('pointermove', onPointerMove);
                 global.removeEventListener('pointerup', onPointerUp);
+                global.removeEventListener('pointercancel', onPointerCancel);
                 down.clear();
                 pressed.clear();
             }
@@ -596,6 +622,8 @@
                 game.update(dt);
                 input.endFrame();
                 pushHud(false);
+            } else {
+                input.endFrame();
             }
             game.render(g);
             rafId = global.requestAnimationFrame(frame);
@@ -760,6 +788,7 @@
                 diveStartX: slotX,
                 diveStartY: slotY,
                 diveTargetX: W * 0.5,
+                trail: [],
                 hp: maxHp,
                 maxHp,
                 hitFlash: 0,
@@ -779,6 +808,7 @@
             pick.diveTargetX = clamp(player.x + randRange(-55, 55), 50, W - 50);
             pick.diveDir = pick.x < player.x ? 1 : -1;
             pick.firedDive = false;
+            pick.trail = [];
             sfx(ctx, 'dash', 0.2);
         }
 
@@ -920,12 +950,14 @@
             formationPhase += dt * (1.35 + wave * 0.07);
             const swayX = Math.sin(formationPhase) * 44;
 
-            // Periodic dive attacks
+            // Periodic dive attacks (accelerate slightly when few stragglers remain)
             diveTimer -= dt;
             if (diveTimer <= 0) {
                 const diveCount = Math.min(3, 1 + Math.floor(wave / 2));
                 for (let i = 0; i < diveCount; i++) startDive();
-                diveTimer = Math.max(1.1, 3.0 - wave * 0.14);
+                diveTimer = (!boss && enemies.length <= 3)
+                    ? Math.max(0.75, 1.35 - wave * 0.05)
+                    : Math.max(1.1, 3.0 - wave * 0.14);
             }
 
             // Update enemies
@@ -946,12 +978,15 @@
                     e.angle = Math.atan2(ny - e.y, nx - e.x) + Math.PI * 0.5;
                     e.x = nx;
                     e.y = ny;
+                    e.trail.push({ x: e.x, y: e.y });
+                    if (e.trail.length > 9) e.trail.shift();
                     if (Math.random() < 0.35) {
                         fx.spawn(e.x, e.y, 0, 20, e.kind === 'ufo' ? PAL.amber : PAL.violet, 2.2, 0.25);
                     }
                     if (e.t >= 1) {
                         e.state = 'grid';
                         e.angle = Math.PI;
+                        e.trail.length = 0;
                     }
                 } else if (e.state === 'grid') {
                     e.x = lerp(e.x, e.slotX + swayX, Math.min(1, dt * 8));
@@ -965,9 +1000,15 @@
                     const t = e.diveT;
                     const prevX = e.x;
                     const prevY = e.y;
-                    e.x = lerp(e.diveStartX, e.diveTargetX, Math.min(1, t)) + Math.sin(t * Math.PI * 2.2) * 78 * e.diveDir;
+                    e.x = clamp(
+                        lerp(e.diveStartX, e.diveTargetX, Math.min(1, t)) + Math.sin(t * Math.PI * 2.2) * 78 * e.diveDir,
+                        22,
+                        W - 22
+                    );
                     e.y = e.diveStartY + t * (H + 90 - e.diveStartY);
                     e.angle = Math.atan2(e.y - prevY, e.x - prevX) + Math.PI * 0.5;
+                    e.trail.push({ x: e.x, y: e.y });
+                    if (e.trail.length > 11) e.trail.shift();
                     if (Math.random() < 0.45) {
                         fx.spawn(e.x, e.y, 0, -25, PAL.coral, 2.2, 0.22);
                     }
@@ -977,20 +1018,26 @@
                         const spd = 270 + wave * 15;
                         spawnEnemyShot(e.x, e.y + 10, Math.cos(ang) * spd, Math.sin(ang) * spd, PAL.amber);
                     }
-                    if (e.y > H + 36) {
+                    // Wrap cleanly to top return lane (never drift offscreen forever)
+                    if (e.y > H + 32 || e.diveT >= 1.15) {
                         e.y = -32;
-                        e.x = e.slotX + swayX;
+                        e.x = clamp(e.slotX + swayX, 26, W - 26);
                         e.state = 'returning';
+                        e.trail.length = 0;
                     }
                 } else if (e.state === 'returning') {
-                    const tx = e.slotX + swayX;
+                    const tx = clamp(e.slotX + swayX, 26, W - 26);
                     const ty = e.slotY;
-                    e.x = lerp(e.x, tx, Math.min(1, dt * 4));
-                    e.y += 180 * dt;
+                    e.x = lerp(e.x, tx, Math.min(1, dt * 4.5));
+                    e.y += 205 * dt;
                     e.angle = Math.PI;
-                    if (e.y >= ty) {
+                    e.trail.push({ x: e.x, y: e.y });
+                    if (e.trail.length > 6) e.trail.shift();
+                    if (e.y >= ty || e.y > H - 40) {
                         e.y = ty;
+                        e.x = tx;
                         e.state = 'grid';
+                        e.trail.length = 0;
                     }
                 }
 
@@ -1030,7 +1077,8 @@
             // Boss Flagship update
             if (boss) {
                 if (boss.hitFlash > 0) boss.hitFlash = Math.max(0, boss.hitFlash - dt);
-                boss.phase += dt * 1.4;
+                const beamSlow = boss.beamActive === 2 ? 0 : (boss.beamActive === 1 ? 0.25 : 1);
+                boss.phase += dt * 1.4 * beamSlow;
                 boss.y = lerp(boss.y, boss.targetY, Math.min(1, dt * 3));
                 boss.x = W * 0.5 + Math.sin(boss.phase * 0.85) * 280;
 
@@ -1058,7 +1106,8 @@
                     boss.beamActive = 1; // warning telegraph
                 } else if (boss.beamTimer >= 9.0 && boss.beamTimer < 10.2) {
                     boss.beamActive = 2; // active beam
-                    if (Math.abs(player.x - boss.x) < 34) {
+                    const beamHalfW = player.dual ? 40 : 30;
+                    if (Math.abs(player.x - boss.x) < beamHalfW && player.y > boss.y + 20) {
                         damagePlayer();
                     }
                 } else {
@@ -1106,6 +1155,7 @@
                             sfx(ctx, 'levelup');
                             fx.showBanner('SECTOR ' + stage + ' ENGAGED', 'FLAGSHIP SHATTERED · ESCALATING SWARM', PAL.mint, 2.2);
                             spawnWave(wave);
+                            break;
                         }
                     }
                 }
@@ -1173,20 +1223,64 @@
             // Boss beam telegraph / firing
             if (boss && boss.beamActive > 0) {
                 g.save();
+                const bx = boss.x;
+                const by = boss.y + 30;
                 if (boss.beamActive === 1) {
-                    g.strokeStyle = 'rgba(251, 113, 133, 0.65)';
+                    const chargePct = clamp((boss.beamTimer - 7.5) / 1.5, 0, 1);
+                    const blink = Math.floor(time * 18) % 2 === 0;
+                    g.fillStyle = blink ? 'rgba(251, 113, 133, 0.14)' : 'rgba(251, 191, 36, 0.08)';
+                    g.beginPath();
+                    g.moveTo(bx - 16, by);
+                    g.lineTo(bx + 16, by);
+                    g.lineTo(bx + 36, H);
+                    g.lineTo(bx - 36, H);
+                    g.closePath();
+                    g.fill();
+
+                    g.strokeStyle = blink ? 'rgba(251, 113, 133, 0.9)' : 'rgba(251, 191, 36, 0.8)';
                     g.setLineDash([8, 6]);
                     g.lineWidth = 2;
-                    g.strokeRect(boss.x - 28, boss.y + 30, 56, H - boss.y);
+                    g.beginPath();
+                    g.moveTo(bx - 16, by);
+                    g.lineTo(bx - 34, H);
+                    g.moveTo(bx + 16, by);
+                    g.lineTo(bx + 34, H);
+                    g.stroke();
+                    g.setLineDash([]);
+
+                    // Gathering tractor orb at core muzzle
+                    g.shadowColor = PAL.coral;
+                    g.shadowBlur = 18;
+                    g.fillStyle = PAL.amber;
+                    g.beginPath();
+                    g.arc(bx, by, 6 + chargePct * 12, 0, TAU);
+                    g.fill();
+
+                    g.font = '700 10px "JetBrains Mono", monospace';
+                    g.textAlign = 'center';
+                    g.fillStyle = blink ? PAL.coral : PAL.amber;
+                    g.fillText('TRACTOR LOCK', bx, by - 12);
                 } else {
-                    const grad = g.createLinearGradient(boss.x - 32, 0, boss.x + 32, 0);
+                    const grad = g.createLinearGradient(bx - 38, 0, bx + 38, 0);
                     grad.addColorStop(0, 'rgba(251,113,133,0)');
-                    grad.addColorStop(0.5, 'rgba(251,113,133,0.75)');
+                    grad.addColorStop(0.3, 'rgba(251,113,133,0.45)');
+                    grad.addColorStop(0.5, 'rgba(251,113,133,0.88)');
+                    grad.addColorStop(0.7, 'rgba(251,113,133,0.45)');
                     grad.addColorStop(1, 'rgba(251,113,133,0)');
                     g.fillStyle = grad;
-                    g.fillRect(boss.x - 32, boss.y + 28, 64, H - boss.y);
-                    g.fillStyle = 'rgba(255,255,255,0.85)';
-                    g.fillRect(boss.x - 8, boss.y + 28, 16, H - boss.y);
+                    g.fillRect(bx - 38, by - 2, 76, H - by + 2);
+                    g.fillStyle = 'rgba(255,255,255,0.92)';
+                    g.fillRect(bx - 8, by - 2, 16, H - by + 2);
+
+                    // Travelling pulse rings along active beam
+                    g.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+                    g.lineWidth = 2;
+                    for (let r = 0; r < 5; r++) {
+                        const ry = by + ((time * 420 + r * 95) % Math.max(40, H - by));
+                        g.beginPath();
+                        g.ellipse(bx, ry, 28, 6, 0, 0, TAU);
+                        g.stroke();
+                    }
                 }
                 g.restore();
             }
@@ -1230,10 +1324,25 @@
                 });
             }
 
-            // Enemies
+            // Enemies + dive ribbon trails
             for (let i = 0; i < enemies.length; i++) {
                 const e = enemies[i];
                 if (e.delay > 0) continue;
+                if (e.trail && e.trail.length > 1) {
+                    g.save();
+                    const trailCol = e.state === 'diving' ? '251,113,133' : (e.kind === 'ufo' ? '251,191,36' : '167,139,250');
+                    for (let ti = 1; ti < e.trail.length; ti++) {
+                        const frac = ti / e.trail.length;
+                        g.strokeStyle = 'rgba(' + trailCol + ',' + (frac * (e.state === 'diving' ? 0.6 : 0.35)).toFixed(2) + ')';
+                        g.lineWidth = frac * (e.state === 'diving' ? 6 : 3.5);
+                        g.lineCap = 'round';
+                        g.beginPath();
+                        g.moveTo(e.trail[ti - 1].x, e.trail[ti - 1].y);
+                        g.lineTo(e.trail[ti].x, e.trail[ti].y);
+                        g.stroke();
+                    }
+                    g.restore();
+                }
                 const sz = e.kind === 'ufo' ? 34 : 30;
                 drawSprite(g, ctx.sprites, e.kind, e.x, e.y, sz, sz, {
                     angle: e.kind === 'alien_drone' ? e.angle : Math.sin(time * 4 + e.slotX) * 0.12,
@@ -1241,6 +1350,14 @@
                     glow: e.state === 'diving' ? PAL.coral : (e.kind === 'ufo' ? PAL.amber : PAL.violet),
                     glowBlur: e.state === 'diving' ? 14 : 7
                 });
+                if (e.state === 'diving' && e.diveT < 0.25) {
+                    g.save();
+                    g.font = '800 11px "JetBrains Mono", monospace';
+                    g.fillStyle = PAL.coral;
+                    g.textAlign = 'center';
+                    g.fillText('!', e.x, e.y - 20);
+                    g.restore();
+                }
             }
 
             // Boss Flagship
@@ -1345,6 +1462,8 @@
         let spawnPending = 0;
         let spawnTimer = 0;
         let mutantAlerted = false;
+        let bombs = 3;
+        let bombFlash = 0;
 
         let player = null;
         let astronauts = [];
@@ -1458,12 +1577,53 @@
             wave = 1;
             score = 0;
             lives = 3;
+            bombs = 3;
+            bombFlash = 0;
             ended = false;
             time = 0;
             enemies = [];
             resetPlayer();
             setupAstronauts();
             startWave(1);
+        }
+
+        function triggerSmartBomb() {
+            if (bombs <= 0 || ended) return;
+            bombs -= 1;
+            bombFlash = 0.28;
+            sfx(ctx, 'emp');
+            fx.shake(12, 0.42);
+            const psx = toScreenX(player.x);
+            fx.ring(psx, player.y, 260, PAL.amber, 0.5, 4);
+            fx.floatText(psx, player.y - 34, 'SMART BOMB!', PAL.amber, 1.3);
+
+            const centerWorld = wrapCoord(camX + W * 0.5, WORLD_W);
+            let hits = 0;
+            for (let ei = enemies.length - 1; ei >= 0; ei--) {
+                const e = enemies[ei];
+                if (Math.abs(wrappedDelta(centerWorld, e.x, WORLD_W)) <= W * 0.56) {
+                    const sx = toScreenX(e.x);
+                    const pts = e.kind === 'mutant' ? 200 : 150;
+                    score += pts;
+                    hits++;
+                    fx.burst(sx, e.y, 16, PAL.amber, 220, 3.8, 0.5);
+                    if (e.carryingAstro) {
+                        const a = e.carryingAstro;
+                        a.carrier = null;
+                        a.state = 'falling';
+                        a.vy = 0;
+                        a.fallStartY = a.y;
+                        fx.floatText(sx, e.y - 26, 'CATCH ASTRONAUT!', PAL.mint);
+                    }
+                    enemies.splice(ei, 1);
+                }
+            }
+            for (let si = enemyShots.length - 1; si >= 0; si--) {
+                if (Math.abs(wrappedDelta(centerWorld, enemyShots[si].x, WORLD_W)) <= W * 0.58) {
+                    enemyShots.splice(si, 1);
+                }
+            }
+            if (hits > 0) sfx(ctx, 'explodeSmall', 0.2);
         }
 
         function toScreenX(wx) {
@@ -1474,7 +1634,12 @@
         function update(dt) {
             time += dt;
             fx.update(dt);
+            if (bombFlash > 0) bombFlash = Math.max(0, bombFlash - dt);
             if (ended) return;
+
+            if (input.justPressed('KeyB')) {
+                triggerSmartBomb();
+            }
 
             // Player flight
             let ax = 0;
@@ -1534,7 +1699,8 @@
                     spawnPending -= batch;
                     spawnTimer = 3.2;
                     for (let i = 0; i < batch; i++) {
-                        spawnEnemy(Math.random() < 0.24 ? 'bomber' : 'lander', wrapCoord(player.x + randRange(360, WORLD_W - 360), WORLD_W), randRange(80, 175));
+                        const kind = Math.random() < 0.24 ? 'bomber' : (mutantAlerted ? 'mutant' : 'lander');
+                        spawnEnemy(kind, wrapCoord(player.x + randRange(360, WORLD_W - 360), WORLD_W), randRange(80, 175));
                     }
                 }
             }
@@ -1737,6 +1903,7 @@
                 // Player body collision
                 if (Math.abs(wrappedDelta(player.x, e.x, WORLD_W)) < 24 && Math.abs(player.y - e.y) < 22) {
                     if (e.carryingAstro) {
+                        e.carryingAstro.carrier = null;
                         e.carryingAstro.state = 'falling';
                         e.carryingAstro.vy = 0;
                         e.carryingAstro.fallStartY = e.carryingAstro.y;
@@ -1765,6 +1932,7 @@
             // Wave clear / Level win
             if (spawnPending === 0 && enemies.length === 0) {
                 score += astronauts.length * 100;
+                if (bombs < 3) bombs += 1;
                 if (ctx.isStory && wave >= 2) {
                     ended = true;
                     sfx(ctx, 'levelup');
@@ -1813,39 +1981,41 @@
             // Astronaut blips
             for (let i = 0; i < astronauts.length; i++) {
                 const a = astronauts[i];
-                const rx = mapX(a.x);
-                const ry = 8 + (a.y / H) * (RADAR_H - 14);
+                const rx = clamp(mapX(a.x), 20, W - 20);
+                const ry = clamp(8 + (a.y / H) * (RADAR_H - 14), 6, RADAR_H - 6);
                 g.fillStyle = a.state === 'abducted' ? (Math.floor(time * 10) % 2 ? PAL.coral : PAL.white) : PAL.mint;
                 g.fillRect(rx - 2, ry - 2, 4, 4);
             }
 
-            // Enemy blips
+            // Enemy blips (pulse final <=3 stragglers so none vanish off-radar)
+            const fewRemaining = (enemies.length + spawnPending) <= 3;
             for (let i = 0; i < enemies.length; i++) {
                 const e = enemies[i];
-                const rx = mapX(e.x);
-                const ry = 8 + (e.y / H) * (RADAR_H - 14);
+                const rx = clamp(mapX(e.x), 20, W - 20);
+                const ry = clamp(8 + (e.y / H) * (RADAR_H - 14), 6, RADAR_H - 6);
                 g.fillStyle = e.carryingAstro ? PAL.coral : (e.kind === 'mutant' ? '#ff3366' : PAL.amber);
                 g.fillRect(rx - 2.5, ry - 2.5, 5, 5);
-                if (e.carryingAstro) {
-                    g.strokeStyle = PAL.coral;
-                    g.lineWidth = 1;
-                    g.strokeRect(rx - 6, ry - 6, 12, 12);
+                if (e.carryingAstro || fewRemaining) {
+                    const pulseR = 6 + Math.sin(time * 10 + i) * 2;
+                    g.strokeStyle = e.carryingAstro ? PAL.coral : PAL.amber;
+                    g.lineWidth = 1.2;
+                    g.strokeRect(rx - pulseR, ry - pulseR, pulseR * 2, pulseR * 2);
                 }
             }
 
             // Player blip
-            const prx = mapX(player.x);
-            const pry = 8 + (player.y / H) * (RADAR_H - 14);
+            const prx = clamp(mapX(player.x), 20, W - 20);
+            const pry = clamp(8 + (player.y / H) * (RADAR_H - 14), 6, RADAR_H - 6);
             g.fillStyle = PAL.sky;
             g.fillRect(prx - 3, pry - 3, 6, 6);
 
             g.font = '700 10px "JetBrains Mono", monospace';
             g.fillStyle = PAL.sky;
             g.textAlign = 'left';
-            g.fillText('SCANNER 2800PX', 12, 15);
+            g.fillText('SCANNER 2800PX · BOMBS: ' + bombs, 12, 15);
             g.textAlign = 'right';
             g.fillStyle = PAL.mint;
-            g.fillText('PILOTS: ' + astronauts.length, W - 12, 15);
+            g.fillText('PILOTS: ' + astronauts.length + ' · FOES: ' + (enemies.length + spawnPending), W - 12, 15);
             g.restore();
         }
 
@@ -1962,10 +2132,47 @@
                 });
             }
 
+            // Off-screen directional markers for abductors & final stragglers
+            const centerW = wrapCoord(camX + W * 0.5, WORLD_W);
+            let shownStraggler = false;
+            for (let i = 0; i < enemies.length; i++) {
+                const e = enemies[i];
+                const dx = wrappedDelta(centerW, e.x, WORLD_W);
+                if (Math.abs(dx) <= W * 0.48) continue;
+                const isPriority = !!e.carryingAstro || (enemies.length <= 3 && !shownStraggler);
+                if (!isPriority) continue;
+                if (!e.carryingAstro) shownStraggler = true;
+                const side = dx > 0 ? 1 : -1;
+                const mx = side > 0 ? W - 26 : 26;
+                const my = clamp(e.y, RADAR_H + 26, H - 46);
+                const col = e.carryingAstro ? PAL.coral : PAL.amber;
+                g.save();
+                g.fillStyle = col;
+                g.shadowColor = col;
+                g.shadowBlur = 10;
+                g.beginPath();
+                g.moveTo(mx + side * 9, my);
+                g.lineTo(mx - side * 5, my - 7);
+                g.lineTo(mx - side * 5, my + 7);
+                g.closePath();
+                g.fill();
+                g.font = '800 9px "JetBrains Mono", monospace';
+                g.textAlign = side > 0 ? 'right' : 'left';
+                g.fillText(e.carryingAstro ? 'ABDUCT!' : 'FOE', mx - side * 10, my + 3);
+                g.restore();
+            }
+
+            if (bombFlash > 0) {
+                g.save();
+                g.fillStyle = 'rgba(255, 255, 255, ' + (bombFlash * 1.4).toFixed(2) + ')';
+                g.fillRect(0, RADAR_H, W, H - RADAR_H);
+                g.restore();
+            }
+
             fx.drawParticles(g);
             renderRadar(g);
             fx.drawOverlays(g);
-            drawInCanvasFooter(g, '[WASD / Arrows] Thrust & Altitude  ·  [Space / Click] Beam Shot  ·  Catch Falling Astronauts!');
+            drawInCanvasFooter(g, '[WASD / Arrows] Thrust  ·  [Space / Click] Beam  ·  [B] Smart Bomb  ·  Catch Falling Pilots!');
             g.restore();
         }
 
@@ -1977,7 +2184,7 @@
                 lives,
                 hp: lives,
                 maxHp: 3,
-                status: 'ASTRONAUTS ' + astronauts.length + ' · ENEMIES ' + (enemies.length + spawnPending)
+                status: 'PILOTS ' + astronauts.length + ' · ENEMIES ' + (enemies.length + spawnPending) + ' · BOMBS ' + bombs
             };
         }
 
@@ -2018,17 +2225,23 @@
             return pts;
         }
 
-        function spawnAsteroid(sizeTier, x, y) {
+        function spawnAsteroid(sizeTier, x, y, forcedAng) {
             const radius = sizeTier === 3 ? 38 : (sizeTier === 2 ? 23 : 13);
             const speed = (sizeTier === 3 ? 62 : (sizeTier === 2 ? 98 : 138)) * (1 + (stage - 1) * 0.12);
-            const ang = Math.random() * TAU;
+            const ang = forcedAng !== undefined ? forcedAng : Math.random() * TAU;
             let ax = x;
             let ay = y;
             if (ax === undefined || ay === undefined) {
-                do {
+                const refX = ship ? ship.x : W * 0.5;
+                const refY = ship ? ship.y : H * 0.5;
+                for (let tries = 0; tries < 40; tries++) {
                     ax = Math.random() * W;
                     ay = Math.random() * H;
-                } while (distSq(ax, ay, W * 0.5, H * 0.5) < 160 * 160);
+                    if (wrappedDistSq(ax, ay, refX, refY) >= 175 * 175) break;
+                }
+            } else {
+                ax = wrapCoord(ax, W);
+                ay = wrapCoord(ay, H);
             }
             asteroids.push({
                 x: ax,
@@ -2094,6 +2307,23 @@
             ship.vx = 0;
             ship.vy = 0;
             ship.invuln = 2.6;
+            // Clear/push immediate center hazards so respawn is safe
+            for (let i = enemyBullets.length - 1; i >= 0; i--) {
+                if (wrappedDistSq(enemyBullets[i].x, enemyBullets[i].y, ship.x, ship.y) < 165 * 165) {
+                    enemyBullets.splice(i, 1);
+                }
+            }
+            for (let i = 0; i < asteroids.length; i++) {
+                const a = asteroids[i];
+                const dx = wrappedDelta(ship.x, a.x, W);
+                const dy = wrappedDelta(ship.y, a.y, H);
+                const d = Math.hypot(dx, dy);
+                if (d < 120) {
+                    const pushAng = d > 1 ? Math.atan2(dy, dx) : Math.random() * TAU;
+                    a.x = wrapCoord(ship.x + Math.cos(pushAng) * 145, W);
+                    a.y = wrapCoord(ship.y + Math.sin(pushAng) * 145, H);
+                }
+            }
         }
 
         function tryHyperJump() {
@@ -2256,8 +2486,9 @@
                     fx.ring(a.x, a.y, a.r + 14, PAL.sky, 0.28);
                     fx.floatText(a.x, a.y, '+' + pts, PAL.sky);
                     if (a.tier > 1) {
-                        spawnAsteroid(a.tier - 1, a.x + randRange(-8, 8), a.y + randRange(-8, 8));
-                        spawnAsteroid(a.tier - 1, a.x + randRange(-8, 8), a.y + randRange(-8, 8));
+                        const splitBase = Math.atan2(a.vy, a.vx);
+                        spawnAsteroid(a.tier - 1, a.x + randRange(-8, 8), a.y + randRange(-8, 8), splitBase + 0.55);
+                        spawnAsteroid(a.tier - 1, a.x + randRange(-8, 8), a.y + randRange(-8, 8), splitBase - 0.55);
                     } else if (Math.random() < 0.2) {
                         pickups.push({
                             x: a.x,
@@ -2372,6 +2603,7 @@
                     stage += 1;
                     score += 500 * stage;
                     sfx(ctx, 'levelup');
+                    ship.invuln = Math.max(ship.invuln, 1.8);
                     const nextCount = Math.min(14, 3 + stage);
                     for (let i = 0; i < nextCount; i++) spawnAsteroid(3);
                     fx.showBanner('BELT ' + stage, 'NEXT ASTEROID FIELD · +' + (500 * stage), PAL.sky, 2.0);
@@ -2486,7 +2718,19 @@
             }
             g.restore();
 
-            // Ship (vector aura + pixel fighter sprite)
+            // Ship (vector aura + pixel fighter sprite + spawn shield indicator)
+            if (ship.invuln > 0 && !ended) {
+                drawWrapped(ship.x, ship.y, 30, (dx, dy) => {
+                    g.save();
+                    g.strokeStyle = 'rgba(56, 189, 248, ' + (0.45 + 0.35 * Math.sin(time * 12)).toFixed(2) + ')';
+                    g.lineWidth = 2;
+                    g.setLineDash([6, 4]);
+                    g.beginPath();
+                    g.arc(dx, dy, 25, time * 3, time * 3 + TAU);
+                    g.stroke();
+                    g.restore();
+                });
+            }
             const blink = ship.invuln > 0 && Math.floor(time * 16) % 2 === 0;
             if (!blink && !ended) {
                 drawWrapped(ship.x, ship.y, 26, (dx, dy) => {
@@ -2562,6 +2806,7 @@
         let prevSnake = [];
         let dir = { x: 1, y: 0 };
         let turnQueue = [];
+        let pointerSwiped = false;
         let stepTimer = 0;
         let stepInterval = 0.115;
         let growthPending = 0;
@@ -2655,6 +2900,9 @@
             for (let i = 0; i < snake.length; i++) {
                 if (snake[i].c === c && snake[i].r === r) return true;
             }
+            for (let i = 0; i < prevSnake.length; i++) {
+                if (prevSnake[i].c === c && prevSnake[i].r === r) return true;
+            }
             if (crystal && crystal.c === c && crystal.r === r) return true;
             if (bonusStar && bonusStar.c === c && bonusStar.r === r) return true;
             return false;
@@ -2671,7 +2919,12 @@
                     if (!isOccupied(c, r)) return { c, r };
                 }
             }
-            return { c: 2, r: 2 };
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (!isOccupied(c, r)) return { c, r };
+                }
+            }
+            return null;
         }
 
         function spawnCrystal() {
@@ -2679,6 +2932,9 @@
         }
 
         function queueTurn(nx, ny) {
+            if (turnQueue.length === 0 && snake.length > 1) {
+                if (snake[0].c + nx === snake[1].c && snake[0].r + ny === snake[1].r) return;
+            }
             const last = turnQueue.length > 0 ? turnQueue[turnQueue.length - 1] : dir;
             if (nx === last.x && ny === last.y) return;
             if (nx === -last.x && ny === -last.y) return;
@@ -2701,6 +2957,7 @@
             growthPending = 0;
             dir = { x: 1, y: 0 };
             turnQueue = [];
+            pointerSwiped = false;
 
             snake = [];
             for (let i = 0; i < 6; i++) {
@@ -2732,8 +2989,14 @@
         }
 
         function stepSimulation() {
-            if (turnQueue.length > 0) {
-                dir = turnQueue.shift();
+            while (turnQueue.length > 0) {
+                const cand = turnQueue.shift();
+                const isReverse = cand.x === -dir.x && cand.y === -dir.y;
+                const hitsNeck = snake.length > 1 && snake[0].c + cand.x === snake[1].c && snake[0].r + cand.y === snake[1].r;
+                if (!isReverse && !hitsNeck) {
+                    dir = cand;
+                    break;
+                }
             }
 
             prevSnake = snake.map((s) => ({ c: s.c, r: s.r }));
@@ -2775,7 +3038,10 @@
                     if (chosen) {
                         nc = chosen.c;
                         nr = chosen.r;
-                        dir = { x: chosen.dx, y: chosen.dy };
+                        if (chosen.dx !== dir.x || chosen.dy !== dir.y) {
+                            dir = { x: chosen.dx, y: chosen.dy };
+                            turnQueue = [];
+                        }
                     } else {
                         nc = dest.c;
                         nr = dest.r;
@@ -2860,25 +3126,33 @@
             fx.update(dt);
             if (ended) return;
 
-            if (input.anyPressed(['KeyW', 'ArrowUp'])) queueTurn(0, -1);
-            if (input.anyPressed(['KeyS', 'ArrowDown'])) queueTurn(0, 1);
-            if (input.anyPressed(['KeyA', 'ArrowLeft'])) queueTurn(-1, 0);
-            if (input.anyPressed(['KeyD', 'ArrowRight'])) queueTurn(1, 0);
+            const upP = input.anyPressed(['KeyW', 'ArrowUp']);
+            const dnP = input.anyPressed(['KeyS', 'ArrowDown']);
+            const lfP = input.anyPressed(['KeyA', 'ArrowLeft']);
+            const rtP = input.anyPressed(['KeyD', 'ArrowRight']);
+            if (upP && !dnP) queueTurn(0, -1);
+            if (dnP && !upP) queueTurn(0, 1);
+            if (lfP && !rtP) queueTurn(-1, 0);
+            if (rtP && !lfP) queueTurn(1, 0);
 
-            // Click / Swipe quadrant control
+            // Click / Swipe quadrant control (one turn per gesture)
             if (input.pointer.justDown) {
+                pointerSwiped = false;
+            }
+            if (input.pointer.isDown && !pointerSwiped) {
+                const sdx = input.pointer.x - input.pointer.startX;
+                const sdy = input.pointer.y - input.pointer.startY;
+                if (Math.hypot(sdx, sdy) > 22) {
+                    pointerSwiped = true;
+                    if (Math.abs(sdx) > Math.abs(sdy)) queueTurn(sdx > 0 ? 1 : -1, 0);
+                    else queueTurn(0, sdy > 0 ? 1 : -1);
+                }
+            } else if (input.pointer.justUp && !pointerSwiped) {
                 const head = cellCenter(snake[0].c, snake[0].r);
                 const dx = input.pointer.x - head.x;
                 const dy = input.pointer.y - head.y;
                 if (Math.abs(dx) > Math.abs(dy)) queueTurn(dx > 0 ? 1 : -1, 0);
                 else queueTurn(0, dy > 0 ? 1 : -1);
-            } else if (input.pointer.justUp) {
-                const sdx = input.pointer.x - input.pointer.startX;
-                const sdy = input.pointer.y - input.pointer.startY;
-                if (Math.hypot(sdx, sdy) > 26) {
-                    if (Math.abs(sdx) > Math.abs(sdy)) queueTurn(sdx > 0 ? 1 : -1, 0);
-                    else queueTurn(0, sdy > 0 ? 1 : -1);
-                }
             }
 
             if (comboTimer > 0) {
@@ -2895,7 +3169,7 @@
                 if (bonusSpawnCd <= 0) {
                     bonusSpawnCd = randRange(8.5, 13.0);
                     const cell = findFreeCell();
-                    bonusStar = { c: cell.c, r: cell.r, life: 7.5 };
+                    if (cell) bonusStar = { c: cell.c, r: cell.r, life: 7.5 };
                 }
             }
 
@@ -3184,8 +3458,20 @@
                 vy: -360,
                 r: 8,
                 stuck: true,
+                noHitTimer: 0,
                 trail: []
             }];
+        }
+
+        function enforceMinVertical(b) {
+            const spd = Math.hypot(b.vx, b.vy) || (370 + stage * 18);
+            const minVy = spd * 0.28;
+            if (Math.abs(b.vy) < minVy) {
+                const sy = b.vy === 0 ? -1 : Math.sign(b.vy);
+                const sx = b.vx === 0 ? (Math.random() < 0.5 ? 1 : -1) : Math.sign(b.vx);
+                b.vy = sy * minVy;
+                b.vx = sx * Math.sqrt(Math.max(1, spd * spd - minVy * minVy));
+            }
         }
 
         function buildLevel(lvl) {
@@ -3318,15 +3604,18 @@
                         if (balls.length >= 9) break;
                         const ang = Math.atan2(src.vy, src.vx) + s * 0.35;
                         const spd = Math.hypot(src.vx, src.vy) || 380;
-                        balls.push({
+                        const nb = {
                             x: src.x,
                             y: src.y,
                             vx: Math.cos(ang) * spd,
                             vy: Math.sin(ang) * spd,
                             r: src.r,
                             stuck: false,
+                            noHitTimer: 0,
                             trail: []
-                        });
+                        };
+                        enforceMinVertical(nb);
+                        balls.push(nb);
                     }
                 }
                 fx.floatText(paddle.x, paddle.y - 26, 'MULTI-BALL!', PAL.amber, 1.15);
@@ -3343,6 +3632,7 @@
             if (ended) return;
 
             // Paddle movement (Keyboard or Mouse X)
+            const prevPaddleX = paddle.x;
             let kbDir = 0;
             if (input.anyDown(['KeyA', 'ArrowLeft'])) kbDir -= 1;
             if (input.anyDown(['KeyD', 'ArrowRight'])) kbDir += 1;
@@ -3365,6 +3655,8 @@
                     if (balls[i].stuck) {
                         balls[i].stuck = false;
                         balls[i].vy = -(370 + stage * 18);
+                        balls[i].noHitTimer = 0;
+                        enforceMinVertical(balls[i]);
                         launched = true;
                     }
                 }
@@ -3422,54 +3714,92 @@
                 b.trail.push({ x: b.x, y: b.y });
                 if (b.trail.length > 8) b.trail.shift();
 
+                b.noHitTimer = (b.noHitTimer || 0) + dt;
+                if (b.noHitTimer > 12) {
+                    b.noHitTimer = 0;
+                    b.vy += 65;
+                    enforceMinVertical(b);
+                }
+
                 const spd = Math.hypot(b.vx, b.vy);
-                const steps = clamp(Math.ceil((spd * dt) / 6), 1, 10);
+                const maxShift = Math.max(spd, Math.abs(paddle.x - prevPaddleX) / Math.max(0.001, dt));
+                const steps = clamp(Math.ceil((maxShift * dt) / 5), 2, 14);
                 const sdt = dt / steps;
+                const halfPW = paddle.w * 0.5;
+                const pTop = paddle.y - paddle.h * 0.5;
+                const pBot = paddle.y + paddle.h * 0.5;
 
                 for (let s = 0; s < steps; s++) {
                     b.x += b.vx * sdt;
                     b.y += b.vy * sdt;
+                    const subPaddleX = lerp(prevPaddleX, paddle.x, (s + 1) / steps);
 
                     // Arena walls
-                    if (b.x - b.r < 8) { b.x = 8 + b.r; b.vx = Math.abs(b.vx); sfx(ctx, 'hitShield', 0.1); }
-                    if (b.x + b.r > W - 8) { b.x = W - 8 - b.r; b.vx = -Math.abs(b.vx); sfx(ctx, 'hitShield', 0.1); }
-                    if (b.y - b.r < 10) { b.y = 10 + b.r; b.vy = Math.abs(b.vy); sfx(ctx, 'hitShield', 0.1); }
+                    if (b.x - b.r < 8) {
+                        b.x = 8 + b.r;
+                        b.vx = Math.abs(b.vx);
+                        enforceMinVertical(b);
+                        sfx(ctx, 'hitShield', 0.1);
+                    }
+                    if (b.x + b.r > W - 8) {
+                        b.x = W - 8 - b.r;
+                        b.vx = -Math.abs(b.vx);
+                        enforceMinVertical(b);
+                        sfx(ctx, 'hitShield', 0.1);
+                    }
+                    if (b.y - b.r < 10) {
+                        b.y = 10 + b.r;
+                        b.vy = Math.abs(b.vy);
+                        enforceMinVertical(b);
+                        sfx(ctx, 'hitShield', 0.1);
+                    }
 
-                    // Paddle bounce
-                    if (
-                        b.vy > 0 &&
-                        b.y + b.r >= paddle.y - paddle.h * 0.5 &&
-                        b.y - b.r <= paddle.y + paddle.h * 0.5 &&
-                        b.x + b.r >= paddle.x - paddle.w * 0.5 &&
-                        b.x - b.r <= paddle.x + paddle.w * 0.5
-                    ) {
-                        const hitOffset = clamp((b.x - paddle.x) / (paddle.w * 0.5), -1, 1);
-                        const bounceAng = -Math.PI * 0.5 + hitOffset * 1.08;
-                        const newSpd = Math.min(620, spd * 1.018);
+                    // Paddle bounce (interpolated paddle X + circle-rect edge coverage)
+                    const pClampX = clamp(b.x, subPaddleX - halfPW, subPaddleX + halfPW);
+                    const pClampY = clamp(b.y, pTop, pBot);
+                    if (b.vy > 0 && distSq(b.x, b.y, pClampX, pClampY) <= b.r * b.r) {
+                        const curSpd = Math.hypot(b.vx, b.vy) || 370;
+                        const hitOffset = clamp((b.x - subPaddleX) / halfPW, -1, 1);
+                        const bounceAng = -Math.PI * 0.5 + hitOffset * 1.04;
+                        const newSpd = Math.min(620, curSpd * 1.018);
                         b.vx = Math.cos(bounceAng) * newSpd;
                         b.vy = Math.sin(bounceAng) * newSpd;
-                        b.y = paddle.y - paddle.h * 0.5 - b.r - 0.5;
+                        enforceMinVertical(b);
+                        b.y = pTop - b.r - 0.5;
+                        b.noHitTimer = 0;
                         sfx(ctx, 'hitShield', 0.14);
                         fx.burst(b.x, b.y + b.r, 6, PAL.sky, 110, 2.5, 0.22);
                     }
 
-                    // Active Laser Gates bounce
+                    // Active Laser Gates bounce (exact rendered strip y+6..y+16 + push-out)
                     for (let gi = 0; gi < laserGates.length; gi++) {
                         const lg = laserGates[gi];
                         if (!lg.active) continue;
+                        const gy = lg.y + 6;
+                        const gh = 10;
                         const cx = clamp(b.x, lg.x, lg.x + lg.w);
-                        const cy = clamp(b.y, lg.y, lg.y + lg.h);
+                        const cy = clamp(b.y, gy, gy + gh);
                         if (distSq(b.x, b.y, cx, cy) <= b.r * b.r) {
-                            const ox = Math.min(Math.abs(b.x - lg.x), Math.abs(b.x - (lg.x + lg.w)));
-                            const oy = Math.min(Math.abs(b.y - lg.y), Math.abs(b.y - (lg.y + lg.h)));
-                            if (ox < oy) b.vx = -b.vx;
-                            else b.vy = -b.vy;
+                            const oL = Math.abs((b.x + b.r) - lg.x);
+                            const oR = Math.abs((lg.x + lg.w) - (b.x - b.r));
+                            const oT = Math.abs((b.y + b.r) - gy);
+                            const oB = Math.abs((gy + gh) - (b.y - b.r));
+                            const mX = Math.min(oL, oR);
+                            const mY = Math.min(oT, oB);
+                            if (mX < mY) {
+                                b.vx = oL < oR ? -Math.abs(b.vx) : Math.abs(b.vx);
+                                b.x = oL < oR ? lg.x - b.r - 0.5 : lg.x + lg.w + b.r + 0.5;
+                            } else {
+                                b.vy = oT < oB ? -Math.abs(b.vy) : Math.abs(b.vy);
+                                b.y = oT < oB ? gy - b.r - 0.5 : gy + gh + b.r + 0.5;
+                            }
+                            enforceMinVertical(b);
                             sfx(ctx, 'hitMetal', 0.12);
                             break;
                         }
                     }
 
-                    // Bricks collision
+                    // Bricks collision (push out along shallowest axis so zero multi-trap)
                     for (let bi = bricks.length - 1; bi >= 0; bi--) {
                         const br = bricks[bi];
                         const cx = clamp(b.x, br.x, br.x + br.w);
@@ -3481,12 +3811,15 @@
                             const overlapB = Math.abs((br.y + br.h) - (b.y - b.r));
                             const minX = Math.min(overlapL, overlapR);
                             const minY = Math.min(overlapT, overlapB);
-                            if (minX < minY) b.vx = -b.vx;
-                            else b.vy = -b.vy;
-                            // Anti-horizontal lock guard
-                            if (Math.abs(b.vy) < 95) {
-                                b.vy = (b.vy >= 0 ? 1 : -1) * 115;
+                            if (minX < minY) {
+                                b.vx = overlapL < overlapR ? -Math.abs(b.vx) : Math.abs(b.vx);
+                                b.x = overlapL < overlapR ? br.x - b.r - 0.5 : br.x + br.w + b.r + 0.5;
+                            } else {
+                                b.vy = overlapT < overlapB ? -Math.abs(b.vy) : Math.abs(b.vy);
+                                b.y = overlapT < overlapB ? br.y - b.r - 0.5 : br.y + br.h + b.r + 0.5;
                             }
+                            enforceMinVertical(b);
+                            b.noHitTimer = 0;
                             damageBrick(bi, false);
                             break;
                         }
@@ -3704,13 +4037,15 @@
         function resetRound(serveDir) {
             rally = 0;
             serveTimer = 0.85;
+            const dir = serveDir || 1;
             const ang = randRange(-0.45, 0.45);
             const spd = 370 + stage * 22;
             ball = {
                 x: W * 0.5,
                 y: H * 0.5,
-                vx: Math.cos(ang) * spd * (serveDir || 1),
+                vx: Math.cos(ang) * spd * dir,
                 vy: Math.sin(ang) * spd,
+                lastHitDir: dir,
                 spin: 0,
                 r: 9,
                 trail: []
@@ -3725,8 +4060,8 @@
             bestRally = 0;
             ended = false;
             time = 0;
-            p1 = { x: 42, y: H * 0.5, vy: 0, prevY: H * 0.5, w: 16, h: 98 };
-            ai = { x: W - 42, y: H * 0.5, vy: 0, prevY: H * 0.5, w: 16, h: 98 };
+            p1 = { x: 42, y: H * 0.5, vy: 0, prevY: H * 0.5, w: 16, h: 98, hitFlash: 0 };
+            ai = { x: W - 42, y: H * 0.5, vy: 0, prevY: H * 0.5, w: 16, h: 98, hitFlash: 0 };
             gravOrb = { x: W * 0.5, y: H * 0.5, mode: 1, modeTimer: 7.5 }; // 1 = pull, -1 = push
             resetRound(1);
             fx.showBanner(
@@ -3743,19 +4078,24 @@
             fx.update(dt);
             if (ended) return;
 
-            // Player Paddle (W/S, Arrows, or Mouse Y)
+            if (p1.hitFlash > 0) p1.hitFlash = Math.max(0, p1.hitFlash - dt);
+            if (ai.hitFlash > 0) ai.hitFlash = Math.max(0, ai.hitFlash - dt);
+
+            // Player Paddle (W/S, Arrows, or smoothed Mouse Y)
             p1.prevY = p1.y;
             let kbY = 0;
             if (input.anyDown(['KeyW', 'ArrowUp'])) kbY -= 1;
             if (input.anyDown(['KeyS', 'ArrowDown'])) kbY += 1;
             if (kbY !== 0) {
-                p1.y += kbY * 490 * dt;
+                p1.y += kbY * 510 * dt;
             } else if (input.mode === 'pointer' && input.pointer.hasMoved) {
-                const maxStep = 640 * dt;
-                p1.y += clamp(input.pointer.y - p1.y, -maxStep, maxStep);
+                const maxStep = 760 * dt;
+                const diff = (input.pointer.y - p1.y) * Math.min(1, dt * 22);
+                p1.y += clamp(diff, -maxStep, maxStep);
             }
             p1.y = clamp(p1.y, 58, H - 58);
-            p1.vy = (p1.y - p1.prevY) / Math.max(0.001, dt);
+            const rawP1Vy = (p1.y - p1.prevY) / Math.max(0.001, dt);
+            p1.vy = lerp(p1.vy, rawP1Vy, Math.min(1, dt * 18));
 
             // Escalating Cosmic AI Cruiser
             ai.prevY = ai.y;
@@ -3768,7 +4108,8 @@
                 ai.y += clamp(aiDiff * 6, -aiSpeed, aiSpeed) * dt;
             }
             ai.y = clamp(ai.y, 58, H - 58);
-            ai.vy = (ai.y - ai.prevY) / Math.max(0.001, dt);
+            const rawAiVy = (ai.y - ai.prevY) / Math.max(0.001, dt);
+            ai.vy = lerp(ai.vy, rawAiVy, Math.min(1, dt * 18));
 
             // Shifting Central Mini-Gravity Orb
             gravOrb.x = W * 0.5 + Math.sin(time * 0.65) * 44;
@@ -3790,7 +4131,7 @@
             ball.trail.push({ x: ball.x, y: ball.y });
             if (ball.trail.length > 14) ball.trail.shift();
 
-            // Spin curve effect + Gravity Orb bending
+            // Spin curve effect + Gravity Orb bending (preserve cross-court direction, prevent vertical stall)
             const speed = Math.hypot(ball.vx, ball.vy);
             if (Math.abs(ball.spin) > 0.05) {
                 ball.vy += ball.spin * 210 * dt;
@@ -3800,81 +4141,97 @@
             const gdx = gravOrb.x - ball.x;
             const gdy = gravOrb.y - ball.y;
             const gd = Math.hypot(gdx, gdy);
-            if (gd > 14 && gd < 180) {
-                const strength = (1 - gd / 180) * (240 + speed * 0.42) * gravOrb.mode;
-                ball.vx += (gdx / gd) * strength * dt;
+            if (gd > 18 && gd < 180) {
+                const strength = (1 - gd / 180) * (220 + speed * 0.36) * gravOrb.mode;
+                ball.vx += (gdx / gd) * strength * 0.45 * dt;
                 ball.vy += (gdy / gd) * strength * dt;
             }
 
-            // Maintain lively horizontal speed
-            if (Math.abs(ball.vx) < 220) {
-                ball.vx = (ball.vx >= 0 ? 1 : -1) * 220;
+            // Guarantee steady horizontal crossing speed in lastHitDir (no pure vertical stall / orb orbit)
+            const targetSpd = clamp(Math.hypot(ball.vx, ball.vy), 340, 840);
+            const minHoriz = Math.max(240, targetSpd * 0.48);
+            const dirSign = ball.lastHitDir || (ball.vx >= 0 ? 1 : -1);
+            if (ball.vx * dirSign < minHoriz) {
+                ball.vx = dirSign * minHoriz;
             }
-            const clampedSpd = clamp(Math.hypot(ball.vx, ball.vy), 340, 820);
             const curSpd = Math.hypot(ball.vx, ball.vy);
             if (curSpd > 0) {
-                ball.vx = (ball.vx / curSpd) * clampedSpd;
-                ball.vy = (ball.vy / curSpd) * clampedSpd;
+                ball.vx = (ball.vx / curSpd) * targetSpd;
+                ball.vy = (ball.vy / curSpd) * targetSpd;
             }
 
-            ball.x += ball.vx * dt;
-            ball.y += ball.vy * dt;
+            // Sub-stepped ball movement & paddle/wall collision (anti-tunneling)
+            const steps = clamp(Math.ceil((targetSpd * dt) / 8), 1, 6);
+            const sdt = dt / steps;
+            for (let s = 0; s < steps; s++) {
+                const tFrac = (s + 1) / steps;
+                const subP1Y = lerp(p1.prevY, p1.y, tFrac);
+                const subAiY = lerp(ai.prevY, ai.y, tFrac);
+                ball.x += ball.vx * sdt;
+                ball.y += ball.vy * sdt;
 
-            // Top/bottom bounce
-            if (ball.y - ball.r < 12) {
-                ball.y = 12 + ball.r;
-                ball.vy = Math.abs(ball.vy);
-                sfx(ctx, 'hitShield', 0.14);
-                fx.burst(ball.x, ball.y, 6, PAL.sky, 110, 2, 0.2);
-            } else if (ball.y + ball.r > H - 12) {
-                ball.y = H - 12 - ball.r;
-                ball.vy = -Math.abs(ball.vy);
-                sfx(ctx, 'hitShield', 0.14);
-                fx.burst(ball.x, ball.y, 6, PAL.sky, 110, 2, 0.2);
-            }
-
-            // Left paddle bounce (Player)
-            if (
-                ball.vx < 0 &&
-                ball.x - ball.r <= p1.x + p1.w * 0.5 &&
-                ball.x + ball.r >= p1.x - p1.w * 0.5 &&
-                Math.abs(ball.y - p1.y) <= p1.h * 0.5 + ball.r
-            ) {
-                const offset = clamp((ball.y - p1.y) / (p1.h * 0.5), -1, 1);
-                const newSpd = Math.min(820, Math.hypot(ball.vx, ball.vy) + 22);
-                const ang = offset * 0.92;
-                ball.vx = Math.cos(ang) * newSpd;
-                ball.vy = Math.sin(ang) * newSpd;
-                ball.x = p1.x + p1.w * 0.5 + ball.r + 1;
-                ball.spin = clamp(p1.vy / 260, -1.8, 1.8);
-                rally++;
-                bestRally = Math.max(bestRally, rally);
-                score += 25 + rally * 10;
-                sfx(ctx, 'hitMetal', 0.1 + Math.min(0.4, rally * 0.02));
-                fx.burst(ball.x, ball.y, 12, Math.abs(ball.spin) > 0.6 ? PAL.amber : PAL.sky, 170, 3, 0.35);
-                if (Math.abs(ball.spin) > 0.7) {
-                    fx.floatText(ball.x + 36, ball.y - 16, 'SPIN CURVE!', PAL.amber);
+                // Top/bottom bounce
+                if (ball.y - ball.r < 12) {
+                    ball.y = 12 + ball.r;
+                    ball.vy = Math.abs(ball.vy);
+                    sfx(ctx, 'hitShield', 0.14);
+                    fx.burst(ball.x, ball.y, 6, PAL.sky, 110, 2, 0.2);
+                } else if (ball.y + ball.r > H - 12) {
+                    ball.y = H - 12 - ball.r;
+                    ball.vy = -Math.abs(ball.vy);
+                    sfx(ctx, 'hitShield', 0.14);
+                    fx.burst(ball.x, ball.y, 6, PAL.sky, 110, 2, 0.2);
                 }
-            }
 
-            // Right paddle bounce (AI)
-            if (
-                ball.vx > 0 &&
-                ball.x + ball.r >= ai.x - ai.w * 0.5 &&
-                ball.x - ball.r <= ai.x + ai.w * 0.5 &&
-                Math.abs(ball.y - ai.y) <= ai.h * 0.5 + ball.r
-            ) {
-                const offset = clamp((ball.y - ai.y) / (ai.h * 0.5), -1, 1);
-                const newSpd = Math.min(820, Math.hypot(ball.vx, ball.vy) + 22);
-                const ang = Math.PI - offset * 0.92;
-                ball.vx = Math.cos(ang) * newSpd;
-                ball.vy = Math.sin(ang) * newSpd;
-                ball.x = ai.x - ai.w * 0.5 - ball.r - 1;
-                ball.spin = clamp(ai.vy / 340, -1.3, 1.3);
-                rally++;
-                bestRally = Math.max(bestRally, rally);
-                sfx(ctx, 'hitMetal', 0.1);
-                fx.burst(ball.x, ball.y, 10, PAL.coral, 160, 3, 0.3);
+                // Left paddle bounce (Player)
+                if (
+                    ball.vx < 0 &&
+                    ball.x - ball.r <= p1.x + p1.w * 0.5 &&
+                    ball.x + ball.r >= p1.x - p1.w * 0.5 &&
+                    Math.abs(ball.y - subP1Y) <= p1.h * 0.5 + ball.r
+                ) {
+                    const offset = clamp((ball.y - subP1Y) / (p1.h * 0.5), -1, 1);
+                    const newSpd = Math.min(840, Math.hypot(ball.vx, ball.vy) + 22);
+                    const ang = offset * 0.92;
+                    ball.vx = Math.cos(ang) * newSpd;
+                    ball.vy = Math.sin(ang) * newSpd;
+                    ball.lastHitDir = 1;
+                    ball.x = p1.x + p1.w * 0.5 + ball.r + 1;
+                    ball.spin = clamp(p1.vy / 260, -1.8, 1.8);
+                    p1.hitFlash = 0.14;
+                    rally++;
+                    bestRally = Math.max(bestRally, rally);
+                    score += 25 + rally * 10;
+                    sfx(ctx, 'hitMetal', 0.1 + Math.min(0.4, rally * 0.02));
+                    fx.burst(ball.x, ball.y, 12, Math.abs(ball.spin) > 0.6 ? PAL.amber : PAL.sky, 180, 3.2, 0.35);
+                    if (Math.abs(ball.spin) > 0.7) {
+                        fx.floatText(ball.x + 36, ball.y - 16, 'SPIN CURVE!', PAL.amber);
+                    }
+                    break;
+                }
+
+                // Right paddle bounce (AI)
+                if (
+                    ball.vx > 0 &&
+                    ball.x + ball.r >= ai.x - ai.w * 0.5 &&
+                    ball.x - ball.r <= ai.x + ai.w * 0.5 &&
+                    Math.abs(ball.y - subAiY) <= ai.h * 0.5 + ball.r
+                ) {
+                    const offset = clamp((ball.y - subAiY) / (ai.h * 0.5), -1, 1);
+                    const newSpd = Math.min(840, Math.hypot(ball.vx, ball.vy) + 22);
+                    const ang = Math.PI - offset * 0.92;
+                    ball.vx = Math.cos(ang) * newSpd;
+                    ball.vy = Math.sin(ang) * newSpd;
+                    ball.lastHitDir = -1;
+                    ball.x = ai.x - ai.w * 0.5 - ball.r - 1;
+                    ball.spin = clamp(ai.vy / 340, -1.3, 1.3);
+                    ai.hitFlash = 0.14;
+                    rally++;
+                    bestRally = Math.max(bestRally, rally);
+                    sfx(ctx, 'hitMetal', 0.1);
+                    fx.burst(ball.x, ball.y, 10, PAL.coral, 160, 3, 0.3);
+                    break;
+                }
             }
 
             // Scoring
@@ -3971,9 +4328,9 @@
             // Player Paddle
             g.save();
             drawRoundRect(g, p1.x - p1.w * 0.5, p1.y - p1.h * 0.5, p1.w, p1.h, 7);
-            g.fillStyle = PAL.sky;
+            g.fillStyle = p1.hitFlash > 0 ? PAL.white : PAL.sky;
             g.shadowColor = PAL.sky;
-            g.shadowBlur = 16;
+            g.shadowBlur = p1.hitFlash > 0 ? 22 : 16;
             g.fill();
             g.restore();
             drawSprite(g, ctx.sprites, 'fighter', p1.x - 16, p1.y, 26, 26, { angle: Math.PI * 0.5 });
@@ -3981,12 +4338,28 @@
             // AI Cruiser Paddle
             g.save();
             drawRoundRect(g, ai.x - ai.w * 0.5, ai.y - ai.h * 0.5, ai.w, ai.h, 7);
-            g.fillStyle = PAL.coral;
+            g.fillStyle = ai.hitFlash > 0 ? PAL.white : PAL.coral;
             g.shadowColor = PAL.coral;
-            g.shadowBlur = 16;
+            g.shadowBlur = ai.hitFlash > 0 ? 22 : 16;
             g.fill();
             g.restore();
             drawSprite(g, ctx.sprites, 'laser_turret', ai.x + 14, ai.y, 28, 28, { flipX: true });
+
+            // Serve launch preview arrow
+            if (serveTimer > 0) {
+                g.save();
+                const spd = Math.hypot(ball.vx, ball.vy) || 1;
+                const nx = ball.vx / spd;
+                const ny = ball.vy / spd;
+                g.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+                g.setLineDash([5, 5]);
+                g.lineWidth = 2;
+                g.beginPath();
+                g.moveTo(ball.x, ball.y);
+                g.lineTo(ball.x + nx * 64, ball.y + ny * 64);
+                g.stroke();
+                g.restore();
+            }
 
             // Ball & curve trail
             g.save();
@@ -4085,7 +4458,7 @@
 
         function spawnCentipede(segCount) {
             const segs = [];
-            const startC = Math.floor(COLS * 0.5);
+            const startC = Math.min(COLS - 2, Math.max(segCount - 1, Math.floor(COLS * 0.65)));
             for (let i = 0; i < segCount; i++) {
                 segs.push({
                     c: startC - i,
@@ -4158,15 +4531,25 @@
             }
 
             const head = segs[0];
-            const nextC = head.c + head.dir;
-            const blocked = nextC < 0 || nextC >= COLS || crystals.has(cKey(nextC, head.r));
-            if (blocked) {
-                head.dir *= -1;
-                if (head.r >= ROWS - 2) head.rowDir = -1;
-                else if (head.r <= COMBAT_TOP_ROW && head.rowDir < 0) head.rowDir = 1;
-                head.r = clamp(head.r + head.rowDir, 1, ROWS - 2);
+            if (head.c < 0) {
+                head.dir = 1;
+                head.c += 1;
+            } else if (head.c >= COLS) {
+                head.dir = -1;
+                head.c -= 1;
             } else {
-                head.c = nextC;
+                const nextC = head.c + head.dir;
+                const blocked = nextC < 0 || nextC >= COLS || crystals.has(cKey(nextC, head.r));
+                if (blocked) {
+                    head.dir *= -1;
+                    if (head.r >= ROWS - 2) head.rowDir = -1;
+                    else if (head.r <= COMBAT_TOP_ROW && head.rowDir < 0) head.rowDir = 1;
+                    head.r = clamp(head.r + head.rowDir, 1, ROWS - 2);
+                    // Clear crystal if centipede descends directly onto a crystal cap to prevent double-trap loops
+                    crystals.delete(cKey(head.c, head.r));
+                } else {
+                    head.c = nextC;
+                }
             }
 
             for (let i = 1; i < segs.length; i++) {
@@ -4327,8 +4710,8 @@
                             fx.burst(pos.x, pos.y, 12, seg.isHead ? PAL.coral : PAL.mint, 175, 3, 0.4);
                             fx.floatText(pos.x, pos.y, '+' + pts, seg.isHead ? PAL.coral : PAL.sky);
 
-                            // Spawn crystal at struck location (if inside playfield above floor)
-                            if (seg.r >= 1 && seg.r <= ROWS - 2) {
+                            // Spawn crystal at struck location (strictly inside grid bounds)
+                            if (seg.c >= 0 && seg.c < COLS && seg.r >= 1 && seg.r <= ROWS - 2) {
                                 crystals.set(cKey(seg.c, seg.r), { c: seg.c, r: seg.r, hp: 4 });
                             }
 
@@ -4341,7 +4724,8 @@
                             }
                             if (back.length > 0) {
                                 back[0].isHead = true;
-                                back[0].dir *= -1;
+                                if (back[0].c >= 0 && back[0].c < COLS) back[0].dir *= -1;
+                                else back[0].dir = back[0].c < 0 ? 1 : -1;
                                 centipedes.push({ segments: back, stepProg: chain.stepProg, speed: chain.speed + 0.5 });
                             }
                             break;
@@ -4580,7 +4964,7 @@
         }
 
         function launchFlak(tx, ty, preferredIdx) {
-            const targetY = clamp(ty, 24, GROUND_Y - 36);
+            const targetY = clamp(ty, 24, GROUND_Y - 32);
             const targetX = clamp(tx, 16, W - 16);
             const bat = pickBattery(targetX, preferredIdx);
             if (!bat) {
@@ -4797,7 +5181,14 @@
                     let ammoBonus = 0;
                     for (let i = 0; i < batteries.length; i++) ammoBonus += batteries[i].ammo * 15;
                     const domeBonus = aliveDomes * 150;
-                    score += ammoBonus + domeBonus;
+                    const perfectBonus = aliveDomes === domes.length ? 300 : 0;
+                    const totalBonus = ammoBonus + domeBonus + perfectBonus;
+                    score += totalBonus;
+                    sfx(ctx, 'chestOpen', 0.2);
+                    fx.floatText(W * 0.5, H * 0.42, 'DEFENSE BONUS +' + totalBonus, PAL.mint, 1.35);
+                    if (perfectBonus > 0) {
+                        fx.floatText(W * 0.5, H * 0.49, 'PERFECT DOME DEFENSE +300!', PAL.amber, 1.1);
+                    }
 
                     // Repair 1 destroyed dome every wave cleared!
                     for (let i = 0; i < domes.length; i++) {
@@ -4879,6 +5270,13 @@
                 g.textAlign = 'center';
                 g.fillStyle = b.ammo > 3 ? PAL.sky : (b.ammo > 0 ? PAL.amber : PAL.coral);
                 g.fillText('FLAK:' + b.ammo, b.x, GROUND_Y + 20);
+                if (b.ammo <= 0) {
+                    const pct = clamp(b.rechargeCd / 2.5, 0, 1);
+                    g.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                    g.fillRect(b.x - 24, GROUND_Y + 25, 48, 5);
+                    g.fillStyle = PAL.amber;
+                    g.fillRect(b.x - 24, GROUND_Y + 25, 48 * pct, 5);
+                }
                 g.restore();
             }
 
@@ -4954,10 +5352,10 @@
                 g.restore();
             }
 
-            // Aim reticle
+            // Aim reticle (exact parity with launchFlak coordinate clamping)
             if (!ended) {
-                const rx = input.pointer.x;
-                const ry = clamp(input.pointer.y, 16, GROUND_Y - 24);
+                const rx = clamp(input.pointer.x, 16, W - 16);
+                const ry = clamp(input.pointer.y, 24, GROUND_Y - 32);
                 g.save();
                 g.strokeStyle = PAL.sky;
                 g.lineWidth = 1.5;
@@ -5245,10 +5643,10 @@
                     if (!boulderAt(col, nr)) player.y = nextY;
                 }
 
-                // Dig regolith tile at player position
+                // Dig regolith tile at player position (never delete resting boulder tile)
                 const dc = clamp(Math.floor((player.x - OX) / TILE), 0, COLS - 1);
                 const dr = clamp(Math.floor((player.y - OY) / TILE), 0, ROWS - 1);
-                if (grid[dr][dc] === 1) {
+                if (grid[dr][dc] === 1 && !boulderAt(dc, dr)) {
                     grid[dr][dc] = 0;
                     score += 10;
                     sfx(ctx, 'hitMetal', 0.25);
@@ -5275,34 +5673,36 @@
                         }
                     }
                 } else {
-                    // Extend beam up to 82px along facing direction
-                    player.tetherLen = Math.min(82, player.tetherLen + 380 * dt);
+                    // Extend beam up to 86px along facing direction (handles 0px close-range lock cleanly)
+                    player.tetherLen = Math.min(86, player.tetherLen + 400 * dt);
                     let hitWall = false;
-                    let bx = player.x;
-                    let by = player.y;
-                    for (let step = 8; step <= player.tetherLen; step += 8) {
+                    let bx = player.x + player.dirX * Math.min(player.tetherLen, 10);
+                    let by = player.y + player.dirY * Math.min(player.tetherLen, 10);
+                    for (let step = 0; step <= player.tetherLen; step += 4) {
                         const tx = player.x + player.dirX * step;
                         const ty = player.y + player.dirY * step;
-                        const tc = Math.floor((tx - OX) / TILE);
-                        const tr = Math.floor((ty - OY) / TILE);
-                        if (tc < 0 || tc >= COLS || tr < 0 || tr >= ROWS || isSolid(tc, tr)) {
-                            hitWall = true;
-                            break;
-                        }
-                        bx = tx;
-                        by = ty;
-                        // Check enemy lock
                         for (let ei = 0; ei < enemies.length; ei++) {
-                            if (distSq(bx, by, enemies[ei].x, enemies[ei].y) < 22 * 22) {
+                            if (distSq(tx, ty, enemies[ei].x, enemies[ei].y) < 24 * 24) {
                                 player.tetherTarget = enemies[ei];
                                 player.pumpCooldown = 0;
+                                bx = tx;
+                                by = ty;
                                 break;
                             }
                         }
                         if (player.tetherTarget) break;
+
+                        const tc = Math.floor((tx - OX) / TILE);
+                        const tr = Math.floor((ty - OY) / TILE);
+                        bx = tx;
+                        by = ty;
+                        if (tc < 0 || tc >= COLS || tr < 0 || tr >= ROWS || isSolid(tc, tr)) {
+                            hitWall = true;
+                            break;
+                        }
                     }
                     zapBeam = { x1: player.x, y1: player.y, x2: bx, y2: by };
-                    if (hitWall) player.tetherLen = 10;
+                    if (hitWall) player.tetherLen = Math.min(player.tetherLen, 12);
                 }
             } else {
                 player.tetherTarget = null;
@@ -5404,23 +5804,27 @@
                 e.ghostTimer -= dt;
                 const ec = clamp(Math.floor((e.x - OX) / TILE), 0, COLS - 1);
                 const er = clamp(Math.floor((e.y - OY) / TILE), 0, ROWS - 1);
+                const center = tileCenter(ec, er);
 
                 if (e.ghosting) {
                     e.ghostDuration -= dt;
                     const ang = Math.atan2(player.y - e.y, player.x - e.x);
-                    e.x += Math.cos(ang) * (e.speed * 0.72) * dt;
-                    e.y += Math.sin(ang) * (e.speed * 0.72) * dt;
-                    if (e.ghostDuration <= 0 && !isSolid(ec, er)) {
+                    e.x = clamp(e.x + Math.cos(ang) * (e.speed * 0.72) * dt, OX + TILE * 0.5, OX + COLS * TILE - TILE * 0.5);
+                    e.y = clamp(e.y + Math.sin(ang) * (e.speed * 0.72) * dt, OY + TILE * 0.5, OY + ROWS * TILE - TILE * 0.5);
+                    if (e.ghostDuration <= 0 && !isSolid(ec, er) && !boulderAt(ec, er)) {
                         e.ghosting = false;
                         e.ghostTimer = randRange(6.5, 11.0);
+                        e.x = center.x;
+                        e.y = center.y;
+                        e.dirX = Math.abs(player.x - e.x) >= Math.abs(player.y - e.y) ? (player.x >= e.x ? 1 : -1) : 0;
+                        e.dirY = e.dirX === 0 ? (player.y >= e.y ? 1 : -1) : 0;
                     }
                 } else {
-                    if (e.ghostTimer <= 0) {
+                    if (e.ghostTimer <= 0 || (e.dirX === 0 && e.dirY === 0)) {
                         e.ghosting = true;
-                        e.ghostDuration = 2.6;
+                        e.ghostDuration = e.dirX === 0 && e.dirY === 0 ? 1.6 : 2.6;
                     } else {
                         // Follow open tunnels toward player at tile centers
-                        const center = tileCenter(ec, er);
                         if (Math.abs(e.x - center.x) < 4 && Math.abs(e.y - center.y) < 4) {
                             const dirs = [
                                 { dx: 1, dy: 0 },
@@ -5441,27 +5845,31 @@
                                 e.dirX = choices[0].dx;
                                 e.dirY = choices[0].dy;
                             } else {
-                                e.dirX = 0;
-                                e.dirY = 0;
+                                e.ghosting = true;
+                                e.ghostDuration = 1.6;
                             }
                         }
-                        const nx = e.x + e.dirX * e.speed * dt;
-                        const ny = e.y + e.dirY * e.speed * dt;
-                        const nc = clamp(Math.floor((nx + e.dirX * 12 - OX) / TILE), 0, COLS - 1);
-                        const nr = clamp(Math.floor((ny + e.dirY * 12 - OY) / TILE), 0, ROWS - 1);
-                        if (!isSolid(nc, nr) && !boulderAt(nc, nr)) {
-                            e.x = nx;
-                            e.y = ny;
-                        } else {
-                            e.x = center.x;
-                            e.y = center.y;
-                            e.dirX *= -1;
-                            e.dirY *= -1;
+                        if (!e.ghosting) {
+                            if (e.dirX !== 0) e.y = lerp(e.y, center.y, Math.min(1, dt * 14));
+                            if (e.dirY !== 0) e.x = lerp(e.x, center.x, Math.min(1, dt * 14));
+                            const nx = clamp(e.x + e.dirX * e.speed * dt, OX + TILE * 0.5, OX + COLS * TILE - TILE * 0.5);
+                            const ny = clamp(e.y + e.dirY * e.speed * dt, OY + TILE * 0.5, OY + ROWS * TILE - TILE * 0.5);
+                            const nc = clamp(Math.floor((nx + e.dirX * 12 - OX) / TILE), 0, COLS - 1);
+                            const nr = clamp(Math.floor((ny + e.dirY * 12 - OY) / TILE), 0, ROWS - 1);
+                            if (!isSolid(nc, nr) && !boulderAt(nc, nr)) {
+                                e.x = nx;
+                                e.y = ny;
+                            } else {
+                                e.x = center.x;
+                                e.y = center.y;
+                                e.dirX *= -1;
+                                e.dirY *= -1;
+                            }
                         }
                     }
                 }
 
-                if (distSq(e.x, e.y, player.x, player.y) < 20 * 20) {
+                if (e.inflate <= 0 && distSq(e.x, e.y, player.x, player.y) < 20 * 20) {
                     damagePlayer();
                 }
             }
@@ -5566,12 +5974,21 @@
                 g.restore();
             }
 
-            // Subterranean Beetles
+            // Subterranean Beetles (with inflate ring indicator)
             for (let i = 0; i < enemies.length; i++) {
                 const e = enemies[i];
                 const scale = 1 + e.inflate * 0.19;
                 const sz = (TILE - 4) * scale;
                 const ang = Math.atan2(e.dirY, e.dirX) + Math.PI * 0.5;
+                if (e.inflate > 0) {
+                    g.save();
+                    g.strokeStyle = PAL.mint;
+                    g.lineWidth = 2;
+                    g.beginPath();
+                    g.arc(e.x, e.y, sz * 0.62, 0, TAU * (e.inflate / 4));
+                    g.stroke();
+                    g.restore();
+                }
                 drawSprite(g, ctx.sprites, e.kind === 'magma' ? 'alien_drone' : 'ufo', e.x, e.y, sz, sz, {
                     angle: e.kind === 'magma' ? ang : 0,
                     alpha: e.ghosting ? 0.55 : 1,
@@ -5581,7 +5998,17 @@
                 });
             }
 
-            // Player Astronaut Excavator
+            // Player Astronaut Excavator + spawn protection ring
+            if (player.invuln > 0 && !ended) {
+                g.save();
+                g.strokeStyle = PAL.sky;
+                g.globalAlpha = 0.55 + 0.25 * Math.sin(time * 12);
+                g.lineWidth = 2;
+                g.beginPath();
+                g.arc(player.x, player.y, TILE * 0.55, 0, TAU);
+                g.stroke();
+                g.restore();
+            }
             if (!(player.invuln > 0 && Math.floor(time * 16) % 2 === 0) && !ended) {
                 drawSprite(g, ctx.sprites, 'astronaut', player.x, player.y, TILE - 4, TILE - 4, {
                     flipX: player.dirX < 0,

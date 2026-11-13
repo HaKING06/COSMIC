@@ -1,5 +1,5 @@
 // =============================================================================
-// COSMIC UNIVERSE v11.0 — CAPTAIN NOVA VEX 8-CHAPTER STORY SAGA
+// COSMIC UNIVERSE v12.0 — CAPTAIN NOVA VEX 24-CHAPTER SEASON 1 STORY SAGA
 // "PARÇALANAN SONSUZLUK / THE SHATTERED INFINITY"
 // Exposes window.COSMIC_STORY_CHAPTERS, window.COSMIC_STORY_META, window.CosmicStoryStore
 // =============================================================================
@@ -21,10 +21,10 @@
         }),
         totalChapters: 24,
         acts: Object.freeze([
-            Object.freeze({ id: 1, title: { tr: 'PERDE I: VESTA İHLALİ', en: 'ACT I: VESTA BREACH' }, range: [1, 6] }),
-            Object.freeze({ id: 2, title: { tr: 'PERDE II: GÖLGE SİNYALİ', en: 'ACT II: SHADOW SIGNAL' }, range: [7, 12] }),
-            Object.freeze({ id: 3, title: { tr: 'PERDE III: DEMİR OCAK', en: 'ACT III: IRON FORGE' }, range: [13, 18] }),
-            Object.freeze({ id: 4, title: { tr: 'PERDE IV: SEZON FİNALİ', en: 'ACT IV: SEASON FINALE' }, range: [19, 24] })
+            Object.freeze({ id: 1, code: 'ACT I', theme: 'sky', accent: '#38bdf8', title: { tr: 'PERDE I: VESTA İHLALİ', en: 'ACT I: VESTA BREACH' }, range: [1, 6] }),
+            Object.freeze({ id: 2, code: 'ACT II', theme: 'violet', accent: '#a78bfa', title: { tr: 'PERDE II: GÖLGE SİNYALİ', en: 'ACT II: SHADOW SIGNAL' }, range: [7, 12] }),
+            Object.freeze({ id: 3, code: 'ACT III', theme: 'amber', accent: '#f59e0b', title: { tr: 'PERDE III: DEMİR OCAK', en: 'ACT III: IRON FORGE' }, range: [13, 18] }),
+            Object.freeze({ id: 4, code: 'ACT IV', theme: 'crimson', accent: '#fb7185', title: { tr: 'PERDE IV: SEZON FİNALİ', en: 'ACT IV: SEASON FINALE' }, range: [19, 24] })
         ])
     });
 
@@ -51,6 +51,8 @@
             dialogue: [
                 {
                     speaker: 'S.A.R.A. AI',
+                    mood: 'sara',
+                    fx: 'alert',
                     text: {
                         tr: 'Kaptan, yörünge halkasında ani uzay-zaman kırılması! İtici çekirdeği manuel kontrol dışında tepki vermiyor.',
                         en: 'Captain, sudden spacetime shear detected in the orbital ring! Thrusters are down to pulse-fire only.'
@@ -58,6 +60,8 @@
                 },
                 {
                     speaker: 'Captain Nova Vex',
+                    mood: 'nova',
+                    fx: 'warp',
                     text: {
                         tr: 'Motorlara güveniyorum S.A.R.A. — plazma sütunlarının arasından sekiz kapıyı aşarsak acil röleye ulaşırız.',
                         en: 'I trust the hull, S.A.R.A. Clear eight plasma rift gates and we reach the emergency relay.'
@@ -65,6 +69,8 @@
                 },
                 {
                     speaker: 'S.A.R.A. AI',
+                    mood: 'sara',
+                    fx: 'normal',
                     text: {
                         tr: 'Rota kilitlendi. Keskin darbelerle yüksel, akıma kapılma!',
                         en: 'Course locked. Feather those thrusters and stay clear of the pylons!'
@@ -98,6 +104,8 @@
             dialogue: [
                 {
                     speaker: 'Captain Nova Vex',
+                    mood: 'nova',
+                    fx: 'normal',
                     text: {
                         tr: 'Ana hangar kapıları mühürlü. Bakım dronları bile donmuş durumda.',
                         en: 'Main drydock bulkheads are sealed tight. Even the loader drones are frozen.'
@@ -105,6 +113,8 @@
                 },
                 {
                     speaker: 'S.A.R.A. AI',
+                    mood: 'sara',
+                    fx: 'normal',
                     text: {
                         tr: 'Üç güvenlik güvertesindeki kuantum yük sandıklarını manyetik plakalara oturtursak manuel kilidi kırabiliriz.',
                         en: 'Seat the quantum cargo crates onto magnetic dock pads across three security decks to override the lockout.'
@@ -112,6 +122,8 @@
                 },
                 {
                     speaker: 'Captain Nova Vex',
+                    mood: 'nova',
+                    fx: 'focused',
                     text: {
                         tr: 'Tamam, hamleleri önceden planlayalım. Köşeye sıkışacak tek bir sandık bile şansımız yok.',
                         en: 'Copy that. Every push counts—no crate can afford to get wedged.'
@@ -149,6 +161,8 @@
             dialogue: [
                 {
                     speaker: 'S.A.R.A. AI',
+                    mood: 'sara',
+                    fx: 'alert',
                     text: {
                         tr: 'Uyarı! Çoklu kızıl komuta çekirdeği tersane çıkışını kuşattı. Mermi yoğunluğu kritik!',
                         en: 'Alert! Multiple crimson command cores blocking the exit lane. Projectile density critical!'
@@ -156,6 +170,8 @@
                 },
                 {
                     speaker: 'The Architect',
+                    mood: 'architect',
+                    fx: 'alert',
                     text: {
                         tr: 'Sonsuzluk parçalandı Kaptan Vex. Küçük avcı gemin bu düzenli sürünün karşısında ancak bir kıvılcım.',
                         en: 'Infinity is fractured, Captain Vex. Your lone interceptor is a mere spark against an ordered swarm.'
@@ -163,6 +179,8 @@
                 },
                 {
                     speaker: 'Captain Nova Vex',
+                    mood: 'nova',
+                    fx: 'shake',
                     text: {
                         tr: 'O kıvılcım bütün filonu yakmaya yeter. Tam güç evrim sistemleri devrede!',
                         en: 'One spark is all it takes to ignite the dark. Weapons hot—let us break this blockade!'
@@ -196,6 +214,8 @@
             dialogue: [
                 {
                     speaker: 'S.A.R.A. AI',
+                    mood: 'sara',
+                    fx: 'normal',
                     text: {
                         tr: 'Doğrudan itiş bu çekim kuyularında imkansız. Gezegen yörüngelerini sapan gibi kullanmalıyız.',
                         en: 'Direct burns are impossible inside these gravity wells. We must slingshot around planetary mass.'
@@ -203,6 +223,8 @@
                 },
                 {
                     speaker: 'Captain Nova Vex',
+                    mood: 'nova',
+                    fx: 'warp',
                     text: {
                         tr: 'Açı ve hızı hissetmemiz yeterli. Üç tekillik kapısını da hizala.',
                         en: 'Just give me the vector arc. Line up all three singularity portals.'
@@ -210,6 +232,8 @@
                 },
                 {
                     speaker: 'S.A.R.A. AI',
+                    mood: 'sara',
+                    fx: 'normal',
                     text: {
                         tr: 'Kütleçekim eğrisi hesaplandı. Sondayı olay ufkunun tam kenarından fırlat!',
                         en: 'Gravity curve plotted. Thread the probe right along the event horizon edge!'
@@ -243,6 +267,8 @@
             dialogue: [
                 {
                     speaker: 'Captain Nova Vex',
+                    mood: 'nova',
+                    fx: 'normal',
                     text: {
                         tr: 'Dyson düğümleri karanlık. Bu iletkenler Mimar müdahalesiyle bilerek döndürülmüş.',
                         en: 'The Dyson relays are dark. Someone deliberately rotated these conduits out of phase.'
@@ -250,6 +276,8 @@
                 },
                 {
                     speaker: 'S.A.R.A. AI',
+                    mood: 'sara',
+                    fx: 'normal',
                     text: {
                         tr: 'Üç ana matris şebekesini kapalı devreye getirirsek geçit reaktörü yeniden ateşlenir.',
                         en: 'Restore closed-loop power across three primary circuit grids to reignite the gate reactor.'
@@ -257,6 +285,8 @@
                 },
                 {
                     speaker: 'Captain Nova Vex',
+                    mood: 'nova',
+                    fx: 'warp',
                     text: {
                         tr: 'Açık uç kalmayacak şekilde tüm hatları bağlıyorum. Güç akışına hazır ol.',
                         en: 'Locking every conduit cleanly with zero leaks. Stand by for power surge.'
@@ -290,6 +320,8 @@
             dialogue: [
                 {
                     speaker: 'S.A.R.A. AI',
+                    mood: 'sara',
+                    fx: 'alert',
                     text: {
                         tr: 'Hiper-tünel aktif! Üç eksenli savunma bariyerleri ve düşman önleyicileri yaklaşmakta.',
                         en: 'Hyper-trench active! Three-axis defense barriers and interceptor wings closing in.'
@@ -297,6 +329,8 @@
                 },
                 {
                     speaker: 'Captain Nova Vex',
+                    mood: 'nova',
+                    fx: 'warp',
                     text: {
                         tr: 'Tam 3D manevra yetkisi alıyorum. Yükselip dalacağız—hedef 1200 puanlık temiz geçiş!',
                         en: 'Taking full 3D stick control. Pitch, bank, and blast through—target 1,200 points!'
@@ -304,6 +338,8 @@
                 },
                 {
                     speaker: 'The Architect',
+                    mood: 'architect',
+                    fx: 'shake',
                     text: {
                         tr: 'Zaman koridoruma sızdığını sanıyorsun Kaptan. Oysa sadece kendi paradoksuna uçuyorsun.',
                         en: 'You believe you are breaching my corridor, Captain. You fly straight into your own paradox.'
@@ -337,6 +373,8 @@
             dialogue: [
                 {
                     speaker: 'The Architect',
+                    mood: 'architect',
+                    fx: 'alert',
                     text: {
                         tr: 'Binlerce zaman parçacığı aynı anda üzerine yağıyor. Hiçbir organik refleks bu yoğunluktan kurtulamaz.',
                         en: 'Thousands of temporal bolts converge at once. No organic pilot can thread this lattice.'
@@ -344,6 +382,8 @@
                 },
                 {
                     speaker: 'S.A.R.A. AI',
+                    mood: 'sara',
+                    fx: 'warp',
                     text: {
                         tr: 'WASM çekirdek öngörüsü senkronize edildi! Çekirdek hitboxına odaklan, sadece 1000 skor daha dayan.',
                         en: 'WASM trajectory prediction synced! Focus on the core hitbox—endure to 1,000 score!'
@@ -351,6 +391,8 @@
                 },
                 {
                     speaker: 'Captain Nova Vex',
+                    mood: 'nova',
+                    fx: 'shake',
                     text: {
                         tr: 'Mermilerin arasındaki boşluğu görüyorum. Kalkanın düşmek üzere Mimar!',
                         en: 'I see the seams between every shot. Your barrier is about to fall, Architect!'
@@ -384,6 +426,8 @@
             dialogue: [
                 {
                     speaker: 'The Architect',
+                    mood: 'architect',
+                    fx: 'alert',
                     text: {
                         tr: 'Tahta ulaştın ama burayı tutamazsın. Tüm sektör filolarımı bu çekirdeğe yönlendirdim!',
                         en: 'You reached the Throne, yet you cannot hold it. Every remaining armada converges here now!'
@@ -391,6 +435,8 @@
                 },
                 {
                     speaker: 'Captain Nova Vex',
+                    mood: 'nova',
+                    fx: 'triumph',
                     text: {
                         tr: 'Taret ağını kuruyoruz! Lazer, kriyo ve raylı bataryalarla üçüncü kaleyi de savunacağız.',
                         en: 'Raise the bastion grid! Laser, cryo, and rail turrets online—hold through stage three!'
@@ -398,6 +444,8 @@
                 },
                 {
                     speaker: 'S.A.R.A. AI',
+                    mood: 'sara',
+                    fx: 'alert',
                     text: {
                         tr: 'Savunma hattı tutuldu Kaptan—ama enkazdan Amiral Kaelen’in şifreli suikast sinyali yükseliyor!',
                         en: 'Defense line held, Captain—wait, Kaelen’s encrypted sabotage signal just surfaced inside Vesta-9 wreckage!'
