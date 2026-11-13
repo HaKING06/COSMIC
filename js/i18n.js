@@ -11,8 +11,10 @@
     const DICT = {
         tr: {
             // Topbar & Navigation
-            'nav.portal': 'V10.0 GENESIS KOMUTA PORTALI',
-            'nav.hangar': 'Hangar',
+            'nav.portal': 'V11.0 ÇOKLU EVREN PORTALI',
+            'nav.portalLink': 'Portal',
+            'nav.story': 'Hikâye',
+            'nav.hangar': 'Survivors',
             'nav.tree': 'Evrim Ağacı',
             'nav.armory': 'Atölye & Kaplamalar',
             'nav.modes': 'Oyun Modları',
@@ -208,7 +210,7 @@
             'tree.formula': 'Formül',
 
             // About
-            'about.title': 'COSMIC SURVIVORS v10.0 — Genesis Edition',
+            'about.title': 'COSMIC UNIVERSE v11.0 — 50 Oyun & Hikâye Portali',
             'about.sub': 'Yüksek tempolu uzay arena hayatta kalma oyunu. Sıfır sunucu bağımlılığı ile tamamen tarayıcınızda çalışır.',
             'about.architecture': 'Teknik Mimari',
             'about.controls': 'Uçuş & Savaş Kontrolleri',
@@ -228,8 +230,10 @@
         },
         en: {
             // Topbar & Navigation
-            'nav.portal': 'V10.0 GENESIS COMMAND PORTAL',
-            'nav.hangar': 'Hangar',
+            'nav.portal': 'V11.0 MULTIVERSE PORTAL',
+            'nav.portalLink': 'Portal',
+            'nav.story': 'Story Saga',
+            'nav.hangar': 'Survivors',
             'nav.tree': 'Evolution Tree',
             'nav.armory': 'Armory & Skins',
             'nav.modes': 'Game Modes',
@@ -425,7 +429,7 @@
             'tree.formula': 'Formula',
 
             // About
-            'about.title': 'COSMIC SURVIVORS v10.0 — Genesis Edition',
+            'about.title': 'COSMIC UNIVERSE v11.0 — 50-Game Portal & Story Saga',
             'about.sub': 'High-tempo cosmic arena survival game running 100% locally in your browser with zero external server dependency.',
             'about.architecture': 'Technical Architecture',
             'about.controls': 'Flight & Combat Controls',

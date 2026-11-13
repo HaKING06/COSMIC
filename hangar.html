@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSMIC SURVIVORS v11.0 — Komuta Hangarı | COSMIC UNIVERSE</title>
+    <meta name="description" content="COSMIC SURVIVORS v11.0 Komuta Hangarı. 8 yıldız gemisi, 5 oyun modu, 5600×5600 engelli sektörler, atölye kalibrasyonu ve yerel pilot kayıtları.">
+    <meta name="theme-color" content="#070b12">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/lobby.css">
+</head>
+<body>
+    <!-- Unified v11.0 Compact Topbar (6 Navigation Links + EN/TR Toggle + Audio + Credits) -->
+    <header class="cosmic-topbar">
+        <a href="index.html" class="topbar-brand">
+            <img src="assets/icon-192.png" alt="Cosmic Universe v11 Emblem" class="topbar-logo-img">
+            <div class="topbar-title-wrap">
+                <span class="topbar-title">COSMIC UNIVERSE</span>
+                <span class="topbar-version" data-i18n="nav.portal">V11.0 ÇOKLU EVREN PORTALI</span>
+            </div>
+        </a>
+
+        <nav class="topbar-nav" aria-label="Ana Sayfalar">
+            <a href="index.html" class="topbar-link">
+                <i data-lucide="layout-grid"></i>
+                <span data-topbar-label="portal" data-i18n="nav.portalLink">Portal</span>
+            </a>
+            <a href="story.html" class="topbar-link">
+                <i data-lucide="compass"></i>
+                <span data-topbar-label="story" data-i18n="nav.story">Hikâye</span>
+            </a>
+            <a href="hangar.html" class="topbar-link active" aria-current="page">
+                <i data-lucide="rocket"></i>
+                <span data-topbar-label="hangar" data-i18n="nav.hangar">Survivors</span>
+            </a>
+            <a href="tree.html" class="topbar-link" id="navTreeLink">
+                <i data-lucide="git-branch"></i>
+                <span data-topbar-label="tree" data-i18n="nav.tree">Evrim Ağacı</span>
+            </a>
+            <a href="wiki.html" class="topbar-link">
+                <i data-lucide="book-open"></i>
+                <span data-topbar-label="wiki" data-i18n="nav.wiki">Ansiklopedi</span>
+            </a>
+            <a href="about.html" class="topbar-link">
+                <i data-lucide="info"></i>
+                <span data-topbar-label="about" data-i18n="nav.about">Hakkında</span>
+            </a>
+        </nav>
+
+        <div class="topbar-actions">
+            <div class="credits-pill" title="Araştırma Kredisi">
+                <i data-lucide="coins"></i>
+                <span id="creditsDisplay">0</span>
+                <span class="hide-mobile">CRD</span>
+            </div>
+            <button type="button" id="langToggleBtn" class="lang-toggle-btn" data-lang="tr" aria-label="Dil Değiştir / Switch Language" title="EN / TR">
+                <span class="lang-code" hidden>TR</span>
+                <span class="lang-seg" data-lang="en">EN</span>
+                <span class="lang-sep">/</span>
+                <span class="lang-seg active" data-lang="tr">TR</span>
+            </button>
+            <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
+                <i data-lucide="volume-2" id="audioToggleIcon"></i>
+                <span class="hide-mobile" id="audioToggleLabel">Ses Açık</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="lobby-shell">
+        <!-- Left Rail: 5 Clean Views -->
+        <aside class="lobby-rail" aria-label="Hangar Bölümleri">
+            <div>
+                <div class="rail-section-label" data-i18n="rail.commandCenter">KOMUTA MERKEZİ</div>
+                <div class="rail-nav-list">
+                    <button type="button" class="rail-btn active" data-view="view-cockpit">
+                        <i data-lucide="radar"></i>
+                        <span data-i18n="rail.cockpit">Kokpit / Konuşlanma</span>
+                    </button>
+                    <button type="button" class="rail-btn" data-view="view-workshop">
+                        <i data-lucide="wrench"></i>
+                        <span data-i18n="rail.workshop">Araştırma Atölyesi</span>
+                    </button>
+                    <button type="button" class="rail-btn" data-view="view-maps">
+                        <i data-lucide="compass"></i>
+                        <span data-i18n="rail.maps">Sektör Atlası</span>
+                    </button>
+                    <button type="button" class="rail-btn" data-view="view-records">
+                        <i data-lucide="bar-chart-3"></i>
+                        <span data-i18n="rail.records">Yerel Kayıt &amp; Rekorlar</span>
+                    </button>
+                    <button type="button" class="rail-btn" data-view="view-achievements">
+                        <i data-lucide="award"></i>
+                        <span data-i18n="rail.achievements">Başarımlar</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="rail-quick-links">
+                <a href="armory.html" class="rail-shortcut-link">
+                    <i data-lucide="palette"></i>
+                    <span id="railArmoryLinkLabel">Cephanelik &amp; Kaplamalar</span>
+                </a>
+                <a href="modes.html" class="rail-shortcut-link">
+                    <i data-lucide="calendar-check"></i>
+                    <span id="railModesLinkLabel">Modlar &amp; Günlük Tohum</span>
+                </a>
+            </div>
+
+            <div class="rail-telemetry-box">
+                <div class="rail-section-label" style="padding:0;margin-bottom:0.12rem;" data-i18n="rail.pilotStatus">PİLOT DURUMU</div>
+                <div class="rail-telemetry-row">
+                    <span data-i18n="rail.totalSorties">Toplam Çıkış</span>
+                    <strong id="railRunsVal">0</strong>
+                </div>
+                <div class="rail-telemetry-row">
+                    <span data-i18n="rail.bestWave">En Yüksek Dalga</span>
+                    <strong id="railBestWaveVal">0</strong>
+                </div>
+                <div class="rail-telemetry-row">
+                    <span data-i18n="rail.unlockedAch">Açılan Başarım</span>
+                    <strong id="railAchVal">0 / 12</strong>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="lobby-main">
+            <!-- VIEW 1: COCKPIT / DEPLOYMENT -->
+            <section id="view-cockpit" class="lobby-view active" aria-labelledby="cockpitTitle">
+                <div class="view-header cockpit-header">
+                    <div class="cockpit-title-group">
+                        <h1 id="cockpitTitle" class="view-header-title" data-i18n="cockpit.title">Kokpit &amp; Taktik Konuşlanma</h1>
+                        <p class="view-header-sub" data-i18n="cockpit.sub">8 yıldız gemisinden birini seçin, oyun modunu ve kaplamayı ayarlayın, ardından sektöre çıkın.</p>
+                    </div>
+                    <div class="cockpit-callsign-wrap">
+                        <label for="pilotCallsignInput" class="callsign-label" data-i18n="cockpit.callsign">Pilot Çağrı Kodu</label>
+                        <input id="pilotCallsignInput" type="text" class="cs-input callsign-input" maxlength="16" placeholder="PİLOT-01" data-i18n-placeholder="cockpit.callsignPlaceholder">
+                    </div>
+                </div>
+
+                <div class="cockpit-grid">
+                    <!-- Column 1: 8 Starships Deck -->
+                    <div class="cockpit-panel cockpit-fleet-col">
+                        <div class="panel-heading">
+                            <span data-i18n="cockpit.fleetHangar">FİLO HANGARI (8 GEMİ)</span>
+                            <span class="cs-badge cs-badge-sky font-mono" data-i18n="cockpit.ready">HAZIR</span>
+                        </div>
+                        <div id="shipDeckList" class="ship-deck-list"></div>
+                    </div>
+
+                    <!-- Column 2: Turntable + Sticky-Top Launch Bar + Modes + Sectors + Difficulties -->
+                    <div class="cockpit-panel cockpit-stage-col">
+                        <div class="turntable-stage">
+                            <canvas id="turntableCanvas" width="520" height="128"></canvas>
+                            <div class="turntable-caption">
+                                <div class="turntable-ship-meta">
+                                    <div id="stageShipName" class="turntable-ship-name">Avcı (Interceptor)</div>
+                                    <div id="stageShipRole" class="turntable-ship-sub">Yüksek Hız · Kritik Delici</div>
+                                </div>
+                                <div class="turntable-actions">
+                                    <div id="skinPillSwitcher" class="skin-pill-row" role="group" aria-label="Filo Kaplaması"></div>
+                                    <a id="stageTreeLink" href="tree.html?ship=interceptor" class="cs-btn cs-btn-ghost compact-btn">
+                                        <i data-lucide="git-branch"></i>
+                                        <span data-i18n="cockpit.inspectTree">Ağacı İncele</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Compact Sticky-Top Primary Launch CTA Bar (guaranteed above fold on 1280x720) -->
+                        <div class="launch-bar-top">
+                            <div class="launch-summary-info">
+                                <span id="launchSummaryMode" class="cs-badge cs-badge-sky cs-badge-sm font-mono">KLASİK</span>
+                                <span id="launchSummaryText" class="launch-summary-text font-mono">SEC-09 · STANDART · 1.5x SKOR</span>
+                            </div>
+                            <button type="button" id="launchSortieBtn" class="cs-btn cs-btn-primary launch-btn">
+                                <i data-lucide="play"></i>
+                                <span id="launchBtnText">GÖREVE ÇIK</span>
+                            </button>
+                        </div>
+
+                        <!-- 5 Operation Mode Selector Pills -->
+                        <div class="cockpit-subblock">
+                            <div class="panel-heading">
+                                <span data-i18n="cockpit.modeSelect">OPERASYON MODU (5 MOD)</span>
+                                <span class="font-mono" id="selectedModeTag" style="font-size:11.5px;color:var(--accent-sky);">15 DALGA</span>
+                            </div>
+                            <div id="modePickerGrid" class="mode-picker-grid"></div>
+                            <div id="dailyProtocolBanner" class="daily-protocol-banner" hidden></div>
+                        </div>
+
+                        <!-- 4 Sector Cards -->
+                        <div class="cockpit-subblock">
+                            <div class="panel-heading">
+                                <span data-i18n="cockpit.sectorSelect">SEKTÖR SEÇİMİ (4 ARENA)</span>
+                                <span class="font-mono" id="selectedSectorCode" style="font-size:11.5px;color:var(--accent-sky);">SEC-09 · 5600×5600</span>
+                            </div>
+                            <div id="sectorPickerGrid" class="sector-picker-grid"></div>
+                            <div id="activeSectorBrief" class="active-sector-brief"></div>
+                        </div>
+
+                        <!-- 4 Difficulty Pills -->
+                        <div class="cockpit-subblock">
+                            <div class="panel-heading">
+                                <span data-i18n="cockpit.difficultySelect">ZORLUK PROTOKOLÜ</span>
+                                <span class="font-mono" id="selectedDiffMult" style="font-size:11.5px;color:var(--accent-sky);">1.5x SKOR</span>
+                            </div>
+                            <div id="difficultyGrid" class="difficulty-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Chart.js Telemetry + Passives + Signature Tree -->
+                    <div class="cockpit-panel cockpit-telemetry-col">
+                        <div class="panel-heading">
+                            <span data-i18n="cockpit.shipTelemetry">GEMİ TELEMETRİSİ</span>
+                            <span id="telemetryTagBadge" class="cs-badge cs-badge-sky">SALDIRI</span>
+                        </div>
+
+                        <div class="radar-wrap">
+                            <canvas id="shipRadarCanvas"></canvas>
+                        </div>
+
+                        <div class="telemetry-kpi-grid">
+                            <div class="telemetry-kpi">
+                                <div class="telemetry-kpi-label" data-i18n="cockpit.hp">Gövde (HP)</div>
+                                <div id="kpiHp" class="telemetry-kpi-val">105</div>
+                            </div>
+                            <div class="telemetry-kpi">
+                                <div class="telemetry-kpi-label" data-i18n="cockpit.shield">Kalkan (SH)</div>
+                                <div id="kpiSh" class="telemetry-kpi-val">55</div>
+                            </div>
+                            <div class="telemetry-kpi">
+                                <div class="telemetry-kpi-label" data-i18n="cockpit.speedArmor">Hız / Zırh</div>
+                                <div id="kpiSpdArmor" class="telemetry-kpi-val">354 / %5</div>
+                            </div>
+                            <div class="telemetry-kpi">
+                                <div class="telemetry-kpi-label" data-i18n="cockpit.crit">Kritik Şans</div>
+                                <div id="kpiCrit" class="telemetry-kpi-val">%20</div>
+                            </div>
+                        </div>
+
+                        <div class="info-block">
+                            <div class="info-block-title">
+                                <span id="passiveTitle">Pasif Sistem</span>
+                                <span class="cs-badge cs-badge-mint cs-badge-sm" data-i18n="cockpit.passive">PASİF SİSTEM</span>
+                            </div>
+                            <div id="passiveDesc" class="info-block-desc"></div>
+                        </div>
+
+                        <div class="info-block">
+                            <div class="info-block-title">
+                                <span id="abilityTitle">Aktif Yetenek</span>
+                                <span id="abilityCdBadge" class="cs-badge cs-badge-amber cs-badge-sm font-mono">7.0s CD</span>
+                            </div>
+                            <div id="abilityDesc" class="info-block-desc"></div>
+                        </div>
+
+                        <div class="signature-combo-card">
+                            <div class="info-block-title">
+                                <span data-i18n="cockpit.signatureChain">İMZA EVRİM ZİNCİRİ</span>
+                                <span class="cs-badge cs-badge-violet cs-badge-sm font-mono" data-i18n="cockpit.megaPathBadge">MEGA YOL</span>
+                            </div>
+                            <div id="signatureComboChain" class="combo-chain"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 2: RESEARCH WORKSHOP -->
+            <section id="view-workshop" class="lobby-view" aria-labelledby="workshopTitle">
+                <div class="view-header">
+                    <div>
+                        <h1 id="workshopTitle" class="view-header-title" data-i18n="workshop.title">Araştırma Atölyesi</h1>
+                        <p class="view-header-sub" data-i18n="workshop.sub">Kalıcı gemi modülleri geliştirin. İstediğiniz zaman tüm kredinizi tam iade ile sıfırlayabilirsiniz.</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;">
+                        <a href="armory.html" class="cs-btn cs-btn-ghost">
+                            <i data-lucide="palette"></i>
+                            <span id="workshopArmoryBtnLabel">Cephanelik &amp; Kaplamalar</span>
+                        </a>
+                        <button type="button" id="resetWorkshopBtn" class="cs-btn cs-btn-danger">
+                            <i data-lucide="rotate-ccw"></i>
+                            <span data-i18n="workshop.reset">Tümünü Sıfırla (Tam İade)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="workshop-summary-bar">
+                    <span id="workshopSummaryLabel" style="font-size:13.5px;color:var(--text-secondary);font-weight:500;">Aktif Hangar Çarpanları:</span>
+                    <div id="workshopBonusPills" class="workshop-bonuses-pills"></div>
+                </div>
+
+                <div id="workshopGrid" class="workshop-grid"></div>
+            </section>
+
+            <!-- VIEW 3: SECTOR ATLAS & BOSS BRIEFING -->
+            <section id="view-maps" class="lobby-view" aria-labelledby="atlasTitle">
+                <div class="view-header">
+                    <div>
+                        <h1 id="atlasTitle" class="view-header-title" data-i18n="maps.title">Sektör Atlası &amp; Tehlike Analizi</h1>
+                        <p class="view-header-sub" data-i18n="maps.sub">Her sektörün dinamik çevre olaylarını, önerilen gemilerini ve skor çarpanlarını inceleyin.</p>
+                    </div>
+                </div>
+
+                <div id="atlasSectorGrid" class="atlas-sector-grid"></div>
+
+                <div class="view-header" style="margin-top:0.75rem;">
+                    <div>
+                        <h2 id="atlasBossHeading" style="font-size:19px;">Kozmik Boss Dosyaları (5 Ana Tehdit)</h2>
+                        <p id="atlasBossSub" class="view-header-sub">Bossların %50 HP altında açtığı Öfke Fazı II ve zayıf nokta mekaniklerini inceleyin.</p>
+                    </div>
+                </div>
+
+                <div id="atlasBossGrid" class="atlas-boss-grid"></div>
+            </section>
+
+            <!-- VIEW 4: 100% LOCAL PILOT FLIGHT LOGS & PERSONAL BESTS HUB -->
+            <section id="view-records" class="lobby-view" aria-labelledby="recordsTitle">
+                <div class="view-header">
+                    <div>
+                        <h1 id="recordsTitle" class="view-header-title" data-i18n="records.title">Yerel Kayıtlar &amp; Kişisel Rekorlar</h1>
+                        <p class="view-header-sub" data-i18n="records.sub">Tüm uçuş verileri yalnızca bu cihazda çevrimdışı olarak saklanır. Sektör ve mod bazlı en iyi derecelerinizi takip edin.</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;">
+                        <span class="cs-badge cs-badge-mint font-mono" data-i18n="records.localBadge">100% YEREL DEPOLAMA</span>
+                        <button type="button" id="clearLocalRecordsBtn" class="cs-btn cs-btn-danger">
+                            <i data-lucide="trash-2"></i>
+                            <span id="clearRecordsLabel" data-i18n="records.clear">Yerel Kayıtları Temizle</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="recordsStatsGrid" class="records-stats-grid"></div>
+
+                <!-- Personal Best by Sector & Game Mode Grid -->
+                <div class="records-bests-section">
+                    <div class="records-bests-block">
+                        <div class="panel-heading">
+                            <span data-i18n="records.bestBySector">Sektöre Göre En İyi Skorlar</span>
+                            <span class="cs-badge cs-badge-sky cs-badge-sm font-mono">4 ARENA</span>
+                        </div>
+                        <div id="sectorBestsGrid" class="bests-mini-grid"></div>
+                    </div>
+
+                    <div class="records-bests-block">
+                        <div class="panel-heading">
+                            <span data-i18n="records.bestByMode">Moda Göre En İyi Skorlar</span>
+                            <span class="cs-badge cs-badge-mint cs-badge-sm font-mono" id="dailyBestHeaderBadge">5 MOD + GÜNLÜK</span>
+                        </div>
+                        <div id="modeBestsGrid" class="bests-mini-grid mode-bests-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Filterable Local Flight Log Table -->
+                <div class="records-table-wrap">
+                    <div class="records-table-head">
+                        <div>
+                            <h2 id="flightLogTableTitle" style="font-size:16px;" data-i18n="records.recentRuns">Son Uçuş Geçmişi &amp; Yerel Sıralama</h2>
+                        </div>
+                        <div id="recordsModeFilters" class="records-filter-pills" role="group" aria-label="Mod Filtresi"></div>
+                    </div>
+                    <div class="table-scroll-wrap">
+                        <table class="cs-table">
+                            <thead>
+                                <tr>
+                                    <th id="thRank">#</th>
+                                    <th id="thPilot">Pilot</th>
+                                    <th id="thMode">Mod</th>
+                                    <th id="thShip">Gemi</th>
+                                    <th id="thSector">Sektör</th>
+                                    <th id="thWave">Dalga</th>
+                                    <th id="thScore">Skor</th>
+                                    <th id="thTime">Süre</th>
+                                </tr>
+                            </thead>
+                            <tbody id="localLeaderboardBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 5: ACHIEVEMENTS -->
+            <section id="view-achievements" class="lobby-view" aria-labelledby="achievementsTitle">
+                <div class="view-header">
+                    <div>
+                        <h1 id="achievementsTitle" class="view-header-title" data-i18n="achievements.title">Kariyer Başarımları</h1>
+                        <p class="view-header-sub" data-i18n="achievements.sub">Savaş kilometre taşlarını tamamlayın ve Araştırma Atölyesi için bonus kredi toplayın.</p>
+                    </div>
+                    <span id="achievementCounterBadge" class="cs-badge cs-badge-amber font-mono">0 / 12</span>
+                </div>
+
+                <div id="achievementsGrid" class="achievements-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="csToast" class="cs-toast" role="status" aria-live="polite"></div>
+
+    <!-- Vendored Libraries & Canonical Runtime Modules -->
+    <script src="vendor/lucide.min.js"></script>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/chart.umd.min.js"></script>
+    <script src="vendor/howler.min.js"></script>
+    <script src="vendor/confetti.min.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="leaderboard.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/models3d.js"></script>
+    <script src="js/lobby.js"></script>
+</body>
+</html>

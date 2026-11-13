@@ -11,7 +11,9 @@
 
     const TREE_I18N = {
         tr: {
-            'nav.hangar': 'Hangar',
+            'nav.portalLink': 'Portal',
+            'nav.story': 'Hikâye',
+            'nav.hangar': 'Survivors',
             'nav.tree': 'Evrim Ağacı',
             'nav.armory': 'Cephanelik',
             'nav.modes': 'Modlar',
@@ -19,8 +21,8 @@
             'nav.about': 'Hakkında',
             'common.audioOn': 'Ses Açık',
             'common.audioOff': 'Sessiz',
-            'tree.pageTitle': 'COSMIC SURVIVORS v10.0 — Evrim Ağacı & Sentez Laboratuvarı',
-            'tree.topbarVersion': 'V10.0 GENESIS EVOLUTION LAB',
+            'tree.pageTitle': 'COSMIC SURVIVORS v11.0 — Evrim Ağacı & Sentez Laboratuvarı',
+            'tree.topbarVersion': 'V11.0 EVOLUTION LAB',
             'tree.legend.sig': 'İmza Kök',
             'tree.legend.univ': 'Evrensel',
             'tree.legend.mega': 'Mega Evrim',
@@ -46,7 +48,9 @@
             'tree.divMegas': 'Çift Evrim Birleşimi (+1 Slot)'
         },
         en: {
-            'nav.hangar': 'Hangar',
+            'nav.portalLink': 'Portal',
+            'nav.story': 'Story Saga',
+            'nav.hangar': 'Survivors',
             'nav.tree': 'Evolution Tree',
             'nav.armory': 'Armory',
             'nav.modes': 'Modes',
@@ -54,8 +58,8 @@
             'nav.about': 'About',
             'common.audioOn': 'Audio On',
             'common.audioOff': 'Muted',
-            'tree.pageTitle': 'COSMIC SURVIVORS v10.0 — Evolution Tree & Synthesis Lab',
-            'tree.topbarVersion': 'V10.0 GENESIS EVOLUTION LAB',
+            'tree.pageTitle': 'COSMIC SURVIVORS v11.0 — Evolution Tree & Synthesis Lab',
+            'tree.topbarVersion': 'V11.0 EVOLUTION LAB',
             'tree.legend.sig': 'Signature Root',
             'tree.legend.univ': 'Universal',
             'tree.legend.mega': 'Mega Evolution',

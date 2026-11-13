@@ -11,9 +11,11 @@
 
     const MODES_I18N = {
         tr: {
-            'meta.title': 'COSMIC SURVIVORS v10.0 — Oyun Modları, Günlük Protokol & Taktik Harita Merkezi',
-            'modes.topbarVersion': 'V10.0 TACTICAL OPERATIONS',
-            'nav.hangar': 'Hangar',
+            'meta.title': 'COSMIC SURVIVORS v11.0 — Oyun Modları, Günlük Protokol & Taktik Harita Merkezi',
+            'modes.topbarVersion': 'V11.0 TACTICAL OPERATIONS',
+            'nav.portalLink': 'Portal',
+            'nav.story': 'Hikâye',
+            'nav.hangar': 'Survivors',
             'nav.tree': 'Evrim Ağacı',
             'nav.armory': 'Cephanelik',
             'nav.modes': 'Modlar',
@@ -21,7 +23,7 @@
             'nav.about': 'Hakkında',
             'common.audioOn': 'Ses Açık',
             'common.audioOff': 'Sessiz',
-            'modes.hero.badge1': 'V10.0 GENESIS · 5 OPERASYON MODU',
+            'modes.hero.badge1': 'V11.0 MULTIVERSE · 5 OPERASYON MODU',
             'modes.hero.badge2': '5600×5600 ENGELLİ ARENALAR',
             'modes.hero.badge3': 'GÜNLÜK TOHUM KOD ÇÖZÜCÜ',
             'modes.hero.title': 'Operasyon Modları, Günlük Protokol & Taktik Harita Merkezi',
@@ -76,9 +78,11 @@
             'modes.threat.metricBoss': 'Boss HP Ölçeği'
         },
         en: {
-            'meta.title': 'COSMIC SURVIVORS v10.0 — Tactical Operations, Daily Protocol & Arena Hub',
-            'modes.topbarVersion': 'V10.0 TACTICAL OPERATIONS',
-            'nav.hangar': 'Hangar',
+            'meta.title': 'COSMIC SURVIVORS v11.0 — Tactical Operations, Daily Protocol & Arena Hub',
+            'modes.topbarVersion': 'V11.0 TACTICAL OPERATIONS',
+            'nav.portalLink': 'Portal',
+            'nav.story': 'Story Saga',
+            'nav.hangar': 'Survivors',
             'nav.tree': 'Evolution Tree',
             'nav.armory': 'Armory',
             'nav.modes': 'Modes',
@@ -86,7 +90,7 @@
             'nav.about': 'About',
             'common.audioOn': 'Audio On',
             'common.audioOff': 'Muted',
-            'modes.hero.badge1': 'V10.0 GENESIS · 5 OPERATION MODES',
+            'modes.hero.badge1': 'V11.0 MULTIVERSE · 5 OPERATION MODES',
             'modes.hero.badge2': '5600×5600 OBSTACLE ARENAS',
             'modes.hero.badge3': 'DAILY SEED DECODER',
             'modes.hero.title': 'Operation Modes, Daily Protocol & Tactical Arena Hub',

@@ -14,7 +14,9 @@
 
     const WIKI_I18N = {
         tr: {
-            'nav.hangar': 'Hangar',
+            'nav.portalLink': 'Portal',
+            'nav.story': 'Hikâye',
+            'nav.hangar': 'Survivors',
             'nav.tree': 'Evrim Ağacı',
             'nav.armory': 'Cephanelik',
             'nav.modes': 'Modlar',
@@ -22,8 +24,8 @@
             'nav.about': 'Hakkında',
             'common.audioOn': 'Ses Açık',
             'common.audioOff': 'Sessiz',
-            'wiki.pageTitle': 'COSMIC SURVIVORS v10.0 — Taktik Ansiklopedi & Sentez Simülatörü',
-            'wiki.topbarVersion': 'V10.0 TACTICAL ENCYCLOPEDIA',
+            'wiki.pageTitle': 'COSMIC SURVIVORS v11.0 — Taktik Ansiklopedi & Sentez Simülatörü',
+            'wiki.topbarVersion': 'V11.0 TACTICAL ENCYCLOPEDIA',
             'wiki.hero.title': 'Taktik Ansiklopedi & Sentez Simülatörü',
             'wiki.hero.sub': 'Cosmic Survivors v10.0 Genesis Edition için tüm 53 savaş modülü, 5600×5600 siperli arenalar, 5 oyun modu, Boss Kalkan Pylonları, [E] Overdrive ve [Q] +%12 Nişan Ustalığı rehberi.',
             'wiki.hero.ctaModes': 'Modlar & Günlük',
@@ -67,7 +69,9 @@
             'wiki.sim.waveLabel': 'Simüle Edilen Dalga'
         },
         en: {
-            'nav.hangar': 'Hangar',
+            'nav.portalLink': 'Portal',
+            'nav.story': 'Story Saga',
+            'nav.hangar': 'Survivors',
             'nav.tree': 'Evolution Tree',
             'nav.armory': 'Armory',
             'nav.modes': 'Modes',
@@ -75,8 +79,8 @@
             'nav.about': 'About',
             'common.audioOn': 'Audio On',
             'common.audioOff': 'Muted',
-            'wiki.pageTitle': 'COSMIC SURVIVORS v10.0 — Tactical Encyclopedia & Synthesis Simulator',
-            'wiki.topbarVersion': 'V10.0 TACTICAL ENCYCLOPEDIA',
+            'wiki.pageTitle': 'COSMIC SURVIVORS v11.0 — Tactical Encyclopedia & Synthesis Simulator',
+            'wiki.topbarVersion': 'V11.0 TACTICAL ENCYCLOPEDIA',
             'wiki.hero.title': 'Tactical Encyclopedia & Synthesis Simulator',
             'wiki.hero.sub': 'Complete v10.0 Genesis Edition reference: all 53 combat modules, 5600×5600 cover arenas, 5 Game Modes, Boss Shield Pylons, [E] Cosmic Overdrive and [Q] +12% Aim Mastery.',
             'wiki.hero.ctaModes': 'Modes & Daily',

@@ -21,11 +21,11 @@
 
     const COPY = {
         tr: {
-            pageTitle: 'COSMIC SURVIVORS v10.0 — Cephanelik & Filo Kalibrasyon Merkezi',
-            nav: { hangar: 'Hangar', tree: 'Evrim Ağacı', armory: 'Cephanelik', modes: 'Modlar', wiki: 'Ansiklopedi', about: 'Hakkında' },
+            pageTitle: 'COSMIC SURVIVORS v11.0 — Cephanelik & Filo Kalibrasyon Merkezi',
+            nav: { portal: 'Portal', story: 'Hikâye', hangar: 'Survivors', tree: 'Evrim Ağacı', armory: 'Cephanelik', modes: 'Modlar', wiki: 'Ansiklopedi', about: 'Hakkında' },
             audioOn: 'Ses Açık',
             audioOff: 'Sessiz',
-            heroBadge: 'V10.0 FİLO CEPHANELİĞİ',
+            heroBadge: 'V11.0 FİLO CEPHANELİĞİ',
             hangarDeployBtn: 'Hangarda Konuşlandır',
             quickLaunchBtn: 'Hızlı Göreve Çık',
             treeBtn: 'Evrim Ağacı',
@@ -84,11 +84,11 @@
             earnedLbl: 'Kazanç'
         },
         en: {
-            pageTitle: 'COSMIC SURVIVORS v10.0 — Fleet Armory & R&D Bay',
-            nav: { hangar: 'Hangar', tree: 'Evolution Tree', armory: 'Armory', modes: 'Modes', wiki: 'Encyclopedia', about: 'About' },
+            pageTitle: 'COSMIC SURVIVORS v11.0 — Fleet Armory & R&D Bay',
+            nav: { portal: 'Portal', story: 'Story Saga', hangar: 'Survivors', tree: 'Evolution Tree', armory: 'Armory', modes: 'Modes', wiki: 'Encyclopedia', about: 'About' },
             audioOn: 'Audio On',
             audioOff: 'Muted',
-            heroBadge: 'V10.0 FLEET ARMORY',
+            heroBadge: 'V11.0 FLEET ARMORY',
             hangarDeployBtn: 'Configure in Hangar',
             quickLaunchBtn: 'Quick Deploy',
             treeBtn: 'Evolution Tree',
@@ -282,7 +282,7 @@
         const navTree = document.getElementById('navTreeLink');
 
         if (hangarBtn) {
-            hangarBtn.href = `index.html?ship=${encodeURIComponent(state.selectedShipId)}&skin=${encodeURIComponent(activeSkin)}`;
+            hangarBtn.href = `hangar.html?ship=${encodeURIComponent(state.selectedShipId)}&skin=${encodeURIComponent(activeSkin)}`;
         }
         if (launchBtn) {
             let map = 'sector9';
@@ -920,7 +920,7 @@
                     <i data-lucide="compass" style="width:28px;height:28px;color:var(--accent-sky);"></i>
                     <div style="font-family:var(--font-display);font-size:16px;font-weight:600;">${copy.historyEmptyTitle}</div>
                     <p style="font-size:13px;max-width:460px;margin:0;">${copy.historyEmptyDesc}</p>
-                    <a href="index.html" class="cs-btn cs-btn-primary">
+                    <a href="hangar.html" class="cs-btn cs-btn-primary">
                         <i data-lucide="play"></i>
                         <span>${copy.historyStartBtn}</span>
                     </a>

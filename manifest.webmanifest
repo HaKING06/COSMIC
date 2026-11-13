@@ -1,22 +1,23 @@
 {
-  "name": "COSMIC SURVIVORS — Genesis Edition v10.0",
-  "short_name": "Cosmic Survivors",
-  "description": "WebGL2 (PixiJS v8 + pixi-filters) sci-fi survival roguelike with 8 starships, 5 game modes, 5600x5600 obstacle arenas, tactical radar, and EN/TR support.",
+  "name": "COSMIC UNIVERSE v11.0 — 50 Space Games & Captain Nova Vex Saga",
+  "short_name": "Cosmic Universe",
+  "description": "Portfolio-grade multi-engine space gaming portal featuring 50 playable browser games across Three.js 3D, PixiJS v8, Matter.js, WebAssembly, TypeScript, GLSL, and Captain Nova Vex Story Saga.",
   "id": "/",
   "start_url": "/?utm_source=pwa",
   "scope": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "display_override": [
     "fullscreen",
     "standalone"
   ],
-  "orientation": "landscape",
+  "orientation": "any",
   "background_color": "#070b12",
   "theme_color": "#38bdf8",
   "lang": "tr",
   "categories": [
     "games",
     "action",
+    "puzzle",
     "entertainment"
   ],
   "icons": [
@@ -41,9 +42,9 @@
   ],
   "shortcuts": [
     {
-      "name": "Command Hangar",
-      "short_name": "Hangar",
-      "description": "Select starship, liveries, and R&D upgrades",
+      "name": "50-Game Portal",
+      "short_name": "Portal",
+      "description": "Browse and play 50 cosmic browser games",
       "url": "index.html",
       "icons": [
         {
@@ -54,40 +55,40 @@
       ]
     },
     {
-      "name": "Game Modes",
-      "short_name": "Modes",
-      "description": "Campaign, Endless, Boss Rush, 5-Min Time Attack & Daily Seed",
-      "url": "modes.html",
+      "name": "Story Saga",
+      "short_name": "Story",
+      "description": "Captain Nova Vex 8-Chapter Campaign",
+      "url": "story.html",
       "icons": [
         {
-          "src": "assets/icon-192.png",
-          "sizes": "192x192",
+          "src": "assets/v11/nova_avatar.png",
+          "sizes": "256x256",
           "type": "image/png"
         }
       ]
     },
     {
-      "name": "Armory",
-      "short_name": "Armory",
-      "description": "Inspect starship liveries, weapons, and R&D upgrades",
-      "url": "armory.html",
+      "name": "Starship Murder Mystery",
+      "short_name": "Mystery",
+      "description": "Solve 3 sci-fi forensic murder cases aboard USCS Vesta-9",
+      "url": "games/starship-murder-mystery/index.html",
       "icons": [
         {
-          "src": "assets/icon-192.png",
-          "sizes": "192x192",
+          "src": "assets/v11/thumbs/starship-murder-mystery.png",
+          "sizes": "256x256",
           "type": "image/png"
         }
       ]
     },
     {
-      "name": "Evolution Tree",
-      "short_name": "Tree",
-      "description": "Interactive X + Y = Z -> MEGA evolution synthesis blueprint",
-      "url": "tree.html",
+      "name": "Cosmic Survivors Hangar",
+      "short_name": "Survivors",
+      "description": "Full PixiJS v8 flagship roguelike hangar",
+      "url": "hangar.html",
       "icons": [
         {
-          "src": "assets/icon-192.png",
-          "sizes": "192x192",
+          "src": "assets/v11/thumbs/cosmic-survivors.png",
+          "sizes": "256x256",
           "type": "image/png"
         }
       ]

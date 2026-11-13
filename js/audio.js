@@ -45,6 +45,11 @@
             this.ambientRunning = false;
         }
 
+        _assetPath(rel) {
+            const base = (typeof global.COSMIC_BASE === 'string') ? global.COSMIC_BASE : '';
+            return base + rel;
+        }
+
         _loadPrefs() {
             try {
                 const raw = localStorage.getItem(PREF_KEY);
@@ -66,7 +71,7 @@
                 for (const [key, cfg] of Object.entries(SFX_FILES)) {
                     try {
                         this.howls[key] = new global.Howl({
-                            src: [cfg.src],
+                            src: [this._assetPath(cfg.src)],
                             volume: cfg.vol * (this.prefs.muted ? 0 : this.prefs.sfxVol),
                             preload: true
                         });

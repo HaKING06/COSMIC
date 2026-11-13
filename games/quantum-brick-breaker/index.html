@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Brick Breaker — COSMIC UNIVERSE v11.0</title>
+    <meta name="description" content="Quantum Brick Breaker (Kuantum Blok Kırıcı) — Shatter quantum armor grids with multi-ball splits and laser paddles. Engine: Neo-Pixel (JS). Play free in browser on COSMIC UNIVERSE v11.0.">
+    <meta name="keywords" content="Quantum Brick Breaker, Kuantum Blok Kırıcı, COSMIC UNIVERSE, arcade, Neo-Pixel, JS, Captain Nova Vex, Browser Space Game, HTML5 Game">
+    <meta name="author" content="Halit Güneş (HaKING)">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#06b6d4">
+    <link rel="canonical" href="https://cosmic.haking.tr/games/quantum-brick-breaker/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="COSMIC UNIVERSE v11.0">
+    <meta property="og:title" content="Quantum Brick Breaker — COSMIC UNIVERSE v11.0">
+    <meta property="og:description" content="Quantum Brick Breaker (Kuantum Blok Kırıcı) — Shatter quantum armor grids with multi-ball splits and laser paddles. Engine: Neo-Pixel (JS). Play free in browser on COSMIC UNIVERSE v11.0.">
+    <meta property="og:url" content="https://cosmic.haking.tr/games/quantum-brick-breaker/">
+    <meta property="og:image" content="https://cosmic.haking.tr/assets/v11/banners/quantum-brick-breaker.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Quantum Brick Breaker — COSMIC UNIVERSE v11.0">
+    <meta name="twitter:description" content="Quantum Brick Breaker (Kuantum Blok Kırıcı) — Shatter quantum armor grids with multi-ball splits and laser paddles. Engine: Neo-Pixel (JS). Play free in browser on COSMIC UNIVERSE v11.0.">
+    <meta name="twitter:image" content="https://cosmic.haking.tr/assets/v11/banners/quantum-brick-breaker.jpg">
+
+    <link rel="icon" type="image/png" href="../../assets/v11/thumbs/quantum-brick-breaker.png">
+    <link rel="apple-touch-icon" href="../../assets/v11/thumbs/quantum-brick-breaker.png">
+    <link rel="manifest" href="../../manifest.webmanifest">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../css/core.css">
+    <link rel="stylesheet" href="../../css/arcade.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Quantum Brick Breaker",
+  "alternateName": "Kuantum Blok Kırıcı",
+  "url": "https://cosmic.haking.tr/games/quantum-brick-breaker/",
+  "image": "https://cosmic.haking.tr/assets/v11/banners/quantum-brick-breaker.jpg",
+  "description": "Shatter quantum armor grids with multi-ball splits and laser paddles.",
+  "genre": "arcade",
+  "gamePlatform": [
+    "Web Browser",
+    "HTML5",
+    "Neo-Pixel"
+  ],
+  "applicationCategory": "Game",
+  "operatingSystem": "Any",
+  "inLanguage": [
+    "en",
+    "tr"
+  ],
+  "isAccessibleForFree": true,
+  "author": {
+    "@type": "Person",
+    "name": "Halit Güneş (HaKING)",
+    "email": "cosmic@haking.tr",
+    "url": "https://github.com/HaKING06/COSMIC"
+  }
+}
+    </script>
+    <script>
+        window.COSMIC_BASE = '../../';
+        window.COSMIC_GAME_ID = "quantum-brick-breaker";
+    </script>
+</head>
+<body data-game-id="quantum-brick-breaker">
+    <header class="cosmic-topbar">
+        <a href="../../index.html" class="topbar-brand">
+            <img src="../../assets/icon-192.png" alt="Cosmic Universe v11" class="topbar-logo-img">
+            <div class="topbar-title-wrap">
+                <span class="topbar-title">COSMIC UNIVERSE</span>
+                <span class="topbar-version" id="playerTopbarSub">V11.0 ARCADE PLAYER</span>
+            </div>
+        </a>
+
+        <nav class="topbar-nav" aria-label="Ana Sayfalar">
+            <a href="../../index.html" class="topbar-link active">
+                <i data-lucide="layout-grid"></i>
+                <span data-topbar-label="portal" data-i18n="nav.portalLink">Portal</span>
+            </a>
+            <a href="../../story.html" class="topbar-link">
+                <i data-lucide="compass"></i>
+                <span data-topbar-label="story" data-i18n="nav.story">Hikâye</span>
+            </a>
+            <a href="../../hangar.html" class="topbar-link">
+                <i data-lucide="rocket"></i>
+                <span data-topbar-label="hangar" data-i18n="nav.hangar">Survivors</span>
+            </a>
+            <a href="../../tree.html" class="topbar-link">
+                <i data-lucide="git-branch"></i>
+                <span data-topbar-label="tree" data-i18n="nav.tree">Evrim Ağacı</span>
+            </a>
+            <a href="../../wiki.html" class="topbar-link">
+                <i data-lucide="book-open"></i>
+                <span data-topbar-label="wiki" data-i18n="nav.wiki">Ansiklopedi</span>
+            </a>
+            <a href="../../about.html" class="topbar-link">
+                <i data-lucide="info"></i>
+                <span data-topbar-label="about" data-i18n="nav.about">Hakkında</span>
+            </a>
+        </nav>
+
+        <div class="topbar-actions">
+            <div class="credits-pill" title="Cosmic Credits">
+                <i data-lucide="coins"></i>
+                <span id="creditsDisplay">0</span>
+                <span class="hide-mobile">CRD</span>
+            </div>
+            <button type="button" id="langToggleBtn" class="lang-toggle-btn" data-lang="tr" aria-label="Dil Değiştir / Switch Language" title="EN / TR">
+                <span class="lang-seg" data-lang="en">EN</span>
+                <span class="lang-sep">/</span>
+                <span class="lang-seg active" data-lang="tr">TR</span>
+            </button>
+            <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
+                <i data-lucide="volume-2" id="audioToggleIcon"></i>
+                <span class="hide-mobile" id="audioToggleLabel">Ses Açık</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="arcade-shell">
+        <!-- Mission Breadcrumb + Engine Specs -->
+        <section class="arcade-header-bar">
+            <div class="arcade-title-block">
+                <div class="arcade-crumbs">
+                    <a href="../../index.html" class="crumb-link" id="backPortalLink">
+                        <i data-lucide="arrow-left"></i>
+                        <span id="backPortalLabel">Portal (50 Oyun)</span>
+                    </a>
+                    <a href="../../story.html" class="crumb-link crumb-story hidden" id="backStoryLink">
+                        <i data-lucide="sparkles"></i>
+                        <span id="backStoryLabel">Hikâye Haritası</span>
+                    </a>
+                </div>
+                <div class="arcade-title-row">
+                    <img src="../../assets/v11/thumbs/quantum-brick-breaker.png" alt="" id="gameSpriteThumb" class="arcade-sprite-icon">
+                    <div>
+                        <div class="arcade-badges-row">
+                            <span class="cs-badge cs-badge-sky cs-badge-sm font-mono" id="gameIndexBadge">#21</span>
+                            <span class="cs-badge cs-badge-violet cs-badge-sm font-mono" id="gameEngineBadge">Neo-Pixel</span>
+                            <span class="cs-badge cs-badge-amber cs-badge-sm font-mono" id="gameLangBadge">JS</span>
+                            <span class="cs-badge cs-badge-mint cs-badge-sm font-mono hidden" id="gameChapterBadge">STORY CH.1</span>
+                        </div>
+                        <h1 class="arcade-game-title" id="gameTitleHeading">Quantum Brick Breaker</h1>
+                        <p class="arcade-game-sub" id="gameTaglineText">Shatter quantum armor grids with multi-ball splits and laser paddles.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arcade-action-bar">
+                <button type="button" class="cs-btn cs-btn-ghost" id="btnPauseGame" title="P">
+                    <i data-lucide="pause" id="pauseIcon"></i>
+                    <span id="btnPauseLabel">Duraklat [P]</span>
+                </button>
+                <button type="button" class="cs-btn cs-btn-ghost" id="btnRestartGame" title="R">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span id="btnRestartLabel">Yeniden [R]</span>
+                </button>
+                <button type="button" class="cs-btn cs-btn-ghost" id="btnFullscreen" title="F">
+                    <i data-lucide="maximize"></i>
+                    <span id="btnFullscreenLabel">Tam Ekran</span>
+                </button>
+                <a href="../../arcade.html" class="cs-btn cs-btn-primary" id="btnRandomGame">
+                    <i data-lucide="shuffle"></i>
+                    <span id="btnRandomLabel">Rastgele</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Captain Nova Vex Story Objective Banner (shown when ?chapter=N) -->
+        <section class="story-mission-banner hidden" id="storyMissionBanner">
+            <img src="../../assets/v11/nova_avatar.png" alt="Captain Nova Vex" class="mission-nova-avatar">
+            <div class="mission-copy">
+                <div class="mission-eyebrow font-mono" id="storyMissionTitle">CHAPTER 1 MISSION</div>
+                <div class="mission-objective-text" id="storyMissionObjective">Clear objective</div>
+            </div>
+            <div class="mission-progress-wrap">
+                <span class="mission-progress-label font-mono" id="storyMissionStatus">ACTIVE</span>
+            </div>
+        </section>
+
+        <!-- Live Telemetry Strip -->
+        <section class="arcade-hud-strip" id="arcadeHudStrip">
+            <div class="hud-metric">
+                <span class="hud-label" id="lblHudScore">SKOR</span>
+                <span class="hud-val font-mono" id="valHudScore">0</span>
+            </div>
+            <div class="hud-metric">
+                <span class="hud-label" id="lblHudBest">EN İYİ</span>
+                <span class="hud-val font-mono text-amber" id="valHudBest">0</span>
+            </div>
+            <div class="hud-metric">
+                <span class="hud-label" id="lblHudLevel">SEVİYE</span>
+                <span class="hud-val font-mono text-sky" id="valHudLevel">1</span>
+            </div>
+            <div class="hud-metric">
+                <span class="hud-label" id="lblHudLives">CAN / ENERJİ</span>
+                <span class="hud-val font-mono text-mint" id="valHudLives">3</span>
+            </div>
+            <div class="hud-metric hud-metric-wide">
+                <span class="hud-label" id="lblHudObjective">GÖREV / DURUM</span>
+                <span class="hud-status-text" id="valHudStatus">Hazır</span>
+            </div>
+            <div class="hud-stars-box font-mono" id="valBestStars" title="Best Stars">☆☆☆</div>
+        </section>
+
+        <!-- Level Selector Strip (only shown for multi-level games) -->
+        <section class="level-selector-bar hidden" id="levelSelectorBar">
+            <span class="level-bar-label font-mono" id="levelBarLabel">SEVİYELER:</span>
+            <div class="level-pills-wrap" id="levelPillsWrap"></div>
+        </section>
+
+        <!-- Main Interactive 16:9 Stage -->
+        <section class="stage-frame-wrap" id="stageFrameWrap">
+            <div class="arcade-stage" id="arcadeStage"></div>
+
+            <!-- Pause / End-of-Run Glassmorphism Overlay -->
+            <div class="stage-overlay hidden" id="stageOverlay">
+                <div class="stage-overlay-card">
+                    <div class="overlay-badge font-mono" id="overlayEyebrow">GÖREV TAMAMLANDI</div>
+                    <h2 class="overlay-title" id="overlayTitle">Sektör Temizlendi!</h2>
+                    <div class="overlay-stars" id="overlayStars">★★★</div>
+                    <p class="overlay-reason" id="overlayReason"></p>
+                    <div class="overlay-metrics-grid">
+                        <div class="ov-stat">
+                            <span id="ovLblScore">Skor</span>
+                            <strong class="font-mono" id="ovValScore">0</strong>
+                        </div>
+                        <div class="ov-stat">
+                            <span id="ovLblBest">Rekor</span>
+                            <strong class="font-mono text-amber" id="ovValBest">0</strong>
+                        </div>
+                        <div class="ov-stat">
+                            <span id="ovLblCreds">Ödül</span>
+                            <strong class="font-mono text-mint" id="ovValCreds">+0 CRD</strong>
+                        </div>
+                    </div>
+                    <div class="overlay-story-note hidden" id="overlayStoryNote">
+                        <i data-lucide="award"></i>
+                        <span id="overlayStoryText">Sonraki Hikâye Bölümü Açıldı!</span>
+                    </div>
+                    <div class="overlay-actions">
+                        <button type="button" class="cs-btn cs-btn-primary" id="ovBtnPrimary">
+                            <i data-lucide="rotate-ccw"></i>
+                            <span id="ovBtnPrimaryText">Tekrar Oyna</span>
+                        </button>
+                        <button type="button" class="cs-btn cs-btn-mint hidden" id="ovBtnNext">
+                            <i data-lucide="arrow-right"></i>
+                            <span id="ovBtnNextText">Sonraki Seviye</span>
+                        </button>
+                        <a href="../../story.html" class="cs-btn cs-btn-amber hidden" id="ovBtnStory">
+                            <i data-lucide="compass"></i>
+                            <span id="ovBtnStoryText">Hikâyeye Dön</span>
+                        </a>
+                        <a href="../../index.html" class="cs-btn cs-btn-ghost">
+                            <i data-lucide="layout-grid"></i>
+                            <span id="ovBtnPortalText">Portal</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Controls & Objective Footer -->
+        <section class="arcade-info-row">
+            <div class="info-pill-card">
+                <div class="info-pill-head font-mono">
+                    <i data-lucide="gamepad-2"></i>
+                    <span id="lblControlsHead">KONTROLLER</span>
+                </div>
+                <p id="valControlsText" class="info-pill-body"></p>
+            </div>
+            <div class="info-pill-card">
+                <div class="info-pill-head font-mono">
+                    <i data-lucide="target"></i>
+                    <span id="lblObjectiveHead">HEDEF &amp; MEKANİK</span>
+                </div>
+                <p id="valObjectiveText" class="info-pill-body"></p>
+            </div>
+        </section>
+
+        <!-- Related Games Strip -->
+        <section class="related-games-section">
+            <div class="related-head">
+                <h2 class="related-title" id="relatedGamesTitle">Benzer Kozmik Dünyalar</h2>
+                <a href="../../index.html" class="related-all-link" id="relatedViewAll">
+                    <span id="relatedViewAllText">Tüm 50 Oyunu Gör</span>
+                    <i data-lucide="arrow-right"></i>
+                </a>
+            </div>
+            <div class="related-grid" id="relatedGamesGrid"></div>
+        </section>
+    </main>
+
+    <script src="../../vendor/lucide.min.js"></script>
+    <script src="../../vendor/howler.min.js"></script>
+    <script src="../../vendor/confetti.min.js"></script>
+    <script src="../../vendor/pixi.min.js"></script>
+    <script src="../../vendor/pixi-filters.min.js"></script>
+    <script src="../../vendor/three.min.js"></script>
+    <script src="../../vendor/matter.min.js"></script>
+    <script src="../../js/data.js"></script>
+    <script src="../../js/i18n.js"></script>
+    <script src="../../js/audio.js"></script>
+    <script src="../../js/engines/wasmBridge.js"></script>
+    <script src="../../shaders/cosmicShaders.js"></script>
+    <script src="../../js/ts_compiled/puzzleEngine.js"></script>
+    <script src="../../js/arcadeCatalog.js"></script>
+    <script src="../../js/storyData.js"></script>
+    <script src="../../js/games/pack_three.js"></script>
+    <script src="../../js/games/pack_reflex.js"></script>
+    <script src="../../js/games/pack_matter.js"></script>
+    <script src="../../js/games/pack_arcade.js"></script>
+    <script src="../../js/games/pack_puzzles.js"></script>
+    <script src="../../js/games/pack_tactics.js"></script>
+    <script src="../../js/games/pack_mystery.js"></script>
+    <script src="../../js/arcadePlayer.js"></script>
+</body>
+</html>

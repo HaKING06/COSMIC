@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC SURVIVORS v10.0 — Cephanelik &amp; Filo Kalibrasyon Merkezi</title>
-    <meta name="description" content="COSMIC SURVIVORS v10.0 Genesis Edition Cephanelik & Filo Kalibrasyon Merkezi: 4 açılabilir filo gövde kaplaması, 10 kalıcı Ar-Ge modülü, Chart.js etki analizi ve yerel savaş geçmişi.">
+    <title>COSMIC SURVIVORS v11.0 — Cephanelik &amp; Filo Kalibrasyon Merkezi</title>
+    <meta name="description" content="COSMIC SURVIVORS v11.0 Cephanelik & Filo Kalibrasyon Merkezi: 4 açılabilir filo gövde kaplaması, 10 kalıcı Ar-Ge modülü, Chart.js etki analizi ve yerel savaş geçmişi.">
     <meta name="theme-color" content="#070b12">
 
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
@@ -20,40 +20,40 @@
     <link rel="stylesheet" href="css/armory.css">
 </head>
 <body>
-    <!-- Unified v10.0 Compact Topbar (6 Navigation Links + EN/TR Toggle + Audio + Credits) -->
+    <!-- Unified v11.0 Compact Topbar (6 Navigation Links + EN/TR Toggle + Audio + Credits) -->
     <header class="cosmic-topbar">
         <a href="index.html" class="topbar-brand">
-            <img src="assets/icon-192.png" alt="Cosmic Survivors v10 Emblem" class="topbar-logo-img">
+            <img src="assets/icon-192.png" alt="Cosmic Universe v11 Emblem" class="topbar-logo-img">
             <div class="topbar-title-wrap">
-                <span class="topbar-title">COSMIC SURVIVORS</span>
-                <span class="topbar-version" data-i18n="nav.portal">V10.0 GENESIS KOMUTA PORTALI</span>
+                <span class="topbar-title">COSMIC UNIVERSE</span>
+                <span class="topbar-version" data-i18n="nav.portal">V11.0 ÇOKLU EVREN PORTALI</span>
             </div>
         </a>
 
         <nav class="topbar-nav" aria-label="Ana Sayfalar">
             <a href="index.html" class="topbar-link">
-                <i data-lucide="layout-dashboard"></i>
-                <span data-topbar-label="hangar">Hangar</span>
+                <i data-lucide="layout-grid"></i>
+                <span data-topbar-label="portal" data-i18n="nav.portalLink">Portal</span>
+            </a>
+            <a href="story.html" class="topbar-link">
+                <i data-lucide="compass"></i>
+                <span data-topbar-label="story" data-i18n="nav.story">Hikâye</span>
+            </a>
+            <a href="hangar.html" class="topbar-link active">
+                <i data-lucide="rocket"></i>
+                <span data-topbar-label="hangar" data-i18n="nav.hangar">Survivors</span>
             </a>
             <a href="tree.html" class="topbar-link" id="navTreeLink">
                 <i data-lucide="git-branch"></i>
-                <span data-topbar-label="tree">Evrim Ağacı</span>
-            </a>
-            <a href="armory.html" class="topbar-link active" aria-current="page">
-                <i data-lucide="wrench"></i>
-                <span data-topbar-label="armory">Cephanelik</span>
-            </a>
-            <a href="modes.html" class="topbar-link">
-                <i data-lucide="gamepad-2"></i>
-                <span data-topbar-label="modes">Modlar</span>
+                <span data-topbar-label="tree" data-i18n="nav.tree">Evrim Ağacı</span>
             </a>
             <a href="wiki.html" class="topbar-link">
                 <i data-lucide="book-open"></i>
-                <span data-topbar-label="wiki">Ansiklopedi</span>
+                <span data-topbar-label="wiki" data-i18n="nav.wiki">Ansiklopedi</span>
             </a>
             <a href="about.html" class="topbar-link">
                 <i data-lucide="info"></i>
-                <span data-topbar-label="about">Hakkında</span>
+                <span data-topbar-label="about" data-i18n="nav.about">Hakkında</span>
             </a>
         </nav>
 
@@ -81,14 +81,14 @@
         <section class="armory-hero">
             <div class="armory-hero-copy">
                 <div class="armory-hero-badges">
-                    <span class="cs-badge cs-badge-sky cs-badge-glow font-mono" id="armoryHeroBadge">V10.0 FİLO CEPHANELİĞİ</span>
+                    <span class="cs-badge cs-badge-sky cs-badge-glow font-mono" id="armoryHeroBadge">V11.0 FİLO CEPHANELİĞİ</span>
                     <span class="cs-badge cs-badge-amber font-mono" id="armoryWalletBadge">0 CRD</span>
                 </div>
                 <h1 class="armory-hero-title" data-i18n="armory.title">Cephanelik &amp; Filo Kalibrasyon Merkezi</h1>
                 <p class="armory-hero-sub" data-i18n="armory.sub">Kalıcı atölye sistemlerini yükseltin ve tüm gemilerde kullanılabilen filo kaplamalarının kilidini açın.</p>
             </div>
             <div class="armory-hero-actions">
-                <a id="armoryHangarBtn" href="index.html" class="cs-btn cs-btn-ghost">
+                <a id="armoryHangarBtn" href="hangar.html" class="cs-btn cs-btn-ghost">
                     <i data-lucide="compass"></i>
                     <span id="armoryHangarBtnText">Hangarda Konuşlandır</span>
                 </a>
@@ -200,7 +200,7 @@
                     <h2 id="historySectionTitle" class="section-title">Son Pilot Savaş Geçmişi</h2>
                     <p id="historySectionSub" class="section-sub">Bu cihazda kaydedilen son seferlerin detaylı telemetri kartları.</p>
                 </div>
-                <a href="index.html?view=records" class="cs-btn cs-btn-ghost" id="historyAllLogsBtn">
+                <a href="hangar.html?view=records" class="cs-btn cs-btn-ghost" id="historyAllLogsBtn">
                     <i data-lucide="layers"></i>
                     <span id="historyAllLogsLabel">Tüm Uçuş Kayıtları</span>
                 </a>

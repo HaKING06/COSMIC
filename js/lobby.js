@@ -27,8 +27,8 @@
 
     const COPY = {
         tr: {
-            pageTitle: 'COSMIC SURVIVORS v10.0 — Genesis Edition | Komuta Hangarı',
-            nav: { hangar: 'Hangar', tree: 'Evrim Ağacı', armory: 'Cephanelik', modes: 'Modlar', wiki: 'Ansiklopedi', about: 'Hakkında' },
+            pageTitle: 'COSMIC SURVIVORS v11.0 — Komuta Hangarı | COSMIC UNIVERSE',
+            nav: { portal: 'Portal', story: 'Hikâye', hangar: 'Survivors', tree: 'Evrim Ağacı', armory: 'Cephanelik', modes: 'Modlar', wiki: 'Ansiklopedi', about: 'Hakkında' },
             audioOn: 'Ses Açık',
             audioOff: 'Sessiz',
             railArmory: 'Cephanelik & Kaplamalar',
@@ -95,8 +95,8 @@
             achClaimedToast: (r) => `+${r} CRD başarımdan tahsil edildi!`
         },
         en: {
-            pageTitle: 'COSMIC SURVIVORS v10.0 — Genesis Edition | Command Hangar',
-            nav: { hangar: 'Hangar', tree: 'Evolution Tree', armory: 'Armory', modes: 'Modes', wiki: 'Encyclopedia', about: 'About' },
+            pageTitle: 'COSMIC SURVIVORS v11.0 — Command Hangar | COSMIC UNIVERSE',
+            nav: { portal: 'Portal', story: 'Story Saga', hangar: 'Survivors', tree: 'Evolution Tree', armory: 'Armory', modes: 'Modes', wiki: 'Encyclopedia', about: 'About' },
             audioOn: 'Audio On',
             audioOff: 'Muted',
             railArmory: 'Armory & Liveries',

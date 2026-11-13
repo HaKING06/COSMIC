@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSMIC UNIVERSE v11.0 — Kaptan Nova Vex: Hikâye Modu (8 Bölüm)</title>
+    <meta name="description" content="Kaptan Nova Vex'in Parçalanan Sonsuzluk destanını oyna: 8 kozmik bölümde Flappy yarık geçişi, kuantum Sokoban, 3D hipertünel ve boss savaşları.">
+    <meta property="og:title" content="COSMIC UNIVERSE v11.0 — Captain Nova Vex Story Saga">
+    <meta property="og:image" content="assets/og-banner.png">
+    <meta name="theme-color" content="#070b12">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/story.css">
+</head>
+<body>
+    <header class="cosmic-topbar">
+        <a href="index.html" class="topbar-brand">
+            <img src="assets/icon-192.png" alt="Cosmic Universe v11" class="topbar-logo-img">
+            <div class="topbar-title-wrap">
+                <span class="topbar-title">COSMIC UNIVERSE</span>
+                <span class="topbar-version" id="storyTopbarSub">V11.0 STORY SAGA</span>
+            </div>
+        </a>
+
+        <nav class="topbar-nav" aria-label="Ana Sayfalar">
+            <a href="index.html" class="topbar-link">
+                <i data-lucide="layout-grid"></i>
+                <span data-topbar-label="portal" data-i18n="nav.portalLink">Portal</span>
+            </a>
+            <a href="story.html" class="topbar-link active" aria-current="page">
+                <i data-lucide="compass"></i>
+                <span data-topbar-label="story" data-i18n="nav.story">Hikâye</span>
+            </a>
+            <a href="hangar.html" class="topbar-link">
+                <i data-lucide="rocket"></i>
+                <span data-topbar-label="hangar" data-i18n="nav.hangar">Survivors</span>
+            </a>
+            <a href="tree.html" class="topbar-link">
+                <i data-lucide="git-branch"></i>
+                <span data-topbar-label="tree" data-i18n="nav.tree">Evrim Ağacı</span>
+            </a>
+            <a href="wiki.html" class="topbar-link">
+                <i data-lucide="book-open"></i>
+                <span data-topbar-label="wiki" data-i18n="nav.wiki">Ansiklopedi</span>
+            </a>
+            <a href="about.html" class="topbar-link">
+                <i data-lucide="info"></i>
+                <span data-topbar-label="about" data-i18n="nav.about">Hakkında</span>
+            </a>
+        </nav>
+
+        <div class="topbar-actions">
+            <div class="credits-pill" title="Cosmic Credits">
+                <i data-lucide="coins"></i>
+                <span id="creditsDisplay">0</span>
+                <span class="hide-mobile">CRD</span>
+            </div>
+            <button type="button" id="langToggleBtn" class="lang-toggle-btn" data-lang="tr" aria-label="Dil Değiştir / Switch Language" title="EN / TR">
+                <span class="lang-seg" data-lang="en">EN</span>
+                <span class="lang-sep">/</span>
+                <span class="lang-seg active" data-lang="tr">TR</span>
+            </button>
+            <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
+                <i data-lucide="volume-2" id="audioToggleIcon"></i>
+                <span class="hide-mobile" id="audioToggleLabel">Ses Açık</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="story-shell">
+        <!-- Saga Header & Pilot Dossier Bar -->
+        <section class="story-hero-bar">
+            <div class="story-hero-left">
+                <img src="assets/v11/nova_portrait.png" alt="Captain Nova Vex" class="nova-hero-avatar">
+                <div>
+                    <div class="story-eyebrow font-mono" id="sagaEyebrow">PARÇALANAN SONSUZLUK · KAPTAN NOVA VEX</div>
+                    <h1 class="story-page-title" id="storyPageTitle">Çoklu Evren Hikâye Seferi</h1>
+                    <p class="story-page-sub" id="storyPageSub">Her bölümde farklı bir fizik ve evren kuralıyla savaş, bulmaca çöz ve 8 boyutsal mührü kır.</p>
+                </div>
+            </div>
+
+            <div class="story-hero-controls">
+                <div class="story-stat-pills">
+                    <span class="cs-badge cs-badge-amber font-mono" id="storyStarsStat">0 / 24 ★</span>
+                    <span class="cs-badge cs-badge-mint font-mono" id="storyClearedStat">0 / 8</span>
+                </div>
+                <div class="story-btn-group">
+                    <button type="button" class="cs-btn cs-btn-ghost" id="btnUnlockAllStory">
+                        <i data-lucide="unlock"></i>
+                        <span id="btnUnlockAllLabel">Tüm Bölümleri Önizle</span>
+                    </button>
+                    <button type="button" class="cs-btn cs-btn-ghost" id="btnResetStory">
+                        <i data-lucide="rotate-ccw"></i>
+                        <span id="btnResetStoryLabel">Sıfırla</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8-Node Constellation Chapter Map -->
+        <section class="chapter-map-panel" aria-label="Bölüm Haritası">
+            <div class="chapter-map-track" id="chapterMapTrack"></div>
+        </section>
+
+        <!-- Cinema Visual Novel Stage + Briefing Dossier -->
+        <section class="story-cinema-grid">
+            <div class="cinema-viewport" id="cinemaViewport">
+                <img src="assets/v11/chapters/ch1.jpg" alt="Chapter Biome" class="cinema-bg" id="cinemaBiomeImg">
+                <div class="cinema-scrim"></div>
+
+                <div class="cinema-top-chips">
+                    <span class="cs-badge cs-badge-sky font-mono" id="cinemaChapterBadge">CHAPTER 01</span>
+                    <span class="cs-badge cs-badge-violet font-mono" id="cinemaSectorBadge">Sector 01</span>
+                    <span class="cs-badge cs-badge-amber font-mono" id="cinemaEngineBadge">Neo-Pixel</span>
+                </div>
+
+                <!-- Visual Novel Dialogue Overlay -->
+                <div class="vn-dialogue-box" id="vnDialogueBox">
+                    <div class="vn-portrait-wrap" id="vnPortraitWrap">
+                        <img src="assets/v11/nova_portrait.png" alt="Captain Nova Vex" class="vn-portrait-img" id="vnSpeakerImg">
+                        <div class="vn-ai-holo hidden" id="vnAiHolo">
+                            <i data-lucide="cpu"></i>
+                        </div>
+                    </div>
+                    <div class="vn-content">
+                        <div class="vn-speaker-row">
+                            <span class="vn-speaker-name font-mono" id="vnSpeakerName">CAPTAIN NOVA VEX</span>
+                            <span class="vn-step-count font-mono" id="vnStepCount">1 / 3</span>
+                        </div>
+                        <p class="vn-dialogue-text" id="vnDialogueText"></p>
+                        <div class="vn-dialogue-actions">
+                            <button type="button" class="cs-btn cs-btn-primary" id="btnNextDialogue">
+                                <span id="btnNextDialogueLabel">Devam Et</span>
+                                <i data-lucide="chevron-right"></i>
+                            </button>
+                            <button type="button" class="cs-btn cs-btn-ghost" id="btnSkipDialogue">
+                                <span id="btnSkipDialogueLabel">Hemen Başla</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Briefing Dossier -->
+            <aside class="story-dossier-card">
+                <div>
+                    <div class="dossier-head">
+                        <h2 class="dossier-title" id="dossierTitle">Bölüm 1</h2>
+                        <span class="dossier-stars font-mono" id="dossierStars">☆☆☆</span>
+                    </div>
+                    <p class="dossier-lore" id="dossierLore"></p>
+                </div>
+
+                <div class="dossier-block">
+                    <div class="dossier-label font-mono" id="lblMissionGame">OYNANACAK EVREN / OYUN</div>
+                    <div class="linked-game-preview" id="linkedGamePreview">
+                        <img src="assets/v11/thumbs/nova-flappy-rift.png" alt="" id="linkedGameLogo" class="linked-game-logo">
+                        <div class="linked-game-info">
+                            <div class="linked-game-title" id="linkedGameTitle">Nova Flappy Rift</div>
+                            <div class="linked-game-meta font-mono" id="linkedGameMeta">Neo-Pixel · JS</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dossier-block">
+                    <div class="dossier-label font-mono" id="lblObjectiveTarget">BÖLÜM KİLİT AÇMA HEDEFİ</div>
+                    <div class="objective-box" id="objectiveBoxText"></div>
+                </div>
+
+                <div class="dossier-block">
+                    <div class="dossier-label font-mono" id="lblRewardBox">TAMAMLAMA ÖDÜLÜ</div>
+                    <div class="reward-row">
+                        <span class="cs-badge cs-badge-mint font-mono" id="rewardCreditsBadge">+150 CRD</span>
+                        <span class="cs-badge cs-badge-amber" id="rewardTitleBadge">Rozet</span>
+                    </div>
+                </div>
+
+                <div class="dossier-cta-stack">
+                    <a href="games/nova-flappy-rift/index.html?chapter=1" class="cs-btn cs-btn-primary story-launch-btn" id="btnLaunchChapter">
+                        <i data-lucide="play"></i>
+                        <span id="btnLaunchChapterLabel">Görevi Başlat</span>
+                    </a>
+                    <a href="game.html?mode=bossrush&chapter=3" class="cs-btn cs-btn-mint story-launch-btn hidden" id="btnLaunchAltSurvivors">
+                        <i data-lucide="rocket"></i>
+                        <span id="btnLaunchAltLabel">Tam Ölçek Cosmic Survivors Aç</span>
+                    </a>
+                </div>
+            </aside>
+        </section>
+
+        <!-- Earned Hero Badges Showcase -->
+        <section class="story-badges-panel">
+            <h2 class="badges-heading" id="badgesHeading">Kaptan Nova Vex Nişanları</h2>
+            <div class="badges-grid" id="storyBadgesGrid"></div>
+        </section>
+    </main>
+
+    <script src="vendor/lucide.min.js"></script>
+    <script src="vendor/howler.min.js"></script>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/arcadeCatalog.js"></script>
+    <script src="js/storyData.js"></script>
+    <script src="js/story.js"></script>
+</body>
+</html>
