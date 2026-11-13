@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC SURVIVORS v9.0 — Taktik Ansiklopedi &amp; Sentez Simülatörü</title>
-    <meta name="description" content="53 modül veritabanı, gemi ve sektör sinerji matrisi, Chart.js DPS sıralaması, Boss istihbaratı ve Sentez Simülatörü.">
+    <title>COSMIC SURVIVORS v10.0 — Taktik Ansiklopedi &amp; Sentez Simülatörü</title>
+    <meta name="description" content="COSMIC SURVIVORS v10.0 Genesis Edition: 53 modül Fuse.js arama veritabanı, 5600x5600 siper arenaları, 5 oyun modu, Boss Pylonları, Chart.js DPS ve Sentez Simülatörü.">
     <meta name="theme-color" content="#070b12">
 
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
@@ -20,31 +20,40 @@
     <link rel="stylesheet" href="css/wiki.css">
 </head>
 <body>
+    <!-- Unified v10.0 Compact Topbar (6 Navigation Links + EN/TR Toggle + Audio + Credits) -->
     <header class="cosmic-topbar">
         <a href="index.html" class="topbar-brand">
-            <img src="assets/favicon-64.png" alt="Cosmic Survivors Logo" class="topbar-logo-img">
+            <img src="assets/icon-192.png" alt="Cosmic Survivors v10 Emblem" class="topbar-logo-img">
             <div class="topbar-title-wrap">
                 <span class="topbar-title">COSMIC SURVIVORS</span>
-                <span class="topbar-version">V9.0 TACTICAL ENCYCLOPEDIA</span>
+                <span class="topbar-version" data-i18n="wiki.topbarVersion">V10.0 TACTICAL ENCYCLOPEDIA</span>
             </div>
         </a>
 
         <nav class="topbar-nav" aria-label="Ana Sayfalar">
             <a href="index.html" class="topbar-link">
                 <i data-lucide="layout-dashboard"></i>
-                <span>Hangar</span>
+                <span data-i18n="nav.hangar">Hangar</span>
             </a>
             <a href="tree.html" class="topbar-link">
                 <i data-lucide="git-branch"></i>
-                <span>Evrim Ağacı</span>
+                <span data-i18n="nav.tree">Evrim Ağacı</span>
             </a>
-            <a href="wiki.html" class="topbar-link active">
+            <a href="armory.html" class="topbar-link">
+                <i data-lucide="crosshair"></i>
+                <span data-i18n="nav.armory">Cephanelik</span>
+            </a>
+            <a href="modes.html" class="topbar-link">
+                <i data-lucide="gamepad-2"></i>
+                <span data-i18n="nav.modes">Modlar</span>
+            </a>
+            <a href="wiki.html" class="topbar-link active" aria-current="page">
                 <i data-lucide="book-open"></i>
-                <span>Ansiklopedi</span>
+                <span data-i18n="nav.wiki">Ansiklopedi</span>
             </a>
             <a href="about.html" class="topbar-link">
                 <i data-lucide="info"></i>
-                <span>Hakkında</span>
+                <span data-i18n="nav.about">Hakkında</span>
             </a>
         </nav>
 
@@ -54,9 +63,14 @@
                 <span id="creditsDisplay">0</span>
                 <span class="hide-mobile">CRD</span>
             </div>
+            <button type="button" id="langToggleBtn" class="lang-toggle-btn" data-lang="tr" aria-label="Dil Değiştir / Switch Language" title="EN / TR">
+                <span class="lang-seg" data-lang="en">EN</span>
+                <span class="lang-sep">/</span>
+                <span class="lang-seg active" data-lang="tr">TR</span>
+            </button>
             <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
                 <i data-lucide="volume-2" id="audioToggleIcon"></i>
-                <span class="hide-mobile" id="audioToggleLabel">Ses Açık</span>
+                <span class="hide-mobile" id="audioToggleLabel" data-i18n="common.audioOn">Ses Açık</span>
             </button>
         </div>
     </header>
@@ -64,38 +78,64 @@
     <main class="wiki-container">
         <section class="wiki-hero">
             <div>
-                <h1 class="wiki-hero-title">Taktik Ansiklopedi &amp; Sentez Simülatörü</h1>
-                <p class="wiki-hero-sub">
-                    Cosmic Survivors v9.0 için tüm 53 savaş modülü, gemi-sektör sinerjileri, Boss Öfke Fazı II taktikleri ve etkileşimli DPS analizi.
+                <h1 class="wiki-hero-title" data-i18n="wiki.hero.title">Taktik Ansiklopedi &amp; Sentez Simülatörü</h1>
+                <p class="wiki-hero-sub" data-i18n="wiki.hero.sub">
+                    Cosmic Survivors v10.0 Genesis Edition için tüm 53 savaş modülü, 5600×5600 siperli arenalar, 5 oyun modu, Boss Kalkan Pylonları, [E] Overdrive ve [Q] +%12 Nişan Ustalığı rehberi.
                 </p>
             </div>
-            <a href="tree.html" class="cs-btn cs-btn-primary">
-                <i data-lucide="git-branch"></i>
-                <span>Evrim Laboratuvarına Git</span>
-            </a>
+            <div style="display:flex;gap:0.55rem;flex-wrap:wrap;">
+                <a href="modes.html" class="cs-btn cs-btn-mint">
+                    <i data-lucide="gamepad-2"></i>
+                    <span data-i18n="wiki.hero.ctaModes">Modlar &amp; Günlük</span>
+                </a>
+                <a href="tree.html" class="cs-btn cs-btn-primary">
+                    <i data-lucide="git-branch"></i>
+                    <span data-i18n="wiki.hero.ctaTree">Evrim Laboratuvarına Git</span>
+                </a>
+            </div>
         </section>
+
+        <!-- Global Fuse.js Quick Fuzzy Search (All 53 Modules + 8 Enemies + 5 Bosses, EN + TR) -->
+        <div class="wiki-global-search-bar" role="search" aria-label="Global Hızlı Ansiklopedi Araması">
+            <div class="wiki-global-search-wrap">
+                <i data-lucide="search" class="wiki-global-search-icon"></i>
+                <input
+                    type="search"
+                    id="wikiGlobalSearchInput"
+                    class="wiki-global-search-input"
+                    placeholder="Global Hızlı Arama (Fuse.js): Modül, düşman veya boss yazın (ör. takyon, sentinel, kryos, pylon)..."
+                    data-i18n-placeholder="wiki.globalSearchPlaceholder"
+                    autocomplete="off"
+                >
+                <span id="wikiGlobalSearchCount" class="cs-badge cs-badge-sky font-mono" style="font-size:11px;">53+13 INDEX</span>
+                <button type="button" id="wikiGlobalSearchClearBtn" class="wiki-global-clear" hidden aria-label="Temizle">
+                    <i data-lucide="x"></i>
+                </button>
+                <div id="wikiGlobalResults" class="wiki-global-results" role="listbox" hidden></div>
+            </div>
+        </div>
 
         <!-- 5 Navigation Tabs -->
         <nav class="wiki-tabbar" role="tablist" aria-label="Ansiklopedi Bölümleri">
             <button type="button" class="wiki-tab-btn active" data-tab="tab-database" role="tab">
-                <i data-lucide="database"></i>
-                <span>Veritabanı (53 Modül)</span>
+                <i data-lucide="layers"></i>
+                <span data-i18n="wiki.tab.db">Veritabanı (53 Modül)</span>
             </button>
             <button type="button" class="wiki-tab-btn" data-tab="tab-synergy" role="tab">
-                <i data-lucide="layers"></i>
-                <span>Sektör &amp; Gemi Sinerjisi</span>
+                <i data-lucide="compass"></i>
+                <span data-i18n="wiki.tab.synergy">Sektör &amp; Gemi Sinerjisi</span>
             </button>
             <button type="button" class="wiki-tab-btn" data-tab="tab-meta" role="tab">
                 <i data-lucide="bar-chart-2"></i>
-                <span>Meta Kombolar &amp; DPS Grafiği</span>
+                <span data-i18n="wiki.tab.meta">Meta Kombolar &amp; DPS Grafiği</span>
             </button>
             <button type="button" class="wiki-tab-btn" data-tab="tab-bestiary" role="tab">
                 <i data-lucide="skull"></i>
-                <span>Düşman &amp; Boss Rehberi</span>
+                <span data-i18n="wiki.tab.bestiary">Düşman, Boss &amp; v10 Mekanikleri</span>
             </button>
             <button type="button" class="wiki-tab-btn" data-tab="tab-calculator" role="tab">
-                <i data-lucide="sliders"></i>
-                <span>Sentez Simülatörü</span>
+                <i data-lucide="cpu"></i>
+                <span data-i18n="wiki.tab.calc">Sentez Simülatörü</span>
             </button>
         </nav>
 
@@ -103,16 +143,16 @@
         <section id="tab-database" class="wiki-panel active">
             <div class="wiki-filter-bar">
                 <div class="filter-pills" id="wikiCategoryPills">
-                    <button type="button" class="filter-pill active" data-cat="all">Tümü (53)</button>
-                    <button type="button" class="filter-pill" data-cat="weapon">Silahlar (14)</button>
-                    <button type="button" class="filter-pill" data-cat="trinket">Destek Modülleri (14)</button>
-                    <button type="button" class="filter-pill" data-cat="evolution">Evrimler (19)</button>
-                    <button type="button" class="filter-pill" data-cat="superEvolution">Mega Evrimler (6)</button>
+                    <button type="button" class="filter-pill active" data-cat="all" data-i18n="wiki.cat.all">Tümü (53)</button>
+                    <button type="button" class="filter-pill" data-cat="weapon" data-i18n="wiki.cat.weapon">Silahlar (14)</button>
+                    <button type="button" class="filter-pill" data-cat="trinket" data-i18n="wiki.cat.trinket">Destek Modülleri (14)</button>
+                    <button type="button" class="filter-pill" data-cat="evolution" data-i18n="wiki.cat.evo">Evrimler (19)</button>
+                    <button type="button" class="filter-pill" data-cat="superEvolution" data-i18n="wiki.cat.mega">Mega Evrimler (6)</button>
                 </div>
 
                 <div class="search-wrap">
                     <i data-lucide="search"></i>
-                    <input type="search" id="wikiSearchInput" class="cs-input" placeholder="Modül, gemi veya mekanik ara...">
+                    <input type="search" id="wikiSearchInput" class="cs-input" placeholder="Fuse.js ile ara (TR/EN): modül, gemi, formül..." data-i18n-placeholder="wiki.dbSearchPlaceholder" autocomplete="off">
                 </div>
             </div>
 
@@ -125,12 +165,12 @@
                 <table class="synergy-table">
                     <thead>
                         <tr>
-                            <th>Gemi</th>
-                            <th>Başlangıç</th>
-                            <th>İmza Kök Sentezi</th>
-                            <th>Mega Hedef</th>
-                            <th>İdeal Sektörler</th>
-                            <th>İşlem</th>
+                            <th data-i18n="wiki.syn.thShip">Gemi</th>
+                            <th data-i18n="wiki.syn.thStarter">Başlangıç</th>
+                            <th data-i18n="wiki.syn.thSig">İmza Kök Sentezi</th>
+                            <th data-i18n="wiki.syn.thMega">Mega Hedef</th>
+                            <th data-i18n="wiki.syn.thSectors">İdeal Sektörler (5600×5600)</th>
+                            <th data-i18n="wiki.syn.thAction">İşlem</th>
                         </tr>
                     </thead>
                     <tbody id="synergyTableBody"></tbody>
@@ -146,13 +186,13 @@
                 <div class="meta-chart-card">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
                         <div>
-                            <h2 style="font-size:18px;">Evrim &amp; Mega DPS Karşılaştırması</h2>
-                            <p style="font-size:13px;margin:0.15rem 0 0;">Tek hedef + alan sürdürülebilir DPS kıyaslaması.</p>
+                            <h2 style="font-size:18px;" data-i18n="wiki.meta.chartTitle">Evrim &amp; Mega DPS Karşılaştırması</h2>
+                            <p style="font-size:13px;margin:0.15rem 0 0;" data-i18n="wiki.meta.chartSub">Tek hedef + alan sürdürülebilir DPS kıyaslaması.</p>
                         </div>
                         <div class="filter-pills" id="chartFilterPills">
-                            <button type="button" class="filter-pill active" data-chart-mode="mixed">Tümü (Üst 12)</button>
-                            <button type="button" class="filter-pill" data-chart-mode="evo">Evrimler</button>
-                            <button type="button" class="filter-pill" data-chart-mode="mega">Mega Evrimler</button>
+                            <button type="button" class="filter-pill active" data-chart-mode="mixed" data-i18n="wiki.meta.all">Tümü (Üst 12)</button>
+                            <button type="button" class="filter-pill" data-chart-mode="evo" data-i18n="wiki.meta.evo">Evrimler</button>
+                            <button type="button" class="filter-pill" data-chart-mode="mega" data-i18n="wiki.meta.mega">Mega Evrimler</button>
                         </div>
                     </div>
 
@@ -165,23 +205,26 @@
             </div>
         </section>
 
-        <!-- TAB 4: ENEMY & BOSS GUIDE -->
+        <!-- TAB 4: ENEMY, BOSS & v10.0 TACTICAL SYSTEMS GUIDE -->
         <section id="tab-bestiary" class="wiki-panel">
             <div class="bestiary-banner">
                 <img src="assets/boss-banner.png" alt="Kozmik Boss Uyarısı">
                 <div class="bestiary-banner-content">
-                    <span class="cs-badge cs-badge-coral font-mono" style="margin-bottom:0.4rem;">TAKTİK BRİFİNG</span>
-                    <h2 style="font-size:21px;">Boss Fazları &amp; Dalga 25+ Kozmik Çürüme</h2>
-                    <p style="font-size:13.5px;max-width:740px;margin:0.25rem 0 0;">
-                        Her 5. dalgada bir Ana Boss sahneye çıkar. Boss canı %50 altına indiğinde <strong>Öfke Fazı II (+%32 hız ve çift salvo)</strong> aktif olur. Dalga 25’ten itibaren Kozmik Çürüme kalkan ve şifa verimliliğini kademeli olarak %15 tabanına kadar düşürür.
+                    <span class="cs-badge cs-badge-coral font-mono" style="margin-bottom:0.4rem;" data-i18n="wiki.bestiary.badge">V10.0 TAKTİK BRİFİNG</span>
+                    <h2 style="font-size:21px;" data-i18n="wiki.bestiary.title">Boss Kalkan Pylonları, Faz II &amp; Dalga 25+ Kozmik Çürüme</h2>
+                    <p style="font-size:13.5px;max-width:780px;margin:0.25rem 0 0;" data-i18n="wiki.bestiary.desc">
+                        Her 5. dalgada bir Ana Boss <strong>Kalkan Pylonları</strong> (boss hasarını %65 azaltır) ile birlikte sahneye çıkar. Canı %50 altına indiğinde <strong>Öfke Fazı II (+%32 hız ve çift salvo)</strong> başlar. Dalga 25’ten itibaren Kozmik Çürüme kalkan ve şifa verimini %15 tabanına kadar düşürür.
                     </p>
                 </div>
             </div>
 
-            <h2 style="font-size:19px;">5 Ana Kozmik Boss</h2>
+            <!-- v10.0 Arena Obstacles, Pylons, Combat Keys & 5 Modes Overview -->
+            <div id="v10SystemsBriefing" class="v10-mechanics-section"></div>
+
+            <h2 style="font-size:19px;" data-i18n="wiki.bestiary.bossHeading">5 Ana Kozmik Boss</h2>
             <div id="bestiaryBossGrid" class="bestiary-grid"></div>
 
-            <h2 style="font-size:19px;margin-top:0.5rem;">8 Sürü Arketipi</h2>
+            <h2 style="font-size:19px;margin-top:0.5rem;" data-i18n="wiki.bestiary.enemyHeading">8 Sürü Arketipi</h2>
             <div id="bestiaryEnemyGrid" class="bestiary-grid"></div>
         </section>
 
@@ -191,20 +234,20 @@
                 <!-- Left: Weapon + Trinket Synthesis Builder -->
                 <div class="sim-panel">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
-                        <h2 style="font-size:18px;">Sentez Eşleştirici (X + Y = Z)</h2>
+                        <h2 style="font-size:18px;" data-i18n="wiki.sim.leftTitle">Sentez Eşleştirici (X + Y = Z)</h2>
                         <button type="button" id="simAutoPairBtn" class="cs-btn cs-btn-ghost" style="padding:0.38rem 0.72rem;font-size:12.5px;">
-                            <i data-lucide="wand-2"></i>
-                            <span>Uyumlu Çift Bul</span>
+                            <i data-lucide="sparkles"></i>
+                            <span data-i18n="wiki.sim.autoPair">Uyumlu Çift Bul</span>
                         </button>
                     </div>
 
                     <div class="sim-form-group">
-                        <label for="simWeaponSelect" class="sim-form-label">Silah Modülü (Lv.5)</label>
+                        <label for="simWeaponSelect" class="sim-form-label" data-i18n="wiki.sim.weaponLabel">Silah Modülü (Lv.5)</label>
                         <select id="simWeaponSelect" class="cs-select"></select>
                     </div>
 
                     <div class="sim-form-group">
-                        <label for="simTrinketSelect" class="sim-form-label">Destek Modülü / Trinket (Lv.5)</label>
+                        <label for="simTrinketSelect" class="sim-form-label" data-i18n="wiki.sim.trinketLabel">Destek Modülü / Trinket (Lv.5)</label>
                         <select id="simTrinketSelect" class="cs-select"></select>
                     </div>
 
@@ -214,24 +257,24 @@
                 <!-- Right: Live Stat, Armor & Cosmic Decay Simulator -->
                 <div class="sim-panel">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
-                        <h2 style="font-size:18px;">Savaş Telemetrisi &amp; Kozmik Çürüme</h2>
-                        <span class="cs-badge cs-badge-sky font-mono">ATÖLYE SENKRON</span>
+                        <h2 style="font-size:18px;" data-i18n="wiki.sim.rightTitle">Savaş Telemetrisi &amp; Kozmik Çürüme</h2>
+                        <span class="cs-badge cs-badge-sky font-mono" data-i18n="wiki.sim.syncBadge">ATÖLYE SENKRON</span>
                     </div>
 
                     <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.75rem;">
                         <div class="sim-form-group">
-                            <label for="simShipSelect" class="sim-form-label">Yıldız Gemisi</label>
+                            <label for="simShipSelect" class="sim-form-label" data-i18n="wiki.sim.shipLabel">Yıldız Gemisi</label>
                             <select id="simShipSelect" class="cs-select"></select>
                         </div>
                         <div class="sim-form-group">
-                            <label for="simDiffSelect" class="sim-form-label">Zorluk Modu</label>
+                            <label for="simDiffSelect" class="sim-form-label" data-i18n="wiki.sim.diffLabel">Zorluk Modu</label>
                             <select id="simDiffSelect" class="cs-select"></select>
                         </div>
                     </div>
 
                     <div class="sim-form-group">
                         <div style="display:flex;justify-content:space-between;font-size:12.5px;">
-                            <span class="sim-form-label">Simüle Edilen Dalga</span>
+                            <span class="sim-form-label" data-i18n="wiki.sim.waveLabel">Simüle Edilen Dalga</span>
                             <strong id="simWaveLabel" class="font-mono" style="color:var(--accent-sky);">Dalga 25</strong>
                         </div>
                         <input type="range" id="simWaveSlider" min="1" max="50" value="25">
@@ -248,9 +291,11 @@
     <script src="vendor/lucide.min.js"></script>
     <script src="vendor/chart.umd.min.js"></script>
     <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/fuse.min.js"></script>
     <script src="vendor/howler.min.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/data.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/wiki.js"></script>
 </body>
 </html>

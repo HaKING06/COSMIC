@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSMIC SURVIVORS v10.0 — Oyun Modları, Günlük Protokol &amp; Taktik Harita Merkezi</title>
+    <meta name="description" content="COSMIC SURVIVORS v10.0 Genesis Edition oyun modları: Günlük Tohumlu Protokol, 5 oynanabilir mod, 5600x5600 engelli arenalar ve canlı zorluk ölçeklemesi.">
+    <meta name="author" content="Halit Güneş (HaKING)">
+    <meta name="theme-color" content="#070b12">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/modes.css">
+</head>
+<body>
+    <!-- Unified v10.0 Compact Topbar (6 Navigation Links + EN/TR Toggle + Audio + Credits) -->
+    <header class="cosmic-topbar">
+        <a href="index.html" class="topbar-brand">
+            <img src="assets/icon-192.png" alt="Cosmic Survivors v10 Emblem" class="topbar-logo-img">
+            <div class="topbar-title-wrap">
+                <span class="topbar-title">COSMIC SURVIVORS</span>
+                <span class="topbar-version" data-i18n="modes.topbarVersion">V10.0 TACTICAL OPERATIONS</span>
+            </div>
+        </a>
+
+        <nav class="topbar-nav" aria-label="Ana Sayfalar">
+            <a href="index.html" class="topbar-link">
+                <i data-lucide="layout-dashboard"></i>
+                <span data-i18n="nav.hangar">Hangar</span>
+            </a>
+            <a href="tree.html" class="topbar-link">
+                <i data-lucide="git-branch"></i>
+                <span data-i18n="nav.tree">Evrim Ağacı</span>
+            </a>
+            <a href="armory.html" class="topbar-link">
+                <i data-lucide="crosshair"></i>
+                <span data-i18n="nav.armory">Cephanelik</span>
+            </a>
+            <a href="modes.html" class="topbar-link active" aria-current="page">
+                <i data-lucide="gamepad-2"></i>
+                <span data-i18n="nav.modes">Modlar</span>
+            </a>
+            <a href="wiki.html" class="topbar-link">
+                <i data-lucide="book-open"></i>
+                <span data-i18n="nav.wiki">Ansiklopedi</span>
+            </a>
+            <a href="about.html" class="topbar-link">
+                <i data-lucide="info"></i>
+                <span data-i18n="nav.about">Hakkında</span>
+            </a>
+        </nav>
+
+        <div class="topbar-actions">
+            <div class="credits-pill" title="Araştırma Kredisi">
+                <i data-lucide="coins"></i>
+                <span id="creditsDisplay">0</span>
+                <span class="hide-mobile">CRD</span>
+            </div>
+            <button type="button" id="langToggleBtn" class="lang-toggle-btn" data-lang="tr" aria-label="Dil Değiştir / Switch Language" title="EN / TR">
+                <span class="lang-seg" data-lang="en">EN</span>
+                <span class="lang-sep">/</span>
+                <span class="lang-seg active" data-lang="tr">TR</span>
+            </button>
+            <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
+                <i data-lucide="volume-2" id="audioToggleIcon"></i>
+                <span class="hide-mobile" id="audioToggleLabel" data-i18n="common.audioOn">Ses Açık</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="modes-container">
+        <!-- Hero Keyart Banner -->
+        <section class="hero-keyart-banner modes-hero" aria-labelledby="modesHeroTitle">
+            <div class="modes-hero-body">
+                <div class="modes-hero-badges">
+                    <span class="cs-badge cs-badge-sky cs-badge-glow font-mono" data-i18n="modes.hero.badge1">V10.0 GENESIS · 5 OPERASYON MODU</span>
+                    <span class="cs-badge cs-badge-mint font-mono" data-i18n="modes.hero.badge2">5600×5600 ENGELLİ ARENALAR</span>
+                    <span class="cs-badge cs-badge-amber font-mono" data-i18n="modes.hero.badge3">GÜNLÜK TOHUM KOD ÇÖZÜCÜ</span>
+                </div>
+                <h1 id="modesHeroTitle" class="modes-hero-title" data-i18n="modes.hero.title">
+                    Operasyon Modları, Günlük Protokol &amp; Taktik Harita Merkezi
+                </h1>
+                <p class="modes-hero-sub" data-i18n="modes.hero.sub">
+                    Günlük deterministik tohumlu görevleri çözün, 5 farklı savaş modunu geminize göre başlatın ve 5600×5600 siperli arenalar ile canlı zorluk eğrilerini analiz edin.
+                </p>
+                <div class="modes-hero-actions">
+                    <a id="heroDailyLaunchBtn" href="game.html?mode=daily&amp;map=sector9&amp;ship=interceptor&amp;diff=normal" class="cs-btn cs-btn-mint">
+                        <i data-lucide="play"></i>
+                        <span data-i18n="modes.daily.launchBtn">GÜNLÜK PROTOKOLÜ BAŞLAT</span>
+                    </a>
+                    <a href="#modesSection" class="cs-btn cs-btn-primary">
+                        <i data-lucide="gamepad-2"></i>
+                        <span data-i18n="modes.hero.ctaModes">5 Operasyon Modu</span>
+                    </a>
+                    <a href="#arenasSection" class="cs-btn cs-btn-ghost">
+                        <i data-lucide="compass"></i>
+                        <span data-i18n="modes.hero.ctaArenas">5600×5600 Siper &amp; Sektörler</span>
+                    </a>
+                    <a href="#threatCurveSection" class="cs-btn cs-btn-ghost">
+                        <i data-lucide="trending-up"></i>
+                        <span data-i18n="modes.hero.ctaThreat">Zorluk Eğrisi</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 1: TODAY'S DAILY SEEDED PROTOCOL DECODER -->
+        <section id="dailySection" class="modes-section daily-decoder-card" aria-labelledby="dailyHeading">
+            <div class="section-header-row">
+                <div>
+                    <span class="cs-badge cs-badge-mint font-mono" data-i18n="modes.daily.eyebrow">BÖLÜM 01 · GÜNLÜK PROTOKOL KOD ÇÖZÜCÜ</span>
+                    <h2 id="dailyHeading" class="section-title" data-i18n="modes.daily.title">Bugünün Günlük Tohumlu Protokolü</h2>
+                    <p class="section-sub" data-i18n="modes.daily.sub">Takvime bağlı deterministik tohum ile sabit sektör ve çift savaş mutatörü tüm pilotlar için eşittir.</p>
+                </div>
+                <div class="daily-meta-pills">
+                    <span class="cs-badge cs-badge-slate font-mono" id="dailyDateBadge">---- -- --</span>
+                    <span class="cs-badge cs-badge-sky font-mono" id="dailySeedBadge">CS-00000000-000000</span>
+                    <span class="cs-badge cs-badge-amber font-mono" data-i18n="modes.daily.multPill">2.20x SKOR · 2.00x CRD</span>
+                </div>
+            </div>
+
+            <div class="daily-decoder-grid">
+                <!-- Left: Sector, 2 Mutators & Numeric Modifiers Pill Bar -->
+                <div class="daily-intel-col">
+                    <div id="dailySectorCard" class="daily-sector-brief"></div>
+
+                    <div>
+                        <div class="daily-block-label" data-i18n="modes.daily.activeMutators">AKTİF GÜNLÜK MUTATÖRLER (2)</div>
+                        <div id="dailyMutatorsGrid" class="daily-mutators-grid"></div>
+                    </div>
+
+                    <div>
+                        <div class="daily-block-label" data-i18n="modes.daily.combinedMods">BİRLEŞİK SAYISAL DEĞİŞTİRİCİLER</div>
+                        <div id="dailyModifierBar" class="daily-modifier-bar"></div>
+                    </div>
+                </div>
+
+                <!-- Right: Recommended Ship, Local Daily Best & 1-Click Launch -->
+                <aside class="daily-command-col">
+                    <div id="dailyRecShipCard" class="daily-rec-ship-card"></div>
+
+                    <div class="daily-ship-picker">
+                        <label for="dailyShipSelect" class="daily-block-label" data-i18n="modes.daily.chooseShip">GÜNLÜK GÖREV GEMİSİ</label>
+                        <select id="dailyShipSelect" class="cs-select"></select>
+                    </div>
+
+                    <div id="dailyBestBox" class="daily-best-box"></div>
+
+                    <a id="launchDailyBtn" href="game.html?mode=daily&amp;map=sector9&amp;ship=interceptor&amp;diff=normal" class="cs-btn cs-btn-mint daily-launch-cta">
+                        <i data-lucide="play"></i>
+                        <span data-i18n="modes.daily.launchBtn">GÜNLÜK PROTOKOLÜ BAŞLAT</span>
+                    </a>
+                </aside>
+            </div>
+        </section>
+
+        <!-- SECTION 2: 5 PLAYABLE OPERATION MODES INTERACTIVE CARDS -->
+        <section id="modesSection" class="modes-section" aria-labelledby="modesHeading">
+            <div class="section-header-row">
+                <div>
+                    <span class="cs-badge cs-badge-sky font-mono" data-i18n="modes.grid.eyebrow">BÖLÜM 02 · OPERASYON PROTOKOLÜ SEÇİMİ</span>
+                    <h2 id="modesHeading" class="section-title" data-i18n="modes.grid.title">5 Oynanabilir Operasyon Modu</h2>
+                    <p class="section-sub" data-i18n="modes.grid.sub">Dalga sınırları, çarpanlar, taktik kurallar ve her kartta 1 tıkla gemi seçip anında savaşa başlama bağlantısı.</p>
+                </div>
+
+                <div class="modes-global-controls">
+                    <div class="mode-ctrl-field">
+                        <label for="modesSectorSelect" data-i18n="modes.grid.targetSector">Hedef Sektör</label>
+                        <select id="modesSectorSelect" class="cs-select"></select>
+                    </div>
+                    <div class="mode-ctrl-field">
+                        <label for="modesDiffSelect" data-i18n="modes.grid.targetDiff">Zorluk Seviyesi</label>
+                        <select id="modesDiffSelect" class="cs-select"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="operationModesGrid" class="operation-modes-grid"></div>
+        </section>
+
+        <!-- SECTION 3: 4 x 5600x5600 OPEN-SPACE ARENAS & SOLID COVER OBSTACLES -->
+        <section id="arenasSection" class="modes-section" aria-labelledby="arenasHeading">
+            <div class="section-header-row">
+                <div>
+                    <span class="cs-badge cs-badge-violet font-mono" data-i18n="modes.arenas.eyebrow">BÖLÜM 03 · 5600×5600 SEKTÖRLER &amp; SİPER MEKANİKLERİ</span>
+                    <h2 id="arenasHeading" class="section-title" data-i18n="modes.arenas.title">4 Açık Uzay Arenası &amp; Fiziksel Siper Engelleri</h2>
+                    <p class="section-sub" data-i18n="modes.arenas.sub">Her sektör 5600×5600 ölçekli taktik haritada fiziksel siperler, ele geçirilebilir Sığınaklar, Reaktör halkaları ve Taktik Radar içerir.</p>
+                </div>
+                <span class="cs-badge cs-badge-teal font-mono" data-i18n="modes.arenas.radarBadge">[M] CANLI TAKTİK RADAR</span>
+            </div>
+
+            <div id="arenasGrid" class="arenas-grid"></div>
+
+            <div class="cover-brief-card">
+                <div class="cover-brief-head">
+                    <div>
+                        <h3 class="cover-brief-title" data-i18n="modes.obstacles.title">5 Gerçek Arena Engel Türü &amp; Taktik Siper Mekaniği</h3>
+                        <p class="section-sub" data-i18n="modes.obstacles.sub">Siper yapıları düşman nişancı ışınlarını ve plazma atışlarını fiziksel olarak durdurur; Sığınak ve Reaktörler ise risk-ödül bölgeleri oluşturur.</p>
+                    </div>
+                    <div class="cover-mechanic-pills" id="coverMechanicPills"></div>
+                </div>
+
+                <div id="obstacleGalleryGrid" class="obstacle-gallery-grid"></div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: LIVE THREAT & DIFFICULTY CURVE (CHART.JS) -->
+        <section id="threatCurveSection" class="modes-section threat-curve-card" aria-labelledby="threatHeading">
+            <div class="section-header-row">
+                <div>
+                    <span class="cs-badge cs-badge-coral font-mono" data-i18n="modes.threat.eyebrow">BÖLÜM 04 · CANLI TEHDİT ANALİTİĞİ</span>
+                    <h2 id="threatHeading" class="section-title" data-i18n="modes.threat.title">Dalga 1–25 Canlı Tehdit &amp; Zorluk Ölçekleme Eğrisi</h2>
+                    <p class="section-sub" data-i18n="modes.threat.sub">Keşif (Easy), Standart, Komutan ve Hiçlik (Nightmare) zorluklarında Düşman HP %, Hasar % ve Boss HP ölçeklemesini karşılaştırın.</p>
+                </div>
+
+                <div class="filter-pills" id="threatMetricPills" role="tablist" aria-label="Tehdit Metriği">
+                    <button type="button" class="filter-pill active" data-metric="enemyHp" data-i18n="modes.threat.metricHp">Düşman HP %</button>
+                    <button type="button" class="filter-pill" data-metric="enemyDmg" data-i18n="modes.threat.metricDmg">Düşman Hasar %</button>
+                    <button type="button" class="filter-pill" data-metric="bossHp" data-i18n="modes.threat.metricBoss">Boss HP Ölçeği</button>
+                </div>
+            </div>
+
+            <div class="threat-chart-wrap">
+                <canvas id="threatCurveCanvas"></canvas>
+            </div>
+
+            <div id="threatSummaryGrid" class="threat-summary-grid"></div>
+        </section>
+    </main>
+
+    <script src="vendor/lucide.min.js"></script>
+    <script src="vendor/chart.umd.min.js"></script>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/howler.min.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="leaderboard.js"></script>
+    <script src="js/modes.js"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 {
-  "name": "COSMIC SURVIVORS — Kozmik Arena & Hiper-Evrim Roguelike",
+  "name": "COSMIC SURVIVORS — Genesis Edition v10.0",
   "short_name": "Cosmic Survivors",
-  "description": "WebGL (PixiJS v8) destekli 1P Kozmik Arena, Dinamik Hareketli Sektörler ve Hiper-Evrim Roguelike oyunu.",
+  "description": "WebGL2 (PixiJS v8 + pixi-filters) sci-fi survival roguelike with 8 starships, 5 game modes, 5600x5600 obstacle arenas, tactical radar, and EN/TR support.",
   "id": "/",
   "start_url": "/?utm_source=pwa",
   "scope": "/",
@@ -16,6 +16,7 @@
   "lang": "tr",
   "categories": [
     "games",
+    "action",
     "entertainment"
   ],
   "icons": [
@@ -36,6 +37,60 @@
       "sizes": "64x64",
       "type": "image/png",
       "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Command Hangar",
+      "short_name": "Hangar",
+      "description": "Select starship, liveries, and R&D upgrades",
+      "url": "index.html",
+      "icons": [
+        {
+          "src": "assets/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Game Modes",
+      "short_name": "Modes",
+      "description": "Campaign, Endless, Boss Rush, 5-Min Time Attack & Daily Seed",
+      "url": "modes.html",
+      "icons": [
+        {
+          "src": "assets/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Armory",
+      "short_name": "Armory",
+      "description": "Inspect starship liveries, weapons, and R&D upgrades",
+      "url": "armory.html",
+      "icons": [
+        {
+          "src": "assets/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Evolution Tree",
+      "short_name": "Tree",
+      "description": "Interactive X + Y = Z -> MEGA evolution synthesis blueprint",
+      "url": "tree.html",
+      "icons": [
+        {
+          "src": "assets/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

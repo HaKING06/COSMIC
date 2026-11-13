@@ -1,0 +1,713 @@
+/* =============================================================================
+   COSMIC SURVIVORS v10.0 — TACTICAL OPERATIONS, MODES & ARENA HUB (css/modes.css)
+   Calm Obsidian-Slate Design System
+   ============================================================================= */
+
+.modes-container {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 1.5rem 1.5rem 3.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.modes-hero {
+    min-height: 225px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.modes-hero-body {
+    max-width: 860px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.72rem;
+}
+
+.modes-hero-badges {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+}
+
+.modes-hero-title {
+    font-size: clamp(24px, 3vw, 31px);
+    font-weight: 700;
+    line-height: 1.18;
+    color: var(--text-primary);
+}
+
+.modes-hero-sub {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    max-width: 720px;
+}
+
+.modes-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+}
+
+/* Shared Section Headers */
+.modes-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.section-header-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.section-title {
+    margin-top: 0.45rem;
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.section-sub {
+    margin: 0.22rem 0 0;
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    max-width: 740px;
+}
+
+/* =============================================================================
+   SECTION 1: DAILY SEEDED PROTOCOL DECODER
+   ============================================================================= */
+.daily-decoder-card {
+    background: var(--bg-surface);
+    border: 1px solid rgba(52, 211, 153, 0.28);
+    border-radius: var(--radius-xl);
+    padding: 1.4rem 1.5rem;
+    box-shadow: var(--shadow-card);
+    background-image: radial-gradient(circle at 92% 12%, rgba(52, 211, 153, 0.08), transparent 48%);
+}
+
+.daily-meta-pills {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+}
+
+.daily-decoder-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.95fr);
+    gap: 1.25rem;
+    align-items: stretch;
+}
+
+.daily-intel-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.daily-sector-brief {
+    display: grid;
+    grid-template-columns: 165px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 0.85rem;
+}
+
+.daily-sector-thumb {
+    width: 100%;
+    height: 104px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-void);
+}
+
+.daily-block-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.45rem;
+}
+
+.daily-mutators-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.mutator-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 0.88rem 0.95rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.mutator-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.mutator-icon-box {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(7, 11, 18, 0.8);
+    border: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+}
+
+.mutator-mods-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: auto;
+}
+
+.daily-modifier-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.48rem;
+    padding: 0.72rem 0.85rem;
+    border-radius: var(--radius-md);
+    background: rgba(7, 11, 18, 0.55);
+    border: 1px solid var(--border-subtle);
+}
+
+.mod-stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.24rem 0.58rem;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+}
+
+.mod-stat-pill.is-buff {
+    color: var(--accent-mint);
+    border-color: rgba(52, 211, 153, 0.32);
+    background: rgba(52, 211, 153, 0.08);
+}
+
+.mod-stat-pill.is-nerf {
+    color: var(--accent-coral);
+    border-color: rgba(251, 113, 133, 0.32);
+    background: rgba(251, 113, 133, 0.08);
+}
+
+.mod-stat-pill.is-neutral {
+    color: var(--accent-sky);
+    border-color: rgba(56, 189, 248, 0.28);
+}
+
+.daily-command-col {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.05rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.daily-rec-ship-card {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.72rem 0.85rem;
+    border-radius: var(--radius-md);
+    background: rgba(7, 11, 18, 0.55);
+    border: 1px solid var(--border-subtle);
+}
+
+.daily-rec-ship-img {
+    width: 52px;
+    height: 52px;
+    padding: 5px;
+    border-radius: 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.daily-ship-picker {
+    display: flex;
+    flex-direction: column;
+}
+
+.daily-best-box {
+    padding: 0.8rem 0.9rem;
+    border-radius: var(--radius-md);
+    background: rgba(7, 11, 18, 0.58);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 0.38rem;
+}
+
+.daily-best-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.daily-best-score {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent-amber);
+}
+
+.daily-launch-cta {
+    margin-top: auto;
+    width: 100%;
+    padding: 0.78rem 1rem;
+    font-size: 14px;
+}
+
+/* =============================================================================
+   SECTION 2: 5 PLAYABLE OPERATION MODES
+   ============================================================================= */
+.modes-global-controls {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.mode-ctrl-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 185px;
+}
+
+.mode-ctrl-field label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.operation-modes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+    gap: 1rem;
+}
+
+.op-mode-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-top: 3px solid var(--mode-accent, var(--accent-sky));
+    border-radius: var(--radius-lg);
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    box-shadow: var(--shadow-card);
+    transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.op-mode-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-medium);
+}
+
+.op-mode-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.72rem;
+}
+
+.op-mode-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(7, 11, 18, 0.78);
+    border: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+}
+
+.op-mode-mults {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.45rem;
+}
+
+.op-mult-cell {
+    background: rgba(7, 11, 18, 0.56);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 0.42rem 0.5rem;
+    text-align: center;
+}
+
+.op-mult-cell span {
+    display: block;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.op-mult-cell strong {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: var(--text-primary);
+}
+
+.op-mode-rules {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+}
+
+.op-mode-pb {
+    padding: 0.46rem 0.65rem;
+    border-radius: 8px;
+    background: rgba(7, 11, 18, 0.48);
+    border: 1px solid var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.op-mode-footer {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding-top: 0.55rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.op-mode-launch-btn {
+    width: 100%;
+}
+
+/* =============================================================================
+   SECTION 3: 4 x 5600x5600 ARENAS & 5 OBSTACLE SPRITES GALLERY
+   ============================================================================= */
+.arenas-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.arena-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-card);
+}
+
+.arena-banner-wrap {
+    position: relative;
+    height: 150px;
+    background: var(--bg-void);
+    overflow: hidden;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.arena-banner-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.arena-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(7, 11, 18, 0.15) 0%, rgba(7, 11, 18, 0.88) 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    gap: 0.75rem;
+}
+
+.arena-card-body {
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    flex: 1;
+}
+
+.arena-events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.arena-event-item {
+    padding: 0.48rem 0.68rem;
+    border-radius: 8px;
+    background: rgba(7, 11, 18, 0.55);
+    border: 1px solid var(--border-subtle);
+    font-size: 12.5px;
+    color: var(--text-secondary);
+}
+
+.arena-tactic-line {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    padding-top: 0.45rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.09);
+}
+
+.arena-rec-row {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.arena-rec-chips {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.arena-rec-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    padding: 0.22rem 0.5rem;
+    border-radius: 999px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    font-size: 11.5px;
+    color: var(--text-primary);
+}
+
+.arena-rec-chip img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.cover-brief-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 1.25rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.cover-brief-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.cover-brief-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.cover-mechanic-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.42rem;
+}
+
+.obstacle-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(225px, 1fr));
+    gap: 0.9rem;
+}
+
+.obstacle-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.obstacle-preview-pad {
+    height: 108px;
+    border-radius: 10px;
+    background-color: var(--bg-void);
+    background-image:
+        linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+    background-size: 22px 22px;
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem;
+}
+
+.obstacle-preview-pad img {
+    max-width: 100%;
+    max-height: 82px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55));
+}
+
+.obstacle-meta-line {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-sky);
+}
+
+/* =============================================================================
+   SECTION 4: LIVE THREAT & DIFFICULTY CURVE (CHART.JS)
+   ============================================================================= */
+.threat-curve-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 1.35rem 1.45rem;
+    box-shadow: var(--shadow-card);
+}
+
+.filter-pills {
+    display: flex;
+    align-items: center;
+    gap: 0.42rem;
+    flex-wrap: wrap;
+}
+
+.filter-pill {
+    padding: 0.42rem 0.78rem;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+}
+
+.filter-pill.active {
+    background: rgba(56, 189, 248, 0.14);
+    border-color: rgba(56, 189, 248, 0.36);
+    color: var(--accent-sky);
+}
+
+.threat-chart-wrap {
+    position: relative;
+    height: 360px;
+    width: 100%;
+    background: rgba(7, 11, 18, 0.55);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 0.9rem 1rem;
+}
+
+.threat-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.threat-diff-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--diff-color, var(--accent-sky));
+    border-radius: var(--radius-md);
+    padding: 0.82rem 0.92rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.threat-kv-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.threat-kv-row strong {
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+}
+
+@media (max-width: 1024px) {
+    .daily-decoder-grid,
+    .arenas-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .threat-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 680px) {
+    .modes-container {
+        padding: 1rem 1rem 2.5rem;
+    }
+
+    .daily-sector-brief,
+    .daily-mutators-grid,
+    .threat-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .threat-chart-wrap {
+        height: 290px;
+        padding: 0.55rem;
+    }
+}

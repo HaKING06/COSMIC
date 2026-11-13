@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSMIC SURVIVORS v10.0 — Cephanelik &amp; Filo Kalibrasyon Merkezi</title>
+    <meta name="description" content="COSMIC SURVIVORS v10.0 Genesis Edition Cephanelik & Filo Kalibrasyon Merkezi: 4 açılabilir filo gövde kaplaması, 10 kalıcı Ar-Ge modülü, Chart.js etki analizi ve yerel savaş geçmişi.">
+    <meta name="theme-color" content="#070b12">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/armory.css">
+</head>
+<body>
+    <!-- Unified v10.0 Compact Topbar (6 Navigation Links + EN/TR Toggle + Audio + Credits) -->
+    <header class="cosmic-topbar">
+        <a href="index.html" class="topbar-brand">
+            <img src="assets/icon-192.png" alt="Cosmic Survivors v10 Emblem" class="topbar-logo-img">
+            <div class="topbar-title-wrap">
+                <span class="topbar-title">COSMIC SURVIVORS</span>
+                <span class="topbar-version" data-i18n="nav.portal">V10.0 GENESIS KOMUTA PORTALI</span>
+            </div>
+        </a>
+
+        <nav class="topbar-nav" aria-label="Ana Sayfalar">
+            <a href="index.html" class="topbar-link">
+                <i data-lucide="layout-dashboard"></i>
+                <span data-topbar-label="hangar">Hangar</span>
+            </a>
+            <a href="tree.html" class="topbar-link" id="navTreeLink">
+                <i data-lucide="git-branch"></i>
+                <span data-topbar-label="tree">Evrim Ağacı</span>
+            </a>
+            <a href="armory.html" class="topbar-link active" aria-current="page">
+                <i data-lucide="wrench"></i>
+                <span data-topbar-label="armory">Cephanelik</span>
+            </a>
+            <a href="modes.html" class="topbar-link">
+                <i data-lucide="gamepad-2"></i>
+                <span data-topbar-label="modes">Modlar</span>
+            </a>
+            <a href="wiki.html" class="topbar-link">
+                <i data-lucide="book-open"></i>
+                <span data-topbar-label="wiki">Ansiklopedi</span>
+            </a>
+            <a href="about.html" class="topbar-link">
+                <i data-lucide="info"></i>
+                <span data-topbar-label="about">Hakkında</span>
+            </a>
+        </nav>
+
+        <div class="topbar-actions">
+            <div class="credits-pill" title="Araştırma Kredisi">
+                <i data-lucide="coins"></i>
+                <span id="creditsDisplay">0</span>
+                <span class="hide-mobile">CRD</span>
+            </div>
+            <button type="button" id="langToggleBtn" class="lang-toggle-btn" data-lang="tr" aria-label="Dil Değiştir / Switch Language" title="EN / TR">
+                <span class="lang-code" hidden>TR</span>
+                <span class="lang-seg" data-lang="en">EN</span>
+                <span class="lang-sep">/</span>
+                <span class="lang-seg active" data-lang="tr">TR</span>
+            </button>
+            <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
+                <i data-lucide="volume-2" id="audioToggleIcon"></i>
+                <span class="hide-mobile" id="audioToggleLabel">Ses Açık</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="armory-container">
+        <!-- Armory Hero Header -->
+        <section class="armory-hero">
+            <div class="armory-hero-copy">
+                <div class="armory-hero-badges">
+                    <span class="cs-badge cs-badge-sky cs-badge-glow font-mono" id="armoryHeroBadge">V10.0 FİLO CEPHANELİĞİ</span>
+                    <span class="cs-badge cs-badge-amber font-mono" id="armoryWalletBadge">0 CRD</span>
+                </div>
+                <h1 class="armory-hero-title" data-i18n="armory.title">Cephanelik &amp; Filo Kalibrasyon Merkezi</h1>
+                <p class="armory-hero-sub" data-i18n="armory.sub">Kalıcı atölye sistemlerini yükseltin ve tüm gemilerde kullanılabilen filo kaplamalarının kilidini açın.</p>
+            </div>
+            <div class="armory-hero-actions">
+                <a id="armoryHangarBtn" href="index.html" class="cs-btn cs-btn-ghost">
+                    <i data-lucide="compass"></i>
+                    <span id="armoryHangarBtnText">Hangarda Konuşlandır</span>
+                </a>
+                <a id="armoryLaunchBtn" href="game.html" class="cs-btn cs-btn-primary">
+                    <i data-lucide="play"></i>
+                    <span id="armoryLaunchBtnText">Hızlı Göreve Çık</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- SECTION 1: INTERACTIVE FLEET HULL & SKIN CUSTOMIZER -->
+        <section class="armory-section" aria-labelledby="skinsSectionTitle">
+            <div class="section-head">
+                <div>
+                    <h2 id="skinsSectionTitle" class="section-title" data-i18n="armory.skinsTitle">FİLO GÖVDE KAPLAMALARI (SKINS)</h2>
+                    <p class="section-sub" data-i18n="armory.skinsSub">Satın alınan kaplamalar hangardaki tüm 8 yıldız gemisine anında uygulanabilir.</p>
+                </div>
+                <span id="skinCollectionBadge" class="cs-badge cs-badge-violet font-mono">1 / 4</span>
+            </div>
+
+            <!-- 8 Starship Selector Tabs -->
+            <div id="armoryShipTabs" class="armory-ship-tabs" role="tablist" aria-label="Yıldız Gemisi Seçici"></div>
+
+            <!-- Turntable Preview + 4 Unlockable Livery Cards -->
+            <div class="customizer-grid">
+                <div class="preview-stage-card">
+                    <div class="armory-turntable-wrap">
+                        <canvas id="armoryTurntableCanvas" width="560" height="245"></canvas>
+                        <div class="preview-overlay-tags">
+                            <span id="previewShipTag" class="cs-badge cs-badge-sky font-mono">INTERCEPTOR</span>
+                            <span id="previewSkinTag" class="cs-badge cs-badge-slate font-mono">Standart Filo</span>
+                        </div>
+                    </div>
+
+                    <div class="preview-ship-details">
+                        <div class="preview-title-row">
+                            <div>
+                                <h3 id="previewShipName" class="preview-ship-name">Avcı</h3>
+                                <div id="previewShipRole" class="preview-ship-role">Yüksek Hız · Kritik Delici</div>
+                            </div>
+                            <a id="previewTreeLink" href="tree.html?ship=interceptor" class="cs-btn cs-btn-ghost" style="padding:0.38rem 0.7rem;font-size:12px;">
+                                <i data-lucide="git-branch"></i>
+                                <span id="previewTreeBtnText">Evrim Ağacı</span>
+                            </a>
+                        </div>
+
+                        <div id="previewStatsGrid" class="preview-stats-grid"></div>
+                    </div>
+                </div>
+
+                <div id="armorySkinsGrid" class="skins-cards-grid"></div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: 10 PERMANENT R&D MODULES + CHART.JS IMPACT GRAPH -->
+        <section class="armory-section" aria-labelledby="rdSectionTitle">
+            <div class="section-head">
+                <div>
+                    <h2 id="rdSectionTitle" class="section-title" data-i18n="armory.upgradesTitle">KALICI SİSTEM YÜKSELTMELERİ (10 AR-GE MODÜLÜ)</h2>
+                    <p id="rdSectionSub" class="section-sub">Tüm filoya kalıcı güçlendirme uygular. İstediğiniz an %100 kredi iadesiyle sıfırlayabilirsiniz.</p>
+                </div>
+                <button type="button" id="armoryResetBtn" class="cs-btn cs-btn-danger">
+                    <i data-lucide="rotate-ccw"></i>
+                    <span data-i18n="workshop.reset">Tümünü Sıfırla (Tam İade)</span>
+                </button>
+            </div>
+
+            <div class="rd-summary-bar">
+                <span id="rdBonusesLabel" class="rd-summary-label">Aktif Ar-Ge Bonusu:</span>
+                <div id="armoryBonusPills" class="rd-bonus-pills"></div>
+            </div>
+
+            <div class="rd-layout-grid">
+                <!-- 10 Upgrades Grid -->
+                <div id="armoryUpgradesGrid" class="rd-upgrades-grid"></div>
+
+                <!-- Live Chart.js Impact Graph Panel -->
+                <aside class="rd-chart-panel" aria-label="Ar-Ge Etki Analizi">
+                    <div class="panel-top-row">
+                        <div>
+                            <h3 id="chartPanelTitle" style="font-size:15.5px;">Filo Ar-Ge Etki Grafiği</h3>
+                            <p id="chartPanelSub" style="font-size:12px;margin:0.12rem 0 0;">HP, DPS, Hız, Kritik, CDR, Çekim ve Overdrive artışı</p>
+                        </div>
+                        <div class="chart-mode-toggle" role="group" aria-label="Grafik Tipi">
+                            <button type="button" class="chart-type-btn active" data-chart-type="bar" id="chartTypeBarBtn">
+                                <i data-lucide="bar-chart-2"></i>
+                                <span>Bar</span>
+                            </button>
+                            <button type="button" class="chart-type-btn" data-chart-type="radar" id="chartTypeRadarBtn">
+                                <i data-lucide="activity"></i>
+                                <span>Radar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="rd-chart-canvas-wrap">
+                        <canvas id="armoryImpactCanvas"></canvas>
+                    </div>
+
+                    <div id="rdImpactSummaryBox" class="rd-impact-summary"></div>
+                </aside>
+            </div>
+        </section>
+
+        <!-- SECTION 3: RECENT PILOT COMBAT HISTORY -->
+        <section class="armory-section" aria-labelledby="historySectionTitle">
+            <div class="section-head">
+                <div>
+                    <h2 id="historySectionTitle" class="section-title">Son Pilot Savaş Geçmişi</h2>
+                    <p id="historySectionSub" class="section-sub">Bu cihazda kaydedilen son seferlerin detaylı telemetri kartları.</p>
+                </div>
+                <a href="index.html?view=records" class="cs-btn cs-btn-ghost" id="historyAllLogsBtn">
+                    <i data-lucide="layers"></i>
+                    <span id="historyAllLogsLabel">Tüm Uçuş Kayıtları</span>
+                </a>
+            </div>
+
+            <div id="armoryHistoryGrid" class="history-cards-grid"></div>
+        </section>
+    </main>
+
+    <div id="csToast" class="cs-toast" role="status" aria-live="polite"></div>
+
+    <!-- Vendored Libraries & Canonical Runtime Modules -->
+    <script src="vendor/lucide.min.js"></script>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/chart.umd.min.js"></script>
+    <script src="vendor/howler.min.js"></script>
+    <script src="vendor/confetti.min.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="leaderboard.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/models3d.js"></script>
+    <script src="js/armory.js"></script>
+</body>
+</html>

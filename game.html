@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#050811">
-    <title>COSMIC SURVIVORS — Savaş Arenası</title>
+    <title>COSMIC SURVIVORS v10.0 — Savaş Arenası</title>
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
     <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -57,6 +57,17 @@
                     <div class="ab-bar-track"><div id="hudAbFill" class="ab-bar-fill ready"></div></div>
                 </div>
             </div>
+
+            <!-- Cosmic Overdrive [E] Bar -->
+            <div id="hudOverdriveWrap" class="overdrive-row">
+                <button id="hudOverdriveBtn" class="overdrive-btn" type="button" title="Cosmic Overdrive [E]">
+                    <span id="hudOverdriveLabel" class="od-label">OVERDRIVE [E]</span>
+                    <span id="hudOverdrivePct" class="od-pct">0%</span>
+                </button>
+                <div class="od-track"><div id="hudOverdriveBar" class="od-fill"></div></div>
+            </div>
+
+            <div id="hudModeBadges" class="hud-mode-badges"></div>
         </div>
 
         <!-- Center Boss & Wave Announcements -->
@@ -79,29 +90,32 @@
         <div class="hud-right">
             <div class="hud-panel telemetry-strip">
                 <div class="tele-metric">
-                    <span class="tele-label">Sektör</span>
+                    <span class="tele-label" data-i18n="hud.sector">Sektör</span>
                     <span id="hudMapVal" class="tele-val sky">Sektör 9</span>
                 </div>
                 <div class="tele-metric">
-                    <span class="tele-label">Dalga</span>
+                    <span class="tele-label" data-i18n="hud.wave">Dalga</span>
                     <span id="hudWaveVal" class="tele-val">1</span>
                 </div>
                 <div class="tele-metric">
-                    <span class="tele-label">Süre</span>
+                    <span id="hudTimeLabel" class="tele-label" data-i18n="hud.time">Süre</span>
                     <span id="hudTimeVal" class="tele-val">00:00</span>
                 </div>
                 <div class="tele-metric">
-                    <span class="tele-label">İmha</span>
+                    <span class="tele-label" data-i18n="hud.kills">İmha</span>
                     <span id="hudKillsVal" class="tele-val">0</span>
                 </div>
                 <div class="tele-metric">
-                    <span class="tele-label">Kredi</span>
+                    <span class="tele-label" data-i18n="hud.score">Skor</span>
                     <span id="hudScoreVal" class="tele-val amber">0</span>
                 </div>
             </div>
             <div class="hud-actions">
-                <button id="btnAudioToggle" class="icon-btn" type="button" title="Sesi Aç / Kapat [M]">
-                    <i data-lucide="volume-2" style="width:16px;height:16px"></i>
+                <button id="btnLangToggle" class="icon-btn lang-toggle-btn" data-lang-toggle type="button" title="TR / EN">
+                    <span data-lang-label>TR</span>
+                </button>
+                <button id="btnAudioToggle" class="icon-btn" type="button" title="Sesi Aç / Kapat [N]">
+                    <i id="audioToggleIcon" data-lucide="volume-2" style="width:16px;height:16px"></i>
                 </button>
                 <button id="btnPauseGame" class="icon-btn" type="button" title="Ayarlar & Duraklat [ESC]">
                     <i data-lucide="sliders-horizontal" style="width:16px;height:16px"></i>
@@ -114,31 +128,49 @@
         </div>
     </div>
 
+    <!-- Corner Tactical Minimap Radar -->
+    <div id="hudMinimapCard" class="hud-panel hud-minimap-card">
+        <div class="minimap-head">
+            <span class="minimap-title">
+                <i data-lucide="radar" style="width:12px;height:12px"></i>
+                <span data-i18n="hud.minimap">Taktik Radar</span>
+                <kbd>[M]</kbd>
+            </span>
+            <button id="btnToggleMinimap" class="minimap-collapse-btn" type="button" aria-label="Toggle Minimap [M]" title="Radar Aç / Kapat [M]">
+                <i id="minimapChevronIcon" data-lucide="chevron-down" style="width:14px;height:14px"></i>
+            </button>
+        </div>
+        <div id="hudMinimapBody" class="minimap-body">
+            <canvas id="hudMinimapCanvas" width="152" height="152"></canvas>
+        </div>
+    </div>
+
     <div id="sectorEventBanner" class="sector-event-banner">RÖLE AŞIRI YÜKLEMESİ AKTİF</div>
 
     <!-- Mobile / Touch Virtual Twin-Stick -->
     <div id="touchUi" class="touch-ui">
         <div id="vjoyZone" class="vjoy-zone"><div id="vjoyKnob" class="vjoy-knob"></div></div>
-        <button id="touchAbilityBtn" class="touch-ability-btn" type="button">YETENEK</button>
+        <button id="touchOverdriveBtn" class="touch-overdrive-btn" type="button">OD [E]</button>
+        <button id="touchAbilityBtn" class="touch-ability-btn" type="button" data-i18n="hud.ability">Yetenek</button>
     </div>
 
     <!-- LEVEL UP MODAL (Zero-Race-Condition Sync Lock) -->
     <div id="levelUpOv" class="modal-backdrop">
         <div class="modal-shell">
             <div class="modal-header">
-                <div id="luEyebrow" class="modal-eyebrow">SEVİYE ATLAMA · SENTEZ MODÜLÜ</div>
-                <h2 class="modal-title">Gemi Yükseltmesini Seç</h2>
-                <p id="luSubtitle" class="modal-sub">1, 2 veya 3 tuşuna bas ya da karta tıkla. Evrim şartları oluştuğunda altın modül açılır.</p>
+                <div id="luEyebrow" class="modal-eyebrow" data-i18n="hud.levelUpEyebrow">SEVİYE ATLAMA · SENTEZ MODÜLÜ</div>
+                <h2 class="modal-title" data-i18n="hud.levelUpTitle">Gemi Yükseltmesini Seç</h2>
+                <p id="luSubtitle" class="modal-sub" data-i18n="hud.levelUpSub">1, 2 veya 3 tuşuna bas ya da karta tıkla. Evrim şartları oluştuğunda altın modül açılır.</p>
             </div>
             <div id="luCardsGrid" class="lu-grid"></div>
             <div class="modal-actions-row">
                 <button id="btnLuReroll" class="cs-btn" type="button">
                     <i data-lucide="refresh-cw" style="width:15px;height:15px"></i>
-                    <span>Yenile (<span id="luRerollCount">2</span>) [R]</span>
+                    <span><span data-i18n="hud.reroll">Yenile</span> (<span id="luRerollCount">2</span>) [R]</span>
                 </button>
                 <button id="btnLuSkip" class="cs-btn" type="button">
                     <i data-lucide="fast-forward" style="width:15px;height:15px"></i>
-                    <span>Pas Geç +60 Kredi (<span id="luSkipCount">1</span>) [F]</span>
+                    <span><span data-i18n="hud.skip">Pas Geç</span> +60 CRD (<span id="luSkipCount">1</span>) [F]</span>
                 </button>
             </div>
         </div>
@@ -148,8 +180,8 @@
     <div id="lootBoxOv" class="modal-backdrop">
         <div class="modal-shell" style="max-width:740px">
             <div class="modal-header">
-                <div class="modal-eyebrow" style="color:var(--g-amber)">KOZMİK GANİMET KASASI</div>
-                <h2 id="lootTitle" class="modal-title">Kasa Şifresi Çözülüyor...</h2>
+                <div class="modal-eyebrow" style="color:var(--g-amber)" data-i18n="hud.lootTitle">KOZMİK GANİMET KASASI</div>
+                <h2 id="lootTitle" class="modal-title" data-i18n="hud.lootDecoding">Kasa Şifresi Çözülüyor...</h2>
             </div>
             <div class="roulette-window">
                 <div class="roulette-pointer"></div>
@@ -159,7 +191,7 @@
             <div class="modal-actions-row">
                 <button id="btnCollectLoot" class="cs-btn primary" type="button" style="display:none">
                     <i data-lucide="check" style="width:16px;height:16px"></i>
-                    <span>Modülü Kuşan</span>
+                    <span data-i18n="hud.lootCollect">Modülü Al ve Devam Et</span>
                 </button>
             </div>
         </div>
@@ -169,11 +201,36 @@
     <div id="bossRewardOv" class="modal-backdrop">
         <div class="modal-shell" style="max-width:680px">
             <div class="modal-header">
-                <div class="modal-eyebrow" style="color:var(--g-mint)">BOSS İMHA EDİLDİ</div>
+                <div id="bossRewEyebrow" class="modal-eyebrow" style="color:var(--g-mint)">BOSS İMHA EDİLDİ</div>
                 <h2 id="bossRewTitle" class="modal-title">Sektör Muhafızı Çöktü</h2>
-                <p class="modal-sub">Gemi çekirdeğini kalıcı olarak güçlendirecek taktik ödülünü seç:</p>
+                <p id="bossRewSub" class="modal-sub">Gemi çekirdeğini kalıcı olarak güçlendirecek taktik ödülünü seç:</p>
             </div>
             <div id="bossRewGrid" class="lu-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))"></div>
+        </div>
+    </div>
+
+    <!-- CAMPAIGN VICTORY / CONTINUE ENDLESS CHOICE -->
+    <div id="victoryOv" class="modal-backdrop">
+        <div class="modal-shell" style="max-width:600px">
+            <div class="modal-header">
+                <div id="vicEyebrow" class="modal-eyebrow" style="color:var(--g-mint)">SEFER ZAFERİ · DALGA 15</div>
+                <h2 id="vicTitle" class="modal-title">Sektör Muhafızı İmha Edildi!</h2>
+                <p id="vicSubtitle" class="modal-sub">Apex Dreadnought çöktü. Zafer raporuyla üsse dönebilir veya Sonsuz Overdrive modunda devam edebilirsiniz.</p>
+            </div>
+            <div class="go-kpis" style="margin-bottom:18px">
+                <div class="kpi-box"><div class="k-lbl" data-i18n="hud.score">Skor</div><div id="vicScore" class="k-val amber">0</div></div>
+                <div class="kpi-box"><div class="k-lbl" data-i18n="hud.kills">İmha</div><div id="vicKills" class="k-val">0</div></div>
+            </div>
+            <div class="modal-actions-row">
+                <button id="btnVictoryExtract" class="cs-btn primary" type="button">
+                    <i data-lucide="trophy" style="width:16px;height:16px"></i>
+                    <span id="btnVictoryExtractLabel">Zaferle Tamamla &amp; Raporu Gör</span>
+                </button>
+                <button id="btnVictoryEndless" class="cs-btn" type="button">
+                    <i data-lucide="infinity" style="width:16px;height:16px"></i>
+                    <span id="btnVictoryEndlessLabel">Sonsuz Overdrive'a Devam Et</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -181,36 +238,37 @@
     <div id="pauseOv" class="modal-backdrop">
         <div class="modal-shell" style="max-width:860px">
             <div class="modal-header">
-                <div class="modal-eyebrow">SAVAŞ SİMÜLASYONU DURAKLATILDI</div>
-                <h2 class="modal-title">Gemi Ayarları &amp; Canlı Telemetri</h2>
+                <div class="modal-eyebrow" data-i18n="hud.pauseTitle">Operasyon Duraklatıldı</div>
+                <h2 id="pauseHeading" class="modal-title">Gemi Ayarları &amp; Canlı Telemetri</h2>
             </div>
+            <div id="pauseMutatorsBox" class="pause-mutators-box" style="display:none"></div>
             <div class="pause-grid">
                 <div class="sub-card">
-                    <h3>Görüntü, Nişan &amp; Ses Ayarları</h3>
+                    <h3 id="pauseSettingsTitle">Görüntü, Nişan &amp; Ses Ayarları</h3>
                     <div class="setting-row">
-                        <span>SFX Efekti Sesi</span>
+                        <span id="lblSfxVol">SFX Efekti Sesi</span>
                         <input id="setSfxVol" class="cs-range" type="range" min="0" max="100" value="55">
                     </div>
                     <div class="setting-row">
-                        <span>Uzay Ambiyans Dronu</span>
+                        <span id="lblAmbVol">Uzay Ambiyans Dronu</span>
                         <input id="setAmbVol" class="cs-range" type="range" min="0" max="100" value="22">
                     </div>
                     <div class="setting-row">
-                        <span>Göz Yormayan VFX Modu</span>
+                        <span id="lblVfxMode">Göz Yormayan VFX Modu</span>
                         <select id="setVfxMode" class="cs-select">
                             <option value="normal">Dengeli Parlama (Normal)</option>
                             <option value="calm">Göz Dostu Sakin Mod (-%50 Parlama)</option>
                         </select>
                     </div>
                     <div class="setting-row">
-                        <span>Ateş Nişan Modu</span>
+                        <span id="lblAimMode">Ateş Nişan Modu</span>
                         <select id="setAimMode" class="cs-select">
-                            <option value="mouse">Fare İmleci (Twin-Stick)</option>
+                            <option value="mouse">Fare İmleci (+%12 Kritik)</option>
                             <option value="auto">Otomatik En Yakın Hedef</option>
                         </select>
                     </div>
                     <div class="setting-row">
-                        <span>Hasar Sayıları</span>
+                        <span id="lblDmgNumbers">Hasar Sayıları</span>
                         <select id="setDmgNumbers" class="cs-select">
                             <option value="on">Göster</option>
                             <option value="off">Gizle</option>
@@ -218,22 +276,22 @@
                     </div>
                 </div>
                 <div class="sub-card">
-                    <h3>Güncel Gemi İstatistikleri</h3>
+                    <h3 id="pauseStatsTitle">Güncel Gemi İstatistikleri</h3>
                     <div id="pauseStatsKv" class="stat-kv-list"></div>
                 </div>
             </div>
             <div class="modal-actions-row">
                 <button id="btnResumeGame" class="cs-btn primary" type="button">
                     <i data-lucide="play" style="width:16px;height:16px"></i>
-                    <span>Savaşa Devam Et [ESC]</span>
+                    <span><span data-i18n="hud.resume">Savaşa Devam Et</span> [ESC]</span>
                 </button>
                 <a class="cs-btn" href="index.html">
                     <i data-lucide="arrow-left" style="width:16px;height:16px"></i>
-                    <span>Hangar'a Dön</span>
+                    <span data-i18n="hud.hangarReturn">Komuta Hangarına Dön</span>
                 </a>
                 <button id="btnRestartRun" class="cs-btn danger" type="button">
                     <i data-lucide="rotate-ccw" style="width:16px;height:16px"></i>
-                    <span>Göreve Yeniden Başla</span>
+                    <span data-i18n="hud.restart">Yeniden Başlat</span>
                 </button>
             </div>
         </div>
@@ -243,18 +301,18 @@
     <div id="gameOverOv" class="modal-backdrop">
         <div class="modal-shell" style="max-width:880px">
             <div class="modal-header">
-                <div id="goEyebrow" class="modal-eyebrow">GÖREV RAPORU</div>
-                <h2 id="goTitle" class="modal-title">Gemi İmha Oldu</h2>
-                <p id="goSubtitle" class="modal-sub">Tüm istatistikler hangar profiline ve skor tablosuna işlendi.</p>
+                <div id="goEyebrow" class="modal-eyebrow" data-i18n="hud.gameOverEyebrow">OPERASYON RAPORU</div>
+                <h2 id="goTitle" class="modal-title" data-i18n="hud.gameOverDefeat">Sektör Görevi Sona Erdi</h2>
+                <p id="goSubtitle" class="modal-sub">Tüm istatistikler hangar profiline ve yerel kayıtlara işlendi.</p>
             </div>
             <div class="go-summary-grid">
                 <div class="go-kpis">
-                    <div class="kpi-box"><div class="k-lbl">Skor / Kredi</div><div id="goScore" class="k-val amber">0</div></div>
-                    <div class="kpi-box"><div class="k-lbl">Ulaşılan Dalga</div><div id="goWave" class="k-val">1</div></div>
-                    <div class="kpi-box"><div class="k-lbl">Hayatta Kalma</div><div id="goTime" class="k-val">00:00</div></div>
-                    <div class="kpi-box"><div class="k-lbl">Toplam İmha</div><div id="goKills" class="k-val">0</div></div>
-                    <div class="kpi-box"><div class="k-lbl">Açılan Seviye</div><div id="goLevel" class="k-val">1</div></div>
-                    <div class="kpi-box"><div class="k-lbl">Kazanılan Atölye Kredisi</div><div id="goCreditsEarned" class="k-val amber">+0</div></div>
+                    <div class="kpi-box"><div class="k-lbl" data-i18n="hud.score">Skor</div><div id="goScore" class="k-val amber">0</div></div>
+                    <div class="kpi-box"><div class="k-lbl" data-i18n="hud.wave">Dalga</div><div id="goWave" class="k-val">1</div></div>
+                    <div class="kpi-box"><div class="k-lbl" data-i18n="hud.time">Süre</div><div id="goTime" class="k-val">00:00</div></div>
+                    <div class="kpi-box"><div class="k-lbl" data-i18n="hud.kills">İmha</div><div id="goKills" class="k-val">0</div></div>
+                    <div class="kpi-box"><div class="k-lbl" data-i18n="hud.level">SV</div><div id="goLevel" class="k-val">1</div></div>
+                    <div class="kpi-box"><div id="goCreditsLbl" class="k-lbl" data-i18n="hud.credits">Kredi</div><div id="goCreditsEarned" class="k-val amber">+0</div></div>
                 </div>
                 <div class="chart-box">
                     <canvas id="runDamageChart"></canvas>
@@ -263,15 +321,15 @@
             <div class="modal-actions-row">
                 <button id="btnPlayAgain" class="cs-btn primary" type="button">
                     <i data-lucide="rotate-ccw" style="width:16px;height:16px"></i>
-                    <span>Tekrar Oyna</span>
+                    <span id="btnPlayAgainLbl">Tekrar Oyna</span>
                 </button>
                 <a class="cs-btn" href="tree.html">
                     <i data-lucide="git-fork" style="width:16px;height:16px"></i>
-                    <span>Evrim Ağacını İncele</span>
+                    <span data-i18n="nav.tree">Evrim Ağacı</span>
                 </a>
                 <a class="cs-btn" href="index.html">
                     <i data-lucide="home" style="width:16px;height:16px"></i>
-                    <span>Hangar'a Dön</span>
+                    <span data-i18n="hud.hangarReturn">Komuta Hangarına Dön</span>
                 </a>
             </div>
         </div>
@@ -279,12 +337,15 @@
 
     <!-- Vendored Runtime Libraries -->
     <script src="vendor/pixi.min.js"></script>
+    <script src="vendor/pixi-filters.min.js"></script>
     <script src="vendor/howler.min.js"></script>
     <script src="vendor/gsap.min.js"></script>
     <script src="vendor/chart.umd.min.js"></script>
     <script src="vendor/lucide.min.js"></script>
+    <script src="vendor/confetti.min.js"></script>
 
     <!-- Game Modules -->
+    <script src="js/i18n.js"></script>
     <script src="js/data.js"></script>
     <script src="leaderboard.js"></script>
     <script src="js/audio.js"></script>

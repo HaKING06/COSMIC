@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC SURVIVORS v9.0 — Evrim Ağacı &amp; Sentez Laboratuvarı</title>
-    <meta name="description" content="8 yıldız gemisi, 14 silah, 14 destek modülü, 19 evrim ve 6 mega evrim arasındaki tüm matematiksel sentez bağlarını keşfedin.">
+    <title>COSMIC SURVIVORS v10.0 — Evrim Ağacı &amp; Sentez Laboratuvarı</title>
+    <meta name="description" content="COSMIC SURVIVORS v10.0 Genesis Edition: 8 yıldız gemisi, 14 silah, 14 destek modülü, 19 evrim ve 6 mega evrim arasındaki tüm matematiksel sentez bağlarını keşfedin.">
     <meta name="theme-color" content="#070b12">
 
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
@@ -20,31 +20,40 @@
     <link rel="stylesheet" href="css/tree.css">
 </head>
 <body class="tree-app">
+    <!-- Unified v10.0 Compact Topbar (6 Navigation Links + EN/TR Toggle + Audio + Credits) -->
     <header class="cosmic-topbar">
         <a href="index.html" class="topbar-brand">
-            <img src="assets/favicon-64.png" alt="Cosmic Survivors Logo" class="topbar-logo-img">
+            <img src="assets/icon-192.png" alt="Cosmic Survivors v10 Emblem" class="topbar-logo-img">
             <div class="topbar-title-wrap">
                 <span class="topbar-title">COSMIC SURVIVORS</span>
-                <span class="topbar-version">V9.0 EVOLUTION BLUEPRINT LAB</span>
+                <span class="topbar-version" data-i18n="tree.topbarVersion">V10.0 GENESIS EVOLUTION LAB</span>
             </div>
         </a>
 
         <nav class="topbar-nav" aria-label="Ana Sayfalar">
             <a href="index.html" class="topbar-link">
                 <i data-lucide="layout-dashboard"></i>
-                <span>Hangar</span>
+                <span data-i18n="nav.hangar">Hangar</span>
             </a>
-            <a href="tree.html" class="topbar-link active">
+            <a href="tree.html" class="topbar-link active" aria-current="page">
                 <i data-lucide="git-branch"></i>
-                <span>Evrim Ağacı</span>
+                <span data-i18n="nav.tree">Evrim Ağacı</span>
+            </a>
+            <a href="armory.html" class="topbar-link">
+                <i data-lucide="crosshair"></i>
+                <span data-i18n="nav.armory">Cephanelik</span>
+            </a>
+            <a href="modes.html" class="topbar-link">
+                <i data-lucide="gamepad-2"></i>
+                <span data-i18n="nav.modes">Modlar</span>
             </a>
             <a href="wiki.html" class="topbar-link">
                 <i data-lucide="book-open"></i>
-                <span>Ansiklopedi</span>
+                <span data-i18n="nav.wiki">Ansiklopedi</span>
             </a>
             <a href="about.html" class="topbar-link">
                 <i data-lucide="info"></i>
-                <span>Hakkında</span>
+                <span data-i18n="nav.about">Hakkında</span>
             </a>
         </nav>
 
@@ -54,9 +63,14 @@
                 <span id="creditsDisplay">0</span>
                 <span class="hide-mobile">CRD</span>
             </div>
+            <button type="button" id="langToggleBtn" class="lang-toggle-btn" data-lang="tr" aria-label="Dil Değiştir / Switch Language" title="EN / TR">
+                <span class="lang-seg" data-lang="en">EN</span>
+                <span class="lang-sep">/</span>
+                <span class="lang-seg active" data-lang="tr">TR</span>
+            </button>
             <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
                 <i data-lucide="volume-2" id="audioToggleIcon"></i>
-                <span class="hide-mobile" id="audioToggleLabel">Ses Açık</span>
+                <span class="hide-mobile" id="audioToggleLabel" data-i18n="common.audioOn">Ses Açık</span>
             </button>
         </div>
     </header>
@@ -66,12 +80,12 @@
         <div id="shipSelectorBar" class="ship-tabs-scroll" role="tablist" aria-label="Gemi Ağaçları"></div>
 
         <div class="tree-legend-strip">
-            <span><span class="legend-dot" style="background:var(--accent-sky);"></span>İmza Kök</span>
-            <span><span class="legend-dot" style="background:var(--accent-mint);"></span>Evrensel</span>
-            <span><span class="legend-dot" style="background:var(--accent-amber);"></span>Mega Evrim</span>
+            <span><span class="legend-dot" style="background:var(--accent-sky);"></span><span data-i18n="tree.legend.sig">İmza Kök</span></span>
+            <span><span class="legend-dot" style="background:var(--accent-mint);"></span><span data-i18n="tree.legend.univ">Evrensel</span></span>
+            <span><span class="legend-dot" style="background:var(--accent-amber);"></span><span data-i18n="tree.legend.mega">Mega Evrim</span></span>
             <button type="button" id="toggleAllSigsBtn" class="cs-btn cs-btn-ghost" style="padding:0.35rem 0.7rem;font-size:12px;">
                 <i data-lucide="layers"></i>
-                <span id="toggleAllSigsLabel">Seçili Gemi Görünümü</span>
+                <span id="toggleAllSigsLabel" data-i18n="tree.viewShip">Seçili Gemi Görünümü</span>
             </button>
         </div>
     </div>
@@ -80,22 +94,42 @@
         <!-- Panzoom Viewport -->
         <section id="treeViewport" class="tree-viewport" aria-label="İnteraktif Evrim Şeması">
             <div class="tree-toolbar">
-                <button type="button" id="zoomOutBtn" class="tree-tool-btn" title="Uzaklaş">
-                    <i data-lucide="zoom-out"></i>
-                </button>
-                <span id="zoomReadout" class="tree-zoom-readout">100%</span>
-                <button type="button" id="zoomInBtn" class="tree-tool-btn" title="Yakınlaş">
-                    <i data-lucide="zoom-in"></i>
-                </button>
-                <button type="button" id="zoomResetBtn" class="tree-tool-btn" title="Sıfırla">
-                    <i data-lucide="maximize-2"></i>
-                    <span>Sıfırla</span>
-                </button>
+                <div class="tree-zoom-group">
+                    <button type="button" id="zoomOutBtn" class="tree-tool-btn" title="Uzaklaş" data-i18n-title="tree.zoomOut">
+                        <i data-lucide="zoom-out"></i>
+                    </button>
+                    <span id="zoomReadout" class="tree-zoom-readout">100%</span>
+                    <button type="button" id="zoomInBtn" class="tree-tool-btn" title="Yakınlaş" data-i18n-title="tree.zoomIn">
+                        <i data-lucide="zoom-in"></i>
+                    </button>
+                    <button type="button" id="zoomResetBtn" class="tree-tool-btn" title="Sıfırla" data-i18n-title="tree.reset">
+                        <i data-lucide="maximize-2"></i>
+                        <span data-i18n="tree.reset">Sıfırla</span>
+                    </button>
+                </div>
+
+                <div class="tree-search-wrap" role="search">
+                    <i data-lucide="search" class="tree-search-icon"></i>
+                    <input
+                        type="search"
+                        id="treeSearchInput"
+                        class="tree-search-input"
+                        placeholder="Bulanık ara: takyon, hyperion, gatling..."
+                        data-i18n-placeholder="tree.searchPlaceholder"
+                        autocomplete="off"
+                        aria-label="Evrim Ağacında Bulanık Arama"
+                    >
+                    <span id="treeSearchCount" class="tree-search-count font-mono" hidden>0</span>
+                    <button type="button" id="treeSearchClearBtn" class="tree-search-clear" hidden aria-label="Temizle">
+                        <i data-lucide="x"></i>
+                    </button>
+                    <div id="treeSearchResults" class="tree-search-results" role="listbox" hidden></div>
+                </div>
             </div>
 
             <div class="tree-hint-pill">
                 <i data-lucide="move" style="width:13px;height:13px;margin-right:4px;"></i>
-                Sürükleyerek kaydırın · Fare tekerleğiyle yakınlaştırın · Sentez zinciri için düğüme tıklayın
+                <span data-i18n="tree.hint">Sürükleyerek kaydırın · Fare tekerleğiyle yakınlaştırın · Sentez zinciri için düğüme tıklayın</span>
             </div>
 
             <div id="treeCanvas" class="tree-canvas-stage">
@@ -132,7 +166,7 @@
             <!-- Interactive Quick Synthesis Tester -->
             <div class="quick-synth-box">
                 <div style="display:flex;align-items:center;justify-content:space-between;">
-                    <strong style="font-family:var(--font-display);font-size:13.5px;">Hızlı Sentez Doğrulayıcı</strong>
+                    <strong style="font-family:var(--font-display);font-size:13.5px;" data-i18n="tree.quickSynthTitle">Hızlı Sentez Doğrulayıcı</strong>
                     <span class="cs-badge cs-badge-mint font-mono">X + Y = Z</span>
                 </div>
 
@@ -146,9 +180,11 @@
 
     <script src="vendor/lucide.min.js"></script>
     <script src="vendor/panzoom.min.js"></script>
+    <script src="vendor/fuse.min.js"></script>
     <script src="vendor/howler.min.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/data.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/tree.js"></script>
 </body>
 </html>

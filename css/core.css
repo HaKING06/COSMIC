@@ -1,6 +1,6 @@
 /* =============================================================================
-   COSMIC SURVIVORS v9.0 — CALM OBSIDIAN-SLATE DESIGN SYSTEM (css/core.css)
-   Anti-eye-strain typography, unified topbar, custom dark inputs/selects/buttons
+   COSMIC SURVIVORS v10.0 — GENESIS EDITION (CALM OBSIDIAN-SLATE DESIGN SYSTEM)
+   Anti-eye-strain typography, unified topbar, lang pill, hero keyart & form controls
    ============================================================================= */
 
 :root {
@@ -366,6 +366,19 @@ input[type="range"]::-webkit-slider-thumb {
     border: 1px solid var(--border-subtle);
     background: rgba(15, 23, 42, 0.75);
     color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.cs-badge-sm {
+    padding: 0.14rem 0.46rem;
+    font-size: 10.5px;
+    gap: 0.28rem;
+}
+
+.cs-badge-lg {
+    padding: 0.32rem 0.75rem;
+    font-size: 12.5px;
+    gap: 0.42rem;
 }
 
 .cs-badge-sky {
@@ -398,6 +411,22 @@ input[type="range"]::-webkit-slider-thumb {
     border-color: rgba(167, 139, 250, 0.26);
 }
 
+.cs-badge-teal {
+    color: var(--accent-teal);
+    background: rgba(45, 212, 191, 0.1);
+    border-color: rgba(45, 212, 191, 0.26);
+}
+
+.cs-badge-slate {
+    color: var(--text-primary);
+    background: rgba(148, 163, 184, 0.12);
+    border-color: rgba(148, 163, 184, 0.24);
+}
+
+.cs-badge-glow {
+    box-shadow: 0 0 14px -4px rgba(56, 189, 248, 0.45);
+}
+
 .cs-card {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
@@ -407,8 +436,31 @@ input[type="range"]::-webkit-slider-thumb {
     transition: border-color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
 }
 
+/* Hero Keyart Utility Banner */
+.hero-keyart-banner {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-subtle);
+    padding: 1.5rem 1.75rem;
+    background-color: var(--bg-surface);
+    background-image:
+        linear-gradient(95deg, rgba(7, 11, 18, 0.95) 0%, rgba(7, 11, 18, 0.84) 48%, rgba(7, 11, 18, 0.36) 100%),
+        linear-gradient(180deg, rgba(7, 11, 18, 0.16) 0%, rgba(7, 11, 18, 0.72) 100%),
+        url('../assets/hero-keyart.jpg');
+    background-size: cover;
+    background-position: center right;
+    background-repeat: no-repeat;
+    box-shadow: var(--shadow-card);
+}
+
+.hero-keyart-banner > * {
+    position: relative;
+    z-index: 1;
+}
+
 /* =============================================================================
-   UNIFIED TOPBAR (.cosmic-topbar)
+   UNIFIED TOPBAR (.cosmic-topbar — v10.0 Ultra-Compact 6-Link Bar)
    ============================================================================= */
 .cosmic-topbar {
     position: sticky;
@@ -417,10 +469,10 @@ input[type="range"]::-webkit-slider-thumb {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    min-height: 62px;
-    padding: 0.6rem 1.5rem;
-    background: rgba(7, 11, 18, 0.86);
+    gap: 0.75rem;
+    height: 54px;
+    padding: 0 1.25rem;
+    background: rgba(7, 11, 18, 0.88);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--border-subtle);
@@ -429,57 +481,62 @@ input[type="range"]::-webkit-slider-thumb {
 .topbar-brand {
     display: flex;
     align-items: center;
-    gap: 0.72rem;
+    gap: 0.62rem;
     flex-shrink: 0;
 }
 
 .topbar-logo-img {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
     object-fit: cover;
-    border: 1px solid rgba(56, 189, 248, 0.3);
+    border: 1px solid rgba(56, 189, 248, 0.32);
     background: var(--bg-surface);
 }
 
 .topbar-title-wrap {
     display: flex;
     flex-direction: column;
-    line-height: 1.15;
+    line-height: 1.12;
 }
 
 .topbar-title {
     font-family: var(--font-display);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.04em;
     color: var(--text-primary);
+    white-space: nowrap;
 }
 
 .topbar-version {
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 10px;
     color: var(--accent-sky);
-    opacity: 0.88;
+    opacity: 0.9;
+    white-space: nowrap;
 }
 
 .topbar-nav {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
-    flex-wrap: wrap;
+    gap: 0.32rem;
+    flex-wrap: nowrap;
+    min-width: 0;
 }
 
 .topbar-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.42rem;
-    padding: 0.46rem 0.82rem;
-    border-radius: 8px;
-    font-size: 13.5px;
+    gap: 0.34rem;
+    padding: 0.36rem 0.62rem;
+    border-radius: 7px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--text-secondary);
     border: 1px solid transparent;
+    white-space: nowrap;
+    flex-shrink: 0;
     transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
@@ -490,53 +547,116 @@ input[type="range"]::-webkit-slider-thumb {
 
 .topbar-link.active {
     color: var(--accent-sky);
-    background: rgba(56, 189, 248, 0.1);
-    border-color: rgba(56, 189, 248, 0.25);
+    background: rgba(56, 189, 248, 0.11);
+    border-color: rgba(56, 189, 248, 0.26);
 }
 
 .topbar-actions {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.45rem;
     flex-shrink: 0;
 }
 
 .credits-pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.42rem;
-    padding: 0.42rem 0.78rem;
+    gap: 0.36rem;
+    height: 32px;
+    padding: 0 0.68rem;
     border-radius: 8px;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 600;
     color: var(--accent-amber);
+    white-space: nowrap;
 }
 
 .audio-toggle-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.35rem;
-    padding: 0.45rem 0.72rem;
+    gap: 0.34rem;
+    height: 32px;
+    padding: 0 0.66rem;
     border-radius: 8px;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .audio-toggle-btn:hover {
     color: var(--text-primary);
     border-color: var(--border-medium);
+    background: var(--bg-card);
 }
 
 .audio-toggle-btn.is-muted {
     color: var(--text-muted);
+}
+
+/* Language Toggle Pill (EN / TR) */
+.lang-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.16rem;
+    height: 32px;
+    padding: 0.2rem 0.28rem;
+    border-radius: 8px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.lang-toggle-btn:not(:has(.lang-seg, .lang-pill-opt)) {
+    padding: 0 0.66rem;
+}
+
+.lang-toggle-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-medium);
+    background: var(--bg-card);
+}
+
+.lang-toggle-btn .lang-seg,
+.lang-toggle-btn .lang-pill-opt {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.22rem 0.42rem;
+    border-radius: 5px;
+    color: var(--text-muted);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.lang-toggle-btn .lang-seg.active,
+.lang-toggle-btn .lang-pill-opt.active,
+.lang-toggle-btn[data-lang="en"] .lang-seg[data-lang="en"],
+.lang-toggle-btn[data-lang="tr"] .lang-seg[data-lang="tr"] {
+    background: rgba(56, 189, 248, 0.16);
+    color: var(--accent-sky);
+}
+
+.lang-toggle-btn .lang-sep {
+    color: var(--text-muted);
+    opacity: 0.4;
+    font-size: 10.5px;
+    user-select: none;
 }
 
 /* =============================================================================
@@ -572,18 +692,31 @@ input[type="range"]::-webkit-slider-thumb {
 /* =============================================================================
    RESPONSIVE ADJUSTMENTS
    ============================================================================= */
-@media (max-width: 960px) {
+@media (max-width: 1080px) {
     .cosmic-topbar {
-        padding: 0.6rem 1rem;
+        height: auto;
+        min-height: 54px;
+        padding: 0.5rem 1rem;
         flex-wrap: wrap;
     }
 
     .topbar-nav {
         order: 3;
         width: 100%;
+        flex-wrap: wrap;
         justify-content: flex-start;
-        padding-top: 0.35rem;
+        padding-top: 0.4rem;
         border-top: 1px solid rgba(148, 163, 184, 0.08);
+    }
+}
+
+@media (max-width: 760px) {
+    .hero-keyart-banner {
+        padding: 1.25rem;
+        background-image:
+            linear-gradient(180deg, rgba(7, 11, 18, 0.88) 0%, rgba(7, 11, 18, 0.92) 100%),
+            url('../assets/hero-keyart.jpg');
+        background-position: center center;
     }
 }
 

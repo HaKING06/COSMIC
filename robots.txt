@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /intro.html
 
 Sitemap: https://cosmic.haking.tr/sitemap.xml

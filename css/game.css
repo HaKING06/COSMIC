@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   COSMIC SURVIVORS v9.0 — Calm Obsidian-Slate Arena HUD & Modals
+   COSMIC SURVIVORS v10.0 — Calm Obsidian-Slate Arena HUD & Modals
    Low-strain typography, clean peripheral telemetry (<7% screen footprint)
    ═══════════════════════════════════════════════════════════════════════ */
 
@@ -280,6 +280,94 @@ html, body {
     background: var(--g-mint);
 }
 
+/* Cosmic Overdrive [E] Bar */
+.overdrive-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 4px;
+    border-top: 1px solid var(--g-border);
+}
+
+.overdrive-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--g-muted);
+    font-family: var(--font-mono);
+    font-size: 0.71rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+}
+
+.overdrive-btn.ready {
+    color: #fde68a;
+    text-shadow: 0 0 8px rgba(245, 158, 11, 0.45);
+}
+
+.overdrive-btn.active {
+    color: #ddd6fe;
+}
+
+.od-track {
+    height: 7px;
+    background: rgba(5, 8, 17, 0.92);
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.od-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #7c3aed, var(--g-violet), var(--g-sky));
+    transition: width 0.12s linear;
+}
+
+.od-fill.ready {
+    background: linear-gradient(90deg, var(--g-amber), #fde047, #38bdf8);
+}
+
+.od-fill.active {
+    background: linear-gradient(90deg, #f43f5e, var(--g-amber), #a78bfa);
+}
+
+.hud-mode-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.hud-mode-badges:empty {
+    display: none;
+}
+
+.mode-mini-pill {
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    color: #cbd5e1;
+}
+
+.mode-mini-pill.daily {
+    border-color: rgba(52, 211, 153, 0.45);
+    color: #6ee7b7;
+}
+
+.mode-mini-pill.revival {
+    border-color: rgba(251, 113, 133, 0.45);
+    color: #fda4af;
+}
+
 /* Center Top: Boss Health + Wave Banner */
 .hud-center {
     display: flex;
@@ -410,10 +498,21 @@ html, body {
 
 .tele-val.amber { color: var(--g-amber); }
 .tele-val.sky { color: var(--g-sky); }
+.tele-val.time-warn { color: var(--g-amber); }
+.tele-val.time-crit { color: var(--g-coral); }
 
 .hud-actions {
     display: flex;
     gap: 6px;
+}
+
+.lang-toggle-btn {
+    width: auto;
+    min-width: 36px;
+    padding: 0 9px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
 }
 
 .icon-btn {
@@ -449,6 +548,112 @@ html, body {
 }
 
 .sector-ping-pill.visible { display: inline-flex; }
+
+/* Corner Tactical Minimap Radar */
+.hud-minimap-card {
+    position: fixed;
+    bottom: 16px;
+    right: 18px;
+    z-index: 22;
+    padding: 7px 9px 9px;
+    border-radius: 12px;
+    background: rgba(13, 19, 32, 0.80);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.minimap-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.minimap-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 0.69rem;
+    font-weight: 700;
+    color: #bae6fd;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.minimap-title kbd {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    color: var(--g-muted);
+    background: rgba(5, 8, 17, 0.75);
+    padding: 1px 4px;
+    border-radius: 4px;
+    border: 1px solid var(--g-border);
+}
+
+.minimap-collapse-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1px solid var(--g-border);
+    background: rgba(5, 8, 17, 0.7);
+    color: var(--g-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.minimap-collapse-btn:hover {
+    color: var(--g-text);
+    border-color: var(--g-border-strong);
+}
+
+.minimap-body {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(5, 8, 17, 0.9);
+}
+
+#hudMinimapCanvas {
+    width: 152px;
+    height: 152px;
+    display: block;
+}
+
+.hud-minimap-card.collapsed {
+    padding: 6px 9px;
+}
+
+.hud-minimap-card.collapsed .minimap-body {
+    display: none;
+}
+
+/* Pause Mutators Box */
+.pause-mutators-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+
+.mutator-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(52, 211, 153, 0.42);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: #d1fae5;
+}
 
 /* Bottom-center dynamic event banner */
 .sector-event-banner {
@@ -842,6 +1047,7 @@ html, body {
     .touch-ui { display: block; }
     .lu-grid { grid-template-columns: 1fr; }
     .pause-grid, .go-summary-grid { grid-template-columns: 1fr; }
+    .hud-minimap-card { bottom: 132px; right: 16px; }
 }
 
 .vjoy-zone {
@@ -866,6 +1072,30 @@ html, body {
     transform: translate(-50%, -50%);
     border-radius: 50%;
     background: rgba(56, 189, 248, 0.55);
+}
+
+.touch-overdrive-btn {
+    position: fixed;
+    bottom: 42px;
+    right: 118px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 2px solid rgba(167, 139, 250, 0.55);
+    background: rgba(13, 19, 32, 0.78);
+    color: var(--g-muted);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.72rem;
+    pointer-events: auto;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.touch-overdrive-btn.ready {
+    border-color: var(--g-amber);
+    color: #fde68a;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
 }
 
 .touch-ability-btn {

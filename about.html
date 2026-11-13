@@ -3,48 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC SURVIVORS v9.0 — Hakkında &amp; Teknik Mimari</title>
-    <meta name="description" content="COSMIC SURVIVORS v9.0 teknik mimarisi, PixiJS v8 WebGL motoru, CC0 Kenney varlık kredileri ve geliştirici iletişim kanalları.">
+    <title>COSMIC SURVIVORS v10.0 — Genesis Edition | Hakkında &amp; Teknik Mimari</title>
+    <meta name="description" content="COSMIC SURVIVORS v10.0 Genesis Edition teknik mimarisi: PixiJS v8 WebGL + pixi-filters motoru, 5 oyun modu, 5600x5600 engelli arenalar, taktik radar, EN/TR dil desteği, CC0 Kenney varlıkları ve MIT lisansı.">
+    <meta name="author" content="Halit Güneş (HaKING)">
     <meta name="theme-color" content="#070b12">
+    <link rel="canonical" href="https://cosmic.haking.tr/about.html">
 
+    <!-- OpenGraph Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="COSMIC SURVIVORS">
+    <meta property="og:title" content="COSMIC SURVIVORS v10.0 — Genesis Edition">
+    <meta property="og:description" content="PixiJS v8 WebGL space survival roguelike by Halit Güneş (HaKING). 8 starships, 5 game modes, 5600×5600 obstacle arenas, tactical radar, and 25 evolutions.">
+    <meta property="og:url" content="https://cosmic.haking.tr/about.html">
+    <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="COSMIC SURVIVORS v10.0 Genesis Edition Showcase Banner">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="COSMIC SURVIVORS v10.0 — Genesis Edition">
+    <meta name="twitter:description" content="PixiJS v8 WebGL + pixi-filters space survival roguelike featuring 8 starships, 5 game modes, 5600×5600 obstacle arenas, and local pilot records.">
+    <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png">
+
+    <!-- Icons & PWA Manifest -->
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
     <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
     <link rel="manifest" href="manifest.webmanifest">
 
+    <!-- Typography & Calm Obsidian-Slate Design System -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="css/core.css">
     <link rel="stylesheet" href="css/wiki.css">
+
+    <!-- Schema.org Structured Data (VideoGame & WebApplication) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": ["VideoGame", "WebApplication"],
+      "name": "COSMIC SURVIVORS — Genesis Edition",
+      "alternateName": "Cosmic Survivors v10.0",
+      "softwareVersion": "10.0",
+      "description": "Zero-backend browser space survival roguelike powered by PixiJS v8 WebGL and pixi-filters, featuring 8 starships, 5 game modes, 5600x5600 obstacle arenas, tactical radar, and dual-weapon evolutions.",
+      "url": "https://cosmic.haking.tr/",
+      "sameAs": "https://github.com/HaKING06/COSMIC",
+      "image": "https://cosmic.haking.tr/assets/og-banner.png",
+      "screenshot": "https://cosmic.haking.tr/assets/hero-keyart.jpg",
+      "applicationCategory": "Game",
+      "operatingSystem": "Web Browser",
+      "browserRequirements": "Requires HTML5 Canvas / WebGL2",
+      "genre": ["Action", "Roguelike", "Bullet Hell", "Sci-Fi"],
+      "playMode": "SinglePlayer",
+      "inLanguage": ["en", "tr"],
+      "isAccessibleForFree": true,
+      "license": "https://opensource.org/licenses/MIT",
+      "author": {
+        "@type": "Person",
+        "name": "Halit Güneş (HaKING)",
+        "email": "mailto:cosmic@haking.tr",
+        "url": "https://github.com/HaKING06/COSMIC"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+    </script>
 </head>
 <body>
+    <!-- Unified v10.0 Compact Topbar (6 Navigation Links + EN/TR Toggle + Audio + Credits) -->
     <header class="cosmic-topbar">
         <a href="index.html" class="topbar-brand">
-            <img src="assets/favicon-64.png" alt="Cosmic Survivors Logo" class="topbar-logo-img">
+            <img src="assets/icon-192.png" alt="Cosmic Survivors v10 Emblem" class="topbar-logo-img">
             <div class="topbar-title-wrap">
                 <span class="topbar-title">COSMIC SURVIVORS</span>
-                <span class="topbar-version">V9.0 STUDIO &amp; ARCHITECTURE</span>
+                <span class="topbar-version" data-i18n="about.topbarVersion">V10.0 GENESIS EDITION</span>
             </div>
         </a>
 
         <nav class="topbar-nav" aria-label="Ana Sayfalar">
             <a href="index.html" class="topbar-link">
                 <i data-lucide="layout-dashboard"></i>
-                <span>Hangar</span>
+                <span data-i18n="nav.hangar">Hangar</span>
             </a>
             <a href="tree.html" class="topbar-link">
                 <i data-lucide="git-branch"></i>
-                <span>Evrim Ağacı</span>
+                <span data-i18n="nav.tree">Evrim Ağacı</span>
+            </a>
+            <a href="armory.html" class="topbar-link">
+                <i data-lucide="crosshair"></i>
+                <span data-i18n="nav.armory">Cephanelik</span>
+            </a>
+            <a href="modes.html" class="topbar-link">
+                <i data-lucide="gamepad-2"></i>
+                <span data-i18n="nav.modes">Modlar</span>
             </a>
             <a href="wiki.html" class="topbar-link">
                 <i data-lucide="book-open"></i>
-                <span>Ansiklopedi</span>
+                <span data-i18n="nav.wiki">Ansiklopedi</span>
             </a>
-            <a href="about.html" class="topbar-link active">
+            <a href="about.html" class="topbar-link active" aria-current="page">
                 <i data-lucide="info"></i>
-                <span>Hakkında</span>
+                <span data-i18n="nav.about">Hakkında</span>
             </a>
         </nav>
 
@@ -54,48 +120,83 @@
                 <span id="creditsDisplay">0</span>
                 <span class="hide-mobile">CRD</span>
             </div>
+            <button type="button" id="langToggleBtn" class="lang-toggle-btn" data-lang="tr" aria-label="Dil Değiştir / Switch Language" title="EN / TR">
+                <span class="lang-seg" data-lang="en">EN</span>
+                <span class="lang-sep">/</span>
+                <span class="lang-seg active" data-lang="tr">TR</span>
+            </button>
             <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
                 <i data-lucide="volume-2" id="audioToggleIcon"></i>
-                <span class="hide-mobile" id="audioToggleLabel">Ses Açık</span>
+                <span class="hide-mobile" id="audioToggleLabel" data-i18n="common.audioOn">Ses Açık</span>
             </button>
         </div>
     </header>
 
     <main class="wiki-container">
+        <!-- Showcase Hero Card with v10.0 OG Banner -->
         <section class="about-hero-card">
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
-                <span class="cs-badge cs-badge-sky font-mono" style="align-self:flex-start;">AÇIK KAYNAK · MIT LİSANSI</span>
-                <h1 class="wiki-hero-title">COSMIC SURVIVORS v9.0</h1>
-                <p style="font-size:15px;margin:0;">
-                    Yüksek kare hızında sıfır-bağımlılık hedefli tarayıcı aksiyon deneyimi için <strong>Halit Güneş (HaKING)</strong> tarafından geliştirilen bağımsız bilim kurgu hayatta kalma oyunu.
+            <div style="display:flex;flex-direction:column;gap:0.8rem;">
+                <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">
+                    <span class="cs-badge cs-badge-sky cs-badge-glow font-mono" data-i18n="about.hero.badge">V10.0 GENESIS EDITION · MIT LİSANSI</span>
+                    <span class="cs-badge cs-badge-teal font-mono" data-i18n="about.hero.offlineBadge">ÇEVRİMDIŞI · YEREL KAYIT</span>
+                </div>
+                <h1 class="wiki-hero-title" data-i18n="about.hero.title">COSMIC SURVIVORS v10.0</h1>
+                <p style="font-size:14.5px;margin:0;line-height:1.6;" data-i18n="about.hero.desc">
+                    Halit Güneş (HaKING) tarafından geliştirilen; PixiJS v8 WebGL + pixi-filters render motoru, 5 özgün oyun modu, 5600×5600 engelli uzay arenaları, taktik radar ve sıfır arka uçlu yerel pilot kayıtlarıyla donatılmış bağımsız bilim kurgu hayatta kalma roguelike deneyimi.
                 </p>
-                <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:0.25rem;">
+                <div style="display:flex;gap:0.55rem;flex-wrap:wrap;margin-top:0.2rem;">
                     <a href="index.html" class="cs-btn cs-btn-primary">
                         <i data-lucide="play"></i>
-                        <span>Hangara Dön</span>
+                        <span data-i18n="about.hero.ctaHangar">Hangara Dön</span>
+                    </a>
+                    <a href="modes.html" class="cs-btn cs-btn-mint">
+                        <i data-lucide="gamepad-2"></i>
+                        <span data-i18n="about.hero.ctaModes">5 Oyun Modu</span>
                     </a>
                     <a href="https://github.com/HaKING06/COSMIC" target="_blank" rel="noopener noreferrer" class="cs-btn cs-btn-ghost">
                         <i data-lucide="git-branch"></i>
-                        <span>GitHub Deposu</span>
+                        <span data-i18n="about.hero.ctaRepo">GitHub Deposu</span>
                     </a>
                 </div>
             </div>
-            <img src="assets/og-banner.png" alt="Cosmic Survivors Showcase Banner" class="about-banner-img">
+            <img src="assets/og-banner.png" alt="COSMIC SURVIVORS v10.0 Genesis Edition Showcase Banner" class="about-banner-img">
         </section>
 
-        <section class="about-grid">
+        <!-- Genesis Keyart Architecture Banner -->
+        <section class="hero-keyart-banner" aria-labelledby="genesisKeyartHeading">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:1.25rem;flex-wrap:wrap;">
+                <div style="max-width:740px;display:flex;flex-direction:column;gap:0.55rem;">
+                    <span class="cs-badge cs-badge-amber font-mono" style="align-self:flex-start;" data-i18n="about.banner.tag">GENESIS MİMARİ ÖZETİ</span>
+                    <h2 id="genesisKeyartHeading" style="font-size:21px;font-weight:700;" data-i18n="about.banner.title">
+                        5600×5600 Engelli Sektörler, Çift Silah Evrimi &amp; Çok Fazlı Boss Arenaları
+                    </h2>
+                    <p style="font-size:13.5px;margin:0;color:var(--text-secondary);" data-i18n="about.banner.desc">
+                        8 yıldız gemisi ve açılabilir gemi kaplamaları, 14 silah + 14 destek modülü, 19 evrim, 6 Mega-Evrim ve Hangar Atölyesinde 10 kalıcı Ar-Ge yükseltmesi ile kendi taktik sinerjinizi kurun.
+                    </p>
+                </div>
+                <div style="display:flex;gap:0.45rem;flex-wrap:wrap;">
+                    <span class="cs-badge cs-badge-sky font-mono" data-i18n="about.banner.pill1">8 GEMİ · KAPLAMALAR</span>
+                    <span class="cs-badge cs-badge-mint font-mono" data-i18n="about.banner.pill2">5 OYUN MODU</span>
+                    <span class="cs-badge cs-badge-violet font-mono" data-i18n="about.banner.pill3">53 SAVAŞ MODÜLÜ</span>
+                    <span class="cs-badge cs-badge-amber font-mono" data-i18n="about.banner.pill4">10 AR-GE YÜKSELTMESİ</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Engine & Architecture Cards -->
+        <section class="about-grid" aria-label="Teknik Mimari">
             <article class="about-card">
                 <div style="display:flex;align-items:center;gap:0.65rem;">
                     <div class="workshop-icon-box" style="color:var(--accent-sky);">
                         <i data-lucide="cpu"></i>
                     </div>
-                    <h2 style="font-size:18px;">Render &amp; Oyun Motoru</h2>
+                    <h2 style="font-size:18px;" data-i18n="about.card1.title">WebGL2 &amp; pixi-filters Motoru</h2>
                 </div>
-                <p style="font-size:13.5px;margin:0;">
-                    Arena çekirdeği donanım hızlandırmalı <strong>PixiJS v8 WebGL</strong> katmanı ile 2D taktiksel HUD’u birleştirerek binlerce mermi, parçacık ve sürü birimini yüksek akıcılıkta işler.
+                <p style="font-size:13.5px;margin:0;" data-i18n="about.card1.desc">
+                    Donanım hızlandırmalı PixiJS v8 WebGL ve pixi-filters gölgelendirici hattı (otomatik Canvas2D yedekli); sabit zaman adımlı fizik, çok fazlı mermi cehennemi boss yapay zekâsı, [Q] Nişan Ustalığı Bonusu ve [E] Kozmik Overdrive patlamasını akıcı biçimde işler.
                 </p>
-                <div class="module-formula-line">
-                    Sabit Zaman Adımı · 8 Gemi · 14 Silah · 19 Evrim · 6 Mega Evrim
+                <div class="module-formula-line" data-i18n="about.card1.meta">
+                    PixiJS v8 + pixi-filters · 8 Gemi · 19 Evrim · 6 Mega-Evrim
                 </div>
             </article>
 
@@ -104,68 +205,143 @@
                     <div class="workshop-icon-box" style="color:var(--accent-mint);">
                         <i data-lucide="compass"></i>
                     </div>
-                    <h2 style="font-size:18px;">Dinamik Sektör Mekanikleri</h2>
+                    <h2 style="font-size:18px;" data-i18n="about.card2.title">5 Oyun Modu &amp; 5600×5600 Arenalar</h2>
                 </div>
-                <p style="font-size:13.5px;margin:0;">
-                    Her arena <strong>CosmicMapDirector</strong> olay motoruyla çalışır: Sektör 9 Enkaz Koridorları ve Overdrive Röleleri, Nebula Plazma Akıntıları ve EMP Hücreleri, Kara Delik Lav Meteorları ve Dyson Süpürme Lazerleri.
+                <p style="font-size:13.5px;margin:0;" data-i18n="about.card2.desc">
+                    Campaign, Endless, Boss Rush, 5-Min Time Attack ve Daily Seeded Protocol modlarında savaşın. 4 geniş 5600×5600 sektör; fiziksel siper engelleri (asteroid kümeleri, perde duvarlar, reaktör çekirdekleri, sığınaklar), CosmicMapDirector olayları ve canlı Taktik Radar mini haritası içerir.
                 </p>
-                <div class="module-formula-line">
-                    Dalga 25+ Kozmik Çürüme · Her 5. Dalgada Öfke Fazı II Bossları
+                <div class="module-formula-line" data-i18n="about.card2.meta">
+                    5 Mod · 5600×5600 Engelli Sektörler · Taktik Radar Mini Haritası
                 </div>
             </article>
 
             <article class="about-card">
                 <div style="display:flex;align-items:center;gap:0.65rem;">
                     <div class="workshop-icon-box" style="color:var(--accent-violet);">
-                        <i data-lucide="headphones"></i>
+                        <i data-lucide="package-check"></i>
                     </div>
-                    <h2 style="font-size:18px;">Ses &amp; Görsel Varlık Kredileri</h2>
+                    <h2 style="font-size:18px;" data-i18n="about.card3.title">İstemci Yığını &amp; CC0 Varlıklar</h2>
                 </div>
-                <p style="font-size:13.5px;margin:0;">
-                    Portal ve arena geri bildirimleri <strong>Howler.js</strong> tabanlı ses havuzuyla yönetilir. Ses efektleri ve uzay gemisi/parazit sprite temel varlıkları <strong>Kenney (CC0)</strong> lisanslı kaynaklardan derlenmiş, özel boyamalı sektör arka planlarıyla zenginleştirilmiştir.
+                <p style="font-size:13.5px;margin:0;" data-i18n="about.card3.desc">
+                    Harici sunucu veya izleme gerektirmeyen tam çevrimdışı tarayıcı mimarisi (yerel pilot kayıtları). Paketlenmiş Fuse.js arama, Howler.js ses havuzu, Chart.js telemetri, GSAP animasyon, Panzoom ağaç gezintisi, canvas-confetti ve Kenney (CC0 1.0) sprite/ses varlıklarıyla çalışır.
                 </p>
-                <div class="module-formula-line">
-                    Portal Araçları: Lucide · Chart.js · GSAP · Panzoom · Howler
+                <div class="module-formula-line" data-i18n="about.card3.meta">
+                    Fuse.js · Howler.js · Chart.js · GSAP · Panzoom · canvas-confetti · CC0 Kenney
                 </div>
             </article>
         </section>
 
-        <section class="about-card">
-            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+        <!-- Tactical Controls & v10 Combat Keys -->
+        <section class="about-card" aria-labelledby="controlsSectionTitle">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.65rem;">
                 <div>
-                    <h2 style="font-size:19px;">Geliştirici &amp; Resmi Kanallar</h2>
-                    <p style="font-size:13.5px;margin:0.2rem 0 0;">
-                        Geri bildirim, hata raporları, katkı ve destek için yalnızca aşağıdaki resmi kanalları kullanabilirsiniz.
+                    <h2 id="controlsSectionTitle" style="font-size:18px;" data-i18n="about.controls.title">Taktik Kontroller &amp; Savaş Mekanikleri</h2>
+                    <p style="font-size:13.5px;margin:0.15rem 0 0;" data-i18n="about.controls.subtitle">
+                        Hassas twin-stick nişan ustalığından Kozmik Overdrive tetiklemesine kadar v10.0 arena kısayolları.
                     </p>
                 </div>
-                <span class="cs-badge cs-badge-mint font-mono">HALİT GÜNEŞ (HaKING)</span>
+                <span class="cs-badge cs-badge-sky font-mono" data-i18n="about.controls.badge">KLAVYE · FARE · DOKUNMATİK</span>
             </div>
 
-            <div class="about-link-list">
-                <a href="mailto:cosmic@haking.tr" class="about-link-item">
-                    <span style="display:flex;align-items:center;gap:0.65rem;">
-                        <i data-lucide="mail" style="color:var(--accent-sky);"></i>
-                        <span>E-posta İletişimi — cosmic@haking.tr</span>
-                    </span>
-                    <span class="font-mono" style="font-size:12px;color:var(--text-secondary);">MAILTO</span>
-                </a>
-
-                <a href="https://github.com/HaKING06/COSMIC" target="_blank" rel="noopener noreferrer" class="about-link-item">
-                    <span style="display:flex;align-items:center;gap:0.65rem;">
-                        <i data-lucide="git-branch" style="color:var(--text-primary);"></i>
-                        <span>Açık Kaynak Deposu — github.com/HaKING06/COSMIC</span>
-                    </span>
-                    <span class="font-mono" style="font-size:12px;color:var(--text-secondary);">MIT</span>
-                </a>
-
-                <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener noreferrer" class="about-link-item">
-                    <span style="display:flex;align-items:center;gap:0.65rem;">
-                        <i data-lucide="coffee" style="color:var(--accent-amber);"></i>
-                        <span>Geliştiriciye Destek Ol — buymeacoffee.com/haking</span>
-                    </span>
-                    <span class="font-mono" style="font-size:12px;color:var(--accent-amber);">DESTEK</span>
-                </a>
+            <div class="about-grid" style="grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:0.75rem;">
+                <div class="module-formula-line" style="display:flex;flex-direction:column;gap:0.3rem;padding:0.75rem 0.85rem;">
+                    <strong style="color:var(--accent-sky);font-size:12.5px;" data-i18n="about.ctrl.moveKey">W A S D / Yön Tuşları</strong>
+                    <span style="font-family:var(--font-body);font-size:12.5px;" data-i18n="about.ctrl.moveDesc">5600×5600 engelli sektörde itici manevrası ve siper konumlanması.</span>
+                </div>
+                <div class="module-formula-line" style="display:flex;flex-direction:column;gap:0.3rem;padding:0.75rem 0.85rem;">
+                    <strong style="color:var(--accent-mint);font-size:12.5px;" data-i18n="about.ctrl.aimKey">[Q] + Fare İmleci</strong>
+                    <span style="font-family:var(--font-body);font-size:12.5px;" data-i18n="about.ctrl.aimDesc">Manuel Twin-Stick (Nişan Ustalığı Bonusu) ve Otomatik Hedef Kilidi geçişi.</span>
+                </div>
+                <div class="module-formula-line" style="display:flex;flex-direction:column;gap:0.3rem;padding:0.75rem 0.85rem;">
+                    <strong style="color:var(--accent-amber);font-size:12.5px;" data-i18n="about.ctrl.spaceKey">[SPACE] Aktif Yetenek</strong>
+                    <span style="font-family:var(--font-body);font-size:12.5px;" data-i18n="about.ctrl.spaceDesc">Seçili yıldıza özel imza taktik yeteneği (Warp Dash, EMP, Zaman Durdurma vb.).</span>
+                </div>
+                <div class="module-formula-line" style="display:flex;flex-direction:column;gap:0.3rem;padding:0.75rem 0.85rem;">
+                    <strong style="color:var(--accent-coral);font-size:12.5px;" data-i18n="about.ctrl.overdriveKey">[E] Kozmik Overdrive</strong>
+                    <span style="font-family:var(--font-body);font-size:12.5px;" data-i18n="about.ctrl.overdriveDesc">Dolum tamamlandığında yüksek tempolu patlama ve hasar taşması modu.</span>
+                </div>
+                <div class="module-formula-line" style="display:flex;flex-direction:column;gap:0.3rem;padding:0.75rem 0.85rem;">
+                    <strong style="color:var(--accent-violet);font-size:12.5px;" data-i18n="about.ctrl.pickKey">[1] / [2] / [3] Kart Seçimi</strong>
+                    <span style="font-family:var(--font-body);font-size:12.5px;" data-i18n="about.ctrl.pickDesc">Seviye atlamada atomik kilitle hızlı yükseltme veya Evrim sentezi seçimi.</span>
+                </div>
+                <div class="module-formula-line" style="display:flex;flex-direction:column;gap:0.3rem;padding:0.75rem 0.85rem;">
+                    <strong style="color:var(--accent-teal);font-size:12.5px;" data-i18n="about.ctrl.escKey">[ESC] Taktik Duraklatma</strong>
+                    <span style="font-family:var(--font-body);font-size:12.5px;" data-i18n="about.ctrl.escDesc">Ses mikseri, görsel efekt yoğunluğu ve anlık arena ayarları menüsü.</span>
+                </div>
             </div>
+        </section>
+
+        <!-- Official Developer Channels & MIT License -->
+        <section class="about-grid" style="grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));">
+            <article class="about-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.65rem;">
+                    <div>
+                        <h2 style="font-size:18px;" data-i18n="about.channels.title">Geliştirici &amp; Resmi Kanallar</h2>
+                        <p style="font-size:13.5px;margin:0.2rem 0 0;" data-i18n="about.channels.desc">
+                            Geri bildirim, hata raporları, açık kaynak katkısı ve destek için yalnızca aşağıdaki resmi kanalları kullanın.
+                        </p>
+                    </div>
+                    <span class="cs-badge cs-badge-mint font-mono">HALİT GÜNEŞ (HaKING)</span>
+                </div>
+
+                <div class="about-link-list">
+                    <a href="mailto:cosmic@haking.tr" class="about-link-item">
+                        <span style="display:flex;align-items:center;gap:0.65rem;">
+                            <i data-lucide="mail" style="color:var(--accent-sky);"></i>
+                            <span data-i18n="about.channels.email">E-posta İletişimi — cosmic@haking.tr</span>
+                        </span>
+                        <span class="font-mono" style="font-size:12px;color:var(--text-secondary);">MAILTO</span>
+                    </a>
+
+                    <a href="https://github.com/HaKING06/COSMIC" target="_blank" rel="noopener noreferrer" class="about-link-item">
+                        <span style="display:flex;align-items:center;gap:0.65rem;">
+                            <i data-lucide="git-branch" style="color:var(--text-primary);"></i>
+                            <span data-i18n="about.channels.repo">GitHub Deposu — github.com/HaKING06/COSMIC</span>
+                        </span>
+                        <span class="font-mono" style="font-size:12px;color:var(--text-secondary);">OPEN SOURCE</span>
+                    </a>
+
+                    <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener noreferrer" class="about-link-item">
+                        <span style="display:flex;align-items:center;gap:0.65rem;">
+                            <i data-lucide="coffee" style="color:var(--accent-amber);"></i>
+                            <span data-i18n="about.channels.support">Geliştiriciye Destek Ol — buymeacoffee.com/haking</span>
+                        </span>
+                        <span class="font-mono" style="font-size:12px;color:var(--accent-amber);" data-i18n="about.channels.supportTag">DESTEK</span>
+                    </a>
+                </div>
+            </article>
+
+            <article class="about-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.65rem;">
+                    <div style="display:flex;align-items:center;gap:0.65rem;">
+                        <div class="workshop-icon-box" style="color:var(--accent-mint);">
+                            <i data-lucide="scale"></i>
+                        </div>
+                        <h2 style="font-size:18px;" data-i18n="about.license.title">MIT Lisansı &amp; Açık Kaynak</h2>
+                    </div>
+                    <span class="cs-badge cs-badge-slate font-mono">MIT LICENSE</span>
+                </div>
+
+                <p style="font-size:13.5px;margin:0;" data-i18n="about.license.summary">
+                    COSMIC SURVIVORS kaynak kodu MIT Lisansı altında açık kaynak olarak sunulur. Telif hakkı ve lisans bildirimi korunduğu sürece yazılımı ücretsiz olarak kullanabilir, kopyalayabilir, değiştirebilir ve dağıtabilirsiniz.
+                </p>
+
+                <div class="module-formula-line" style="line-height:1.55;">
+                    Copyright (c) 2026 Halit Güneş (HaKING)<br>
+                    <span data-i18n="about.license.note">Paketlenmiş üçüncü parti kütüphaneler (PixiJS, pixi-filters, Fuse.js, Howler.js, Chart.js, GSAP, Panzoom, canvas-confetti, Lucide) ve Kenney (CC0 1.0) varlıkları kendi açık lisanslarına tabidir.</span>
+                </div>
+
+                <div style="display:flex;gap:0.55rem;flex-wrap:wrap;margin-top:auto;">
+                    <a href="LICENSE" class="cs-btn cs-btn-ghost" target="_blank" rel="noopener noreferrer">
+                        <i data-lucide="file-text"></i>
+                        <span data-i18n="about.license.viewFile">LICENSE Dosyasını Görüntüle</span>
+                    </a>
+                    <a href="https://cosmic.haking.tr/" class="cs-btn cs-btn-ghost">
+                        <i data-lucide="globe"></i>
+                        <span>cosmic.haking.tr</span>
+                    </a>
+                </div>
+            </article>
         </section>
     </main>
 
@@ -173,39 +349,288 @@
     <script src="vendor/howler.min.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/data.js"></script>
+    <script src="js/i18n.js"></script>
     <script>
         (function () {
             'use strict';
+
+            const ABOUT_I18N = {
+                tr: {
+                    'meta.title': 'COSMIC SURVIVORS v10.0 — Genesis Edition | Hakkında & Teknik Mimari',
+                    'about.topbarVersion': 'V10.0 GENESIS EDITION',
+                    'nav.hangar': 'Hangar',
+                    'nav.tree': 'Evrim Ağacı',
+                    'nav.armory': 'Cephanelik',
+                    'nav.modes': 'Modlar',
+                    'nav.wiki': 'Ansiklopedi',
+                    'nav.about': 'Hakkında',
+                    'common.audioOn': 'Ses Açık',
+                    'common.audioOff': 'Sessiz',
+                    'about.hero.badge': 'V10.0 GENESIS EDITION · MIT LİSANSI',
+                    'about.hero.offlineBadge': 'ÇEVRİMDIŞI · YEREL KAYIT',
+                    'about.hero.title': 'COSMIC SURVIVORS v10.0',
+                    'about.hero.desc': 'Halit Güneş (HaKING) tarafından geliştirilen; PixiJS v8 WebGL + pixi-filters render motoru, 5 özgün oyun modu, 5600×5600 engelli uzay arenaları, taktik radar ve sıfır arka uçlu yerel pilot kayıtlarıyla donatılmış bağımsız bilim kurgu hayatta kalma roguelike deneyimi.',
+                    'about.hero.ctaHangar': 'Hangara Dön',
+                    'about.hero.ctaModes': '5 Oyun Modu',
+                    'about.hero.ctaRepo': 'GitHub Deposu',
+                    'about.banner.tag': 'GENESIS MİMARİ ÖZETİ',
+                    'about.banner.title': '5600×5600 Engelli Sektörler, Çift Silah Evrimi & Çok Fazlı Boss Arenaları',
+                    'about.banner.desc': '8 yıldız gemisi ve açılabilir gemi kaplamaları, 14 silah + 14 destek modülü, 19 evrim, 6 Mega-Evrim ve Hangar Atölyesinde 10 kalıcı Ar-Ge yükseltmesi ile kendi taktik sinerjinizi kurun.',
+                    'about.banner.pill1': '8 GEMİ · KAPLAMALAR',
+                    'about.banner.pill2': '5 OYUN MODU',
+                    'about.banner.pill3': '53 SAVAŞ MODÜLÜ',
+                    'about.banner.pill4': '10 AR-GE YÜKSELTMESİ',
+                    'about.card1.title': 'WebGL2 & pixi-filters Motoru',
+                    'about.card1.desc': 'Donanım hızlandırmalı PixiJS v8 WebGL ve pixi-filters gölgelendirici hattı (otomatik Canvas2D yedekli); sabit zaman adımlı fizik, çok fazlı mermi cehennemi boss yapay zekâsı, [Q] Nişan Ustalığı Bonusu ve [E] Kozmik Overdrive patlamasını akıcı biçimde işler.',
+                    'about.card1.meta': 'PixiJS v8 + pixi-filters · 8 Gemi · 19 Evrim · 6 Mega-Evrim',
+                    'about.card2.title': '5 Oyun Modu & 5600×5600 Arenalar',
+                    'about.card2.desc': 'Campaign, Endless, Boss Rush, 5-Min Time Attack ve Daily Seeded Protocol modlarında savaşın. 4 geniş 5600×5600 sektör; fiziksel siper engelleri (asteroid kümeleri, perde duvarlar, reaktör çekirdekleri, sığınaklar), CosmicMapDirector olayları ve canlı Taktik Radar mini haritası içerir.',
+                    'about.card2.meta': '5 Mod · 5600×5600 Engelli Sektörler · Taktik Radar Mini Haritası',
+                    'about.card3.title': 'İstemci Yığını & CC0 Varlıklar',
+                    'about.card3.desc': 'Harici sunucu veya izleme gerektirmeyen tam çevrimdışı tarayıcı mimarisi (yerel pilot kayıtları). Paketlenmiş Fuse.js arama, Howler.js ses havuzu, Chart.js telemetri, GSAP animasyon, Panzoom ağaç gezintisi, canvas-confetti ve Kenney (CC0 1.0) sprite/ses varlıklarıyla çalışır.',
+                    'about.card3.meta': 'Fuse.js · Howler.js · Chart.js · GSAP · Panzoom · canvas-confetti · CC0 Kenney',
+                    'about.controls.title': 'Taktik Kontroller & Savaş Mekanikleri',
+                    'about.controls.subtitle': 'Hassas twin-stick nişan ustalığından Kozmik Overdrive tetiklemesine kadar v10.0 arena kısayolları.',
+                    'about.controls.badge': 'KLAVYE · FARE · DOKUNMATİK',
+                    'about.ctrl.moveKey': 'W A S D / Yön Tuşları',
+                    'about.ctrl.moveDesc': '5600×5600 engelli sektörde itici manevrası ve siper konumlanması.',
+                    'about.ctrl.aimKey': '[Q] + Fare İmleci',
+                    'about.ctrl.aimDesc': 'Manuel Twin-Stick (Nişan Ustalığı Bonusu) ve Otomatik Hedef Kilidi geçişi.',
+                    'about.ctrl.spaceKey': '[SPACE] Aktif Yetenek',
+                    'about.ctrl.spaceDesc': 'Seçili yıldıza özel imza taktik yeteneği (Warp Dash, EMP, Zaman Durdurma vb.).',
+                    'about.ctrl.overdriveKey': '[E] Kozmik Overdrive',
+                    'about.ctrl.overdriveDesc': 'Dolum tamamlandığında yüksek tempolu patlama ve hasar taşması modu.',
+                    'about.ctrl.pickKey': '[1] / [2] / [3] Kart Seçimi',
+                    'about.ctrl.pickDesc': 'Seviye atlamada atomik kilitle hızlı yükseltme veya Evrim sentezi seçimi.',
+                    'about.ctrl.escKey': '[ESC] Taktik Duraklatma',
+                    'about.ctrl.escDesc': 'Ses mikseri, görsel efekt yoğunluğu ve anlık arena ayarları menüsü.',
+                    'about.channels.title': 'Geliştirici & Resmi Kanallar',
+                    'about.channels.desc': 'Geri bildirim, hata raporları, açık kaynak katkısı ve destek için yalnızca aşağıdaki resmi kanalları kullanın.',
+                    'about.channels.email': 'E-posta İletişimi — cosmic@haking.tr',
+                    'about.channels.repo': 'GitHub Deposu — github.com/HaKING06/COSMIC',
+                    'about.channels.support': 'Geliştiriciye Destek Ol — buymeacoffee.com/haking',
+                    'about.channels.supportTag': 'DESTEK',
+                    'about.license.title': 'MIT Lisansı & Açık Kaynak',
+                    'about.license.summary': 'COSMIC SURVIVORS kaynak kodu MIT Lisansı altında açık kaynak olarak sunulur. Telif hakkı ve lisans bildirimi korunduğu sürece yazılımı ücretsiz olarak kullanabilir, kopyalayabilir, değiştirebilir ve dağıtabilirsiniz.',
+                    'about.license.note': 'Paketlenmiş üçüncü parti kütüphaneler (PixiJS, pixi-filters, Fuse.js, Howler.js, Chart.js, GSAP, Panzoom, canvas-confetti, Lucide) ve Kenney (CC0 1.0) varlıkları kendi açık lisanslarına tabidir.',
+                    'about.license.viewFile': 'LICENSE Dosyasını Görüntüle'
+                },
+                en: {
+                    'meta.title': 'COSMIC SURVIVORS v10.0 — Genesis Edition | About & Technical Architecture',
+                    'about.topbarVersion': 'V10.0 GENESIS EDITION',
+                    'nav.hangar': 'Hangar',
+                    'nav.tree': 'Evolution Tree',
+                    'nav.armory': 'Armory',
+                    'nav.modes': 'Modes',
+                    'nav.wiki': 'Encyclopedia',
+                    'nav.about': 'About',
+                    'common.audioOn': 'Audio On',
+                    'common.audioOff': 'Muted',
+                    'about.hero.badge': 'V10.0 GENESIS EDITION · MIT LICENSE',
+                    'about.hero.offlineBadge': 'OFFLINE · LOCAL RECORDS',
+                    'about.hero.title': 'COSMIC SURVIVORS v10.0',
+                    'about.hero.desc': 'Independent browser sci-fi survival roguelike developed by Halit Güneş (HaKING), powered by PixiJS v8 WebGL + pixi-filters, 5 distinct game modes, 5600×5600 obstacle-rich sectors, tactical radar, and zero-backend local pilot progression.',
+                    'about.hero.ctaHangar': 'Return to Hangar',
+                    'about.hero.ctaModes': '5 Game Modes',
+                    'about.hero.ctaRepo': 'GitHub Repository',
+                    'about.banner.tag': 'GENESIS ARCHITECTURE SNAPSHOT',
+                    'about.banner.title': '5600×5600 Obstacle Sectors, Dual-Weapon Evolutions & Multi-Phase Bosses',
+                    'about.banner.desc': 'Build unstoppable cosmic synergies across 8 starships with unlockable ship liveries, 14 weapons + 14 trinkets, 19 evolutions, 6 Mega-Evolutions, and 10 permanent R&D upgrades in the Hangar Workshop.',
+                    'about.banner.pill1': '8 SHIPS · LIVERIES',
+                    'about.banner.pill2': '5 GAME MODES',
+                    'about.banner.pill3': '53 COMBAT MODULES',
+                    'about.banner.pill4': '10 R&D UPGRADES',
+                    'about.card1.title': 'WebGL2 & pixi-filters Engine',
+                    'about.card1.desc': 'Hardware-accelerated PixiJS v8 WebGL with pixi-filters shaders (automatic Canvas2D fallback), driving fixed-timestep physics, multi-phase bullet-hell boss AI, [Q] Aim Mastery Bonus, and [E] Cosmic Overdrive bursts.',
+                    'about.card1.meta': 'PixiJS v8 + pixi-filters · 8 Ships · 19 Evolutions · 6 Mega-Evolutions',
+                    'about.card2.title': '5 Game Modes & 5600×5600 Arenas',
+                    'about.card2.desc': 'Deploy across Campaign, Endless, Boss Rush, 5-Min Time Attack, and Daily Seeded Protocol. Four expansive 5600×5600 sectors feature tactical cover obstacles (asteroids, bulkheads, reactors, bunkers), CosmicMapDirector events, and a live Tactical Radar minimap.',
+                    'about.card2.meta': '5 Modes · 5600×5600 Obstacle Arenas · Tactical Radar Minimap',
+                    'about.card3.title': 'Offline Client Stack & CC0 Assets',
+                    'about.card3.desc': 'Zero external backend, zero tracking, and private local pilot records in browser storage. Bundled offline with Fuse.js search, Howler.js audio pool, Chart.js telemetry, GSAP motion, Panzoom tree viewer, canvas-confetti, and Kenney (CC0 1.0) sprites & SFX.',
+                    'about.card3.meta': 'Fuse.js · Howler.js · Chart.js · GSAP · Panzoom · canvas-confetti · CC0 Kenney',
+                    'about.controls.title': 'Tactical Controls & Combat Systems',
+                    'about.controls.subtitle': 'v10.0 arena bindings from twin-stick aim mastery to Cosmic Overdrive activation.',
+                    'about.controls.badge': 'KEYBOARD · MOUSE · TOUCH',
+                    'about.ctrl.moveKey': 'W A S D / Arrow Keys',
+                    'about.ctrl.moveDesc': 'Thruster navigation and tactical cover positioning across 5600×5600 sectors.',
+                    'about.ctrl.aimKey': '[Q] + Mouse Cursor',
+                    'about.ctrl.aimDesc': 'Toggle between Manual Twin-Stick Aim (Aim Mastery Bonus) and Auto-Lock.',
+                    'about.ctrl.spaceKey': '[SPACE] Active Ability',
+                    'about.ctrl.spaceDesc': 'Trigger your starship signature ability (Warp Dash, EMP Shockwave, Time Freeze, etc.).',
+                    'about.ctrl.overdriveKey': '[E] Cosmic Overdrive',
+                    'about.ctrl.overdriveDesc': 'Unleash high-intensity cosmic overdrive burst when charge reaches 100%.',
+                    'about.ctrl.pickKey': '[1] / [2] / [3] Card Select',
+                    'about.ctrl.pickDesc': 'Atomic zero-race keyboard selection for level-up upgrades and evolutions.',
+                    'about.ctrl.escKey': '[ESC] Tactical Pause',
+                    'about.ctrl.escDesc': 'Open audio mixer, calm VFX intensity toggle, and live arena preferences.',
+                    'about.channels.title': 'Developer & Official Channels',
+                    'about.channels.desc': 'For feedback, bug reports, open-source contributions, or support, use only the verified official channels below.',
+                    'about.channels.email': 'Email Contact — cosmic@haking.tr',
+                    'about.channels.repo': 'GitHub Repository — github.com/HaKING06/COSMIC',
+                    'about.channels.support': 'Support Developer — buymeacoffee.com/haking',
+                    'about.channels.supportTag': 'SUPPORT',
+                    'about.license.title': 'MIT License & Open Source',
+                    'about.license.summary': 'COSMIC SURVIVORS source code is released under the MIT License. You are free to use, copy, modify, merge, publish, and distribute the software while preserving the copyright and license notice.',
+                    'about.license.note': 'Vendored client libraries (PixiJS, pixi-filters, Fuse.js, Howler.js, Chart.js, GSAP, Panzoom, canvas-confetti, Lucide) and Kenney (CC0 1.0) assets remain governed by their respective permissive open licenses.',
+                    'about.license.viewFile': 'View LICENSE File'
+                }
+            };
+
             function refreshIcons() {
                 if (window.lucide && typeof window.lucide.createIcons === 'function') {
                     window.lucide.createIcons();
                 }
             }
-            const profile = window.CosmicPersistence ? window.CosmicPersistence.load() : { credits: 0 };
-            const creditsEl = document.getElementById('creditsDisplay');
-            if (creditsEl) creditsEl.textContent = Number(profile.credits || 0).toLocaleString('tr-TR');
 
-            const btn = document.getElementById('audioToggleBtn');
-            const label = document.getElementById('audioToggleLabel');
-            if (btn && window.CosmicAudio) {
-                const syncUi = () => {
-                    const muted = Boolean(window.CosmicAudio.prefs && window.CosmicAudio.prefs.muted);
-                    btn.classList.toggle('is-muted', muted);
-                    const iconEl = document.getElementById('audioToggleIcon');
-                    if (iconEl) iconEl.setAttribute('data-lucide', muted ? 'volume-x' : 'volume-2');
-                    if (label) label.textContent = muted ? 'Sessiz' : 'Ses Açık';
-                    refreshIcons();
-                };
-                syncUi();
-                btn.addEventListener('click', () => {
+            function resolveLang() {
+                const i18nObj = window.CosmicI18n || window.i18n || window.I18N;
+                if (i18nObj) {
+                    if (typeof i18nObj.getLang === 'function') {
+                        return i18nObj.getLang() === 'en' ? 'en' : 'tr';
+                    }
+                    const prop = i18nObj.lang || i18nObj.currentLang || i18nObj.locale;
+                    if (typeof prop === 'string') {
+                        return prop.toLowerCase().startsWith('en') ? 'en' : 'tr';
+                    }
+                }
+                const htmlLang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
+                if (htmlLang.startsWith('en')) return 'en';
+                if (htmlLang.startsWith('tr')) return 'tr';
+                try {
+                    const stored = localStorage.getItem('cosmic_lang')
+                        || localStorage.getItem('cosmic_v10_lang')
+                        || localStorage.getItem('cosmic_locale');
+                    if (stored === 'en' || stored === 'tr') return stored;
+                } catch (e) { /* ignore */ }
+                return 'tr';
+            }
+
+            function syncLangPill(lang) {
+                const langBtn = document.getElementById('langToggleBtn');
+                if (!langBtn) return;
+                langBtn.setAttribute('data-lang', lang);
+                const segs = langBtn.querySelectorAll('.lang-seg, .lang-pill-opt');
+                if (segs.length > 0) {
+                    segs.forEach(seg => {
+                        const segLang = seg.getAttribute('data-lang');
+                        seg.classList.toggle('active', segLang === lang);
+                    });
+                }
+            }
+
+            function syncCredits(lang) {
+                const profile = window.CosmicPersistence ? window.CosmicPersistence.load() : { credits: 0 };
+                const creditsEl = document.getElementById('creditsDisplay');
+                if (creditsEl) {
+                    creditsEl.textContent = Number(profile.credits || 0).toLocaleString(lang === 'en' ? 'en-US' : 'tr-TR');
+                }
+            }
+
+            function syncAudioLabel(lang) {
+                const btn = document.getElementById('audioToggleBtn');
+                const label = document.getElementById('audioToggleLabel');
+                if (!btn || !window.CosmicAudio) return;
+                const muted = Boolean(window.CosmicAudio.prefs && window.CosmicAudio.prefs.muted);
+                btn.classList.toggle('is-muted', muted);
+                const iconEl = document.getElementById('audioToggleIcon');
+                if (iconEl) iconEl.setAttribute('data-lucide', muted ? 'volume-x' : 'volume-2');
+                if (label) {
+                    const dict = ABOUT_I18N[lang] || ABOUT_I18N.tr;
+                    label.textContent = muted ? dict['common.audioOff'] : dict['common.audioOn'];
+                }
+            }
+
+            function applyAboutTranslations(lang) {
+                const safeLang = lang === 'en' ? 'en' : 'tr';
+                const dict = ABOUT_I18N[safeLang] || ABOUT_I18N.tr;
+                if (document.documentElement.getAttribute('lang') !== safeLang) {
+                    document.documentElement.setAttribute('lang', safeLang);
+                }
+                document.title = dict['meta.title'];
+
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (key && Object.prototype.hasOwnProperty.call(dict, key)) {
+                        el.textContent = dict[key];
+                    }
+                });
+
+                syncLangPill(safeLang);
+                syncCredits(safeLang);
+                syncAudioLabel(safeLang);
+                refreshIcons();
+            }
+
+            // Register translations if js/i18n.js exposes an extension API
+            if (window.CosmicI18n && typeof window.CosmicI18n.register === 'function') {
+                window.CosmicI18n.register('tr', ABOUT_I18N.tr);
+                window.CosmicI18n.register('en', ABOUT_I18N.en);
+            }
+
+            // Audio button binding
+            const audioBtn = document.getElementById('audioToggleBtn');
+            if (audioBtn && window.CosmicAudio) {
+                audioBtn.addEventListener('click', () => {
                     window.CosmicAudio.unlock();
                     const cur = Boolean(window.CosmicAudio.prefs && window.CosmicAudio.prefs.muted);
                     window.CosmicAudio.setMuted(!cur);
-                    syncUi();
+                    syncAudioLabel(resolveLang());
+                    refreshIcons();
                     if (cur) window.CosmicAudio.play('uiClick');
                 });
             }
-            refreshIcons();
+
+            // Language toggle sync + non-clobbering fallback when js/i18n.js is absent
+            let lastAppliedLang = resolveLang();
+            const langBtn = document.getElementById('langToggleBtn');
+            if (langBtn) {
+                langBtn.addEventListener('click', () => {
+                    const beforeLang = resolveLang();
+                    setTimeout(() => {
+                        const afterLang = resolveLang();
+                        if (afterLang !== beforeLang) {
+                            lastAppliedLang = afterLang;
+                            applyAboutTranslations(afterLang);
+                            return;
+                        }
+                        if (!window.CosmicI18n && !window.i18n) {
+                            const nextLang = beforeLang === 'tr' ? 'en' : 'tr';
+                            try {
+                                localStorage.setItem('cosmic_lang', nextLang);
+                                localStorage.setItem('cosmic_v10_lang', nextLang);
+                            } catch (e) { /* ignore */ }
+                            lastAppliedLang = nextLang;
+                            applyAboutTranslations(nextLang);
+                        }
+                    }, 0);
+                });
+            }
+
+            // Observe html[lang] changes triggered by js/i18n.js
+            const langObserver = new MutationObserver(() => {
+                const cur = resolveLang();
+                if (cur !== lastAppliedLang) {
+                    lastAppliedLang = cur;
+                    applyAboutTranslations(cur);
+                }
+            });
+            langObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+
+            window.addEventListener('cosmic:langchange', (ev) => {
+                const next = ev && ev.detail && ev.detail.lang ? ev.detail.lang : resolveLang();
+                lastAppliedLang = next === 'en' ? 'en' : 'tr';
+                applyAboutTranslations(lastAppliedLang);
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                requestAnimationFrame(() => {
+                    lastAppliedLang = resolveLang();
+                    applyAboutTranslations(lastAppliedLang);
+                });
+            });
+
+            applyAboutTranslations(lastAppliedLang);
         })();
     </script>
 </body>
