@@ -876,15 +876,17 @@
             lang: 'JS',
             difficulty: 4,
             hasLevels: true,
-            maxLevel: 3,
+            maxLevel: 5,
+            hasEndless: true,
+            endlessLevel: 6,
             accent: '#38bdf8',
             sprite: 'exo_trooper',
             storyChapter: 15,
             isFlagship: true,
             title: { tr: 'Exo-Metroid Sektör İhlali', en: 'Exo-Metroid Sector Breach' },
-            tagline: { tr: 'Phaser 3 fizik motoruyla çift zıplama, plazma kılıcı, roket kapısı ve Boss savaşı.', en: 'Sci-fi Metroidvania action in Phaser 3 with double-jump, plasma blade, missiles and Aegis Boss.' },
-            controls: { tr: 'A/D Hareket · W/Space Zıplama (x2) · J/Sol Tık Plazma · K Füze · L Atılma.', en: 'A/D Move · W/Space Double-Jump · J/Click Plasma · K Missile · L Dash.' },
-            objective: { tr: 'Sektör geçitlerini aç, çekirdekleri yok et veya Sonsuz Dalga modunda hayatta kal.', en: 'Breach 3 subterranean reactor sectors or fight infinite security waves in Endless mode.' }
+            tagline: { tr: '5 biyom, Zırh Yükseltmeleri, Yüklü Plazma, Darbe Tüfeği, Pogo Kılıcı, füzeler ve Aegis Boss.', en: '5 biomes, Suit Upgrades, Charged Plasma, Pulse Rifle, Pogo Sabre, Spread Missiles & Aegis Boss.' },
+            controls: { tr: 'A/D Yürü · W/Space Zıplama · S Platform İn/Pogo · J (Basılı) Yüklü Plazma · E Tüfek · K Füze · L/Shift Atılma.', en: 'A/D Move · W/Space Jump · S Drop/Pogo · J (Hold) Charge Beam · E Pulse Rifle · K Missile · L/Shift Dash.' },
+            objective: { tr: '5 biyomdaki reaktörleri ve Aegis Kolossus’u yok et ya da 4 Sonsuz İhlal arenasında rekor kır.', en: 'Breach 5 handcrafted Metroidvania biomes with Suit Upgrades or fight infinite waves across 4 Endless Arenas.' }
         },
         {
             id: 'astral-roguelike-crawl',

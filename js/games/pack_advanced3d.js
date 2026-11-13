@@ -104,6 +104,7 @@
             cnv.style.width = '100%';
             cnv.style.height = '100%';
             cnv.style.display = 'block';
+            cnv.style.touchAction = 'none';
             return cnv;
         }
 
@@ -224,18 +225,21 @@
             const updatePointer = (e) => {
                 const rect = canvas.getBoundingClientRect();
                 if (!rect.width || !rect.height) return;
+                const inside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
                 const nx = clamp(((e.clientX - rect.left) / rect.width) * 2 - 1, -1, 1);
                 const ny = clamp(((e.clientY - rect.top) / rect.height) * 2 - 1, -1, 1);
                 const px = (nx * 0.5 + 0.5) * STAGE_W;
                 const py = (ny * 0.5 + 0.5) * STAGE_H;
-                if (Math.hypot(px - pointer.px, py - pointer.py) >= 2.5 || e.type === 'pointerdown') {
+                if ((inside || pointer.down || e.type === 'pointerdown') && (Math.hypot(px - pointer.px, py - pointer.py) >= 2.5 || e.type === 'pointerdown')) {
                     pointer.usingPointer = true;
                 }
-                pointer.nx = nx;
-                pointer.ny = ny;
-                pointer.px = px;
-                pointer.py = py;
-                pointer.active = true;
+                if (inside || pointer.down || e.type === 'pointerdown') {
+                    pointer.nx = nx;
+                    pointer.ny = ny;
+                    pointer.px = px;
+                    pointer.py = py;
+                    pointer.active = true;
+                }
             };
 
             const onPointerDown = (e) => {
@@ -1291,6 +1295,7 @@
             }
 
             // Dynamic Basalt Boulders (CANNON.Sphere)
+            const chunkRocks = [];
             for (let i = 0; i < sec.boulderCount; i++) {
                 const radius = 0.85 + rng() * 0.72;
                 const bx = (rng() - 0.5) * (laneW * 1.42);
@@ -1313,6 +1318,7 @@
                 scene.add(mesh);
 
                 dynamicRocks.push({ body, mesh, radius });
+                chunkRocks.push({ x: bx, z: bz, r: radius });
             }
 
             // Dynamic Explosive Crimson Barrels (CANNON.Cylinder)
@@ -1320,6 +1326,15 @@
                 const bx = (rng() - 0.5) * (laneW * 1.25);
                 const bz = zStart - 22 - rng() * (CHUNK_LEN - 38);
                 if (isBlockedChunkZ(bz)) continue;
+                let overlapsRock = false;
+                for (let rIdx = 0; rIdx < chunkRocks.length; rIdx++) {
+                    const cr = chunkRocks[rIdx];
+                    if (Math.hypot(bx - cr.x, bz - cr.z) < cr.r + 2.0) {
+                        overlapsRock = true;
+                        break;
+                    }
+                }
+                if (overlapsRock) continue;
 
                 const body = new CANNON.Body({
                     mass: 16,
@@ -1755,7 +1770,12 @@
                 damageRover(h.tr('Sıfır-G yarığına düşüldü!', 'Fell into a Zero-G canyon chasm!'));
                 if (!ended) {
                     let safeZ = lastSafePos.z + 5;
-                    if (isOverChasmZone(safeZ)) safeZ += 16;
+                    if (isOverChasmZone(safeZ) || isOverChasmZone(safeZ - 4)) {
+                        const absSafe = Math.max(0, -safeZ);
+                        const cIdx = Math.floor(absSafe / CHUNK_LEN);
+                        safeZ = -(cIdx * CHUNK_LEN + 40);
+                    }
+                    if (safeZ > 0) safeZ = -4;
                     chassisBody.position.set(clamp(lastSafePos.x * 0.4, -7, 7), 1.9, safeZ);
                     chassisBody.velocity.set(0, 0, -4);
                     chassisBody.angularVelocity.set(0, 0, 0);
@@ -2021,6 +2041,8 @@
             const paused = typeof ctx.getPaused === 'function' ? Boolean(ctx.getPaused()) : false;
             if (!paused && !ended) {
                 step(dt);
+            } else {
+                input.pointer.down = false;
             }
             input.clearFrameEvents();
             renderer.render(scene, camera);
@@ -2040,6 +2062,13 @@
                 cancelAnimationFrame(rafId);
                 input.destroy();
                 clearWorldEntities();
+                try {
+                    if (typeof vehicle.removeFromWorld === 'function') {
+                        vehicle.removeFromWorld(world);
+                    }
+                } catch (_) { /* ignore */ }
+                removeBodySafe(chassisBody);
+                world.bodies.slice().forEach(removeBodySafe);
                 particles.dispose();
                 h.disposeThree(scene, renderer, [
                     nebulaTex,
@@ -2939,6 +2968,14 @@
                 triggerBarrelRoll();
             }
 
+            // Prune dead/removed targets before collecting new locks or firing salvo
+            for (let i = lockedTargets.length - 1; i >= 0; i--) {
+                const t = lockedTargets[i];
+                if (t.alive === false || (t.hp !== undefined && t.hp <= 0) || (t.mesh && !t.mesh.parent)) {
+                    lockedTargets.splice(i, 1);
+                }
+            }
+
             if (input.hasKey('KeyE', 'e')) {
                 lockHeld = true;
                 lockHoldTime += dt;
@@ -2958,13 +2995,6 @@
                 lockHeld = false;
                 lockHoldTime = 0;
                 fireLockOnSalvo();
-            }
-            // Also prune dead targets from lockedTargets
-            for (let i = lockedTargets.length - 1; i >= 0; i--) {
-                const t = lockedTargets[i];
-                if (t.alive === false || (t.hp !== undefined && t.hp <= 0) || (t.mesh && !t.mesh.parent)) {
-                    lockedTargets.splice(i, 1);
-                }
             }
 
             // Barrel Roll rotation + Deflector Bubble
@@ -3557,6 +3587,8 @@
             const paused = typeof ctx.getPaused === 'function' ? Boolean(ctx.getPaused()) : false;
             if (!paused && !ended) {
                 step(dt);
+            } else {
+                input.pointer.down = false;
             }
             input.clearFrameEvents();
             renderer.render(scene, camera);

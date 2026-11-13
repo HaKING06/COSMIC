@@ -504,6 +504,7 @@ html, body {
 .hud-actions {
     display: flex;
     gap: 6px;
+    pointer-events: auto;
 }
 
 .lang-toggle-btn {
@@ -526,6 +527,7 @@ html, body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    pointer-events: auto;
     transition: border-color 0.15s, background 0.15s;
 }
 

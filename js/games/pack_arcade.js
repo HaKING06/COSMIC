@@ -231,6 +231,14 @@
         let banner = null;
 
         return {
+            clear() {
+                particles.length = 0;
+                rings.length = 0;
+                texts.length = 0;
+                shakeTime = 0;
+                shakeMag = 0;
+                banner = null;
+            },
             spawn(x, y, vx, vy, color, size, life, shape) {
                 if (particles.length > 420) particles.shift();
                 particles.push({
@@ -629,7 +637,8 @@
             rafId = global.requestAnimationFrame(frame);
         }
 
-        game.init(1);
+        const initLvl = Math.max(1, Math.floor(Number(ctx && ctx.initialLevel) || 1));
+        game.init(initLvl);
         pushHud(true);
         rafId = global.requestAnimationFrame(frame);
 
@@ -864,6 +873,7 @@
         }
 
         function init(lvl) {
+            fx.clear();
             stage = lvl;
             wave = (lvl - 1) * 3 + 1;
             score = 0;
@@ -871,6 +881,7 @@
             ended = false;
             time = 0;
             fireCd = 0;
+            formationPhase = 0;
             pickups = [];
             resetPlayer();
             spawnWave(wave);
@@ -1042,11 +1053,12 @@
                 }
 
                 // Player collision with enemy
-                if (e.delay <= 0 && distSq(e.x, e.y, player.x, player.y) < (player.dual ? 34 * 34 : 26 * 26)) {
+                if (e.delay <= 0 && player.invuln <= 0 && distSq(e.x, e.y, player.x, player.y) < (player.dual ? 34 * 34 : 26 * 26)) {
                     enemies.splice(i, 1);
                     fx.burst(e.x, e.y, 16, PAL.violet, 200, 3.5, 0.45);
                     sfx(ctx, 'explodeSmall', 0.15);
                     damagePlayer();
+                    if (ended) return;
                     continue;
                 }
 
@@ -1109,6 +1121,7 @@
                     const beamHalfW = player.dual ? 40 : 30;
                     if (Math.abs(player.x - boss.x) < beamHalfW && player.y > boss.y + 20) {
                         damagePlayer();
+                        if (ended) return;
                     }
                 } else {
                     boss.beamActive = 0;
@@ -1166,14 +1179,15 @@
                 const eb = enemyBullets[i];
                 eb.x += eb.vx * dt;
                 eb.y += eb.vy * dt;
-                if (eb.y > H + 20 || eb.x < -20 || eb.x > W + 20) {
+                if (eb.y > H + 20 || eb.y < -20 || eb.x < -20 || eb.x > W + 20) {
                     enemyBullets.splice(i, 1);
                     continue;
                 }
                 const hitR = player.dual ? 24 : 16;
-                if (distSq(eb.x, eb.y, player.x, player.y) < hitR * hitR) {
+                if (player.invuln <= 0 && distSq(eb.x, eb.y, player.x, player.y) < hitR * hitR) {
                     enemyBullets.splice(i, 1);
                     damagePlayer();
+                    if (ended) return;
                 }
             }
 
@@ -1428,6 +1442,7 @@
         }
 
         function getHud() {
+            const statusText = boss ? 'BOSS FLAGSHIP' : ('WAVE ' + wave + (player && player.dual ? ' · TWIN' : ''));
             return {
                 score: Math.floor(score),
                 level: stage,
@@ -1435,7 +1450,8 @@
                 lives,
                 hp: lives,
                 maxHp: 3,
-                status: boss ? 'BOSS FLAGSHIP' : ('WAVE ' + wave + (player && player.dual ? ' · TWIN' : ''))
+                status: statusText,
+                statusText
             };
         }
 
@@ -1573,6 +1589,7 @@
         }
 
         function init(lvl) {
+            fx.clear();
             stage = lvl;
             wave = 1;
             score = 0;
@@ -1581,6 +1598,7 @@
             bombFlash = 0;
             ended = false;
             time = 0;
+            fireCd = 0;
             enemies = [];
             resetPlayer();
             setupAstronauts();
@@ -1858,11 +1876,13 @@
                             e.x = wrapCoord(e.x + e.vx * dt, WORLD_W);
                             e.y = clamp(e.y + e.vy * dt, RADAR_H + 22, terrainY(e.x) - 20);
                             if (Math.abs(dx) < 16 && Math.abs(e.y - (e.targetAstro.y - 24)) < 16) {
-                                e.carryingAstro = e.targetAstro;
-                                e.carryingAstro.state = 'abducted';
-                                e.carryingAstro.carrier = e;
+                                if (e.targetAstro.state === 'ground') {
+                                    e.carryingAstro = e.targetAstro;
+                                    e.carryingAstro.state = 'abducted';
+                                    e.carryingAstro.carrier = e;
+                                    sfx(ctx, 'emp', 0.1);
+                                }
                                 e.targetAstro = null;
-                                sfx(ctx, 'emp', 0.1);
                             }
                         } else {
                             e.x = wrapCoord(e.x + e.vx * dt, WORLD_W);
@@ -1901,7 +1921,7 @@
                 }
 
                 // Player body collision
-                if (Math.abs(wrappedDelta(player.x, e.x, WORLD_W)) < 24 && Math.abs(player.y - e.y) < 22) {
+                if (player.invuln <= 0 && Math.abs(wrappedDelta(player.x, e.x, WORLD_W)) < 24 && Math.abs(player.y - e.y) < 22) {
                     if (e.carryingAstro) {
                         e.carryingAstro.carrier = null;
                         e.carryingAstro.state = 'falling';
@@ -1910,6 +1930,7 @@
                     }
                     enemies.splice(i, 1);
                     damagePlayer();
+                    if (ended) return;
                 }
             }
 
@@ -1923,14 +1944,15 @@
                     enemyShots.splice(i, 1);
                     continue;
                 }
-                if (Math.abs(wrappedDelta(player.x, s.x, WORLD_W)) < 18 && Math.abs(player.y - s.y) < 16) {
+                if (player.invuln <= 0 && Math.abs(wrappedDelta(player.x, s.x, WORLD_W)) < 18 && Math.abs(player.y - s.y) < 16) {
                     enemyShots.splice(i, 1);
                     damagePlayer();
+                    if (ended) return;
                 }
             }
 
             // Wave clear / Level win
-            if (spawnPending === 0 && enemies.length === 0) {
+            if (!ended && spawnPending === 0 && enemies.length === 0) {
                 score += astronauts.length * 100;
                 if (bombs < 3) bombs += 1;
                 if (ctx.isStory && wave >= 2) {
@@ -2177,6 +2199,7 @@
         }
 
         function getHud() {
+            const statusText = 'PILOTS ' + astronauts.length + ' · ENEMIES ' + (enemies.length + spawnPending) + ' · BOMBS ' + bombs;
             return {
                 score: Math.floor(score),
                 level: stage,
@@ -2184,7 +2207,8 @@
                 lives,
                 hp: lives,
                 maxHp: 3,
-                status: 'PILOTS ' + astronauts.length + ' · ENEMIES ' + (enemies.length + spawnPending) + ' · BOMBS ' + bombs
+                status: statusText,
+                statusText
             };
         }
 
@@ -2269,6 +2293,7 @@
         }
 
         function init(lvl) {
+            fx.clear();
             stage = lvl;
             score = 0;
             lives = 3;
@@ -2285,7 +2310,7 @@
             warpFlashes = [];
             resetShip();
 
-            const count = 3 + lvl;
+            const count = Math.min(14, 3 + lvl);
             for (let i = 0; i < count; i++) spawnAsteroid(3);
             fx.showBanner('SECTOR ' + stage + ' ASTEROID BELT', 'ROTATE · THRUST · HYPER-JUMP [SHIFT]', PAL.sky, 2.2);
         }
@@ -2337,13 +2362,13 @@
             // Find safest jump spot
             let bestX = randRange(70, W - 70);
             let bestY = randRange(70, H - 70);
-            let bestClear = 0;
+            let bestClear = -Infinity;
             for (let tries = 0; tries < 14; tries++) {
                 const tx = randRange(60, W - 60);
                 const ty = randRange(60, H - 60);
                 let minD = 999999;
                 for (let i = 0; i < asteroids.length; i++) {
-                    minD = Math.min(minD, dist(tx, ty, asteroids[i].x, asteroids[i].y) - asteroids[i].r);
+                    minD = Math.min(minD, Math.sqrt(wrappedDistSq(tx, ty, asteroids[i].x, asteroids[i].y)) - asteroids[i].r);
                 }
                 if (minD > bestClear) {
                     bestClear = minD;
@@ -2502,8 +2527,9 @@
                 }
 
                 // Ship hit asteroid
-                if (wrappedDistSq(ship.x, ship.y, a.x, a.y) < (a.r + 13) * (a.r + 13)) {
+                if (ship.invuln <= 0 && wrappedDistSq(ship.x, ship.y, a.x, a.y) < (a.r + 13) * (a.r + 13)) {
                     damageShip();
+                    if (ended) return;
                 }
             }
 
@@ -2550,8 +2576,9 @@
                 }
                 if (ufo && (ufo.x < -40 || ufo.x > W + 40)) {
                     ufo = null;
-                } else if (ufo && wrappedDistSq(ship.x, ship.y, ufo.x, ufo.y) < 28 * 28) {
+                } else if (ufo && ship.invuln <= 0 && wrappedDistSq(ship.x, ship.y, ufo.x, ufo.y) < 28 * 28) {
                     damageShip();
+                    if (ended) return;
                 }
             }
 
@@ -2565,9 +2592,10 @@
                     enemyBullets.splice(i, 1);
                     continue;
                 }
-                if (wrappedDistSq(ship.x, ship.y, eb.x, eb.y) < 17 * 17) {
+                if (ship.invuln <= 0 && wrappedDistSq(ship.x, ship.y, eb.x, eb.y) < 17 * 17) {
                     enemyBullets.splice(i, 1);
                     damageShip();
+                    if (ended) return;
                 }
             }
 
@@ -2594,7 +2622,7 @@
             }
 
             // Sector clear
-            if (asteroids.length === 0 && !ufo) {
+            if (!ended && asteroids.length === 0 && !ufo) {
                 if (ctx.isStory) {
                     ended = true;
                     sfx(ctx, 'levelup');
@@ -2771,6 +2799,7 @@
         }
 
         function getHud() {
+            const statusText = 'ROCKS: ' + asteroids.length + (hyperCd <= 0 ? ' · HYPER READY' : '');
             return {
                 score: Math.floor(score),
                 level: stage,
@@ -2778,7 +2807,8 @@
                 lives,
                 hp: lives,
                 maxHp: 3,
-                status: 'ROCKS: ' + asteroids.length + (hyperCd <= 0 ? ' · HYPER READY' : '')
+                status: statusText,
+                statusText
             };
         }
 
@@ -2942,6 +2972,7 @@
         }
 
         function init(lvl) {
+            fx.clear();
             stage = lvl;
             score = 0;
             ended = false;
@@ -3103,6 +3134,25 @@
                     fx.showBanner('WARP TIER ' + stage, 'OVERDRIVE SPEED BOOST!', PAL.mint, 1.9);
                 }
                 spawnCrystal();
+                if (!crystal) {
+                    if (ctx.isStory) {
+                        ended = true;
+                        sfx(ctx, 'levelup');
+                        ctx.onWin?.({ score: Math.floor(score), level: stage, wave: stage, crystals: crystalsEaten });
+                        return;
+                    }
+                    stage += 1;
+                    score += 1500;
+                    snake = [];
+                    for (let si = 0; si < 6; si++) snake.push({ c: 10 - si, r: 10 });
+                    prevSnake = snake.map((s) => ({ c: s.c, r: s.r }));
+                    dir = { x: 1, y: 0 };
+                    turnQueue = [];
+                    growthPending = 0;
+                    buildArena(stage);
+                    spawnCrystal();
+                    fx.showBanner('ARENA FILLED — ROOM ' + stage, 'MEGA CLEAR BONUS +1500!', PAL.amber, 2.2);
+                }
             }
 
             // Gold Boss Star eat
@@ -3349,13 +3399,15 @@
         }
 
         function getHud() {
+            const statusText = 'CRYSTALS ' + crystalsEaten + '/' + targetCrystals + ' · x' + combo;
             return {
                 score: Math.floor(score),
                 level: stage,
                 wave: stage,
                 lives: 1,
                 combo,
-                status: 'CRYSTALS ' + crystalsEaten + '/' + targetCrystals + ' · x' + combo
+                status: statusText,
+                statusText
             };
         }
 
@@ -3466,11 +3518,17 @@
         function enforceMinVertical(b) {
             const spd = Math.hypot(b.vx, b.vy) || (370 + stage * 18);
             const minVy = spd * 0.28;
+            const minVx = spd * 0.12;
             if (Math.abs(b.vy) < minVy) {
                 const sy = b.vy === 0 ? -1 : Math.sign(b.vy);
                 const sx = b.vx === 0 ? (Math.random() < 0.5 ? 1 : -1) : Math.sign(b.vx);
                 b.vy = sy * minVy;
                 b.vx = sx * Math.sqrt(Math.max(1, spd * spd - minVy * minVy));
+            } else if (Math.abs(b.vx) < minVx) {
+                const sx = b.vx === 0 ? (Math.random() < 0.5 ? 1 : -1) : Math.sign(b.vx);
+                const sy = b.vy === 0 ? -1 : Math.sign(b.vy);
+                b.vx = sx * minVx;
+                b.vy = sy * Math.sqrt(Math.max(1, spd * spd - minVx * minVx));
             }
         }
 
@@ -3518,6 +3576,7 @@
         }
 
         function init(lvl) {
+            fx.clear();
             stage = lvl;
             score = 0;
             lives = 3;
@@ -3680,15 +3739,18 @@
                 lg.active = Math.sin(time * 2.1 + lg.phase) > -0.15;
             }
 
-            // Update paddle lasers
+            // Update paddle lasers (swept Y segment prevents tunneling through bricks)
             for (let i = lasers.length - 1; i >= 0; i--) {
                 const l = lasers[i];
+                const prevY = l.y;
                 l.y += l.vy * dt;
                 if (l.y < 0) { lasers.splice(i, 1); continue; }
+                const segTop = Math.min(prevY, l.y);
+                const segBot = Math.max(prevY, l.y);
                 let hit = false;
                 for (let bi = bricks.length - 1; bi >= 0; bi--) {
                     const br = bricks[bi];
-                    if (l.x >= br.x && l.x <= br.x + br.w && l.y >= br.y && l.y <= br.y + br.h) {
+                    if (l.x >= br.x && l.x <= br.x + br.w && segBot >= br.y && segTop <= br.y + br.h) {
                         damageBrick(bi, false);
                         hit = true;
                         break;
@@ -3714,16 +3776,49 @@
                 b.trail.push({ x: b.x, y: b.y });
                 if (b.trail.length > 8) b.trail.shift();
 
+                // Track time since last brick hit so trapped/looping balls always rescue
                 b.noHitTimer = (b.noHitTimer || 0) + dt;
-                if (b.noHitTimer > 12) {
-                    b.noHitTimer = 0;
-                    b.vy += 65;
+                if (bricks.length > 0 && b.noHitTimer > 8.5) {
+                    b.noHitTimer = 4.5;
+                    let near = bricks[0];
+                    let nearD2 = Infinity;
+                    for (let bi = 0; bi < bricks.length; bi++) {
+                        const br = bricks[bi];
+                        const d2 = distSq(b.x, b.y, br.x + br.w * 0.5, br.y + br.h * 0.5);
+                        if (d2 < nearD2) { nearD2 = d2; near = br; }
+                    }
+                    const spdNow = Math.hypot(b.vx, b.vy) || (370 + stage * 18);
+                    const tx = near.x + near.w * 0.5;
+                    const ty = near.y + near.h * 0.5;
+                    const aimAng = Math.atan2(ty - b.y, tx - b.x) + randRange(-0.14, 0.14);
+                    b.vx = Math.cos(aimAng) * spdNow;
+                    b.vy = Math.sin(aimAng) * spdNow;
+                    enforceMinVertical(b);
+                    fx.ring(b.x, b.y, 26, PAL.amber, 0.28);
+                } else if (bricks.length > 0 && bricks.length <= 2 && b.noHitTimer > 3.5 && b.vy < 0 && b.y < H * 0.72) {
+                    // Subtle last-brick magnet steering when heading upward toward final 1-2 bricks
+                    let near = bricks[0];
+                    let nearD2 = Infinity;
+                    for (let bi = 0; bi < bricks.length; bi++) {
+                        const br = bricks[bi];
+                        const d2 = distSq(b.x, b.y, br.x + br.w * 0.5, br.y + br.h * 0.5);
+                        if (d2 < nearD2) { nearD2 = d2; near = br; }
+                    }
+                    const spdNow = Math.hypot(b.vx, b.vy) || 380;
+                    const curAng = Math.atan2(b.vy, b.vx);
+                    const tgtAng = Math.atan2((near.y + near.h * 0.5) - b.y, (near.x + near.w * 0.5) - b.x);
+                    let diff = tgtAng - curAng;
+                    while (diff > Math.PI) diff -= TAU;
+                    while (diff < -Math.PI) diff += TAU;
+                    const turn = clamp(diff, -1.6 * dt, 1.6 * dt);
+                    b.vx = Math.cos(curAng + turn) * spdNow;
+                    b.vy = Math.sin(curAng + turn) * spdNow;
                     enforceMinVertical(b);
                 }
 
                 const spd = Math.hypot(b.vx, b.vy);
                 const maxShift = Math.max(spd, Math.abs(paddle.x - prevPaddleX) / Math.max(0.001, dt));
-                const steps = clamp(Math.ceil((maxShift * dt) / 5), 2, 14);
+                const steps = clamp(Math.ceil((maxShift * dt) / 4), 2, 18);
                 const sdt = dt / steps;
                 const halfPW = paddle.w * 0.5;
                 const pTop = paddle.y - paddle.h * 0.5;
@@ -3757,16 +3852,16 @@
                     // Paddle bounce (interpolated paddle X + circle-rect edge coverage)
                     const pClampX = clamp(b.x, subPaddleX - halfPW, subPaddleX + halfPW);
                     const pClampY = clamp(b.y, pTop, pBot);
-                    if (b.vy > 0 && distSq(b.x, b.y, pClampX, pClampY) <= b.r * b.r) {
+                    if (b.vy > 0 && b.y <= paddle.y + 4 && distSq(b.x, b.y, pClampX, pClampY) <= b.r * b.r) {
                         const curSpd = Math.hypot(b.vx, b.vy) || 370;
-                        const hitOffset = clamp((b.x - subPaddleX) / halfPW, -1, 1);
+                        let hitOffset = clamp((b.x - subPaddleX) / halfPW, -1, 1);
+                        if (Math.abs(hitOffset) < 0.04) hitOffset = (Math.random() < 0.5 ? -1 : 1) * 0.06;
                         const bounceAng = -Math.PI * 0.5 + hitOffset * 1.04;
                         const newSpd = Math.min(620, curSpd * 1.018);
                         b.vx = Math.cos(bounceAng) * newSpd;
                         b.vy = Math.sin(bounceAng) * newSpd;
                         enforceMinVertical(b);
                         b.y = pTop - b.r - 0.5;
-                        b.noHitTimer = 0;
                         sfx(ctx, 'hitShield', 0.14);
                         fx.burst(b.x, b.y + b.r, 6, PAL.sky, 110, 2.5, 0.22);
                     }
@@ -3799,12 +3894,13 @@
                         }
                     }
 
-                    // Bricks collision (push out along shallowest axis so zero multi-trap)
+                    // Bricks collision (push out along shallowest axis so zero multi-trap; slight graze bonus on final brick)
+                    const hitRad = bricks.length === 1 ? b.r + 2 : b.r;
                     for (let bi = bricks.length - 1; bi >= 0; bi--) {
                         const br = bricks[bi];
                         const cx = clamp(b.x, br.x, br.x + br.w);
                         const cy = clamp(b.y, br.y, br.y + br.h);
-                        if (distSq(b.x, b.y, cx, cy) <= b.r * b.r) {
+                        if (distSq(b.x, b.y, cx, cy) <= hitRad * hitRad) {
                             const overlapL = Math.abs((b.x + b.r) - br.x);
                             const overlapR = Math.abs((br.x + br.w) - (b.x - b.r));
                             const overlapT = Math.abs((b.y + b.r) - br.y);
@@ -3998,6 +4094,7 @@
         }
 
         function getHud() {
+            const statusText = 'LAYOUT ' + (((stage - 1) % 6) + 1) + '/6 · BRICKS ' + bricks.length;
             return {
                 score: Math.floor(score),
                 level: stage,
@@ -4005,7 +4102,8 @@
                 lives,
                 hp: lives,
                 maxHp: 3,
-                status: 'LAYOUT ' + (((stage - 1) % 6) + 1) + '/6 · BRICKS ' + bricks.length
+                status: statusText,
+                statusText
             };
         }
 
@@ -4053,6 +4151,7 @@
         }
 
         function init(lvl) {
+            fx.clear();
             stage = lvl;
             score = 0;
             pScore = 0;
@@ -4093,21 +4192,21 @@
                 const diff = (input.pointer.y - p1.y) * Math.min(1, dt * 22);
                 p1.y += clamp(diff, -maxStep, maxStep);
             }
-            p1.y = clamp(p1.y, 58, H - 58);
+            p1.y = clamp(p1.y, 61, H - 61);
             const rawP1Vy = (p1.y - p1.prevY) / Math.max(0.001, dt);
             p1.vy = lerp(p1.vy, rawP1Vy, Math.min(1, dt * 18));
 
-            // Escalating Cosmic AI Cruiser
+            // Escalating Cosmic AI Cruiser (fair speed cap so higher sets remain winnable)
             ai.prevY = ai.y;
-            const aiSpeed = 285 + stage * 42;
+            const aiSpeed = Math.min(540, 275 + stage * 36);
             const predictY = ball.vx > 0
                 ? ball.y + ball.vy * clamp((ai.x - ball.x) / Math.max(120, ball.vx), 0, 0.55)
                 : H * 0.5 + Math.sin(time * 1.4) * 55;
-            const aiDiff = clamp(predictY, 58, H - 58) - ai.y;
+            const aiDiff = clamp(predictY, 61, H - 61) - ai.y;
             if (Math.abs(aiDiff) > 6) {
                 ai.y += clamp(aiDiff * 6, -aiSpeed, aiSpeed) * dt;
             }
-            ai.y = clamp(ai.y, 58, H - 58);
+            ai.y = clamp(ai.y, 61, H - 61);
             const rawAiVy = (ai.y - ai.prevY) / Math.max(0.001, dt);
             ai.vy = lerp(ai.vy, rawAiVy, Math.min(1, dt * 18));
 
@@ -4396,12 +4495,14 @@
         }
 
         function getHud() {
+            const statusText = 'YOU ' + pScore + ' - ' + aiScore + ' AI · RALLY ' + rally;
             return {
                 score: Math.floor(score),
                 level: stage,
                 wave: stage,
                 lives: 5 - aiScore,
-                status: 'YOU ' + pScore + ' - ' + aiScore + ' AI · RALLY ' + rally
+                status: statusText,
+                statusText
             };
         }
 
@@ -4478,6 +4579,7 @@
         }
 
         function init(lvl) {
+            fx.clear();
             stage = lvl;
             score = 0;
             lives = 3;
@@ -4628,9 +4730,10 @@
 
                 if (spider.x < -40 || spider.x > W + 40) {
                     spider = null;
-                } else if (distSq(spider.x, spider.y, player.x, player.y) < 25 * 25) {
+                } else if (player.invuln <= 0 && distSq(spider.x, spider.y, player.x, player.y) < 25 * 25) {
                     spider = null;
                     damagePlayer();
+                    if (ended) return;
                 }
             }
 
@@ -4643,92 +4746,104 @@
                     stepChain(chain);
                 }
                 // Player collision with any segment
-                for (let si = 0; si < chain.segments.length; si++) {
-                    const seg = chain.segments[si];
-                    const pos = cellToPx(lerp(seg.pc, seg.c, chain.stepProg), lerp(seg.pr, seg.r, chain.stepProg));
-                    if (distSq(pos.x, pos.y, player.x, player.y) < 22 * 22) {
-                        damagePlayer();
-                        break;
+                if (player.invuln <= 0) {
+                    for (let si = 0; si < chain.segments.length; si++) {
+                        const seg = chain.segments[si];
+                        const pos = cellToPx(lerp(seg.pc, seg.c, chain.stepProg), lerp(seg.pr, seg.r, chain.stepProg));
+                        if (distSq(pos.x, pos.y, player.x, player.y) < 22 * 22) {
+                            damagePlayer();
+                            if (ended) return;
+                            break;
+                        }
                     }
                 }
             }
 
-            // Update bullets & collisions
+            // Update bullets & sub-stepped collisions (prevents tunneling through 24px crystals/segments)
             for (let bi = bullets.length - 1; bi >= 0; bi--) {
                 const b = bullets[bi];
-                b.x += b.vx * dt;
-                b.y += b.vy * dt;
-                if (b.y < -16 || b.x < -16 || b.x > W + 16) {
-                    bullets.splice(bi, 1);
-                    continue;
-                }
+                const bSpd = Math.hypot(b.vx, b.vy);
+                const bSteps = clamp(Math.ceil((bSpd * dt) / 10), 1, 6);
+                const bsdt = dt / bSteps;
+                let consumed = false;
 
-                // Hit spider/UFO bonus
-                if (spider && distSq(b.x, b.y, spider.x, spider.y) < 22 * 22) {
-                    bullets.splice(bi, 1);
-                    const pts = dist(spider.x, spider.y, player.x, player.y) < 150 ? 900 : 450;
-                    score += pts;
-                    sfx(ctx, 'explodeSmall');
-                    fx.burst(spider.x, spider.y, 18, PAL.amber, 210, 3.5, 0.5);
-                    fx.floatText(spider.x, spider.y, 'BONUS +' + pts, PAL.amber, 1.2);
-                    pickups.push({ x: spider.x, y: spider.y, vy: 95, type: Math.random() < 0.6 ? 'tri' : 'star' });
-                    spider = null;
-                    continue;
-                }
-
-                // Hit crystal cluster
-                const gc = Math.floor(b.x / CELL);
-                const gr = Math.floor(b.y / CELL);
-                const ck = cKey(gc, gr);
-                if (crystals.has(ck)) {
-                    bullets.splice(bi, 1);
-                    const cr = crystals.get(ck);
-                    cr.hp -= 1;
-                    score += 10;
-                    sfx(ctx, 'hitMetal', 0.16);
-                    fx.burst(b.x, b.y, 4, PAL.mint, 90, 2, 0.2);
-                    if (cr.hp <= 0) {
-                        crystals.delete(ck);
-                        score += 25;
+                for (let step = 0; step < bSteps && !consumed; step++) {
+                    b.x += b.vx * bsdt;
+                    b.y += b.vy * bsdt;
+                    if (b.y < -16 || b.y > H + 16 || b.x < -16 || b.x > W + 16) {
+                        bullets.splice(bi, 1);
+                        consumed = true;
+                        break;
                     }
-                    continue;
-                }
 
-                // Hit centipede segment -> split!
-                let hitSeg = false;
-                for (let ci = centipedes.length - 1; ci >= 0 && !hitSeg; ci--) {
-                    const chain = centipedes[ci];
-                    for (let si = 0; si < chain.segments.length; si++) {
-                        const seg = chain.segments[si];
-                        const pos = cellToPx(lerp(seg.pc, seg.c, chain.stepProg), lerp(seg.pr, seg.r, chain.stepProg));
-                        if (distSq(b.x, b.y, pos.x, pos.y) < 16 * 16) {
-                            bullets.splice(bi, 1);
-                            hitSeg = true;
-                            const pts = seg.isHead ? 150 : 100;
-                            score += pts;
-                            sfx(ctx, 'explodeSmall', 0.18);
-                            fx.burst(pos.x, pos.y, 12, seg.isHead ? PAL.coral : PAL.mint, 175, 3, 0.4);
-                            fx.floatText(pos.x, pos.y, '+' + pts, seg.isHead ? PAL.coral : PAL.sky);
+                    // Hit spider/UFO bonus
+                    if (spider && distSq(b.x, b.y, spider.x, spider.y) < 22 * 22) {
+                        bullets.splice(bi, 1);
+                        const pts = dist(spider.x, spider.y, player.x, player.y) < 150 ? 900 : 450;
+                        score += pts;
+                        sfx(ctx, 'explodeSmall');
+                        fx.burst(spider.x, spider.y, 18, PAL.amber, 210, 3.5, 0.5);
+                        fx.floatText(spider.x, spider.y, 'BONUS +' + pts, PAL.amber, 1.2);
+                        pickups.push({ x: spider.x, y: spider.y, vy: 95, type: Math.random() < 0.6 ? 'tri' : 'star' });
+                        spider = null;
+                        consumed = true;
+                        break;
+                    }
 
-                            // Spawn crystal at struck location (strictly inside grid bounds)
-                            if (seg.c >= 0 && seg.c < COLS && seg.r >= 1 && seg.r <= ROWS - 2) {
-                                crystals.set(cKey(seg.c, seg.r), { c: seg.c, r: seg.r, hp: 4 });
-                            }
+                    // Hit crystal cluster
+                    const gc = Math.floor(b.x / CELL);
+                    const gr = Math.floor(b.y / CELL);
+                    const ck = cKey(gc, gr);
+                    if (crystals.has(ck)) {
+                        bullets.splice(bi, 1);
+                        const cr = crystals.get(ck);
+                        cr.hp -= 1;
+                        score += 10;
+                        sfx(ctx, 'hitMetal', 0.16);
+                        fx.burst(b.x, b.y, 4, PAL.mint, 90, 2, 0.2);
+                        if (cr.hp <= 0) {
+                            crystals.delete(ck);
+                            score += 25;
+                        }
+                        consumed = true;
+                        break;
+                    }
 
-                            const front = chain.segments.slice(0, si);
-                            const back = chain.segments.slice(si + 1);
-                            centipedes.splice(ci, 1);
-                            if (front.length > 0) {
-                                front[0].isHead = true;
-                                centipedes.push({ segments: front, stepProg: chain.stepProg, speed: chain.speed });
+                    // Hit centipede segment -> split!
+                    for (let ci = centipedes.length - 1; ci >= 0 && !consumed; ci--) {
+                        const chain = centipedes[ci];
+                        for (let si = 0; si < chain.segments.length; si++) {
+                            const seg = chain.segments[si];
+                            const pos = cellToPx(lerp(seg.pc, seg.c, chain.stepProg), lerp(seg.pr, seg.r, chain.stepProg));
+                            if (distSq(b.x, b.y, pos.x, pos.y) < 16 * 16) {
+                                bullets.splice(bi, 1);
+                                consumed = true;
+                                const pts = seg.isHead ? 150 : 100;
+                                score += pts;
+                                sfx(ctx, 'explodeSmall', 0.18);
+                                fx.burst(pos.x, pos.y, 12, seg.isHead ? PAL.coral : PAL.mint, 175, 3, 0.4);
+                                fx.floatText(pos.x, pos.y, '+' + pts, seg.isHead ? PAL.coral : PAL.sky);
+
+                                // Spawn crystal at struck location (strictly inside grid bounds)
+                                if (seg.c >= 0 && seg.c < COLS && seg.r >= 1 && seg.r <= ROWS - 2) {
+                                    crystals.set(cKey(seg.c, seg.r), { c: seg.c, r: seg.r, hp: 4 });
+                                }
+
+                                const front = chain.segments.slice(0, si);
+                                const back = chain.segments.slice(si + 1);
+                                centipedes.splice(ci, 1);
+                                if (front.length > 0) {
+                                    front[0].isHead = true;
+                                    centipedes.push({ segments: front, stepProg: chain.stepProg, speed: chain.speed });
+                                }
+                                if (back.length > 0) {
+                                    back[0].isHead = true;
+                                    if (back[0].c >= 0 && back[0].c < COLS) back[0].dir *= -1;
+                                    else back[0].dir = back[0].c < 0 ? 1 : -1;
+                                    centipedes.push({ segments: back, stepProg: chain.stepProg, speed: chain.speed + 0.5 });
+                                }
+                                break;
                             }
-                            if (back.length > 0) {
-                                back[0].isHead = true;
-                                if (back[0].c >= 0 && back[0].c < COLS) back[0].dir *= -1;
-                                else back[0].dir = back[0].c < 0 ? 1 : -1;
-                                centipedes.push({ segments: back, stepProg: chain.stepProg, speed: chain.speed + 0.5 });
-                            }
-                            break;
                         }
                     }
                 }
@@ -4754,7 +4869,7 @@
             }
 
             // Wave cleared when all segments purged
-            if (centipedes.length === 0) {
+            if (!ended && centipedes.length === 0) {
                 if (ctx.isStory) {
                     ended = true;
                     sfx(ctx, 'levelup');
@@ -4866,6 +4981,7 @@
         function getHud() {
             let segs = 0;
             for (let i = 0; i < centipedes.length; i++) segs += centipedes[i].segments.length;
+            const statusText = 'SPORES LEFT: ' + segs + ' · CHAINS ' + centipedes.length;
             return {
                 score: Math.floor(score),
                 level: stage,
@@ -4873,7 +4989,8 @@
                 lives,
                 hp: lives,
                 maxHp: 3,
-                status: 'SPORES LEFT: ' + segs + ' · CHAINS ' + centipedes.length
+                status: statusText,
+                statusText
             };
         }
 
@@ -4935,6 +5052,7 @@
         }
 
         function init(lvl) {
+            fx.clear();
             stage = lvl;
             wave = 1;
             score = 0;
@@ -5378,6 +5496,7 @@
         function getHud() {
             let aliveDomes = 0;
             for (let i = 0; i < domes.length; i++) if (domes[i].alive) aliveDomes++;
+            const statusText = 'WAVE ' + wave + '/3 · DOMES ' + aliveDomes + '/4';
             return {
                 score: Math.floor(score),
                 level: stage,
@@ -5385,7 +5504,8 @@
                 lives: aliveDomes,
                 hp: aliveDomes,
                 maxHp: 4,
-                status: 'WAVE ' + wave + '/3 · DOMES ' + aliveDomes + '/4'
+                status: statusText,
+                statusText
             };
         }
 
@@ -5533,6 +5653,7 @@
         }
 
         function init(lvl) {
+            fx.clear();
             stage = lvl;
             score = 0;
             lives = 3;
@@ -5618,7 +5739,7 @@
                 else if (input.anyDown(['KeyS', 'ArrowDown'])) my = 1;
             }
 
-            if ((mx !== 0 || my !== 0) && !input.anyDown(['Space'])) {
+            if ((mx !== 0 || my !== 0) && !input.anyDown(['Space', 'KeyZ'])) {
                 player.tetherTarget = null;
                 zapBeam = null;
                 const col = clamp(Math.floor((player.x - OX) / TILE), 0, COLS - 1);
@@ -5750,8 +5871,9 @@
                     }
 
                     // Crush careless player directly beneath falling boulder
-                    if (distSq(b.x, b.y, player.x, player.y) < 22 * 22) {
+                    if (player.invuln <= 0 && distSq(b.x, b.y, player.x, player.y) < 22 * 22) {
                         damagePlayer();
+                        if (ended) return;
                     }
 
                     const checkRow = Math.floor((b.y + TILE * 0.48 - OY) / TILE);
@@ -5869,13 +5991,14 @@
                     }
                 }
 
-                if (e.inflate <= 0 && distSq(e.x, e.y, player.x, player.y) < 20 * 20) {
+                if (player.invuln <= 0 && e.inflate <= 0 && distSq(e.x, e.y, player.x, player.y) < 20 * 20) {
                     damagePlayer();
+                    if (ended) return;
                 }
             }
 
             // Win when all beetles are eliminated
-            if (enemies.length === 0) {
+            if (!ended && enemies.length === 0) {
                 if (ctx.isStory) {
                     ended = true;
                     sfx(ctx, 'levelup');
@@ -6024,6 +6147,7 @@
         }
 
         function getHud() {
+            const statusText = 'DEPTH ' + stage + ' · BEETLES ' + enemies.length;
             return {
                 score: Math.floor(score),
                 level: stage,
@@ -6031,7 +6155,8 @@
                 lives,
                 hp: lives,
                 maxHp: 3,
-                status: 'DEPTH ' + stage + ' · BEETLES ' + enemies.length
+                status: statusText,
+                statusText
             };
         }
 

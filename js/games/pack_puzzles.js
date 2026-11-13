@@ -273,6 +273,10 @@
         let hoveredId = null;
         let hitButtons = [];
         let pointerDownInfo = null;
+        let transitionLockUntil = 0;
+
+        canvas.tabIndex = 0;
+        if (canvas.style) canvas.style.outline = 'none';
 
         const api = {
             ctx,
@@ -494,12 +498,14 @@
             const rect = canvas.getBoundingClientRect();
             const rw = Math.max(1, rect.width || W);
             const rh = Math.max(1, rect.height || H);
-            const src = (e && e.touches && e.touches[0]) ? e.touches[0] : (e || {});
+            const src = (e && e.touches && e.touches[0])
+                || (e && e.changedTouches && e.changedTouches[0])
+                || (e || {});
             const cx = typeof src.clientX === 'number' ? src.clientX : rect.left;
             const cy = typeof src.clientY === 'number' ? src.clientY : rect.top;
             return {
-                x: ((cx - rect.left) / rw) * W,
-                y: ((cy - rect.top) / rh) * H
+                x: Math.max(0, Math.min(W, ((cx - rect.left) / rw) * W)),
+                y: Math.max(0, Math.min(H, ((cy - rect.top) / rh) * H))
             };
         }
 
@@ -535,20 +541,31 @@
 
         function onPointerDown(e) {
             if (isPaused()) return;
+            if (typeof canvas.focus === 'function') {
+                try { canvas.focus({ preventScroll: true }); } catch (_) {}
+            }
             const p = toLogical(e);
             pointerX = p.x;
             pointerY = p.y;
             api.pointerX = p.x;
             api.pointerY = p.y;
-            if (e.button === 0) {
+            const nowMs = performance.now();
+            const btnIdx = (e && typeof e.button === 'number') ? e.button : 0;
+            if (nowMs < transitionLockUntil) return;
+            if (btnIdx === 0) {
                 const btn = findButtonAt(p.x, p.y);
                 if (btn) {
+                    if (btn.id === 'ov_pri' || btn.id === 'ov_sec' || btn.id === 'lvl_prev' || btn.id === 'lvl_next' || btn.id === 'top_reset') {
+                        transitionLockUntil = nowMs + 220;
+                        hitButtons = [];
+                    }
                     playSfx(ctx, 'uiClick');
                     btn.onClick();
                     return;
                 }
             }
-            pointerDownInfo = { x: p.x, y: p.y, button: e.button, time: performance.now() };
+            if (btnIdx !== 0 && btnIdx !== 1 && btnIdx !== 2) return;
+            pointerDownInfo = { x: p.x, y: p.y, button: btnIdx, time: nowMs };
             if (cfg.onPointerDown) cfg.onPointerDown(p.x, p.y, e);
         }
 
@@ -589,6 +606,7 @@
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
                 e.preventDefault();
             }
+            if (e.repeat && (e.key === 'Enter' || e.key === ' ')) return;
             if (cfg.onKeyDown) cfg.onKeyDown(e);
         }
 
@@ -672,6 +690,7 @@
             canvas.removeEventListener('contextmenu', onContextMenu);
             global.removeEventListener('keydown', onKeyDown);
             if (canvas && canvas.style) canvas.style.cursor = '';
+            if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
         };
         return api;
     }
@@ -1554,7 +1573,9 @@
             try { global.localStorage.setItem(BEST_KEY, String(val)); } catch (e) { /* ignore */ }
         }
 
-        let state = Core.create2048State(Date.now(), loadBest());
+        const baseSeed = (ctx && Number.isFinite(Number(ctx.seed))) ? Number(ctx.seed) : null;
+        let runIdx = 0;
+        let state = Core.create2048State(baseSeed !== null ? baseSeed : Date.now(), loadBest());
         let popScale = Array.from({ length: 4 }, () => [1, 1, 1, 1]);
         let gameOver = false;
         let showWinBanner = false;
@@ -1563,6 +1584,20 @@
         let overReported = false;
         let dragStart = null;
         let shell;
+
+        function canMove2048Board(b) {
+            if (!b || !b.length) return false;
+            const n = b.length;
+            for (let r = 0; r < n; r++) {
+                for (let c = 0; c < b[r].length; c++) {
+                    const v = b[r][c];
+                    if (!v) return true;
+                    if (c + 1 < b[r].length && b[r][c + 1] === v) return true;
+                    if (r + 1 < n && b[r + 1][c] === v) return true;
+                }
+            }
+            return false;
+        }
 
         function maxTile() {
             let m = 2;
@@ -1584,7 +1619,8 @@
         }
 
         function resetGame() {
-            state = Core.create2048State(Date.now(), loadBest());
+            runIdx++;
+            state = Core.create2048State(baseSeed !== null ? baseSeed + runIdx * 97 : Date.now(), loadBest());
             popScale = Array.from({ length: 4 }, () => [1, 1, 1, 1]);
             gameOver = false;
             showWinBanner = false;
@@ -1594,15 +1630,24 @@
             syncHud();
         }
 
+        function trigger2048GameOver() {
+            if (overReported) return;
+            gameOver = true;
+            overReported = true;
+            playSfx(ctx, 'explodeSmall');
+            if (ctx && ctx.onGameOver) {
+                ctx.onGameOver({ gameId: 'quantum-2048', score: state.score, maxTile: maxTile() });
+            }
+        }
+
         function doSlide(dir) {
             if (gameOver || showWinBanner) return;
             const res = Core.slide2048(state, dir);
+            const hasMovesLeft = canMove2048Board(state.board);
             if (!res.moved) {
-                if (res.isGameOver && !overReported) {
-                    gameOver = true;
-                    overReported = true;
-                    playSfx(ctx, 'explodeSmall');
-                    if (ctx && ctx.onGameOver) ctx.onGameOver({ gameId: 'quantum-2048', score: state.score, maxTile: maxTile() });
+                if (!hasMovesLeft && !overReported) {
+                    trigger2048GameOver();
+                    syncHud();
                 }
                 return;
             }
@@ -1620,14 +1665,8 @@
                 if (ctx && ctx.onWin) {
                     ctx.onWin({ gameId: 'quantum-2048', score: state.score, moves: state.moves, stars: 3, tile: 2048 });
                 }
-            }
-            if (res.isGameOver && !overReported) {
-                gameOver = true;
-                overReported = true;
-                playSfx(ctx, 'explodeSmall');
-                if (ctx && ctx.onGameOver) {
-                    ctx.onGameOver({ gameId: 'quantum-2048', score: state.score, maxTile: maxTile() });
-                }
+            } else if ((res.isGameOver || !hasMovesLeft) && !hasMovesLeft && !showWinBanner) {
+                trigger2048GameOver();
             }
             syncHud();
         }
@@ -1652,6 +1691,18 @@
             },
             onKeyDown(e) {
                 const k = e.key.toLowerCase();
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (showWinBanner) {
+                        showWinBanner = false;
+                        endlessContinue = true;
+                        if (!canMove2048Board(state.board)) trigger2048GameOver();
+                        syncHud();
+                    } else if (gameOver) {
+                        resetGame();
+                    }
+                    return;
+                }
                 if (k === 'w' || e.key === 'ArrowUp') doSlide('N');
                 else if (k === 's' || e.key === 'ArrowDown') doSlide('S');
                 else if (k === 'a' || e.key === 'ArrowLeft') doSlide('W');
@@ -1757,7 +1808,12 @@
                         secondaryLabel: 'New Game [R]',
                         onSecondary: resetGame,
                         primaryLabel: 'Continue Endless',
-                        onPrimary: () => { showWinBanner = false; endlessContinue = true; }
+                        onPrimary: () => {
+                            showWinBanner = false;
+                            endlessContinue = true;
+                            if (!canMove2048Board(state.board)) trigger2048GameOver();
+                            syncHud();
+                        }
                     });
                 } else if (gameOver) {
                     shell.drawOverlay({
@@ -1865,6 +1921,12 @@
             },
             onKeyDown(e) {
                 const k = e.key.toLowerCase();
+                if (e.key === 'Enter' && state.won) {
+                    e.preventDefault();
+                    const hasNext = levelIdx + 1 < Core.MINE_LEVELS.length;
+                    loadLevel(hasNext ? levelIdx + 1 : 0);
+                    return;
+                }
                 if (k === 'f') { flagMode = !flagMode; playSfx(ctx, 'uiClick'); }
                 else if (k === 'r') loadLevel(levelIdx);
                 else if (k === 'h' && !state.won && !state.lost) {
@@ -1877,10 +1939,11 @@
                 const geo = fitGridRect(state.rows, state.cols, 20);
                 const cell = hitCell(px, py, geo, state.rows, state.cols);
                 if (!cell) return;
-                const isRightOrFlag = e.button === 2 || (e.button === 0 && (e.shiftKey || flagMode));
+                const btn = (e && typeof e.button === 'number') ? e.button : 0;
+                const isRightOrFlag = btn === 2 || (btn === 0 && (e.shiftKey || flagMode));
                 const tile = state.grid[cell.r][cell.c];
 
-                if (e.button === 0 && tile.revealed && tile.adj > 0) {
+                if ((btn === 0 || btn === 1) && !isRightOrFlag && tile.revealed && tile.adj > 0) {
                     const chRes = Core.chordMineCell(state, cell.r, cell.c);
                     if (!chRes.changed) {
                         let adjFlags = 0;
@@ -1907,7 +1970,7 @@
                     }
                     return;
                 }
-                if (e.button === 0) {
+                if (btn === 0) {
                     handleResult(Core.revealMineCell(state, cell.r, cell.c, Date.now()), geo);
                 }
             },
@@ -1944,7 +2007,7 @@
                     flagMode ? 'Mode: FLAG BOMB [F]' : 'Mode: SWEEP TILE [F]', {
                     active: flagMode,
                     accent: flagMode ? PAL.amber : PAL.cyan,
-                    onClick: () => { flagMode = !flagMode; }
+                    onClick: () => { flagMode = !flagMode; syncHud(); }
                 });
 
                 const geo = fitGridRect(state.rows, state.cols, 20);
@@ -2085,8 +2148,10 @@
     // 6. MATCH-3 ISOTOPE CORE (7x7, 8 Progressive Levels)
     // ========================================================================
     ENGINES['match3-isotope-core'] = function mountMatch3(ctx) {
+        const baseSeed = (ctx && Number.isFinite(Number(ctx.seed))) ? Number(ctx.seed) : null;
+        let runIdx = 0;
         let levelIdx = initLevelIdx(ctx, Core.MATCH3_LEVELS.length);
-        let state = Core.createMatch3State(levelIdx, Date.now());
+        let state = Core.createMatch3State(levelIdx, baseSeed !== null ? baseSeed : Date.now());
         let selected = null;
         let dragFrom = null;
         let hintMove = null;
@@ -2115,8 +2180,9 @@
         }
 
         function loadLevel(idx) {
+            runIdx++;
             levelIdx = toLevelIdx(idx + 1, 0, Core.MATCH3_LEVELS.length);
-            state = Core.createMatch3State(levelIdx, Date.now() + idx * 97);
+            state = Core.createMatch3State(levelIdx, (baseSeed !== null ? baseSeed + runIdx * 97 : Date.now() + idx * 97));
             selected = null;
             dragFrom = null;
             hintMove = null;
@@ -2237,6 +2303,12 @@
             },
             onKeyDown(e) {
                 const k = e.key.toLowerCase();
+                if (e.key === 'Enter' && won) {
+                    e.preventDefault();
+                    const hasNext = levelIdx + 1 < Core.MATCH3_LEVELS.length;
+                    loadLevel(hasNext ? levelIdx + 1 : 0);
+                    return;
+                }
                 if (k === 'r') loadLevel(levelIdx);
                 else if (k === 'h' && !resolving && !won && !lost) {
                     hintMove = Core.findValidMatch3Move(state.grid);
@@ -2707,7 +2779,10 @@
             onKeyDown(e) {
                 const k = e.key.toLowerCase();
                 if (k === 'r') loadLevel(levelIdx);
-                else if (e.key === 'Enter' && won && levelIdx + 1 < Core.MEMORY_LEVELS.length) loadLevel(levelIdx + 1);
+                else if (e.key === 'Enter' && won && levelIdx + 1 < Core.MEMORY_LEVELS.length) {
+                    e.preventDefault();
+                    loadLevel(levelIdx + 1);
+                }
             },
             onPointerDown(px, py, e) {
                 if (e.button !== 0 || won || peekTimer > 0) return;
@@ -3509,7 +3584,7 @@
         if (!fn) return { available: false, mode: 'fallback' };
         try {
             // Probe Wasm Linear Memory Bridge: cellularStep(srcPtr, dstPtr, cols, rows), 1=wall, 2=infected
-            if (w.memory && typeof w.memory.buffer === 'object') {
+            if (w.memory && typeof w.memory.buffer === 'object' && w.memory.buffer.byteLength >= 24576) {
                 const srcOff = 16384;
                 const dstOff = 20480;
                 const u8 = new Uint8Array(w.memory.buffer);
@@ -3635,11 +3710,18 @@
                     }
                 }
                 let resArr;
-                if (wasmInfo.order === 'wasm_mem') {
+                if (wasmInfo.order === 'wasm_mem' && wasmInfo.mem && wasmInfo.mem.buffer && wasmInfo.mem.buffer.byteLength >= wasmInfo.dstOff + R * C) {
                     const u8 = new Uint8Array(wasmInfo.mem.buffer);
                     u8.set(flat, wasmInfo.srcOff);
                     wasmInfo.fn(wasmInfo.srcOff, wasmInfo.dstOff, C, R);
                     resArr = new Uint8Array(wasmInfo.mem.buffer, wasmInfo.dstOff, R * C);
+                } else if (wasmInfo.order === 'wasm_mem') {
+                    for (let r = 0; r < R; r++) {
+                        for (let c = 0; c < C; c++) {
+                            flat[r * C + c] = state.grid[r][c];
+                        }
+                    }
+                    resArr = Core.stepCellularFallback(flat, R, C);
                 } else {
                     const out = wasmInfo.order === 'w_h_grid'
                         ? wasmInfo.fn(C, R, flat)

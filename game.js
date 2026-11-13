@@ -129,18 +129,25 @@
     function getClearPerimeterPoint(cx, cy, minDist = 520, maxDist = 720, pad = 26) {
         const dir = global.CosmicMapDirector;
         const margin = Math.max(100, pad + 16);
-        for (let tries = 0; tries < 10; tries++) {
+        const minSafeDist = Math.max(160, minDist * 0.72);
+        const isClear = (x, y) => !dir || typeof dir._isPointClearOfObstacles !== 'function' || dir._isPointClearOfObstacles(x, y, pad);
+
+        for (let tries = 0; tries < 16; tries++) {
             const ang = randVal() * Math.PI * 2;
             const d = minDist + randVal() * Math.max(40, maxDist - minDist);
             const sx = Math.max(margin, Math.min(WORLD_W - margin, cx + Math.cos(ang) * d));
             const sy = Math.max(margin, Math.min(WORLD_H - margin, cy + Math.sin(ang) * d));
-            if (!dir || typeof dir._isPointClearOfObstacles !== 'function' || dir._isPointClearOfObstacles(sx, sy, pad)) {
+            if (Math.hypot(sx - cx, sy - cy) >= minSafeDist && isClear(sx, sy)) {
                 return { x: sx, y: sy };
             }
         }
-        const ang = randVal() * Math.PI * 2;
+
+        // Bias fallback inward toward arena center so cornered players don't get wall-clamped spawns
+        const inwardAng = Math.atan2(WORLD_H * 0.5 - cy, WORLD_W * 0.5 - cx) + (randVal() - 0.5) * 0.6;
         const d = (minDist + maxDist) * 0.5;
-        return resolveDropPosition(cx + Math.cos(ang) * d, cy + Math.sin(ang) * d, pad, 260);
+        const fx = Math.max(margin, Math.min(WORLD_W - margin, cx + Math.cos(inwardAng) * d));
+        const fy = Math.max(margin, Math.min(WORLD_H - margin, cy + Math.sin(inwardAng) * d));
+        return resolveDropPosition(fx, fy, pad, 260);
     }
 
     // ── Rebalanced v10.0 Difficulty Scaling (Synced with DATA.DIFFICULTIES) ─────────
@@ -265,6 +272,7 @@
     const G = {
         running: false, paused: false, gameOver: false,
         isLevelingUp: false, levelUpActionTaken: false, isLooting: false, isBossReward: false, isVictoryChoice: false,
+        pendingChests: 0, pendingBossRewards: 0, pendingVictory: false,
         shipId: 'interceptor', mapId: 'sector9', diffId: 'normal', diff: DIFFICULTIES.normal,
         modeId: 'survival', skinId: 'standard', skinTint: 0xffffff,
         pilotName: 'PİLOT-01',
@@ -272,12 +280,12 @@
         modeXpMult: 1.0, modeScoreMult: 1.0, modeCreditMult: 1.0,
         modeEnemyHpMult: 1.0, modeEnemySpMult: 1.0,
         time: 0, timeLimit: 0, timeRemaining: 0,
-        wave: 1, waveTimer: 0, waveDuration: 28, spawnAcc: 0,
+        wave: 1, waveTimer: 0, waveDuration: 28, spawnAcc: 0, solarTick: 0,
         bossRushTimer: 15, bossRushCount: 0, bossesKilled: 0, campaignVictoryShown: false,
         kills: 0, score: 0, creditsEarned: 0, rerolls: 2, skips: 1,
         afkCheckTimer: 0, lastMovedPos: { x: WORLD_W * 0.5, y: WORLD_H * 0.5 },
         shockwaveSeq: 0, shockwaveTrigger: null,
-        minimapOpen: true,
+        minimapOpen: true, audioPrimed: false,
         camX: WORLD_W * 0.5, camY: WORLD_H * 0.5, shakeTime: 0, shakeMag: 0,
         player: null, enemies: [], bosses: [], bullets: [], crystals: [], pickups: [],
         chests: [], particles: [], floorZones: [], orbitals: [], arcs: [], floatTexts: [],
@@ -548,6 +556,7 @@
                 hurtEnemy(en, 130 * p.dmgMult, 'overdriveBlast', true);
             }
         });
+        damageBossPylonsInRadius(p.x, p.y, 380, 130 * p.dmgMult, 'overdriveBlast');
         for (let k = 0; k < 20; k++) {
             const a = (k * Math.PI * 2) / 20;
             spawnParticle(p.x, p.y, k % 2 ? '#f59e0b' : '#a78bfa', 7, 0.5, Math.cos(a) * 240, Math.sin(a) * 240);
@@ -619,6 +628,33 @@
         }
     }
 
+    function damageBossPylonsInRadius(x, y, radius, rawDmg, sourceId, hitSet = null) {
+        if (!Array.isArray(G.bosses) || G.bosses.length === 0) return;
+        for (let i = 0; i < G.bosses.length; i++) {
+            const boss = G.bosses[i];
+            if (!boss || boss.dead) continue;
+            const pylons = boss.shieldPylons || [];
+            for (let j = 0; j < pylons.length; j++) {
+                const py = pylons[j];
+                if (!py || py.alive === false || py.hp <= 0) continue;
+                if (hitSet && hitSet.has(py)) continue;
+                if (Math.hypot(py.x - x, py.y - y) <= radius + (py.r || 20)) {
+                    if (hitSet) hitSet.add(py);
+                    damageBossPylon(boss, py, rawDmg, sourceId);
+                }
+            }
+        }
+    }
+
+    function clearDeadHostiles() {
+        for (let i = G.enemies.length - 1; i >= 0; i--) {
+            if (G.enemies[i].dead) G.enemies.splice(i, 1);
+        }
+        for (let i = G.bosses.length - 1; i >= 0; i--) {
+            if (G.bosses[i].dead) G.bosses.splice(i, 1);
+        }
+    }
+
     function hurtEnemy(en, rawDmg, sourceId, forceCrit = false, hitAngle = 0) {
         if (!en || en.dead) return;
         const p = G.player;
@@ -673,6 +709,13 @@
             if (global.CosmicAudio) global.CosmicAudio.play(en.isBoss ? 'explodeBoss' : 'explodeSmall', 0.2);
 
             if (en.isBoss) {
+                if (Array.isArray(en.shieldPylons)) {
+                    for (let j = 0; j < en.shieldPylons.length; j++) {
+                        const py = en.shieldPylons[j];
+                        if (py) { py.alive = false; py.hp = 0; }
+                    }
+                    en.shieldPylons.length = 0;
+                }
                 G.bossesKilled++;
                 triggerShake(13, 0.48);
                 triggerShockwave(en.x, en.y, 920, 0.9);
@@ -748,9 +791,11 @@
 
         if (!ignoreInvuln && p.trinkets.reactiveArmor) {
             spawnParticle(p.x, p.y, '#f59e0b', 110, 0.28, 0, 0, true);
-            G.enemies.forEach(en => {
-                if (Math.hypot(en.x - p.x, en.y - p.y) < 135) hurtEnemy(en, 35 * p.trinkets.reactiveArmor.level, 'reactiveArmor');
+            const rDmg = 35 * p.trinkets.reactiveArmor.level;
+            G.enemies.concat(G.bosses).forEach(en => {
+                if (!en.dead && Math.hypot(en.x - p.x, en.y - p.y) < 135) hurtEnemy(en, rDmg, 'reactiveArmor');
             });
+            damageBossPylonsInRadius(p.x, p.y, 135, rDmg, 'reactiveArmor');
         }
 
         if (p.hp <= 0) {
@@ -761,11 +806,12 @@
                 p.invuln = 2.5;
                 p.shDelay = 0;
                 G.bullets = G.bullets.filter(b => !(b.isEnemy && Math.hypot(b.x - p.x, b.y - p.y) < 600));
-                G.enemies.forEach(en => {
+                G.enemies.concat(G.bosses).forEach(en => {
                     if (!en.dead && Math.hypot(en.x - p.x, en.y - p.y) < 360) {
                         hurtEnemy(en, 185 * p.dmgMult, 'coreReboot', true);
                     }
                 });
+                damageBossPylonsInRadius(p.x, p.y, 360, 185 * p.dmgMult, 'coreReboot');
                 triggerShockwave(p.x, p.y, 780, 0.9);
                 triggerShake(11, 0.42);
                 spawnParticle(p.x, p.y, '#fb7185', 220, 0.55, 0, 0, true);
@@ -888,6 +934,7 @@
             G.enemies.concat(G.bosses).forEach(en => {
                 if (!en.dead && Math.hypot(en.x - zx, en.y - zy) < rad + en.r) hurtEnemy(en, 34 * dmgScale, id);
             });
+            damageBossPylonsInRadius(zx, zy, rad, 34 * dmgScale, id);
             if (global.CosmicAudio) global.CosmicAudio.play('shootPlasma', 0.2);
         } else if (id === 'photonRailgun' || id === 'tachyonLance') {
             const endPt = rayClipEnd(p.x, p.y, aim, 920);
@@ -915,17 +962,33 @@
             const isCryo = (id === 'cryoNova' || id === 'absoluteZero');
             for (let c = 0; c < chainCount; c++) {
                 let nearest = null;
+                let nearestBoss = null;
                 let bestD = 540;
+                for (let biIdx = 0; biIdx < G.bosses.length; biIdx++) {
+                    const boss = G.bosses[biIdx];
+                    if (boss.dead) continue;
+                    const pylons = boss.shieldPylons || [];
+                    for (let pj = 0; pj < pylons.length; pj++) {
+                        const py = pylons[pj];
+                        if (!py || py.alive === false || py.hp <= 0 || hit.has(py)) continue;
+                        const dp = Math.hypot(py.x - cx, py.y - cy);
+                        if (dp < bestD) { bestD = dp; nearest = py; nearestBoss = boss; }
+                    }
+                }
                 for (const en of G.bosses.concat(G.enemies)) {
                     if (en.dead || hit.has(en)) continue;
                     const d = Math.hypot(en.x - cx, en.y - cy);
-                    if (d < bestD) { bestD = d; nearest = en; }
+                    if (d < bestD) { bestD = d; nearest = en; nearestBoss = null; }
                 }
                 if (!nearest) break;
                 hit.add(nearest);
                 addArc(cx, cy, nearest.x, nearest.y, isCryo ? '#22d3ee' : '#34d399', isEvo ? 4 : 2.5);
-                hurtEnemy(nearest, 42 * dmgScale, id);
-                if (isCryo && !nearest.isBoss) nearest.frozenTimer = Math.max(nearest.frozenTimer || 0, isEvo ? 3.2 : 2.0);
+                if (nearestBoss) {
+                    damageBossPylon(nearestBoss, nearest, 42 * dmgScale, id);
+                } else {
+                    hurtEnemy(nearest, 42 * dmgScale, id);
+                    if (isCryo && !nearest.isBoss) nearest.frozenTimer = Math.max(nearest.frozenTimer || 0, isEvo ? 3.2 : 2.0);
+                }
                 cx = nearest.x;
                 cy = nearest.y;
             }
@@ -1064,6 +1127,7 @@
                     en.burnTimer = 4.0;
                 }
             });
+            damageBossPylonsInRadius(p.x, p.y, 280, 110 * p.dmgMult, 'flameLine');
         } else if (sid === 'tempest') {
             fireWeapon('absoluteZero', 5, true, false);
         } else if (sid === 'valkyrie') {
@@ -1187,11 +1251,8 @@
         const count = 2 + Math.min(2, Math.floor(G.wave / 4));
         const types = ['kamikaze', 'shooter', 'kamikaze', 'phantom'];
         for (let i = 0; i < count; i++) {
-            const ang = (i * Math.PI * 2) / count + randVal() * 0.6;
-            const dist = 340 + randVal() * 90;
-            const sx = Math.max(120, Math.min(WORLD_W - 120, p.x + Math.cos(ang) * dist));
-            const sy = Math.max(120, Math.min(WORLD_H - 120, p.y + Math.sin(ang) * dist));
-            spawnEnemy(types[i % types.length], sx, sy, false, false, true);
+            const pt = getClearPerimeterPoint(p.x, p.y, 320, 440, 26);
+            spawnEnemy(types[i % types.length], pt.x, pt.y, false, false, true);
         }
         if (global.CosmicAudio) global.CosmicAudio.play('bossAlarm');
         showToast(bi('HAREKETSİZ KONUM TESPİT EDİLDİ — AVCI TİMİ GÖNDERİLDİ', 'STATIONARY SIGNATURE DETECTED — HUNTER SQUAD INBOUND'));
@@ -1610,13 +1671,7 @@
                 }
             }
         }
-        G.bosses.forEach(boss => {
-            (boss.shieldPylons || []).forEach(py => {
-                if (py && py.alive !== false && py.hp > 0 && Math.hypot(py.x - b.x, py.y - b.y) <= b.aoe) {
-                    damageBossPylon(boss, py, b.dmg * 0.6, b.sourceId);
-                }
-            });
-        });
+        damageBossPylonsInRadius(b.x, b.y, b.aoe, b.dmg * 0.6, b.sourceId);
     }
 
     function updateBullets(dt) {
@@ -1734,6 +1789,7 @@
                         if (z.slowFactor && !en.isBoss) en.frozenTimer = Math.max(en.frozenTimer || 0, 0.7);
                     }
                 });
+                damageBossPylonsInRadius(z.x, z.y, z.r, z.dmgPerSec * 0.45, z.sourceId);
             }
         }
         if (p.solarAuraRadius > 0) {
@@ -1745,6 +1801,7 @@
                         hurtEnemy(en, 11 * p.dmgMult, 'flameLine');
                     }
                 });
+                damageBossPylonsInRadius(p.x, p.y, p.solarAuraRadius, 11 * p.dmgMult, 'flameLine');
             }
         }
         for (let i = G.crystals.length - 1; i >= 0; i--) {
@@ -1801,10 +1858,52 @@
         }
     }
 
+    function isAnyModalOpen() {
+        return Boolean(G.isLevelingUp || G.isLooting || G.isBossReward || G.isVictoryChoice || G.gameOver);
+    }
+
+    function drainPendingModals() {
+        if (G.gameOver || G.destroyed) return;
+        if (G.isLevelingUp || G.isLooting || G.isBossReward || G.isVictoryChoice) return;
+        if (G.pendingVictory) {
+            G.pendingVictory = false;
+            openVictoryModal();
+            return;
+        }
+        const p = G.player;
+        if (p && p.xp >= p.nextXp) {
+            grantXp(0);
+            return;
+        }
+        if (G.pendingBossRewards > 0) {
+            G.pendingBossRewards--;
+            openBossRewardModal();
+            return;
+        }
+        if (G.pendingChests > 0) {
+            G.pendingChests--;
+            openCosmicChestModal();
+            return;
+        }
+        G.paused = false;
+        G.lastFrameTs = performance.now();
+    }
+
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const tmp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = tmp;
+        }
+        return arr;
+    }
+
     function grantXp(amt) {
         const p = G.player;
+        if (!p) return;
         p.xp += amt;
-        if (p.xp >= p.nextXp && !G.isLevelingUp && !G.gameOver) {
+        if (p.xp >= p.nextXp && !isAnyModalOpen()) {
             p.xp -= p.nextXp;
             p.level++;
             p.nextXp = Math.round(32 + p.level * 18 + Math.pow(p.level, 1.38) * 3.5);
@@ -1814,8 +1913,17 @@
 
     function getUpgradePool() {
         const p = G.player;
-        const pool = [];
+        const megaPool = [];
+        const evoPoolList = [];
+        const modulePool = [];
+        const seen = new Set();
         const maxWSlots = MAX_WEAPON_SLOTS + p.extraSlots;
+
+        const pushUnique = (targetArr, item) => {
+            if (!item || !item.id || seen.has(item.id)) return;
+            seen.add(item.id);
+            targetArr.push(item);
+        };
 
         for (const mega of Object.values(SUPER_EVOLUTIONS)) {
             if (p.superEvolutions.has(mega.id)) continue;
@@ -1826,7 +1934,7 @@
             const matchingFromPool = evoPool.filter(r => p.evolutions.has(r));
             if (hasPrimary || matchingFromPool.length >= 2) {
                 const consumeEvos = hasPrimary ? reqs.slice(0, 2) : matchingFromPool.slice(0, 2);
-                pool.push(Object.assign({}, mega, {
+                pushUnique(megaPool, Object.assign({}, mega, {
                     consumeEvos,
                     tag: 'MEGA',
                     nextLvLabel: bi('MEGA FÜZYON (+1 SLOT)', 'MEGA FUSION (+1 SLOT)')
@@ -1839,7 +1947,7 @@
             const hasPrimary = p.weapons[evo.weaponReq] && p.weapons[evo.weaponReq].level >= 5;
             const hasAlt = evo.altWeaponReq && p.weapons[evo.altWeaponReq] && p.weapons[evo.altWeaponReq].level >= 5;
             if (hasPrimary || hasAlt) {
-                pool.push(Object.assign({}, evo, {
+                pushUnique(evoPoolList, Object.assign({}, evo, {
                     replaceWeapon: hasPrimary ? evo.weaponReq : evo.altWeaponReq,
                     tag: bi('EVRİM', 'EVOLUTION'),
                     nextLvLabel: bi('EVRİM FÜZYONU', 'EVOLUTION FUSION')
@@ -1854,10 +1962,10 @@
             const tag = w.shipExclusive ? bi('İMZA SİLAH', 'SIGNATURE') : bi('SİLAH', 'WEAPON');
             if (owned) {
                 if (owned.level < 5) {
-                    pool.push(Object.assign({}, w, { tag, nextLvLabel: bi(`Seviye ${owned.level} -> ${owned.level + 1}`, `Level ${owned.level} -> ${owned.level + 1}`) }));
+                    pushUnique(modulePool, Object.assign({}, w, { tag, nextLvLabel: bi(`Seviye ${owned.level} -> ${owned.level + 1}`, `Level ${owned.level} -> ${owned.level + 1}`) }));
                 }
             } else if (wCount < maxWSlots) {
-                pool.push(Object.assign({}, w, { tag, nextLvLabel: bi('YENİ SİLAH SLOTU', 'NEW WEAPON SLOT') }));
+                pushUnique(modulePool, Object.assign({}, w, { tag, nextLvLabel: bi('YENİ SİLAH SLOTU', 'NEW WEAPON SLOT') }));
             }
         }
 
@@ -1868,33 +1976,46 @@
             const tag = t.shipExclusive ? bi('İMZA MODÜL', 'SIGNATURE') : bi('DESTEK', 'SUPPORT');
             if (owned) {
                 if (owned.level < 5) {
-                    pool.push(Object.assign({}, t, { tag, nextLvLabel: bi(`Seviye ${owned.level} -> ${owned.level + 1}`, `Level ${owned.level} -> ${owned.level + 1}`) }));
+                    pushUnique(modulePool, Object.assign({}, t, { tag, nextLvLabel: bi(`Seviye ${owned.level} -> ${owned.level + 1}`, `Level ${owned.level} -> ${owned.level + 1}`) }));
                 }
             } else if (tCount < MAX_TRINKET_SLOTS) {
-                pool.push(Object.assign({}, t, { tag, nextLvLabel: bi('YENİ DESTEK SLOTU', 'NEW SUPPORT SLOT') }));
+                pushUnique(modulePool, Object.assign({}, t, { tag, nextLvLabel: bi('YENİ DESTEK SLOTU', 'NEW SUPPORT SLOT') }));
             }
         }
 
-        pool.sort((a, b) => {
-            const rank = (x) => x.kind === 'superEvolution' ? 0 : (x.kind === 'evolution' ? 1 : (Math.random() < 0.5 ? 2 : 3));
-            return rank(a) - rank(b);
-        });
+        shuffleArray(megaPool);
+        shuffleArray(evoPoolList);
+        shuffleArray(modulePool);
+        const pool = [...megaPool, ...evoPoolList, ...modulePool];
 
-        if (pool.length === 0) {
-            pool.push({
-                id: '_overcharge', kind: 'bonus',
-                name: 'Çekirdek Aşırı Yükü', nameEn: 'Core Overcharge', tag: 'BONUS',
-                nextLvLabel: bi('ANLIK GÜÇ', 'INSTANT BOOST'),
-                desc: '+35 HP/Kalkan yeniler ve tüm silah hasarını kalıcı +%6 artırır.',
-                descEn: 'Restores +35 HP/Shield and permanently increases weapon damage by +6%.'
-            });
-            pool.push({
-                id: '_bounty', kind: 'bonus',
-                name: 'Kozmik Kredi Yağmuru', nameEn: 'Cosmic Credit Bounty', tag: 'BONUS',
-                nextLvLabel: '+150 CRD',
-                desc: 'Atölye için anında +150 kalıcı Kozmik Kredi kazandırır.',
-                descEn: 'Grants +150 permanent Workshop Credits immediately.'
-            });
+        if (pool.length < 3) {
+            const bonusCards = [
+                {
+                    id: '_overcharge', kind: 'bonus',
+                    name: 'Çekirdek Aşırı Yükü', nameEn: 'Core Overcharge', tag: 'BONUS',
+                    nextLvLabel: bi('ANLIK GÜÇ', 'INSTANT BOOST'),
+                    desc: '+35 HP/Kalkan yeniler ve tüm silah hasarını kalıcı +%6 artırır.',
+                    descEn: 'Restores +35 HP/Shield and permanently increases weapon damage by +6%.'
+                },
+                {
+                    id: '_bounty', kind: 'bonus',
+                    name: 'Kozmik Kredi Yağmuru', nameEn: 'Cosmic Credit Bounty', tag: 'BONUS',
+                    nextLvLabel: '+150 CRD',
+                    desc: 'Atölye için anında +150 kalıcı Kozmik Kredi kazandırır.',
+                    descEn: 'Grants +150 permanent Workshop Credits immediately.'
+                },
+                {
+                    id: '_overdriveCell', kind: 'bonus',
+                    name: 'Overdrive Hücresi', nameEn: 'Overdrive Cell', tag: 'BONUS',
+                    nextLvLabel: bi('+20 MAX HP/SH · %100 OD', '+20 MAX HP/SH · 100% OD'),
+                    desc: '+20 Maks HP/Kalkan ekler, Overdrive barını %100 doldurur ve +1 Reroll verir.',
+                    descEn: 'Adds +20 Max HP/Shield, fills Overdrive to 100%, and grants +1 Reroll.'
+                }
+            ];
+            for (const card of bonusCards) {
+                if (pool.length >= 3) break;
+                pushUnique(pool, card);
+            }
         }
         return pool.slice(0, 3);
     }
@@ -1923,6 +2044,7 @@
     }
 
     function triggerLevelUp() {
+        if (isAnyModalOpen()) return;
         G.isLevelingUp = true;
         G.levelUpActionTaken = false;
         G.paused = true;
@@ -1931,16 +2053,8 @@
         el.levelUpOv.classList.add('open');
     }
 
-    function applyLevelUpChoice(idx) {
-        if (!G.isLevelingUp || G.levelUpActionTaken) return;
-        const choice = G.currentOffers[idx];
+    function applyUpgradeItem(choice) {
         if (!choice) return;
-
-        // Atomic synchronous zero-race-condition lock
-        G.levelUpActionTaken = true;
-        G.isLevelingUp = false;
-        el.luCardsGrid.classList.add('locked');
-
         const p = G.player;
         if (choice.kind === 'superEvolution') {
             const toConsume = choice.consumeEvos || choice.evoReqs || choice.req || [];
@@ -1966,17 +2080,53 @@
             p.sh = Math.min(p.maxSh, p.sh + 35);
             p.baseDmgMult *= 1.06;
             recomputePlayerStats();
+        } else if (choice.id === '_overdriveCell') {
+            p.maxHp += 20;
+            p.maxSh += 20;
+            p.hp = Math.min(p.maxHp, p.hp + 20);
+            p.sh = Math.min(p.maxSh, p.sh + 20);
+            if (p.overdriveActive <= 0) p.overdrive = 100;
+            G.rerolls = Math.min(9, G.rerolls + 1);
         } else if (choice.id === '_bounty') {
             G.creditsEarned += 150;
         }
+    }
+
+    function applyLevelUpChoice(idx) {
+        if (!G.isLevelingUp || G.levelUpActionTaken) return;
+        const choice = G.currentOffers[idx];
+        if (!choice) return;
+
+        // Atomic synchronous zero-race-condition lock
+        G.levelUpActionTaken = true;
+        G.isLevelingUp = false;
+        el.luCardsGrid.classList.add('locked');
+
+        applyUpgradeItem(choice);
 
         if (global.CosmicAudio) global.CosmicAudio.play('uiConfirm');
         el.levelUpOv.classList.remove('open');
-        G.paused = false;
-        G.lastFrameTs = performance.now();
+        drainPendingModals();
+    }
+
+    function skipLevelUp() {
+        if (!G.isLevelingUp || G.levelUpActionTaken || G.skips <= 0) return;
+        G.skips--;
+        G.creditsEarned += 60;
+        G.levelUpActionTaken = true;
+        G.isLevelingUp = false;
+        el.luCardsGrid.classList.add('locked');
+        el.levelUpOv.classList.remove('open');
+        if (global.CosmicAudio) global.CosmicAudio.play('uiConfirm');
+        drainPendingModals();
     }
 
     function openCosmicChestModal() {
+        if (G.gameOver) return;
+        if (isAnyModalOpen()) {
+            G.pendingChests++;
+            return;
+        }
         G.isLooting = true;
         G.paused = true;
         if (global.CosmicAudio) global.CosmicAudio.play('chestOpen');
@@ -2028,16 +2178,19 @@
         el.btnCollectLoot.onclick = () => {
             if (!G.isLooting) return;
             G.isLooting = false;
-            G.currentOffers = [reward];
-            G.isLevelingUp = true;
-            G.levelUpActionTaken = false;
-            applyLevelUpChoice(0);
+            applyUpgradeItem(reward);
+            if (global.CosmicAudio) global.CosmicAudio.play('uiConfirm');
             el.lootBoxOv.classList.remove('open');
-            G.paused = false;
+            drainPendingModals();
         };
     }
 
     function openBossRewardModal() {
+        if (G.gameOver) return;
+        if (isAnyModalOpen()) {
+            G.pendingBossRewards++;
+            return;
+        }
         G.isBossReward = true;
         G.paused = true;
         if (el.bossRewEyebrow) el.bossRewEyebrow.textContent = bi('BOSS İMHA EDİLDİ', 'BOSS ELIMINATED');
@@ -2069,9 +2222,9 @@
                 if (!G.isBossReward) return;
                 G.isBossReward = false;
                 o.apply();
+                if (global.CosmicAudio) global.CosmicAudio.play('uiConfirm');
                 el.bossRewardOv.classList.remove('open');
-                G.paused = false;
-                G.lastFrameTs = performance.now();
+                drainPendingModals();
             };
             el.bossRewGrid.appendChild(btn);
         });
@@ -2079,6 +2232,11 @@
     }
 
     function openVictoryModal() {
+        if (G.gameOver) return;
+        if (isAnyModalOpen()) {
+            G.pendingVictory = true;
+            return;
+        }
         G.isVictoryChoice = true;
         G.paused = true;
         triggerConfettiBurst(85);
@@ -2148,8 +2306,35 @@
         }
     }
 
+    function resetInputState() {
+        G.keys = {};
+        G.joy.active = false;
+        G.joy.dx = 0;
+        G.joy.dy = 0;
+        if (el.vjoyKnob) el.vjoyKnob.style.transform = 'translate(-50%, -50%)';
+    }
+
+    function closeAllModals() {
+        G.isLevelingUp = false;
+        G.levelUpActionTaken = false;
+        G.isLooting = false;
+        G.isBossReward = false;
+        G.isVictoryChoice = false;
+        G.pendingChests = 0;
+        G.pendingBossRewards = 0;
+        G.pendingVictory = false;
+        G.currentOffers = [];
+        if (el.luCardsGrid) el.luCardsGrid.classList.remove('locked');
+        [el.levelUpOv, el.lootBoxOv, el.bossRewardOv, el.victoryOv, el.pauseOv, el.gameOverOv].forEach(ov => {
+            if (ov) ov.classList.remove('open');
+        });
+    }
+
     function endRun(reason, isVictory = false) {
         if (G.gameOver) return;
+        closeAllModals();
+        resetInputState();
+        clearDeadHostiles();
         G.gameOver = true;
         G.running = false;
         G.paused = true;
@@ -2478,58 +2663,57 @@
                 if (p.aegisPulseTimer <= 0) {
                     p.aegisPulseTimer = 6.0;
                     spawnParticle(p.x, p.y, '#34d399', 145, 0.36, 0, 0, true);
-                    G.enemies.forEach(en => {
-                        if (Math.hypot(en.x - p.x, en.y - p.y) < 165) hurtEnemy(en, 35 * p.dmgMult, 'energyDisc');
+                    G.enemies.concat(G.bosses).forEach(en => {
+                        if (!en.dead && Math.hypot(en.x - p.x, en.y - p.y) < 165) hurtEnemy(en, 35 * p.dmgMult, 'energyDisc');
                     });
+                    damageBossPylonsInRadius(p.x, p.y, 165, 35 * p.dmgMult, 'energyDisc');
                 }
             }
 
             updatePlayerAim();
             updateWeapons(dt);
 
-            global.CosmicMapDirector.update(dt, {
-                player: p,
-                enemies: G.enemies,
-                onDamagePlayer: (dmg, lbl, ig) => hurtPlayer(dmg, lbl, ig),
-                onDamageEnemy: (en, dmg, crit) => hurtEnemy(en, dmg, 'sectorHazard', crit),
-                onMeteorImpact: (m) => {
-                    triggerShake(5, 0.18);
-                    spawnParticle(m.x, m.y, '#f97316', m.r, 0.4, 0, 0, true);
-                },
-                onPylonCaptured: () => {
-                    G.creditsEarned += 250;
-                    G.score += 500;
-                    addOverdriveCharge(18);
-                    if (global.CosmicAudio) global.CosmicAudio.play('powerup');
-                    showBanner(bi('OVERDRİVE RÖLESİ ELE GEÇİRİLDİ (+%30 ATEŞ HIZI · +250 CRD)', 'OVERDRIVE RELAY CAPTURED (+30% FIRE RATE · +250 CRD)'));
-                },
-                onVaultCaptured: () => {
-                    G.creditsEarned += 300;
-                    G.score += Math.round(750 * G.diff.score * G.modeScoreMult);
-                    addOverdriveCharge(40);
-                    if (global.CosmicAudio) global.CosmicAudio.play('chestOpen');
-                    showBanner(bi('KASA SIĞINAĞI AÇILDI! (+300 CRD · +40% OVERDRIVE · GANİMET)', 'VAULT BUNKER UNSEALED! (+300 CRD · +40% OVERDRIVE · CACHE)'));
-                    if (!G.isLevelingUp && !G.isLooting && !G.isBossReward && !G.isVictoryChoice) {
+            if (!G.paused && !G.gameOver && !G.destroyed) {
+                global.CosmicMapDirector.update(dt, {
+                    player: p,
+                    enemies: G.enemies,
+                    onDamagePlayer: (dmg, lbl, ig) => hurtPlayer(dmg, lbl, ig),
+                    onDamageEnemy: (en, dmg, crit) => hurtEnemy(en, dmg, 'sectorHazard', crit),
+                    onMeteorImpact: (m) => {
+                        triggerShake(5, 0.18);
+                        spawnParticle(m.x, m.y, '#f97316', m.r, 0.4, 0, 0, true);
+                    },
+                    onPylonCaptured: () => {
+                        G.creditsEarned += 250;
+                        G.score += 500;
+                        addOverdriveCharge(18);
+                        if (global.CosmicAudio) global.CosmicAudio.play('powerup');
+                        showBanner(bi('OVERDRİVE RÖLESİ ELE GEÇİRİLDİ (+%30 ATEŞ HIZI · +250 CRD)', 'OVERDRIVE RELAY CAPTURED (+30% FIRE RATE · +250 CRD)'));
+                    },
+                    onVaultCaptured: () => {
+                        G.creditsEarned += 300;
+                        G.score += Math.round(750 * G.diff.score * G.modeScoreMult);
+                        addOverdriveCharge(40);
+                        if (global.CosmicAudio) global.CosmicAudio.play('chestOpen');
+                        showBanner(bi('KASA SIĞINAĞI AÇILDI! (+300 CRD · +40% OVERDRIVE · GANİMET)', 'VAULT BUNKER UNSEALED! (+300 CRD · +40% OVERDRIVE · CACHE)'));
                         openCosmicChestModal();
-                    } else {
-                        G.chests.push(resolveDropPosition(p.x + 28, p.y, 20));
+                    },
+                    onCargoOpened: (pod) => {
+                        if (global.CosmicAudio) global.CosmicAudio.play('chestOpen');
+                        for (let k = 0; k < 6; k++) {
+                            const cp = resolveDropPosition(pod.x + (Math.random() - 0.5) * 40, pod.y + (Math.random() - 0.5) * 40, 12, 140);
+                            G.crystals.push({ x: cp.x, y: cp.y, val: 14, big: true });
+                        }
+                        const pkPos = resolveDropPosition(pod.x, pod.y, 15, 140);
+                        G.pickups.push({ x: pkPos.x, y: pkPos.y, kind: Math.random() < 0.5 ? 'heal' : 'shield' });
+                        showBanner(bi('KARGO KAPSÜLÜ AÇILDI (+XP & ONARIM)', 'CARGO POD OPENED (+XP & REPAIR)'));
                     }
-                },
-                onCargoOpened: (pod) => {
-                    if (global.CosmicAudio) global.CosmicAudio.play('chestOpen');
-                    for (let k = 0; k < 6; k++) {
-                        const cp = resolveDropPosition(pod.x + (Math.random() - 0.5) * 40, pod.y + (Math.random() - 0.5) * 40, 12, 140);
-                        G.crystals.push({ x: cp.x, y: cp.y, val: 14, big: true });
-                    }
-                    const pkPos = resolveDropPosition(pod.x, pod.y, 15, 140);
-                    G.pickups.push({ x: pkPos.x, y: pkPos.y, kind: Math.random() < 0.5 ? 'heal' : 'shield' });
-                    showBanner(bi('KARGO KAPSÜLÜ AÇILDI (+XP & ONARIM)', 'CARGO POD OPENED (+XP & REPAIR)'));
-                }
-            });
+                });
+            }
 
-            updateEnemiesAndBosses(dt);
-            updateBullets(dt);
-            updateWorldEntities(dt);
+            if (!G.paused && !G.gameOver && !G.destroyed) updateEnemiesAndBosses(dt);
+            if (!G.paused && !G.gameOver && !G.destroyed) updateBullets(dt);
+            if (!G.paused && !G.gameOver && !G.destroyed) updateWorldEntities(dt);
 
             if (G.eventBannerTimer > 0) {
                 G.eventBannerTimer -= dt;
@@ -2538,6 +2722,8 @@
             G.camX += (p.x - G.camX) * Math.min(1, dt * 10);
             G.camY += (p.y - G.camY) * Math.min(1, dt * 10);
         }
+
+        clearDeadHostiles();
 
         let sx = 0;
         let sy = 0;
@@ -2582,11 +2768,7 @@
         }
     }
 
-    function toggleAimMode() {
-        G.aimMode = G.aimMode === 'mouse' ? 'auto' : 'mouse';
-        G.settings.aimMode = G.aimMode;
-        saveSettings();
-        recomputePlayerStats();
+    function syncAimUi() {
         if (el.aimModeLabel) {
             el.aimModeLabel.textContent = G.aimMode === 'mouse'
                 ? bi('[Q] Fare Nişanı', '[Q] Mouse Aim')
@@ -2594,6 +2776,120 @@
         }
         if (el.setAimMode) el.setAimMode.value = G.aimMode;
         if (el.btnAimToggle) el.btnAimToggle.classList.toggle('active', G.aimMode === 'mouse');
+        if (G.paused) updatePauseStatsPanel();
+    }
+
+    function toggleAimMode() {
+        G.aimMode = G.aimMode === 'mouse' ? 'auto' : 'mouse';
+        G.settings.aimMode = G.aimMode;
+        saveSettings();
+        recomputePlayerStats();
+        syncAimUi();
+    }
+
+    function ensureAudioUnlockedAndAmbient() {
+        if (!global.CosmicAudio) return;
+        global.CosmicAudio.unlock();
+        const prefs = global.CosmicAudio.prefs || {};
+        if (!prefs.muted && (prefs.ambVol || 0) > 0.01 && !G.audioPrimed) {
+            G.audioPrimed = true;
+            global.CosmicAudio.startAmbient();
+        }
+    }
+
+    function syncAudioIcon() {
+        if (el.audioToggleIcon && global.CosmicAudio) {
+            el.audioToggleIcon.setAttribute('data-lucide', global.CosmicAudio.prefs.muted ? 'volume-x' : 'volume-2');
+            if (global.lucide && typeof global.lucide.createIcons === 'function') global.lucide.createIcons();
+        }
+    }
+
+    function toggleMuteAudio() {
+        if (!global.CosmicAudio) return;
+        global.CosmicAudio.unlock();
+        const nextMuted = !global.CosmicAudio.prefs.muted;
+        global.CosmicAudio.setMuted(nextMuted);
+        G.audioPrimed = !nextMuted && (global.CosmicAudio.prefs.ambVol || 0) > 0.01;
+        if (G.audioPrimed) global.CosmicAudio.startAmbient();
+        syncAudioIcon();
+    }
+
+    function restartRun() {
+        if (G.destroyed) return;
+        clearTimeout(toastTimer);
+        toastTimer = null;
+        if (el.waveToast) el.waveToast.classList.remove('show');
+        if (el.sectorEventBanner) el.sectorEventBanner.classList.remove('show');
+        if (el.bossBarCard) el.bossBarCard.classList.remove('visible');
+        if (el.sectorPingPill) el.sectorPingPill.classList.remove('visible');
+
+        closeAllModals();
+        resetInputState();
+
+        if (G.goChart && typeof G.goChart.destroy === 'function') {
+            try { G.goChart.destroy(); } catch (e) { /* ignore */ }
+            G.goChart = null;
+        }
+
+        G.enemies.length = 0;
+        G.bosses.length = 0;
+        G.bullets.length = 0;
+        G.crystals.length = 0;
+        G.pickups.length = 0;
+        G.chests.length = 0;
+        G.particles.length = 0;
+        G.floorZones.length = 0;
+        G.orbitals.length = 0;
+        G.arcs.length = 0;
+        G.floatTexts.length = 0;
+        G.weaponDamageStats = {};
+
+        G.time = 0;
+        G.wave = 1;
+        G.waveTimer = 0;
+        G.spawnAcc = 0;
+        G.solarTick = 0;
+        G.bossRushCount = 0;
+        G.bossesKilled = 0;
+        G.campaignVictoryShown = false;
+        G.kills = 0;
+        G.score = 0;
+        G.creditsEarned = 0;
+        G.skips = 1;
+        G.afkCheckTimer = 0;
+        G.shakeTime = 0;
+        G.shakeMag = 0;
+        G.eventBannerTimer = 0;
+        G.shockwaveTrigger = null;
+        G.gameOver = false;
+        G.paused = false;
+        G.running = true;
+
+        if (el.hudWeaponsRow) el.hudWeaponsRow.dataset.sig = '';
+        if (el.hudTrinketsRow) el.hudTrinketsRow.dataset.sig = '';
+        if (el.hudModeBadges) el.hudModeBadges.dataset.sig = '';
+
+        parseLaunchConfig();
+        G.player = createPlayer();
+        recomputePlayerStats();
+        global.CosmicMapDirector.init(G.mapId, WORLD_W, WORLD_H, G.rng);
+        resolveObstacleCollisions(G.player, 16);
+        G.lastMovedPos = { x: G.player.x, y: G.player.y };
+        G.camX = G.player.x;
+        G.camY = G.player.y;
+        syncAimUi();
+        syncStaticLanguage();
+        if (global.CosmicRenderer && typeof global.CosmicRenderer.setMap === 'function') {
+            global.CosmicRenderer.setMap(G.mapId);
+        }
+        startWave(1);
+        ensureAudioUnlockedAndAmbient();
+        if (G.rafId) {
+            try { global.cancelAnimationFrame(G.rafId); } catch (e) { /* ignore */ }
+            G.rafId = 0;
+        }
+        G.lastFrameTs = performance.now();
+        G.rafId = global.requestAnimationFrame(tick);
     }
 
     const _cleanupFns = [];
@@ -2646,44 +2942,51 @@
     }
 
     function wireControls() {
+        const blurBtn = (btn) => { if (btn && typeof btn.blur === 'function') btn.blur(); };
+
         addManagedListener(global, 'keydown', (e) => {
+            const tag = document.activeElement && document.activeElement.tagName;
+            const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+            if (inInput && e.code !== 'Escape') return;
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+
             G.keys[e.code] = true;
-            if (global.CosmicAudio) global.CosmicAudio.unlock();
+            ensureAudioUnlockedAndAmbient();
+
             if (G.isLevelingUp && !G.levelUpActionTaken) {
+                if (e.repeat) return;
                 if (e.code === 'Digit1' || e.code === 'Numpad1') { e.preventDefault(); applyLevelUpChoice(0); }
                 else if (e.code === 'Digit2' || e.code === 'Numpad2') { e.preventDefault(); applyLevelUpChoice(1); }
                 else if (e.code === 'Digit3' || e.code === 'Numpad3') { e.preventDefault(); applyLevelUpChoice(2); }
                 else if (e.code === 'KeyR' && G.rerolls > 0) { G.rerolls--; renderLevelUpCards(); }
-                else if (e.code === 'KeyF' && G.skips > 0) {
-                    G.skips--;
-                    G.creditsEarned += 60;
-                    G.levelUpActionTaken = true;
-                    G.isLevelingUp = false;
-                    el.levelUpOv.classList.remove('open');
-                    G.paused = false;
-                    G.lastFrameTs = performance.now();
-                }
+                else if (e.code === 'KeyF' && G.skips > 0) skipLevelUp();
                 return;
             }
-            if (e.code === 'Escape') togglePause();
-            else if (e.code === 'Space') { e.preventDefault(); activateAbility(); }
+            if (e.repeat) return;
+            if (e.code === 'Escape') {
+                if (inInput && document.activeElement) document.activeElement.blur();
+                togglePause();
+            } else if (e.code === 'Space') { e.preventDefault(); activateAbility(); }
             else if (e.code === 'KeyE') activateOverdrive();
             else if (e.code === 'KeyQ') toggleAimMode();
             else if (e.code === 'KeyM') toggleMinimap();
-            else if (e.code === 'KeyN' && global.CosmicAudio) {
-                global.CosmicAudio.setMuted(!global.CosmicAudio.prefs.muted);
-                if (el.audioToggleIcon) {
-                    el.audioToggleIcon.setAttribute('data-lucide', global.CosmicAudio.prefs.muted ? 'volume-x' : 'volume-2');
-                    if (global.lucide && typeof global.lucide.createIcons === 'function') global.lucide.createIcons();
-                }
-            }
+            else if (e.code === 'KeyN') toggleMuteAudio();
         });
         addManagedListener(global, 'keyup', (e) => { G.keys[e.code] = false; });
-        addManagedListener(global, 'blur', () => { G.keys = {}; });
-        addManagedListener(global, 'mousemove', (e) => { G.mouse.x = e.clientX; G.mouse.y = e.clientY; G.mouse.active = true; });
-        addManagedListener(global, 'pointerdown', () => {
-            if (global.CosmicAudio) { global.CosmicAudio.unlock(); global.CosmicAudio.startAmbient(); }
-        }, { once: true });
+        addManagedListener(global, 'blur', resetInputState);
+        addManagedListener(document, 'visibilitychange', () => {
+            if (document.hidden) {
+                resetInputState();
+                if (G.running && !G.gameOver && !G.paused) togglePause(true);
+            }
+        });
+        addManagedListener(global, 'pointermove', (e) => {
+            if (e.pointerType === 'touch') return;
+            G.mouse.x = e.clientX;
+            G.mouse.y = e.clientY;
+            G.mouse.active = true;
+        });
+        addManagedListener(global, 'pointerdown', ensureAudioUnlockedAndAmbient);
         addManagedListener(global, 'resize', () => {
             if (global.CosmicRenderer) global.CosmicRenderer.resize(global.innerWidth, global.innerHeight);
         });
@@ -2691,22 +2994,14 @@
         addManagedListener(global, 'pagehide', teardownGame);
         addManagedListener(global, 'beforeunload', teardownGame);
 
-        if (el.btnAimToggle) el.btnAimToggle.onclick = toggleAimMode;
-        if (el.hudOverdriveBtn) el.hudOverdriveBtn.onclick = activateOverdrive;
-        if (el.btnToggleMinimap) el.btnToggleMinimap.onclick = () => toggleMinimap();
-        if (el.btnPauseGame) el.btnPauseGame.onclick = () => togglePause();
+        if (el.btnAimToggle) el.btnAimToggle.onclick = () => { toggleAimMode(); blurBtn(el.btnAimToggle); };
+        if (el.hudOverdriveBtn) el.hudOverdriveBtn.onclick = () => { activateOverdrive(); blurBtn(el.hudOverdriveBtn); };
+        if (el.btnToggleMinimap) el.btnToggleMinimap.onclick = () => { toggleMinimap(); blurBtn(el.btnToggleMinimap); };
+        if (el.btnPauseGame) el.btnPauseGame.onclick = () => { togglePause(); blurBtn(el.btnPauseGame); };
         if (el.btnResumeGame) el.btnResumeGame.onclick = () => togglePause(false);
-        if (el.btnRestartRun) el.btnRestartRun.onclick = () => { teardownGame(); global.location.reload(); };
-        if (el.btnPlayAgain) el.btnPlayAgain.onclick = () => { teardownGame(); global.location.reload(); };
-        if (el.btnAudioToggle && global.CosmicAudio) {
-            el.btnAudioToggle.onclick = () => {
-                global.CosmicAudio.setMuted(!global.CosmicAudio.prefs.muted);
-                if (el.audioToggleIcon) {
-                    el.audioToggleIcon.setAttribute('data-lucide', global.CosmicAudio.prefs.muted ? 'volume-x' : 'volume-2');
-                    if (global.lucide && typeof global.lucide.createIcons === 'function') global.lucide.createIcons();
-                }
-            };
-        }
+        if (el.btnRestartRun) el.btnRestartRun.onclick = restartRun;
+        if (el.btnPlayAgain) el.btnPlayAgain.onclick = restartRun;
+        if (el.btnAudioToggle) el.btnAudioToggle.onclick = () => { toggleMuteAudio(); blurBtn(el.btnAudioToggle); };
 
         if (el.btnVictoryExtract) {
             el.btnVictoryExtract.onclick = () => {
@@ -2724,9 +3019,8 @@
                 G.modeId = 'endless';
                 G.modeScoreMult = Math.max(G.modeScoreMult, 1.35);
                 G.modeCreditMult = Math.max(G.modeCreditMult, 1.30);
-                G.paused = false;
-                G.lastFrameTs = performance.now();
                 startWave(G.wave + 1);
+                drainPendingModals();
             };
         }
 
@@ -2736,17 +3030,7 @@
             };
         }
         if (el.btnLuSkip) {
-            el.btnLuSkip.onclick = () => {
-                if (G.isLevelingUp && !G.levelUpActionTaken && G.skips > 0) {
-                    G.skips--;
-                    G.creditsEarned += 60;
-                    G.levelUpActionTaken = true;
-                    G.isLevelingUp = false;
-                    el.levelUpOv.classList.remove('open');
-                    G.paused = false;
-                    G.lastFrameTs = performance.now();
-                }
-            };
+            el.btnLuSkip.onclick = skipLevelUp;
         }
 
         if (el.setSfxVol && global.CosmicAudio) {
@@ -2755,7 +3039,17 @@
         }
         if (el.setAmbVol && global.CosmicAudio) {
             el.setAmbVol.value = Math.round(global.CosmicAudio.prefs.ambVol * 100);
-            el.setAmbVol.oninput = () => global.CosmicAudio.setAmbientVolume(Number(el.setAmbVol.value) / 100);
+            el.setAmbVol.oninput = () => {
+                const v = Number(el.setAmbVol.value) / 100;
+                global.CosmicAudio.setAmbientVolume(v);
+                if (v > 0.01 && !global.CosmicAudio.prefs.muted) {
+                    global.CosmicAudio.unlock();
+                    G.audioPrimed = true;
+                    global.CosmicAudio.startAmbient();
+                } else {
+                    G.audioPrimed = false;
+                }
+            };
         }
         if (el.setVfxMode) {
             el.setVfxMode.value = G.settings.vfxMode;
@@ -2768,16 +3062,11 @@
         if (el.setAimMode) {
             el.setAimMode.value = G.aimMode;
             el.setAimMode.onchange = () => {
-                G.aimMode = el.setAimMode.value;
+                G.aimMode = el.setAimMode.value === 'auto' ? 'auto' : 'mouse';
                 G.settings.aimMode = G.aimMode;
                 saveSettings();
                 recomputePlayerStats();
-                if (el.aimModeLabel) {
-                    el.aimModeLabel.textContent = G.aimMode === 'mouse'
-                        ? bi('[Q] Fare Nişanı', '[Q] Mouse Aim')
-                        : bi('[Q] Otomatik Nişan', '[Q] Auto Aim');
-                }
-                if (el.btnAimToggle) el.btnAimToggle.classList.toggle('active', G.aimMode === 'mouse');
+                syncAimUi();
             };
         }
         if (el.setDmgNumbers) {
@@ -2832,10 +3121,7 @@
         if (global.lucide && typeof global.lucide.createIcons === 'function') global.lucide.createIcons();
 
         G.player = createPlayer();
-        G.lastMovedPos = { x: G.player.x, y: G.player.y };
         recomputePlayerStats();
-        G.camX = G.player.x;
-        G.camY = G.player.y;
 
         el.hudShipThumb.src = `assets/ships/${G.shipId}.png`;
         if (G.skinId !== 'standard' && DATA.SHIP_SKINS && DATA.SHIP_SKINS[G.skinId]) {
@@ -2843,12 +3129,14 @@
         }
         if (el.btnAimToggle) el.btnAimToggle.classList.toggle('active', G.aimMode === 'mouse');
         if (el.hudMinimapCard) el.hudMinimapCard.classList.toggle('collapsed', !G.minimapOpen);
-        if (el.audioToggleIcon && global.CosmicAudio) {
-            el.audioToggleIcon.setAttribute('data-lucide', global.CosmicAudio.prefs.muted ? 'volume-x' : 'volume-2');
-        }
+        syncAudioIcon();
         syncStaticLanguage();
 
         global.CosmicMapDirector.init(G.mapId, WORLD_W, WORLD_H, G.rng);
+        resolveObstacleCollisions(G.player, 16);
+        G.lastMovedPos = { x: G.player.x, y: G.player.y };
+        G.camX = G.player.x;
+        G.camY = G.player.y;
         await global.CosmicRenderer.init(el.gameCanvas);
         if (G.destroyed) return;
         global.CosmicRenderer.setMap(G.mapId);

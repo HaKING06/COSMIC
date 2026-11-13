@@ -134,6 +134,12 @@
                 }
                 return false;
             },
+            peek(...keys) {
+                for (let i = 0; i < keys.length; i++) {
+                    if (just.has(keys[i])) return true;
+                }
+                return false;
+            },
             consume(...keys) {
                 let hit = false;
                 for (let i = 0; i < keys.length; i++) {
@@ -171,6 +177,18 @@
     }
 
     function syncPhaserPause(scene, ctx, input) {
+        if (scene && scene.events && !scene._cosmicPauseHooked) {
+            scene._cosmicPauseHooked = true;
+            const onPreUpdate = () => {
+                syncPhaserPause(scene, ctx, input);
+            };
+            scene.events.on('preupdate', onPreUpdate);
+            scene.events.once('shutdown', () => {
+                scene.events.off('preupdate', onPreUpdate);
+                scene._cosmicPauseHooked = false;
+                scene._cosmicPaused = false;
+            });
+        }
         const paused = Boolean(ctx && typeof ctx.getPaused === 'function' && ctx.getPaused());
         if (paused) {
             if (!scene._cosmicPaused) {
@@ -179,8 +197,11 @@
                 if (scene.tweens) scene.tweens.pauseAll();
                 if (scene.time) scene.time.paused = true;
                 if (scene.anims) scene.anims.pauseAll();
-                if (input) input.clearAll();
+                if (Object.prototype.hasOwnProperty.call(scene, 'pointerDown')) {
+                    scene.pointerDown = false;
+                }
             }
+            if (input) input.clearAll();
             return true;
         }
         if (scene._cosmicPaused) {
@@ -189,6 +210,7 @@
             if (scene.tweens) scene.tweens.resumeAll();
             if (scene.time) scene.time.paused = false;
             if (scene.anims) scene.anims.resumeAll();
+            if (input) input.clearFrame();
         }
         return false;
     }
@@ -263,6 +285,7 @@
                         runtime.activeScene.physics.world.resume();
                     }
                     if (runtime.activeScene.tweens) runtime.activeScene.tweens.resumeAll();
+                    if (runtime.activeScene.anims) runtime.activeScene.anims.resumeAll();
                     if (runtime.activeScene.time) runtime.activeScene.time.paused = false;
                     runtime.activeScene.scene.restart({ level: nextLv });
                 }
@@ -2386,7 +2409,13 @@
                 this.airlockPos = { x: 860, y: 80 };
                 this.spawnPos = { x: 100, y: 400 };
 
+                this.totalVaults = 0;
+                this.hackedVaults = 0;
+                this.airlockOpen = false;
                 this.buildDeckMap(this.gridMap, deckDef.accent);
+                if (this.totalVaults === 0) {
+                    this.airlockOpen = true;
+                }
 
                 // Player Infiltrator
                 const p = this.physics.add.sprite(this.spawnPos.x, this.spawnPos.y, 'psh_trooper').setDepth(12);
@@ -2423,7 +2452,8 @@
 
                 // Click EMP Takedown
                 this.onPointerDown = () => {
-                    if (this.ended || this._cosmicPaused) return;
+                    const hostPaused = Boolean(ctx && typeof ctx.getPaused === 'function' && ctx.getPaused());
+                    if (this.ended || this._cosmicPaused || hostPaused) return;
                     safeUnlockAudio(ctx);
                     this.tryEmpTakedown(true);
                 };
@@ -2431,6 +2461,7 @@
                 this.events.once('shutdown', () => {
                     this.input.off('pointerdown', this.onPointerDown);
                     this.tweens.killAll();
+                    if (this.time) this.time.removeAllEvents();
                     if (this.bullets) this.bullets.clear(true, true);
                 });
 
@@ -2591,6 +2622,10 @@
                     fireTimer: 0.4,
                     stunTimer: 0,
                     stuckTimer: 0,
+                    stallTimer: 0,
+                    prevX: wx,
+                    prevY: wy,
+                    halfRadius: kind === 'mech' ? 11 : 9,
                     fovRange: kind === 'mech' ? 205 : 178,
                     fovHalf: kind === 'mech' ? 0.62 : 0.68,
                     speed: (kind === 'mech' ? 76 : 98) * (1 + (this.deckNum - 1) * 0.08),
@@ -2746,7 +2781,7 @@
                         // Prevent sightlines diagonally leaking between two touching corner solids
                         const nxWall = c + stepX >= 0 && c + stepX < this.cols && this.solidGrid[r] && this.solidGrid[r][c + stepX];
                         const nyWall = r + stepY >= 0 && r + stepY < this.rows && this.solidGrid[r + stepY][c];
-                        if (nxWall && nyWall) {
+                        if (nxWall && nyWall && tMaxX <= maxDist) {
                             const hitD = Math.min(tMaxX, maxDist);
                             return { x: ox + dx * hitD, y: oy + dy * hitD, dist: hitD, blocked: true };
                         }
@@ -2771,6 +2806,22 @@
                 const ang = Math.atan2(by - ay, bx - ax);
                 const hit = this.castRay(ax, ay, ang, dist);
                 return !hit.blocked || hit.dist >= dist - 2;
+            }
+
+            hasWalkClearance(ax, ay, bx, by, halfWidth = 10) {
+                const dist = Math.hypot(bx - ax, by - ay);
+                if (dist <= 2) return true;
+                if (!this.hasLineOfSight(ax, ay, bx, by)) return false;
+                if (halfWidth <= 0) return true;
+                const nx = -(by - ay) / dist;
+                const ny = (bx - ax) / dist;
+                const ox = nx * halfWidth;
+                const oy = ny * halfWidth;
+                if (this.isPointSolid(ax + ox, ay + oy) || this.isPointSolid(ax - ox, ay - oy)) {
+                    return false;
+                }
+                return this.hasLineOfSight(ax + ox, ay + oy, bx + ox, by + oy)
+                    && this.hasLineOfSight(ax - ox, ay - oy, bx - ox, by - oy);
             }
 
             findNextStepToward(fx, fy, tx, ty) {
@@ -2866,7 +2917,7 @@
                 });
 
                 this.handlePlayerStealthMove(dt, inp);
-                if (inp.consume('KeyE', 'e')) {
+                if (inp.consume('KeyE', 'e', 'Space', ' ')) {
                     this.tryEmpTakedown(false);
                 }
 
@@ -2980,7 +3031,7 @@
             }
 
             updateVaults(dt, inp) {
-                const fast = inp.isDown('KeyE', 'e') ? 1.55 : 1;
+                const fast = inp.isDown('KeyE', 'e', 'Space', ' ') ? 1.55 : 1;
                 for (let i = 0; i < this.vaults.length; i++) {
                     const v = this.vaults[i];
                     if (v.hacked) continue;
@@ -3086,11 +3137,18 @@
                         }
                     }
 
+                    const blockedAny = Boolean(g.sprite.body && (g.sprite.body.blocked.left || g.sprite.body.blocked.right || g.sprite.body.blocked.up || g.sprite.body.blocked.down));
+                    const movedDist = Math.hypot(g.sprite.x - g.prevX, g.sprite.y - g.prevY);
+                    const minExpectedMove = Math.max(0.2, g.speed * dt * 0.2);
+                    g.prevX = g.sprite.x;
+                    g.prevY = g.sprite.y;
+
                     // Movement & Combat by State (BFS assisted when around walls)
                     if (g.state === 'LOCKDOWN') {
                         anyLockdown = true;
                         this.globalLockdownTimer = Math.max(this.globalLockdownTimer, 0.8);
                         if (visible) {
+                            g.stallTimer = 0;
                             g.angle = angToPlayer;
                             g.sprite.setFlipX(Math.cos(g.angle) < 0);
                             if (dist > 95) {
@@ -3107,7 +3165,17 @@
                             }
                         } else if (g.investigatePos) {
                             this.steerGuardToward(g, g.investigatePos.x, g.investigatePos.y, g.speed * 1.15, dt);
+                            if (blockedAny || movedDist < minExpectedMove) {
+                                g.stallTimer += dt;
+                                if (g.stallTimer > 0.35) {
+                                    g.navTarget = null;
+                                    g.navTimer = 0;
+                                }
+                            } else {
+                                g.stallTimer = 0;
+                            }
                         } else {
+                            g.stallTimer = 0;
                             g.sprite.setVelocity(0, 0);
                         }
                         const pulse = 1 + 0.18 * Math.sin(this.time.now * 0.02);
@@ -3117,13 +3185,31 @@
                             const idist = Math.hypot(g.investigatePos.x - g.sprite.x, g.investigatePos.y - g.sprite.y);
                             if (idist > 22) {
                                 this.steerGuardToward(g, g.investigatePos.x, g.investigatePos.y, g.speed * 0.82, dt);
+                                if (blockedAny || movedDist < minExpectedMove * 0.8) {
+                                    g.stallTimer += dt;
+                                    if (g.stallTimer > 0.35) {
+                                        g.navTarget = null;
+                                        g.navTimer = 0;
+                                    }
+                                    if (g.stallTimer > 1.1) {
+                                        g.investigatePos = null;
+                                        g.navTarget = null;
+                                        g.scanTimer = Math.min(g.scanTimer, 0.3);
+                                        g.awareness = Math.min(g.awareness, 0.12);
+                                        g.stallTimer = 0;
+                                    }
+                                } else {
+                                    g.stallTimer = 0;
+                                }
                             } else {
+                                g.stallTimer = 0;
                                 g.sprite.setVelocity(0, 0);
                                 g.scanTimer = Math.max(0, g.scanTimer - dt);
                                 g.angle += Math.sin(this.time.now * 0.005 + i) * dt * 2.2;
                                 g.sprite.setFlipX(Math.cos(g.angle) < 0);
                             }
                         } else {
+                            g.stallTimer = 0;
                             g.sprite.setVelocity(0, 0);
                         }
                         g.badge.setText('?').setColor('#f59e0b').setScale(1).setPosition(g.sprite.x, g.sprite.y - 26).setVisible(true);
@@ -3134,23 +3220,40 @@
                             const home = wp || { x: g.sprite.x, y: g.sprite.y };
                             if (Math.hypot(home.x - g.sprite.x, home.y - g.sprite.y) > 16) {
                                 this.steerGuardToward(g, home.x, home.y, g.speed * 0.9, dt);
+                                if (blockedAny || movedDist < minExpectedMove * 0.8) {
+                                    g.stallTimer += dt;
+                                    if (g.stallTimer > 0.35) {
+                                        g.navTarget = null;
+                                        g.navTimer = 0;
+                                    }
+                                } else {
+                                    g.stallTimer = 0;
+                                }
                             } else {
+                                g.stallTimer = 0;
                                 g.sprite.setVelocity(0, 0);
                                 g.angle = wrapAngle(g.angle + dt * 0.85);
                                 g.sprite.setFlipX(Math.cos(g.angle) < 0);
                             }
                         } else {
                             const wd = Math.hypot(wp.x - g.sprite.x, wp.y - g.sprite.y);
-                            if (wd < 10 || g.stuckTimer > 0.65) {
+                            if (wd < 10 || g.stuckTimer > 0.65 || g.stallTimer > 0.75) {
                                 g.wpIdx = (g.wpIdx + 1) % g.waypoints.length;
                                 g.stuckTimer = 0;
+                                g.stallTimer = 0;
                                 g.navTarget = null;
                             } else {
                                 this.steerGuardToward(g, wp.x, wp.y, g.speed, dt);
-                                if (g.sprite.body.blocked.left || g.sprite.body.blocked.right || g.sprite.body.blocked.up || g.sprite.body.blocked.down) {
+                                if (blockedAny || movedDist < minExpectedMove) {
                                     g.stuckTimer += dt;
+                                    g.stallTimer += dt;
+                                    if (g.stallTimer > 0.35) {
+                                        g.navTarget = null;
+                                        g.navTimer = 0;
+                                    }
                                 } else {
                                     g.stuckTimer = 0;
+                                    g.stallTimer = 0;
                                 }
                             }
                         }
@@ -3204,9 +3307,24 @@
             steerGuardToward(g, tx, ty, speed, dt) {
                 let targetX = tx;
                 let targetY = ty;
-                if (!this.hasLineOfSight(g.sprite.x, g.sprite.y, tx, ty)) {
+                const clearanceR = g.halfRadius || 10;
+                if (!this.hasWalkClearance(g.sprite.x, g.sprite.y, tx, ty, clearanceR)) {
+                    if (g.navTarget && Math.hypot(g.navTarget.x - g.sprite.x, g.navTarget.y - g.sprite.y) <= 10) {
+                        g.navTarget = null;
+                        g.navTimer = 0;
+                    }
                     if (!g.navTarget || g.navTimer <= 0) {
-                        g.navTarget = this.findNextStepToward(g.sprite.x, g.sprite.y, tx, ty);
+                        const step = this.findNextStepToward(g.sprite.x, g.sprite.y, tx, ty);
+                        if (step && !this.hasWalkClearance(g.sprite.x, g.sprite.y, step.x, step.y, clearanceR)) {
+                            const sr = clamp(Math.floor((g.sprite.y - Y_OFF) / TILE), 0, this.rows - 1);
+                            const sc = clamp(Math.floor(g.sprite.x / TILE), 0, this.cols - 1);
+                            const curCenter = { x: sc * TILE + TILE * 0.5, y: Y_OFF + sr * TILE + TILE * 0.5 };
+                            g.navTarget = Math.hypot(curCenter.x - g.sprite.x, curCenter.y - g.sprite.y) > 4
+                                ? curCenter
+                                : step;
+                        } else {
+                            g.navTarget = step;
+                        }
                         g.navTimer = 0.24;
                     }
                     if (g.navTarget) {
@@ -3255,7 +3373,7 @@
             checkExtraction() {
                 if (!this.airlockOpen) return;
                 const d = global.Phaser.Math.Distance.Between(this.player.x, this.player.y, this.airlockPos.x, this.airlockPos.y);
-                if (d < 28) {
+                if (d < 30) {
                     const ghostBonus = !this.alarmTriggeredEver ? 150 : 0;
                     const clearBonus = Math.round((350 + ghostBonus) * this.scoreMult);
                     this.score += clearBonus;
@@ -3466,7 +3584,7 @@
                 this.bossCore.setDisplaySize(isCarrier ? 210 : 138, isCarrier ? 128 : 146);
                 setWorldBody(this.bossCore, isCarrier ? 136 : 88, isCarrier ? 82 : 100);
                 this.bossCore.setTint(tierDef.tint);
-                this.bossMaxHp = Math.round(tierDef.hp * (1 + this.loopCount * 0.35));
+                this.bossMaxHp = Math.round(tierDef.hp * (1 + this.loopCount * 1.1));
                 this.bossHp = this.bossMaxHp;
                 this.bossPhase = 1;
                 this.bossMoveTime = 0;
@@ -3508,22 +3626,43 @@
 
                 // Mouse aim & controls
                 this.pointerDown = false;
+                this.hasScenePointerInput = false;
+                this.onPointerMove = () => {
+                    const hostPaused = Boolean(ctx && typeof ctx.getPaused === 'function' && ctx.getPaused());
+                    if (this.ended || this._cosmicPaused || hostPaused) return;
+                    this.hasScenePointerInput = true;
+                };
                 this.onPointerDown = (pointer) => {
-                    if (this.ended || this._cosmicPaused) return;
+                    const hostPaused = Boolean(ctx && typeof ctx.getPaused === 'function' && ctx.getPaused());
+                    if (this.ended || this._cosmicPaused || hostPaused) return;
                     safeUnlockAudio(ctx);
+                    this.hasScenePointerInput = true;
                     if (pointer.rightButtonDown()) {
                         this.trySuperBeam();
                     } else {
                         this.pointerDown = true;
+                        if (this.parryCooldown <= 0 && this.enemyOrbs) {
+                            const orbs = this.enemyOrbs.getChildren();
+                            for (let i = 0; i < orbs.length; i++) {
+                                const o = orbs[i];
+                                if (o && o.active && o.getData('pink') && global.Phaser.Math.Distance.Between(this.player.x, this.player.y, o.x, o.y) <= 96) {
+                                    this.activateParry();
+                                    break;
+                                }
+                            }
+                        }
                     }
                 };
                 this.onPointerUp = () => { this.pointerDown = false; };
+                this.input.on('pointermove', this.onPointerMove);
                 this.input.on('pointerdown', this.onPointerDown);
                 this.input.on('pointerup', this.onPointerUp);
                 this.events.once('shutdown', () => {
+                    this.input.off('pointermove', this.onPointerMove);
                     this.input.off('pointerdown', this.onPointerDown);
                     this.input.off('pointerup', this.onPointerUp);
                     this.tweens.killAll();
+                    if (this.time) this.time.removeAllEvents();
                     if (this.playerShots) this.playerShots.clear(true, true);
                     if (this.enemyOrbs) this.enemyOrbs.clear(true, true);
                 });
@@ -3609,7 +3748,7 @@
             }
 
             spawnShoulderPod(side, baseHp) {
-                const hp = Math.round(baseHp * (1 + this.loopCount * 0.35));
+                const hp = Math.round(baseHp * (1 + this.loopCount * 1.1));
                 const spr = this.physics.add.sprite(this.bossCore.x + side * 95, this.bossCore.y + 12, 'pcc_missile').setDepth(11);
                 spr.setDisplaySize(54, 54);
                 setWorldBody(spr, 42, 42);
@@ -3731,6 +3870,7 @@
                 }
                 if (this.parryCooldown > 0) this.parryCooldown -= realDt;
                 if (this.parryActiveTimer > 0) this.parryActiveTimer -= realDt;
+                if (this.phaseFlashTimer > 0) this.phaseFlashTimer = Math.max(0, this.phaseFlashTimer - realDt);
 
                 // Toggles: [E] Auto-fire, [M] Mouse Steer, [Shift / K] Super Beam
                 if (inp.consume('KeyE', 'e')) {
@@ -3796,7 +3936,7 @@
 
                 // Aim twin plasma blaster toward cursor (if active inside stage) or nearest weakpoint
                 const ptr = this.input.activePointer;
-                if (!this.mouseSteer && ptr && (ptr.worldX > 0 || ptr.worldY > 0) && (this.pointerDown || ptr.isDown || ptr.moveTime > 0)) {
+                if (!this.mouseSteer && ptr && (ptr.worldX > 0 || ptr.worldY > 0) && (this.pointerDown || ptr.isDown || this.hasScenePointerInput)) {
                     this.aimAngle = Math.atan2(ptr.worldY - this.player.y, ptr.worldX - this.player.x);
                 } else {
                     const target = this.pickBestWeakpoint();
@@ -3842,26 +3982,30 @@
                 safePlay(ctx, 'shootLaser', 0.16);
             }
 
+            activateParry() {
+                this.parryActiveTimer = 0.30;
+                this.parryCooldown = 0.45;
+                this.invulnTimer = Math.max(this.invulnTimer, 0.28);
+                safePlay(ctx, 'dash', 0.15);
+            }
+
             updateBulletTimeParry(dt, inp) {
-                if (inp.consume('Space') && this.parryCooldown <= 0) {
-                    this.parryActiveTimer = 0.27;
-                    this.parryCooldown = 0.48;
-                    this.invulnTimer = Math.max(this.invulnTimer, 0.25);
-                    safePlay(ctx, 'dash', 0.15);
+                if (inp.consume('Space', ' ', 'KeyJ', 'j') && this.parryCooldown <= 0) {
+                    this.activateParry();
                 }
 
                 const pg = this.parryG;
                 pg.clear();
                 if (this.parryActiveTimer > 0) {
-                    const ratio = this.parryActiveTimer / 0.27;
+                    const ratio = this.parryActiveTimer / 0.30;
                     pg.lineStyle(4, 0xff4fd8, ratio);
                     pg.strokeCircle(this.player.x, this.player.y, 48);
                     pg.fillStyle(0x22d3ee, 0.18 * ratio);
                     pg.fillCircle(this.player.x, this.player.y, 48);
 
                     // Deflect / absorb bright PINK orbs within parry radius!
-                    this.enemyOrbs.getChildren().forEach((orb) => {
-                        if (!orb.active || !orb.getData('pink')) return;
+                    this.enemyOrbs.getChildren().slice().forEach((orb) => {
+                        if (!orb || !orb.active || !orb.getData('pink')) return;
                         const d = global.Phaser.Math.Distance.Between(this.player.x, this.player.y, orb.x, orb.y);
                         if (d <= 56) {
                             this.parryPinkOrb(orb);
@@ -3923,8 +4067,8 @@
 
                 // Continuous beam damage & bullet clearing
                 const line = new global.Phaser.Geom.Line(bx, by, ex, ey);
-                this.enemyOrbs.getChildren().forEach((orb) => {
-                    if (!orb.active) return;
+                this.enemyOrbs.getChildren().slice().forEach((orb) => {
+                    if (!orb || !orb.active) return;
                     if (global.Phaser.Geom.Intersects.LineToCircle(line, new global.Phaser.Geom.Circle(orb.x, orb.y, 32))) {
                         orb.destroy();
                     }
@@ -4022,7 +4166,7 @@
                 this.sparkEmitter.explode(30, this.bossCore.x, this.bossCore.y);
 
                 // Clear close projectiles near player on phase shift so transitions feel fair
-                this.enemyOrbs.getChildren().forEach((orb) => {
+                this.enemyOrbs.getChildren().slice().forEach((orb) => {
                     if (orb && orb.active && global.Phaser.Math.Distance.Between(this.player.x, this.player.y, orb.x, orb.y) < 170) {
                         orb.destroy();
                     }
@@ -4092,11 +4236,11 @@
                     this.bossCore.y = lerp(this.bossCore.y, ty, clamp(worldDt * 6, 0, 1));
                 }
 
-                // Clamp boss core cleanly inside arena so shoulder pods (±96px) remain in view
-                this.bossCore.x = clamp(this.bossCore.x, 120, 840);
+                // Clamp boss core cleanly inside arena so shoulder pods (±96px + half width 27px) remain in view
+                this.bossCore.x = clamp(this.bossCore.x, 128, 832);
                 this.bossCore.y = clamp(this.bossCore.y, 88, 395);
 
-                // Sync Shoulder Pods + Pod missile fires
+                // Pod missile fires (positions synced cleanly after dash updates below)
                 for (let i = 0; i < this.pods.length; i++) {
                     const pod = this.pods[i];
                     if (!pod.alive) continue;
@@ -4139,6 +4283,15 @@
                 this.updateSweepingLasers(worldDt);
                 this.updateFallingBarrages(worldDt);
                 this.updateShockwaveDash(worldDt);
+
+                this.bossCore.x = clamp(this.bossCore.x, 128, 832);
+                this.bossCore.y = clamp(this.bossCore.y, 88, 395);
+                for (let i = 0; i < this.pods.length; i++) {
+                    const pod = this.pods[i];
+                    if (pod.alive) {
+                        pod.sprite.setPosition(this.bossCore.x + pod.side * 96, this.bossCore.y + 12);
+                    }
+                }
 
                 // Story Score Threshold Win Check (only when chapter target is score-based >= 50)
                 if (isScoreStory && this.score >= storyScoreTarget && !this.ended) {
@@ -4299,9 +4452,16 @@
 
             onPlayerTouchOrb(orb) {
                 if (!orb || !orb.active) return;
-                if (this.parryActiveTimer > 0 && orb.getData('pink')) {
-                    this.parryPinkOrb(orb);
-                    return;
+                if (orb.getData('pink')) {
+                    if (this.parryActiveTimer > 0) {
+                        this.parryPinkOrb(orb);
+                        return;
+                    }
+                    if (this.parryCooldown <= 0 && runtime.input.consume('Space', ' ', 'KeyJ', 'j')) {
+                        this.activateParry();
+                        this.parryPinkOrb(orb);
+                        return;
+                    }
                 }
                 orb.destroy();
                 this.damagePlayer(1);
@@ -4451,21 +4611,24 @@
                 g.lineBetween(16 + 220 * (300 / 450), 511, 16 + 220 * (300 / 450), 527);
 
                 this.energyLabelTxt.setText(
-                    `ENERGY ${this.energy}/450 ${this.energy >= 300 ? '[SHIFT/RMB HYPER BEAM READY!]' : '[SPACE PARRY PINK ORBS]'}`
+                    `ENERGY ${this.energy}/450 ${this.energy >= 300 ? '[SHIFT/RMB HYPER BEAM READY!]' : '[SPACE/J/CLICK PARRY PINK ORBS]'}`
                 );
                 this.modeToggleTxt.setText(`[E] AUTO:${this.autoFire ? 'ON' : 'OFF'}  [M] STEER:${this.mouseSteer ? 'MOUSE' : 'WASD'}`);
             }
 
             syncExternalHud() {
                 const livePods = this.pods.filter((p) => p.alive).length;
+                const hudLevel = (isStory && !isScoreStory && !this.ended)
+                    ? Math.min(this.tierNum, storyTierTarget)
+                    : this.tierNum;
                 const obj = isStory
                     ? (isScoreStory
                         ? tr(`${this.bossTitle} Yen / ${storyScoreTarget} Skor`, `Defeat ${this.bossTitle} / ${storyScoreTarget} Score`)
                         : tr(`${this.bossTitle} imha et (${this.tierNum}/${storyTierTarget})`, `Defeat ${this.bossTitle} (${this.tierNum}/${storyTierTarget})`))
-                    : tr(`Zayıf Nokta: ${livePods} Pod · Pembe Mermi Savuştur [Space]`, `Weakpoints: ${livePods} Pods · Parry Pink Orbs [Space]`);
+                    : tr(`Zayıf Nokta: ${livePods} Pod · Pembe Mermi Savuştur [Space/J]`, `Weakpoints: ${livePods} Pods · Parry Pink Orbs [Space/J]`);
                 safeSetHud(ctx, {
                     score: this.score,
-                    level: this.tierNum,
+                    level: hudLevel,
                     maxLevel: this.endlessRush ? '∞' : 4,
                     lives: this.lives,
                     statusText: `${this.bossTitle} · PH.${this.bossPhase} · NRG ${this.energy}`,

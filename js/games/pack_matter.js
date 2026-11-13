@@ -532,7 +532,13 @@
         if (!engine) return;
         const M = getMatter();
         try {
+            if (M.Runner && typeof M.Runner.stop === 'function' && engine._runner) {
+                M.Runner.stop(engine._runner);
+            }
             M.Events.off(engine);
+            if (M.World && typeof M.World.clear === 'function') {
+                M.World.clear(engine.world, false);
+            }
             M.Composite.clear(engine.world, false);
             M.Engine.clear(engine);
         } catch (err) { /* safe cleanup */ }
@@ -673,7 +679,7 @@
         const MAX_PULL_PX = 140;
 
         let engine = null;
-        let levelIdx = clamp((Number(ctx.level || ctx.startLevel || 1) || 1) - 1, 0, LEVELS.length - 1);
+        let levelIdx = clamp((Number(ctx.initialLevel || ctx.level || ctx.startLevel || 1) || 1) - 1, 0, LEVELS.length - 1);
         let score = 0;
         const scoreCheckpoint = [0];
         let fuelLeft = 6;
@@ -1333,7 +1339,7 @@
         ];
 
         let engine = null;
-        let levelIdx = clamp((Number(ctx.level || ctx.startLevel || 1) || 1) - 1, 0, SECTORS.length - 1);
+        let levelIdx = clamp((Number(ctx.initialLevel || ctx.level || ctx.startLevel || 1) || 1) - 1, 0, SECTORS.length - 1);
         let score = 0;
         const scoreCheckpoint = [0];
         let lives = 3;
@@ -1397,9 +1403,11 @@
                     });
                     bodies.push(padBody);
                 } else {
+                    const y0 = Math.abs(p0.x - Math.round(padRight)) < 2 ? padY + 4 : p0.y;
+                    const y1 = Math.abs(p1.x - Math.round(padLeft)) < 2 ? padY + 4 : p1.y;
                     const verts = [
-                        { x: p0.x, y: p0.y },
-                        { x: p1.x, y: p1.y },
+                        { x: p0.x, y: y0 },
+                        { x: p1.x, y: y1 },
                         { x: p1.x, y: H + 40 },
                         { x: p0.x, y: H + 40 }
                     ];
@@ -1995,6 +2003,10 @@
             reportedEnd = false;
             leftAngle = 0.44;
             rightAngle = -0.44;
+            leftTouch = false;
+            rightTouch = false;
+            rolloverCooldown = 0;
+            lockCooldown = 0;
             fx.clear();
 
             destroyMatterEngine(engine);
@@ -2078,13 +2090,13 @@
             });
 
             // Flippers
-            leftFlipper = M.Bodies.rectangle(LEFT_PIVOT.x + FLIP_LEN, LEFT_PIVOT.y, 78, 16, {
+            leftFlipper = M.Bodies.rectangle(LEFT_PIVOT.x + FLIP_LEN, LEFT_PIVOT.y, 78, 20, {
                 isStatic: true,
                 restitution: 0.55,
                 friction: 0.02,
                 label: 'flipper'
             });
-            rightFlipper = M.Bodies.rectangle(RIGHT_PIVOT.x - FLIP_LEN, RIGHT_PIVOT.y, 78, 16, {
+            rightFlipper = M.Bodies.rectangle(RIGHT_PIVOT.x - FLIP_LEN, RIGHT_PIVOT.y, 78, 20, {
                 isStatic: true,
                 restitution: 0.55,
                 friction: 0.02,
@@ -2098,8 +2110,8 @@
                 label: 'drain'
             });
 
-            // One-way shooter gate (starts open/inactive until ball leaves lane)
-            shooterGate = M.Bodies.rectangle(668, 96, 10, 68, {
+            // One-way shooter gate (seals gap between upper bevel and shooter divider once exited)
+            shooterGate = M.Bodies.rectangle(668, 86, 10, 96, {
                 isStatic: true,
                 isSensor: true,
                 angle: 0.12,
@@ -2335,10 +2347,10 @@
                 const prevSide = (px - ax) * pnx + (py - ay) * pny;
                 const currSide = (px - ax) * nx + (py - ay) * ny;
                 const uAlong = ((px - ax) * ptx + (py - ay) * pty) / bladeLen;
-                const crossedSweep = uAlong >= 0.05 && uAlong <= 1.04 && prevSide >= -10 && currSide <= 12;
+                const crossedSweep = uAlong >= 0.05 && uAlong <= 1.04 && prevSide >= -4 && currSide <= 14;
 
-                if (d < 18.2 || crossedSweep) {
-                    M.Body.setPosition(b, { x: qx + nx * 19.2, y: qy + ny * 19.2 });
+                if ((d < 18.2 && currSide >= -6) || crossedSweep) {
+                    M.Body.setPosition(b, { x: qx + nx * 20.2, y: qy + ny * 20.2 });
                     const launch = 7.2 + u * 6.5;
                     const curDot = b.velocity.x * nx + b.velocity.y * ny;
                     if (curDot < launch) {
@@ -2372,7 +2384,11 @@
             for (let i = 0; i < slings.length; i++) slings[i]._flash = Math.max(0, slings[i]._flash - dtSec * 4.5);
 
             if (chargingPlunger) {
-                plungerCharge = clamp(plungerCharge + dtSec * 1.15, 0, 1);
+                if (!input.has('Space') && !input.pointer.down) {
+                    releasePlunger();
+                } else {
+                    plungerCharge = clamp(plungerCharge + dtSec * 1.15, 0, 1);
+                }
             }
 
             const leftHeld = leftTouch || input.any(['KeyZ', 'ArrowLeft', 'KeyA']);
@@ -2444,6 +2460,17 @@
                         b._anchorPos.y = b.position.y;
                         b._anchorSec = 0;
                     }
+                }
+
+                if (b.position.x < CAB_L - 4 || b.position.x > CAB_R + 4 || b.position.y < -4) {
+                    M.Body.setPosition(b, {
+                        x: clamp(b.position.x, CAB_L + 18, 648),
+                        y: clamp(b.position.y, 28, 450)
+                    });
+                    M.Body.setVelocity(b, {
+                        x: b.position.x < 465 ? 3.2 : -3.2,
+                        y: 2.0
+                    });
                 }
 
                 if (b.position.y > 532) {
@@ -2748,7 +2775,7 @@
         ];
 
         let engine = null;
-        let levelIdx = clamp((Number(ctx.level || ctx.startLevel || 1) || 1) - 1, 0, TABLES.length - 1);
+        let levelIdx = clamp((Number(ctx.initialLevel || ctx.level || ctx.startLevel || 1) || 1) - 1, 0, TABLES.length - 1);
         let score = 0;
         const scoreCheckpoint = [0];
         let shotsLeft = 5;
@@ -2803,14 +2830,22 @@
             const cfg = TABLES[levelIdx];
             if (cueBall && engine) M.Composite.remove(engine.world, cueBall);
             let spawnX = cfg.cue.x;
-            const spawnY = cfg.cue.y;
-            for (let tries = 0; tries < 9; tries++) {
-                const offset = tries === 0 ? 0 : (tries % 2 === 1 ? Math.ceil(tries * 0.5) * 20 : -Math.ceil(tries * 0.5) * 20);
-                const candX = clamp(cfg.cue.x + offset, TL + 36, TR - 36);
-                const blocked = targetBalls.some((tb) => dist(candX, spawnY, tb.position.x, tb.position.y) < 32);
-                if (!blocked) {
-                    spawnX = candX;
-                    break;
+            let spawnY = cfg.cue.y;
+            let found = false;
+            const yOffsets = [0, -32, 32, -64, 64];
+            for (let yi = 0; yi < yOffsets.length && !found; yi++) {
+                const candY = clamp(cfg.cue.y + yOffsets[yi], TT + 36, TB - 36);
+                for (let tries = 0; tries < 11; tries++) {
+                    const offset = tries === 0 ? 0 : (tries % 2 === 1 ? Math.ceil(tries * 0.5) * 24 : -Math.ceil(tries * 0.5) * 24);
+                    const candX = clamp(cfg.cue.x + offset, TL + 36, TR - 36);
+                    const blocked = targetBalls.some((tb) => dist(candX, candY, tb.position.x, tb.position.y) < 32)
+                        || pillars.some((pl) => dist(candX, candY, pl.position.x, pl.position.y) < (pl._r || 30) + 18);
+                    if (!blocked) {
+                        spawnX = candX;
+                        spawnY = candY;
+                        found = true;
+                        break;
+                    }
                 }
             }
             cueBall = M.Bodies.circle(spawnX, spawnY, 14, {
@@ -2996,7 +3031,26 @@
             if (state !== 'moving') return;
 
             shotTimer += dtSec;
-            M.Engine.update(engine, dtMs);
+            const subDt = dtMs * 0.5;
+            M.Engine.update(engine, subDt);
+            M.Engine.update(engine, subDt);
+
+            for (let i = 0; i < targetBalls.length; i++) {
+                const tb = targetBalls[i];
+                if (tb.position.x < TL + 8 || tb.position.x > TR - 8 || tb.position.y < TT + 8 || tb.position.y > TB - 8) {
+                    M.Body.setPosition(tb, {
+                        x: clamp(tb.position.x, TL + 16, TR - 16),
+                        y: clamp(tb.position.y, TT + 16, TB - 16)
+                    });
+                    M.Body.setVelocity(tb, { x: tb.velocity.x * -0.7, y: tb.velocity.y * -0.7 });
+                }
+            }
+            if (cueBall && (cueBall.position.x < TL - 4 || cueBall.position.x > TR + 4 || cueBall.position.y < TT - 4 || cueBall.position.y > TB + 4)) {
+                cueScratched = true;
+                fx.popup(clamp(cueBall.position.x, TL + 40, TR - 40), clamp(cueBall.position.y, TT + 30, TB - 30), 'SCRATCH', PAL.coral);
+                M.Composite.remove(engine.world, cueBall);
+                cueBall = null;
+            }
 
             // Wormhole pocket checks
             for (let i = targetBalls.length - 1; i >= 0; i--) {
@@ -3757,7 +3811,7 @@
         const TETHER_RANGE = 390;
 
         let engine = null;
-        let levelIdx = clamp((Number(ctx.level || ctx.startLevel || 1) || 1) - 1, 0, COURSES.length - 1);
+        let levelIdx = clamp((Number(ctx.initialLevel || ctx.level || ctx.startLevel || 1) || 1) - 1, 0, COURSES.length - 1);
         let score = 0;
         const scoreCheckpoint = [0];
         let lives = 3;
@@ -4080,6 +4134,10 @@
             const cfg = COURSES[levelIdx];
             sectorTime += dtSec;
 
+            if (holdTether && !input.any(['Space', 'ArrowUp', 'KeyW']) && !input.pointer.down) {
+                holdTether = false;
+                detachTether();
+            }
             if (holdTether && !tether) {
                 tryAttachTether();
             }
@@ -4090,10 +4148,10 @@
             }
             if (input.any(['ArrowRight', 'KeyD'])) {
                 M.Body.applyForce(astro, astro.position, { x: 0.00016 * astro.mass, y: 0 });
-                fx.jet(astro.position.x - 14, astro.position.y, Math.PI, PAL.sky, 1, 2.2);
+                fx.jet(astro.position.x - 14, astro.position.y, -1, 0, 0.4, PAL.sky, 2.2, 0.18, 2.2);
             } else if (input.any(['ArrowLeft', 'KeyA'])) {
                 M.Body.applyForce(astro, astro.position, { x: -0.00012 * astro.mass, y: 0 });
-                fx.jet(astro.position.x + 14, astro.position.y, 0, PAL.amber, 1, 2.0);
+                fx.jet(astro.position.x + 14, astro.position.y, 1, 0, 0.4, PAL.amber, 2.0, 0.18, 2.2);
             }
 
             M.Engine.update(engine, dtMs);
@@ -4400,7 +4458,7 @@
         const COURSE_B = H - 46;
 
         let engine = null;
-        let levelIdx = clamp((Number(ctx.level || ctx.startLevel || 1) || 1) - 1, 0, HOLES.length - 1);
+        let levelIdx = clamp((Number(ctx.initialLevel || ctx.level || ctx.startLevel || 1) || 1) - 1, 0, HOLES.length - 1);
         let totalScore = 0;
         const scoreCheckpoint = [0];
         let totalStrokes = 0;
@@ -4683,6 +4741,19 @@
             }
 
             M.Engine.update(engine, dtMs);
+
+            if (golfBall.position.x < COURSE_L + 6 || golfBall.position.x > COURSE_R - 6 || golfBall.position.y < COURSE_T + 6 || golfBall.position.y > COURSE_B - 6) {
+                const gx = golfBall.position.x;
+                const gy = golfBall.position.y;
+                M.Body.setPosition(golfBall, {
+                    x: clamp(gx, COURSE_L + 10, COURSE_R - 10),
+                    y: clamp(gy, COURSE_T + 10, COURSE_B - 10)
+                });
+                M.Body.setVelocity(golfBall, {
+                    x: (gx < COURSE_L + 6 || gx > COURSE_R - 6) ? -golfBall.velocity.x * 0.8 : golfBall.velocity.x,
+                    y: (gy < COURSE_T + 6 || gy > COURSE_B - 6) ? -golfBall.velocity.y * 0.8 : golfBall.velocity.y
+                });
+            }
 
             if (inGrav) {
                 const gSpd = Math.hypot(golfBall.velocity.x, golfBall.velocity.y);

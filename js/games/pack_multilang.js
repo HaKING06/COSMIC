@@ -565,7 +565,7 @@
             };
 
             let reach = getReachable();
-            for (let pass = 0; pass < 12; pass++) {
+            for (let pass = 0; pass < 48; pass++) {
                 let targetCell = null;
                 for (let y = 1; y < GH - 1 && !targetCell; y++) {
                     for (let x = 1; x < GW - 1; x++) {
@@ -759,6 +759,7 @@
                 spawnBurstParticles(particles, px, py, PAL.coral, 16, 170, 3.6, 0.45);
                 floatTexts.push({ x: px, y: py - 24, text: `+${e.xp} XP`, color: PAL.gold, life: 0.9, maxLife: 0.9 });
                 logMsg = L(ctx, `Hedef imha edildi (+${e.xp} XP)`, `Hostile purged (+${e.xp} XP)`);
+                syncHud();
                 checkWinCondition();
             } else {
                 playSfx(ctx, 'hitMetal', 0.12);
@@ -1030,6 +1031,10 @@
 
         bag.on(canvas, 'pointerdown', (e) => {
             if (destroyed || ended || ctx.getPaused()) return;
+            if (typeof e.button === 'number' && e.button !== 0) return;
+            if (typeof canvas.focus === 'function') {
+                try { canvas.focus({ preventScroll: true }); } catch (_) {}
+            }
             unlockAudio(ctx);
             const pos = stageCoordsFromEvent(canvas, e);
 
@@ -1361,7 +1366,10 @@
             rafId = global.requestAnimationFrame(loop);
         }
 
+        canvas.tabIndex = 0;
+        if (canvas.style) canvas.style.outline = 'none';
         generateFloor(1);
+        render(0);
         rafId = global.requestAnimationFrame(loop);
 
         return {
@@ -1384,6 +1392,7 @@
                 floatTexts.length = 0;
                 logMsg = L(ctx, 'ROT.js Digger sektörü tarandı. Warp Asansörünü (>) bul!', 'ROT.js Digger deck mapped. Reach the Warp Elevator (>)!');
                 generateFloor(floor);
+                render(0);
             },
             destroy() {
                 destroyed = true;
@@ -1480,6 +1489,7 @@
         let vmError = false;
         let activeChip = 'hunter';
         let activeLuaCode = '';
+        let loadedKernelSrc = FALLBACK_MISSION_KERNEL_LUA;
         let pcallPerSec = 0;
         let pcallCounter = 0;
         let pcallWindow = 0;
@@ -1589,6 +1599,14 @@
             statusLine.textContent = vmStatusMsg;
         }
 
+        function armLuaHook(limit) {
+            if (!LState || !fengariRef || !fengariRef.lua || typeof fengariRef.lua.lua_sethook !== 'function') return;
+            const { lua, lauxlib, to_luastring } = fengariRef;
+            lua.lua_sethook(LState, (stPtr) => {
+                lauxlib.luaL_error(stPtr, to_luastring('Lua instruction limit exceeded'));
+            }, lua.LUA_MASKCOUNT, limit || 25000);
+        }
+
         function compileLuaCode(codeStr, chipLabel) {
             if (!luaReady || !LState || !fengariRef) {
                 activeLuaCode = codeStr;
@@ -1602,7 +1620,7 @@
             const restorePrev = () => {
                 try {
                     lua.lua_settop(LState, 0);
-                    if (prevRef !== null) {
+                    if (prevRef !== null && prevRef >= 0) {
                         lua.lua_rawgeti(LState, lua.LUA_REGISTRYINDEX, prevRef);
                         lua.lua_setglobal(LState, to_luastring('step_ai'));
                         lauxlib.luaL_unref(LState, lua.LUA_REGISTRYINDEX, prevRef);
@@ -1616,6 +1634,7 @@
                 lua.lua_getglobal(LState, to_luastring('step_ai'));
                 prevRef = lauxlib.luaL_ref(LState, lua.LUA_REGISTRYINDEX);
 
+                armLuaHook(50000);
                 const st = lauxlib.luaL_dostring(LState, to_luastring(codeStr));
                 if (st !== 0) {
                     const errStr = lua.lua_tostring(LState, -1);
@@ -1638,6 +1657,7 @@
 
                 const dryArgs = [260, 290, 100, 0, 420, 290, 160, 335, 290, 75];
                 for (let i = 0; i < dryArgs.length; i++) lua.lua_pushnumber(LState, dryArgs[i]);
+                armLuaHook(25000);
                 const rc = lua.lua_pcall(LState, 10, 3, 0);
                 if (rc !== 0) {
                     const errStr = lua.lua_tostring(LState, -1);
@@ -1648,7 +1668,7 @@
                     return false;
                 }
                 lua.lua_settop(LState, 0);
-                if (prevRef !== null) {
+                if (prevRef !== null && prevRef >= 0) {
                     lauxlib.luaL_unref(LState, lua.LUA_REGISTRYINDEX, prevRef);
                     prevRef = null;
                 }
@@ -1676,15 +1696,12 @@
                 }
                 LState = lauxlib.luaL_newstate();
                 lualib.luaL_openlibs(LState);
-                // Protect against user infinite loops in live editor
-                if (typeof lua.lua_sethook === 'function') {
-                    lua.lua_sethook(LState, (stPtr) => {
-                        lauxlib.luaL_error(stPtr, to_luastring('Lua instruction limit exceeded'));
-                    }, lua.LUA_MASKCOUNT, 25000);
-                }
+                // Protect against user infinite loops in live editor (re-armed before each call)
+                armLuaHook(50000);
                 const st = lauxlib.luaL_dostring(LState, to_luastring(luaSource));
                 if (st !== 0) {
                     lua.lua_settop(LState, 0);
+                    armLuaHook(50000);
                     lauxlib.luaL_dostring(LState, to_luastring(FALLBACK_MISSION_KERNEL_LUA));
                 }
 
@@ -1755,6 +1772,7 @@
                     }
                 } catch (_) { /* file:// fallback cleanly uses embedded string */ }
             }
+            loadedKernelSrc = kernelSrc;
             if (!destroyed) initLuaVmWithScript(kernelSrc);
         })();
 
@@ -1789,6 +1807,7 @@
                 }
                 const args = [bx, by, hp, cooldown, tx, ty, tdist, nx, ny, ndist];
                 for (let i = 0; i < 10; i++) lua.lua_pushnumber(LState, args[i]);
+                armLuaHook(25000);
                 const rc = lua.lua_pcall(LState, 10, 3, 0);
                 if (rc !== 0) {
                     const errStr = lua.lua_tostring(LState, -1);
@@ -1901,6 +1920,10 @@
 
         bag.on(canvas, 'pointerdown', (e) => {
             if (destroyed || ended || ctx.getPaused()) return;
+            if (typeof e.button === 'number' && e.button !== 0 && e.button !== 2) return;
+            if (typeof canvas.focus === 'function') {
+                try { canvas.focus({ preventScroll: true }); } catch (_) {}
+            }
             unlockAudio(ctx);
             if (e.button === 2) {
                 beacon.active = false;
@@ -2381,7 +2404,10 @@
             rafId = global.requestAnimationFrame(loop);
         }
 
+        canvas.tabIndex = 0;
+        if (canvas.style) canvas.style.outline = 'none';
         syncHud();
+        draw(0);
         rafId = global.requestAnimationFrame(loop);
 
         return {
@@ -2413,7 +2439,15 @@
                 shockRings.length = 0;
                 particles.length = 0;
                 floatTexts.length = 0;
+                if (vmError || !luaReady) {
+                    vmError = false;
+                    codeArea.value = chipCodes[activeChip] || chipCodes.hunter || '';
+                }
+                if (fengariRef) {
+                    initLuaVmWithScript(loadedKernelSrc || FALLBACK_MISSION_KERNEL_LUA);
+                }
                 syncHud();
+                draw(0);
             },
             destroy() {
                 destroyed = true;
@@ -2620,8 +2654,11 @@
                 if (destroyed || !instance || !instance.exports || !instance.exports.stepGravitySwarm) return;
 
                 // Mirror current entity array into WASM linear memory
+                const neededBytes = BASE_PTR + MAX_COUNT * STRIDE_FLOATS * 4;
+                const mem = instance.exports.memory;
+                if (!mem || !mem.buffer || mem.buffer.byteLength < neededBytes) return;
                 const oldView = getF32View();
-                const wasmView = new Float32Array(instance.exports.memory.buffer, BASE_PTR, MAX_COUNT * STRIDE_FLOATS);
+                const wasmView = new Float32Array(mem.buffer, BASE_PTR, MAX_COUNT * STRIDE_FLOATS);
                 wasmView.set(oldView);
                 if (typeof instance.exports.seedRng === 'function') {
                     instance.exports.seedRng(Date.now() >>> 0);
@@ -2695,6 +2732,10 @@
         bag.on(canvas, 'pointerleave', () => { pointer.active = false; });
         bag.on(canvas, 'pointerdown', (e) => {
             if (destroyed || ended || ctx.getPaused()) return;
+            if (typeof e.button === 'number' && e.button !== 0) return;
+            if (typeof canvas.focus === 'function') {
+                try { canvas.focus({ preventScroll: true }); } catch (_) {}
+            }
             unlockAudio(ctx);
             const p = stageCoordsFromEvent(canvas, e);
             pointer.x = p.x;
@@ -3177,12 +3218,17 @@
             rafId = global.requestAnimationFrame(loop);
         }
 
+        canvas.tabIndex = 0;
+        if (canvas.style) canvas.style.outline = 'none';
         syncHud();
+        draw(0);
         rafId = global.requestAnimationFrame(loop);
 
         return {
             restart(lv) {
                 ended = false;
+                keys.clear();
+                pointer.active = false;
                 wave = Math.max(1, Number(lv) || 1);
                 waveTimer = 0;
                 singularityTimer = 0;
@@ -3207,6 +3253,7 @@
                 prevAliveKind.fill(-1);
                 seedAllEntities();
                 syncHud();
+                draw(0);
             },
             destroy() {
                 destroyed = true;
@@ -3491,7 +3538,7 @@
         }
 
         function handleNodeClick(node, isDouble, shiftKey) {
-            if (ended) return;
+            if (ended || ctx.getPaused()) return;
             unlockAudio(ctx);
 
             if (isDouble) {
@@ -3563,6 +3610,7 @@
                 .style('cursor', 'pointer')
                 .on('click', (ev) => {
                     ev.stopPropagation();
+                    if (ended || ctx.getPaused()) return;
                     selectedIds.clear();
                     nodes.forEach(n => { if (n.owner === 'player') selectedIds.add(n.id); });
                     playSfx(ctx, 'uiClick');
@@ -3685,8 +3733,14 @@
         }
 
         // Scaled SVG pointer handling (supports click, drag-to-send beam, and marquee multi-select across any CSS resize!)
+        svgEl.tabIndex = 0;
+        if (svgEl.style) svgEl.style.outline = 'none';
         bag.on(svgEl, 'pointerdown', (e) => {
             if (ended || ctx.getPaused()) return;
+            if (typeof e.button === 'number' && e.button !== 0) return;
+            if (typeof svgEl.focus === 'function') {
+                try { svgEl.focus({ preventScroll: true }); } catch (_) {}
+            }
             unlockAudio(ctx);
             const pos = stageCoordsFromEvent(svgEl, e);
             // Ignore clicks inside bottom-left [SELECT ALL] pill region (handled by btnG click)
@@ -3725,6 +3779,12 @@
 
         bag.on(window, 'pointerup', (e) => {
             if (!dragState.mode || ended) return;
+            if (ctx.getPaused()) {
+                dragState.mode = null;
+                dragState.hoverId = -1;
+                updateSvgScene();
+                return;
+            }
             const pos = stageCoordsFromEvent(svgEl, e);
             const targetHit = findNodeAtStagePos(pos.x, pos.y);
             const mode = dragState.mode;
@@ -3950,7 +4010,7 @@
                     level: sector,
                     reason: L(ctx, 'Tüm Vanguard yıldız üsleri kaybedildi.', 'All Vanguard star systems were lost.')
                 });
-            } else if (!ended && eStars === 0) {
+            } else if (!ended && eStars === 0 && (pStars > 0 || pFleets > 0)) {
                 score += 500;
                 if (isStory) {
                     ended = true;
@@ -4058,6 +4118,24 @@
                     hitFlash: n.pulse > 0,
                     fallbackColor: fCol
                 });
+                if (!d3) {
+                    if (selectedIds.has(n.id)) {
+                        g.save();
+                        g.strokeStyle = PAL.gold;
+                        g.lineWidth = 2.2;
+                        g.beginPath();
+                        g.arc(n.x, n.y, n.radius + 9, 0, TAU);
+                        g.stroke();
+                        g.restore();
+                    }
+                    g.save();
+                    g.font = '700 11px ' + FONT_MONO;
+                    g.textAlign = 'center';
+                    g.textBaseline = 'middle';
+                    g.fillStyle = PAL.white;
+                    g.fillText(String(Math.floor(n.ships)), n.x, n.y + n.radius + 14);
+                    g.restore();
+                }
             }
 
             // Drag Targeting Beam or Marquee Multi-Select Overlay
@@ -4143,6 +4221,7 @@
         }
 
         buildGalaxy(1);
+        draw(0);
         rafId = global.requestAnimationFrame(loop);
 
         return {
@@ -4158,6 +4237,7 @@
                 particles.length = 0;
                 floatTexts.length = 0;
                 buildGalaxy(sector);
+                draw(0);
             },
             destroy() {
                 destroyed = true;
@@ -4337,8 +4417,10 @@ void main() {
                         gl.bindBuffer(gl.ARRAY_BUFFER, glVbo);
                         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
                         const loc = gl.getAttribLocation(glProgram, 'a_pos');
-                        gl.enableVertexAttribArray(loc);
-                        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+                        if (loc >= 0) {
+                            gl.enableVertexAttribArray(loc);
+                            gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+                        }
                         gl.bindVertexArray(null);
 
                         uniforms = {
@@ -4365,12 +4447,17 @@ void main() {
         } catch (_) {
             webgl2Ready = false;
         }
+        bag.on(glCanvas, 'webglcontextlost', (e) => {
+            if (e && typeof e.preventDefault === 'function') e.preventDefault();
+            webgl2Ready = false;
+        });
 
         const SHIP_COLLISION_DZ = 3.25;
 
         // Tunnel surfing state
+        let startTier = Math.max(1, Number(ctx.initialLevel || ctx.level || 1));
         let zPos = 0;
-        let speed = 13.5;
+        let speed = 13.5 + (startTier - 1) * 3.0;
         let playerAngle = 0; // radians around tunnel floor
         let angVel = 0;
         let hopTimer = 0;
@@ -4380,7 +4467,7 @@ void main() {
         let shields = 3;
         let score = 0;
         let multiplier = 1;
-        let tier = 1;
+        let tier = startTier;
         let nextSpawnZ = 22;
         let beatPhase = 0;
 
@@ -4426,8 +4513,14 @@ void main() {
         });
         bag.on(window, 'blur', () => { keys.clear(); steerPointer.down = false; });
 
+        hudCanvas.tabIndex = 0;
+        if (hudCanvas.style) hudCanvas.style.outline = 'none';
         bag.on(hudCanvas, 'pointerdown', (e) => {
             if (destroyed || ended || ctx.getPaused()) return;
+            if (typeof e.button === 'number' && e.button !== 0) return;
+            if (typeof hudCanvas.focus === 'function') {
+                try { hudCanvas.focus({ preventScroll: true }); } catch (_) {}
+            }
             unlockAudio(ctx);
             const p = stageCoordsFromEvent(hudCanvas, e);
             steerPointer.down = true;
@@ -4436,7 +4529,7 @@ void main() {
             steerPointer.dragged = false;
         });
         bag.on(window, 'pointermove', (e) => {
-            if (!steerPointer.down || ended) return;
+            if (!steerPointer.down || ended || ctx.getPaused()) return;
             const p = stageCoordsFromEvent(hudCanvas, e);
             const dx = p.x - steerPointer.x;
             steerPointer.x = p.x;
@@ -4542,8 +4635,9 @@ void main() {
             angVel = lerp(angVel, steer * 2.85, clamp(dt * 12, 0, 1));
             playerAngle = wrapAngle(playerAngle + angVel * dt);
 
-            speed = 13.5 + Math.min(20, time * 0.22);
-            tier = 1 + Math.floor((speed - 13.5) / 3.0);
+            const ramp = Math.min(20, time * 0.22);
+            speed = Math.min(36, 13.5 + (startTier - 1) * 3.0 + ramp);
+            tier = startTier + Math.floor(ramp / 3.0);
             zPos += speed * dt;
             score += dt * 16 * multiplier;
 
@@ -4783,14 +4877,17 @@ void main() {
         }
 
         syncHud();
+        draw(0);
         rafId = global.requestAnimationFrame(loop);
 
         return {
             restart(lv) {
                 ended = false;
+                keys.clear();
+                startTier = Math.max(1, Number(lv) || 1);
                 time = 0;
                 zPos = 0;
-                speed = 13.5 + ((Math.max(1, Number(lv) || 1) - 1) * 3.0);
+                speed = 13.5 + (startTier - 1) * 3.0;
                 playerAngle = 0;
                 angVel = 0;
                 hopTimer = 0;
@@ -4800,7 +4897,7 @@ void main() {
                 shields = 3;
                 score = 0;
                 multiplier = 1;
-                tier = Math.max(1, Number(lv) || 1);
+                tier = startTier;
                 beatPhase = 0;
                 steerPointer.down = false;
                 steerPointer.dragged = false;
@@ -4809,6 +4906,7 @@ void main() {
                 particles.length = 0;
                 floatTexts.length = 0;
                 syncHud();
+                draw(0);
             },
             destroy() {
                 destroyed = true;

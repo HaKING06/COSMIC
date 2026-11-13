@@ -304,11 +304,12 @@
             },
             breaks: culprit.id
         };
+        const clearRoom = roomDefs.find((r) => r.id !== crimeRoom.id && r.id !== originEv.room) || roomDefs[(crimeRoomIdx + 3) % roomDefs.length];
         const clearEv = {
             id: 'ev3',
-            room: extraRoom.id === crimeRoom.id || extraRoom.id === originEv.room ? roomDefs[(crimeRoomIdx + 3) % roomDefs.length].id : extraRoom.id,
-            x: roomDefs[(crimeRoomIdx + 3) % roomDefs.length].evPos.x,
-            y: roomDefs[(crimeRoomIdx + 3) % roomDefs.length].evPos.y,
+            room: clearRoom.id,
+            x: clearRoom.evPos.x,
+            y: clearRoom.evPos.y,
             sprite: 'warp_ring',
             name: { tr: 'Çift Biometrik Devriye Kaydı', en: 'Dual Biometric Patrol Sync' },
             clue: {
@@ -317,10 +318,6 @@
             },
             breaks: null
         };
-        if (extraRoom.id !== crimeRoom.id && extraRoom.id !== originEv.room) {
-            clearEv.x = extraRoom.evPos.x;
-            clearEv.y = extraRoom.evPos.y;
-        }
 
         const suspects = crewTemplates.map((c) => {
             const rm = roomDefs.find((r) => r.id === c.home) || roomDefs[0];
@@ -456,6 +453,7 @@
             selectedSuspectAccuse = cs.suspects[0].id;
             selectedWeaponAccuse = cs.weapons[0].id;
             syncHud();
+            drawFrame();
         }
 
         function syncHud() {
@@ -560,15 +558,16 @@
 
             g.fillStyle = '#fb7185';
             g.font = '700 11px JetBrains Mono, monospace';
-            g.fillText(ctx.t(`USCS VESTA-9 · ADLİ DOSYA 0${level}`, `USCS VESTA-9 · CASE FILE 0${level}`), 38, 38);
+            const fileTag = String(level).padStart(2, '0');
+            g.fillText(ctx.t(`USCS VESTA-9 · ADLİ DOSYA ${fileTag}`, `USCS VESTA-9 · CASE FILE ${fileTag}`), 38, 38);
 
             g.fillStyle = '#f1f5f9';
-            g.font = '700 18px Space Grotesk, sans-serif';
-            g.fillText(tr(cs.title), 38, 62);
+            g.font = '700 17px Space Grotesk, sans-serif';
+            g.fillText(tr(cs.title), 38, 56);
 
             g.fillStyle = '#94a3b8';
-            g.font = '500 11.5px Inter, sans-serif';
-            wrapText(tr(cs.brief), 38, 79, 535, 14, 1);
+            g.font = '500 11px Inter, sans-serif';
+            wrapText(tr(cs.brief), 38, 72, 535, 13, 2);
 
             // Station Hull Outline & Corridors
             g.strokeStyle = 'rgba(148, 163, 184, 0.28)';
@@ -685,8 +684,18 @@
                 const got = scannedEv.has(ev.id);
                 g.fillStyle = got ? '#e2e8f0' : '#475569';
                 g.font = '500 11.5px Inter, sans-serif';
-                const textLine = got ? `✓ ${tr(ev.clue)}` : `□ [ ${tr(ev.name)} ] — ${ctx.t('Taramak için haritada simgeye tıkla', 'Click node on map to scan')}`;
-                g.fillText(textLine.slice(0, 82), 38, cy);
+                let textLine = got ? `✓ ${tr(ev.clue)}` : `□ [ ${tr(ev.name)} ] — ${ctx.t('Taramak için haritada simgeye tıkla', 'Click node on map to scan')}`;
+                if (typeof g.measureText === 'function') {
+                    if (g.measureText(textLine).width > 536) {
+                        while (textLine.length > 16 && g.measureText(textLine + '…').width > 536) {
+                            textLine = textLine.slice(0, -1);
+                        }
+                        textLine += '…';
+                    }
+                } else if (textLine.length > 88) {
+                    textLine = textLine.slice(0, 88) + '…';
+                }
+                g.fillText(textLine, 38, cy);
                 cy += 17;
             });
 
@@ -887,9 +896,12 @@
                 const rect = canvas.getBoundingClientRect();
                 const rw = Math.max(1, rect.width || W);
                 const rh = Math.max(1, rect.height || H);
+                const src = (e && e.touches && e.touches[0]) || (e && e.changedTouches && e.changedTouches[0]) || e || {};
+                const cx = Number.isFinite(src.clientX) ? src.clientX : rect.left;
+                const cy = Number.isFinite(src.clientY) ? src.clientY : rect.top;
                 return {
-                    x: Math.max(0, Math.min(W, ((e.clientX - rect.left) / rw) * W)),
-                    y: Math.max(0, Math.min(H, ((e.clientY - rect.top) / rh) * H))
+                    x: Math.max(0, Math.min(W, ((cx - rect.left) / rw) * W)),
+                    y: Math.max(0, Math.min(H, ((cy - rect.top) / rh) * H))
                 };
             }
 
@@ -920,6 +932,9 @@
                 function handlePointer(e) {
                     if (ctx.getPaused() || destroyed || ended) return;
                     if (typeof e.button === 'number' && e.button !== 0) return;
+                    if (typeof canvas.focus === 'function') {
+                        try { canvas.focus({ preventScroll: true }); } catch (_) {}
+                    }
                     const p = mapPointer(e);
                     hoverPos = p;
                     for (let i = hotboxes.length - 1; i >= 0; i--) {
@@ -948,6 +963,8 @@
                     }
                 }
 
+                canvas.tabIndex = 0;
+                if (canvas.style) canvas.style.outline = 'none';
                 canvas.addEventListener('pointerdown', handlePointer);
                 canvas.addEventListener('pointermove', handlePointerMove);
                 canvas.addEventListener('pointerleave', handlePointerLeave);

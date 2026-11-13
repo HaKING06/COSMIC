@@ -199,6 +199,49 @@
         el.textContent = Number(prof.credits || 0).toLocaleString(getLang() === 'en' ? 'en-US' : 'tr-TR');
     }
 
+    function focusStageCanvas() {
+        const cnv = document.querySelector('#arcadeStage canvas');
+        if (cnv && typeof cnv.focus === 'function') {
+            try { cnv.focus({ preventScroll: true }); } catch (_) {}
+        }
+    }
+
+    function blurControl(el) {
+        if (el && typeof el.blur === 'function') el.blur();
+    }
+
+    function getEndlessLevel(meta = state.meta) {
+        if (!meta || !meta.hasLevels) return 0;
+        const maxLv = Math.max(1, Number(meta.maxLevel) || 1);
+        if (Number.isFinite(Number(meta.endlessLevel)) && Number(meta.endlessLevel) > 0) {
+            return Number(meta.endlessLevel);
+        }
+        if (meta.hasEndless || meta.id === 'exo-metroid-breach') {
+            return maxLv + 1;
+        }
+        return 0;
+    }
+
+    function syncStorySelectionFromMode() {
+        const linkedCh = state.chapterId || (state.meta && state.meta.storyChapter);
+        if (state.playMode === 'story' && linkedCh && global.CosmicStoryStore && typeof global.CosmicStoryStore.getChapter === 'function') {
+            const chObj = global.CosmicStoryStore.getChapter(linkedCh);
+            if (chObj) {
+                state.chapterId = chObj.id;
+                state.chapterMeta = chObj;
+                return;
+            }
+        }
+        state.chapterMeta = null;
+        if (state.playMode === 'story') state.playMode = 'endless';
+    }
+
+    function hidePreGameMenu() {
+        state.menuVisible = false;
+        document.getElementById('preGameMenuOverlay')?.classList.add('hidden');
+        syncTouchControlsVisibility();
+    }
+
     function setupAudioControl() {
         const btn = document.getElementById('audioToggleBtn');
         const label = document.getElementById('audioToggleLabel');
@@ -212,6 +255,7 @@
         };
         sync();
         btn.addEventListener('click', () => {
+            blurControl(btn);
             if (!global.CosmicAudio) return;
             global.CosmicAudio.unlock();
             const cur = Boolean(global.CosmicAudio.prefs && global.CosmicAudio.prefs.muted);
@@ -219,6 +263,7 @@
             sync();
             refreshIcons();
             if (cur) global.CosmicAudio.play('uiClick');
+            focusStageCanvas();
         });
     }
 
@@ -309,27 +354,50 @@
         refreshIcons();
     }
 
+    function updateActiveLevelPill() {
+        const wrap = document.getElementById('levelPillsWrap');
+        if (!wrap) return;
+        wrap.querySelectorAll('.level-pill-btn').forEach((btn) => {
+            btn.classList.toggle('active', Number(btn.dataset.level) === state.currentLevel);
+        });
+    }
+
     function renderLevelPills() {
         const bar = document.getElementById('levelSelectorBar');
         const wrap = document.getElementById('levelPillsWrap');
         if (!bar || !wrap || !state.meta) return;
-        if (!state.meta.hasLevels || (state.meta.maxLevel || 1) <= 1) {
+        const maxLv = Math.max(1, Number(state.meta.maxLevel) || 1);
+        const endlessLv = getEndlessLevel(state.meta);
+        if (!state.meta.hasLevels || (maxLv <= 1 && !endlessLv)) {
             bar.classList.add('hidden');
             return;
         }
         bar.classList.remove('hidden');
         const rec = global.CosmicArcadeStore ? global.CosmicArcadeStore.getGameStats(state.gameId) : { bestLevel: 0 };
         wrap.innerHTML = '';
-        for (let lv = 1; lv <= state.meta.maxLevel; lv++) {
+        const appendPill = (lv, labelText, titleText) => {
             const btn = document.createElement('button');
             btn.type = 'button';
+            btn.dataset.level = String(lv);
             btn.className = 'level-pill-btn' + (lv === state.currentLevel ? ' active' : '') + (lv <= (rec.bestLevel || 0) ? ' cleared' : '');
-            btn.textContent = String(lv);
+            btn.textContent = labelText;
+            if (titleText) btn.title = titleText;
             btn.addEventListener('click', () => {
-                if (global.CosmicAudio) global.CosmicAudio.play('uiClick');
+                blurControl(btn);
+                if (global.CosmicAudio) {
+                    global.CosmicAudio.unlock();
+                    global.CosmicAudio.play('uiClick');
+                }
                 jumpToLevel(lv);
             });
             wrap.appendChild(btn);
+        };
+        for (let lv = 1; lv <= maxLv; lv++) {
+            const isEndlessSlot = endlessLv > 0 && lv === endlessLv;
+            appendPill(lv, isEndlessSlot ? '∞' : String(lv), isEndlessSlot ? t('Sonsuz Sektör', 'Endless Sector') : '');
+        }
+        if (endlessLv > maxLv) {
+            appendPill(endlessLv, '∞', t('Sonsuz Sektör', 'Endless Sector'));
         }
     }
 
@@ -446,12 +514,21 @@
         btnPrimaryText.textContent = c.playAgain;
         document.getElementById('ovBtnPortalText').textContent = 'Portal';
 
-        if (isWin && state.meta && state.meta.hasLevels && level < (state.meta.maxLevel || 1)) {
+        const maxLv = Math.max(1, Number(state.meta && state.meta.maxLevel) || 1);
+        const endlessLv = getEndlessLevel(state.meta);
+        if (isWin && state.meta && state.meta.hasLevels && level < maxLv) {
             btnNext.classList.remove('hidden');
             document.getElementById('ovBtnNextText').textContent = c.nextLevel;
             btnNext.onclick = () => {
                 ov.classList.add('hidden');
                 jumpToLevel(level + 1);
+            };
+        } else if (isWin && endlessLv > maxLv && level === maxLv && state.playMode !== 'story') {
+            btnNext.classList.remove('hidden');
+            document.getElementById('ovBtnNextText').textContent = t('Sonsuz Sektör (∞)', 'Endless Sector (∞)');
+            btnNext.onclick = () => {
+                ov.classList.add('hidden');
+                jumpToLevel(endlessLv);
             };
         } else {
             btnNext.classList.add('hidden');
@@ -482,15 +559,18 @@
             restartCurrentGame();
         };
         ov.classList.remove('hidden');
+        syncTouchControlsVisibility();
         refreshIcons();
     }
 
     function showPauseOverlay(show) {
-        if (state.ended) return;
+        if (state.ended || (show && state.menuVisible)) return;
         const c = copy();
         const ov = document.getElementById('stageOverlay');
         if (!show) {
             ov.classList.add('hidden');
+            syncTouchControlsVisibility();
+            focusStageCanvas();
             return;
         }
         document.getElementById('overlayEyebrow').textContent = c.pauseBadge;
@@ -501,12 +581,31 @@
         const rec = global.CosmicArcadeStore ? global.CosmicArcadeStore.getGameStats(state.gameId) : { highScore: 0 };
         document.getElementById('ovValBest').textContent = String(rec.highScore || 0);
         document.getElementById('ovValCreds').textContent = '--';
+        document.getElementById('ovLblScore').textContent = c.ovScore;
+        document.getElementById('ovLblBest').textContent = c.ovBest;
+        document.getElementById('ovLblCreds').textContent = c.ovCreds;
+        document.getElementById('ovBtnPortalText').textContent = 'Portal';
         document.getElementById('ovBtnNext').classList.add('hidden');
         document.getElementById('overlayStoryNote').classList.add('hidden');
-        document.getElementById('ovBtnStory').classList.toggle('hidden', !state.chapterMeta);
+
+        const btnStory = document.getElementById('ovBtnStory');
+        const hasStory = Boolean(state.playMode === 'story' && state.chapterMeta);
+        if (btnStory) {
+            btnStory.classList.toggle('hidden', !hasStory);
+            if (hasStory) {
+                btnStory.href = asset(`story.html?chapter=${state.chapterMeta.id}`);
+                const stTxt = document.getElementById('ovBtnStoryText');
+                if (stTxt) stTxt.textContent = c.storyBtn;
+            }
+        }
         document.getElementById('ovBtnPrimaryText').textContent = c.resumeBtn;
-        document.getElementById('ovBtnPrimary').onclick = togglePause;
+        document.getElementById('ovBtnPrimary').onclick = () => {
+            blurControl(document.getElementById('ovBtnPrimary'));
+            togglePause();
+        };
         ov.classList.remove('hidden');
+        syncTouchControlsVisibility();
+        refreshIcons();
     }
 
     function destroyActiveController() {
@@ -518,23 +617,30 @@
         if (stage) stage.innerHTML = '';
     }
 
+    function resetHudBaseline() {
+        const rec = global.CosmicArcadeStore ? global.CosmicArcadeStore.getGameStats(state.gameId) : { highScore: 0, stars: 0 };
+        const endlessLv = getEndlessLevel(state.meta);
+        document.getElementById('valHudBest').textContent = String(rec.highScore || 0);
+        document.getElementById('valBestStars').textContent = formatStars(rec.stars || 0);
+        document.getElementById('valHudScore').textContent = '0';
+        document.getElementById('valHudLevel').textContent = (endlessLv > 0 && state.currentLevel === endlessLv) ? '∞' : String(state.currentLevel);
+        document.getElementById('valHudLives').textContent = '3';
+        document.getElementById('valHudStatus').textContent = copy().readyStatus;
+    }
+
     function mountGame(targetLevel) {
         destroyActiveController();
         state.paused = false;
         state.ended = false;
         state.currentScore = 0;
+        state.chapterAwarded = false;
         state.currentLevel = targetLevel || state.initialLevel || 1;
         document.getElementById('stageOverlay').classList.add('hidden');
         syncStaticChrome();
+        resetHudBaseline();
+        syncTouchControlsVisibility();
 
         const stageEl = document.getElementById('arcadeStage');
-        const rec = global.CosmicArcadeStore ? global.CosmicArcadeStore.getGameStats(state.gameId) : { highScore: 0, stars: 0 };
-        document.getElementById('valHudBest').textContent = String(rec.highScore || 0);
-        document.getElementById('valBestStars').textContent = formatStars(rec.stars || 0);
-        document.getElementById('valHudScore').textContent = '0';
-        document.getElementById('valHudLevel').textContent = String(state.currentLevel);
-        document.getElementById('valHudLives').textContent = '3';
-        document.getElementById('valHudStatus').textContent = copy().readyStatus;
 
         // Special Flagship Hangar Card ONLY for #01 cosmic-survivors
         if (state.gameId === 'cosmic-survivors') {
@@ -608,8 +714,14 @@
                     }
                 }
                 if (hud.level !== undefined) {
+                    const prevLv = state.currentLevel;
                     state.currentLevel = Math.max(1, Math.floor(Number(hud.level) || 1));
-                    document.getElementById('valHudLevel').textContent = hud.maxLevel ? `${state.currentLevel}/${hud.maxLevel}` : String(state.currentLevel);
+                    const endlessLv = getEndlessLevel(state.meta);
+                    const lvDisplay = (endlessLv > 0 && state.currentLevel === endlessLv)
+                        ? '∞'
+                        : (hud.maxLevel ? `${state.currentLevel}/${hud.maxLevel}` : String(state.currentLevel));
+                    document.getElementById('valHudLevel').textContent = lvDisplay;
+                    if (prevLv !== state.currentLevel) updateActiveLevelPill();
                     if (state.playMode === 'story' && state.chapterMeta && state.chapterMeta.targetType === 'level') {
                         checkStoryCompletion(state.currentScore, state.currentLevel, false);
                     }
@@ -646,33 +758,39 @@
         }
     }
 
-    function jumpToLevel(lv) {
-        state.paused = false;
-        state.ended = false;
-        state.currentLevel = lv;
-        document.getElementById('stageOverlay').classList.add('hidden');
-        if (state.controller && typeof state.controller.restart === 'function') {
-            state.controller.restart(lv);
-            syncStaticChrome();
-        } else {
-            mountGame(lv);
+    function resetActiveGame(targetLevel) {
+        const wasMenuVisible = state.menuVisible;
+        if (wasMenuVisible) {
+            syncStorySelectionFromMode();
+            hidePreGameMenu();
         }
-    }
-
-    function restartCurrentGame() {
         state.paused = false;
         state.ended = false;
-        document.getElementById('stageOverlay').classList.add('hidden');
-        if (state.controller && typeof state.controller.restart === 'function') {
+        state.currentScore = 0;
+        state.chapterAwarded = false;
+        state.currentLevel = targetLevel || state.currentLevel || state.initialLevel || 1;
+        document.getElementById('stageOverlay')?.classList.add('hidden');
+        if (!wasMenuVisible && state.controller && typeof state.controller.restart === 'function') {
             state.controller.restart(state.currentLevel);
             syncStaticChrome();
+            resetHudBaseline();
+            syncTouchControlsVisibility();
+            focusStageCanvas();
         } else {
             mountGame(state.currentLevel);
         }
     }
 
+    function jumpToLevel(lv) {
+        resetActiveGame(lv);
+    }
+
+    function restartCurrentGame() {
+        resetActiveGame(state.currentLevel);
+    }
+
     function togglePause() {
-        if (state.ended) return;
+        if (state.ended || state.menuVisible) return;
         state.paused = !state.paused;
         showPauseOverlay(state.paused);
         syncStaticChrome();
@@ -682,9 +800,9 @@
         const wrap = document.getElementById('stageFrameWrap');
         if (!wrap) return;
         if (document.fullscreenElement) {
-            document.exitFullscreen?.();
+            Promise.resolve(document.exitFullscreen?.()).catch(() => {});
         } else {
-            wrap.requestFullscreen?.();
+            Promise.resolve(wrap.requestFullscreen?.()).catch(() => {});
         }
     }
 
@@ -735,12 +853,124 @@
         });
     }
 
+    let touchControlsState = { el: null, activeCodes: new Set(), hiddenByUser: false, initialized: false, coarse: false };
+
+    function dispatchTouchKey(code, key, isDown) {
+        const ev = new KeyboardEvent(isDown ? 'keydown' : 'keyup', {
+            code,
+            key,
+            bubbles: true,
+            cancelable: true
+        });
+        window.dispatchEvent(ev);
+    }
+
+    function releaseAllTouchKeys() {
+        if (!touchControlsState.activeCodes.size) return;
+        touchControlsState.activeCodes.forEach((entry) => {
+            const [code, key] = entry.split('|');
+            dispatchTouchKey(code, key, false);
+        });
+        touchControlsState.activeCodes.clear();
+        if (touchControlsState.el) {
+            touchControlsState.el.querySelectorAll('.arcade-vbtn.is-down').forEach(b => b.classList.remove('is-down'));
+        }
+    }
+
+    function syncTouchControlsVisibility() {
+        if (!touchControlsState.el) return;
+        const hideForGame = state.gameId === 'cosmic-survivors' || state.gameId === 'typing-cipher-defense' || state.gameId === 'lua-cyber-ops';
+        const show = touchControlsState.coarse && !touchControlsState.hiddenByUser && !state.menuVisible && !state.paused && !state.ended && !hideForGame;
+        touchControlsState.el.style.display = show ? 'flex' : 'none';
+        if (!show) releaseAllTouchKeys();
+    }
+
+    function ensureTouchControlsDom() {
+        if (touchControlsState.initialized) return;
+        const wrap = document.getElementById('stageFrameWrap');
+        if (!wrap) return;
+        touchControlsState.initialized = true;
+
+        const bar = document.createElement('div');
+        bar.id = 'arcadeTouchControls';
+        bar.setAttribute('aria-label', 'Touch Controls');
+        bar.style.cssText = 'position:absolute;left:12px;right:12px;bottom:12px;display:none;justify-content:space-between;align-items:flex-end;pointer-events:none;z-index:18;user-select:none;-webkit-user-select:none;touch-action:none;';
+
+        const makeBtn = (label, code, key, extraCss = '') => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'arcade-vbtn';
+            b.textContent = label;
+            b.style.cssText = 'pointer-events:auto;min-width:44px;height:44px;border-radius:12px;border:1px solid rgba(56,189,248,0.45);background:rgba(15,23,42,0.72);color:#e2e8f0;font:700 15px/1 Inter,system-ui,sans-serif;display:inline-flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);touch-action:none;' + extraCss;
+            const entry = `${code}|${key}`;
+            const press = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (global.CosmicAudio) global.CosmicAudio.unlock();
+                if (!touchControlsState.activeCodes.has(entry)) {
+                    touchControlsState.activeCodes.add(entry);
+                    b.classList.add('is-down');
+                    b.style.background = 'rgba(56,189,248,0.35)';
+                    dispatchTouchKey(code, key, true);
+                }
+            };
+            const release = (e) => {
+                if (e) { e.preventDefault(); e.stopPropagation(); }
+                if (touchControlsState.activeCodes.has(entry)) {
+                    touchControlsState.activeCodes.delete(entry);
+                    b.classList.remove('is-down');
+                    b.style.background = 'rgba(15,23,42,0.72)';
+                    dispatchTouchKey(code, key, false);
+                }
+            };
+            b.addEventListener('pointerdown', press);
+            b.addEventListener('pointerup', release);
+            b.addEventListener('pointercancel', release);
+            b.addEventListener('pointerleave', release);
+            return b;
+        };
+
+        const dpad = document.createElement('div');
+        dpad.style.cssText = 'display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:6px;pointer-events:none;';
+        const empty = document.createElement('div');
+        dpad.appendChild(empty);
+        dpad.appendChild(makeBtn('▲', 'ArrowUp', 'ArrowUp'));
+        dpad.appendChild(document.createElement('div'));
+        dpad.appendChild(makeBtn('◀', 'ArrowLeft', 'ArrowLeft'));
+        dpad.appendChild(makeBtn('▼', 'ArrowDown', 'ArrowDown'));
+        dpad.appendChild(makeBtn('▶', 'ArrowRight', 'ArrowRight'));
+
+        const rightCluster = document.createElement('div');
+        rightCluster.style.cssText = 'display:flex;align-items:flex-end;gap:8px;pointer-events:none;';
+        rightCluster.appendChild(makeBtn('ACT', 'Space', ' ', 'min-width:66px;height:54px;border-radius:14px;border-color:rgba(244,63,94,0.55);font-size:13px;letter-spacing:0.05em;'));
+
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.textContent = '×';
+        closeBtn.title = t('Dokunmatik Tuşları Gizle', 'Hide Touch Pad');
+        closeBtn.style.cssText = 'pointer-events:auto;width:28px;height:28px;border-radius:999px;border:1px solid rgba(148,163,184,0.35);background:rgba(15,23,42,0.7);color:#cbd5e1;font:700 14px/1 sans-serif;touch-action:manipulation;';
+        closeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            touchControlsState.hiddenByUser = true;
+            syncTouchControlsVisibility();
+        });
+        rightCluster.appendChild(closeBtn);
+
+        bar.appendChild(dpad);
+        bar.appendChild(rightCluster);
+        wrap.appendChild(bar);
+        touchControlsState.el = bar;
+        syncTouchControlsVisibility();
+    }
+
     function showPreGameMenu() {
         destroyActiveController();
         state.paused = false;
         state.ended = false;
+        state.chapterAwarded = false;
         state.menuVisible = true;
         document.getElementById('stageOverlay')?.classList.add('hidden');
+        syncTouchControlsVisibility();
         syncStaticChrome();
         syncPreGameMenu();
         document.getElementById('preGameMenuOverlay')?.classList.remove('hidden');
@@ -752,20 +982,33 @@
             global.CosmicAudio.unlock();
             global.CosmicAudio.play('uiClick');
         }
-        const linkedCh = state.chapterId || (state.meta && state.meta.storyChapter);
-        if (state.playMode === 'story' && linkedCh && global.CosmicStoryStore) {
-            state.chapterId = linkedCh;
-            state.chapterMeta = global.CosmicStoryStore.getChapter(linkedCh);
-        } else {
-            state.chapterMeta = null;
-        }
-        state.menuVisible = false;
-        document.getElementById('preGameMenuOverlay')?.classList.add('hidden');
+        syncStorySelectionFromMode();
+        hidePreGameMenu();
         mountGame(state.currentLevel || state.initialLevel);
     }
 
     function bindEvents() {
-        document.getElementById('btnShowGameMenu')?.addEventListener('click', showPreGameMenu);
+        const unlockOnGesture = () => {
+            if (global.CosmicAudio) global.CosmicAudio.unlock();
+        };
+        window.addEventListener('pointerdown', unlockOnGesture, { once: true, passive: true });
+        window.addEventListener('keydown', unlockOnGesture, { once: true, passive: true });
+
+        if (global.matchMedia && global.matchMedia('(pointer: coarse)').matches) {
+            touchControlsState.coarse = true;
+            ensureTouchControlsDom();
+        } else {
+            window.addEventListener('touchstart', () => {
+                touchControlsState.coarse = true;
+                ensureTouchControlsDom();
+                syncTouchControlsVisibility();
+            }, { once: true, passive: true });
+        }
+
+        document.getElementById('btnShowGameMenu')?.addEventListener('click', () => {
+            blurControl(document.getElementById('btnShowGameMenu'));
+            showPreGameMenu();
+        });
         document.getElementById('btnLaunchFromMenu')?.addEventListener('click', launchFromMenu);
         document.getElementById('btnModeEndless')?.addEventListener('click', () => {
             state.playMode = 'endless';
@@ -784,17 +1027,33 @@
                 syncPreGameMenu();
             });
         });
-        document.getElementById('btnPauseGame')?.addEventListener('click', togglePause);
-        document.getElementById('btnRestartGame')?.addEventListener('click', restartCurrentGame);
-        document.getElementById('btnFullscreen')?.addEventListener('click', toggleFullscreen);
+        document.getElementById('btnPauseGame')?.addEventListener('click', () => {
+            blurControl(document.getElementById('btnPauseGame'));
+            togglePause();
+        });
+        document.getElementById('btnRestartGame')?.addEventListener('click', () => {
+            blurControl(document.getElementById('btnRestartGame'));
+            restartCurrentGame();
+        });
+        document.getElementById('btnFullscreen')?.addEventListener('click', () => {
+            blurControl(document.getElementById('btnFullscreen'));
+            toggleFullscreen();
+        });
+        document.addEventListener('fullscreenchange', () => {
+            const btn = document.getElementById('btnFullscreen');
+            if (btn) btn.classList.toggle('active', Boolean(document.fullscreenElement));
+            focusStageCanvas();
+        });
         const randBtn = document.getElementById('btnRandomGame');
         if (randBtn) {
             randBtn.href = pickRandomGameUrl();
         }
 
         window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
             if (state.menuVisible && e.key === 'Enter') {
+                if (e.repeat) return;
                 e.preventDefault();
                 launchFromMenu();
                 return;
@@ -802,18 +1061,28 @@
             // Don't hijack typing game keystrokes!
             if (state.gameId === 'typing-cipher-defense' || state.gameId === 'lua-cyber-ops') return;
             if (e.key === 'p' || e.key === 'P') {
-                if (state.menuVisible) return;
+                if (e.repeat || state.menuVisible) return;
                 e.preventDefault();
                 togglePause();
             } else if (e.key === 'r' || e.key === 'R') {
                 // Allow games like Sokoban to handle R themselves if active, except when overlay is open
-                if (state.ended) {
+                if (!e.repeat && state.ended) {
                     e.preventDefault();
                     restartCurrentGame();
                 }
             } else if (e.key === 'f' || e.key === 'F') {
-                if (state.gameId !== 'nebula-minesweeper' && state.gameId !== 'starlight-rhythm-pulse') {
+                if (!e.repeat && state.gameId !== 'nebula-minesweeper' && state.gameId !== 'starlight-rhythm-pulse') {
                     toggleFullscreen();
+                }
+            }
+        });
+
+        window.addEventListener('blur', releaseAllTouchKeys);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                releaseAllTouchKeys();
+                if (!state.menuVisible && !state.ended && !state.paused && state.gameId !== 'cosmic-survivors') {
+                    togglePause();
                 }
             }
         });
@@ -842,15 +1111,39 @@
         state.meta = games[foundIdx] || null;
         state.gameId = state.meta ? state.meta.id : requestedId;
         state.indexNum = foundIdx + 1;
-        state.initialLevel = Math.max(1, parseInt(params.get('level') || '1', 10) || 1);
+
+        const levelRaw = (params.get('level') || '').trim().toLowerCase();
+        const endlessLv = getEndlessLevel(state.meta);
+        if (levelRaw === 'endless') {
+            state.initialLevel = endlessLv || ((state.meta && Number(state.meta.maxLevel) || 1) + 1);
+        } else {
+            state.initialLevel = Math.max(1, parseInt(levelRaw || '1', 10) || 1);
+        }
         state.currentLevel = state.initialLevel;
 
         const chParam = parseInt(params.get('chapter') || '0', 10);
-        if (chParam >= 1 && global.CosmicStoryStore) {
-            state.chapterId = chParam;
-            state.chapterMeta = global.CosmicStoryStore.getChapter(chParam);
-            state.playMode = 'story';
+        const modeParam = (params.get('mode') || '').trim().toLowerCase();
+        const resolvedCh = (chParam >= 1 && global.CosmicStoryStore && typeof global.CosmicStoryStore.getChapter === 'function')
+            ? global.CosmicStoryStore.getChapter(chParam)
+            : null;
+        if (resolvedCh) {
+            state.chapterId = resolvedCh.id;
+            state.chapterMeta = resolvedCh;
+            state.playMode = (modeParam === 'endless' || levelRaw === 'endless') ? 'endless' : 'story';
+        } else if (modeParam === 'story' && state.meta && state.meta.storyChapter && global.CosmicStoryStore && typeof global.CosmicStoryStore.getChapter === 'function') {
+            const fallbackCh = global.CosmicStoryStore.getChapter(state.meta.storyChapter);
+            if (fallbackCh) {
+                state.chapterId = fallbackCh.id;
+                state.chapterMeta = fallbackCh;
+                state.playMode = 'story';
+            } else {
+                state.chapterId = null;
+                state.chapterMeta = null;
+                state.playMode = 'endless';
+            }
         } else {
+            state.chapterId = null;
+            state.chapterMeta = null;
             state.playMode = 'endless';
         }
 
@@ -863,8 +1156,8 @@
         bindEvents();
 
         if (state.gameId === 'cosmic-survivors' || params.get('autostart') === '1') {
-            state.menuVisible = false;
-            document.getElementById('preGameMenuOverlay')?.classList.add('hidden');
+            syncStorySelectionFromMode();
+            hidePreGameMenu();
             mountGame(state.initialLevel);
         } else {
             showPreGameMenu();

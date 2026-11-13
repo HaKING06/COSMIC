@@ -26,6 +26,26 @@
         return ((a % TAU) + TAU) % TAU;
     }
 
+    function zWindowHit(prevZ, currZ, targetZ, halfDepth) {
+        return Math.min(prevZ, currZ) <= targetZ + halfDepth && Math.max(prevZ, currZ) >= targetZ - halfDepth;
+    }
+
+    function segDistSq3D(ax, ay, az, bx, by, bz, px, py, pz) {
+        const dx = bx - ax;
+        const dy = by - ay;
+        const dz = bz - az;
+        const lenSq = dx * dx + dy * dy + dz * dz;
+        if (lenSq < 1e-8) {
+            const ux = px - ax, uy = py - ay, uz = pz - az;
+            return ux * ux + uy * uy + uz * uz;
+        }
+        const t = clamp(((px - ax) * dx + (py - ay) * dy + (pz - az) * dz) / lenSq, 0, 1);
+        const cx = ax + dx * t - px;
+        const cy = ay + dy * t - py;
+        const cz = az + dz * t - pz;
+        return cx * cx + cy * cy + cz * cz;
+    }
+
     function createRuntimeHelpers(ctx) {
         const tr = typeof ctx.t === 'function'
             ? (trStr, enStr) => ctx.t(trStr, enStr)
@@ -61,6 +81,7 @@
             canvas.style.width = '100%';
             canvas.style.height = '100%';
             canvas.style.display = 'block';
+            canvas.style.touchAction = 'none';
             return canvas;
         }
 
@@ -186,26 +207,6 @@
             };
         }
 
-        function zWindowHit(prevZ, currZ, targetZ, halfDepth) {
-            return Math.min(prevZ, currZ) <= targetZ + halfDepth && Math.max(prevZ, currZ) >= targetZ - halfDepth;
-        }
-
-        function segDistSq3D(ax, ay, az, bx, by, bz, px, py, pz) {
-            const dx = bx - ax;
-            const dy = by - ay;
-            const dz = bz - az;
-            const lenSq = dx * dx + dy * dy + dz * dz;
-            if (lenSq < 1e-8) {
-                const ux = px - ax, uy = py - ay, uz = pz - az;
-                return ux * ux + uy * uy + uz * uz;
-            }
-            const t = clamp(((px - ax) * dx + (py - ay) * dy + (pz - az) * dz) / lenSq, 0, 1);
-            const cx = ax + dx * t - px;
-            const cy = ay + dy * t - py;
-            const cz = az + dz * t - pz;
-            return cx * cx + cy * cy + cz * cz;
-        }
-
         function syncCameraAspect(camera, canvas) {
             if (!camera || !canvas) return;
             const cw = canvas.clientWidth || STAGE_W;
@@ -257,14 +258,17 @@
             const updatePointerCoords = (e) => {
                 const rect = canvas.getBoundingClientRect();
                 if (!rect.width || !rect.height) return;
+                const inside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
                 const nx = clamp(((e.clientX - rect.left) / rect.width) * 2 - 1, -1, 1);
                 const ny = clamp(((e.clientY - rect.top) / rect.height) * 2 - 1, -1, 1);
-                if (Math.hypot(nx - pointer.nx, ny - pointer.ny) >= 0.006 || e.type === 'pointerdown') {
+                if ((inside || pointer.down || e.type === 'pointerdown') && (Math.hypot(nx - pointer.nx, ny - pointer.ny) >= 0.006 || e.type === 'pointerdown')) {
                     pointer.usingPointer = true;
                 }
-                pointer.nx = nx;
-                pointer.ny = ny;
-                pointer.active = true;
+                if (inside || pointer.down || e.type === 'pointerdown') {
+                    pointer.nx = nx;
+                    pointer.ny = ny;
+                    pointer.active = true;
+                }
             };
 
             const onPointerDown = (e) => {
@@ -1099,6 +1103,7 @@
             if (!paused && !ended) {
                 step(dt);
             } else {
+                input.pointer.down = false;
                 overlay.update(0);
             }
             renderer.render(scene, camera);
@@ -1309,12 +1314,19 @@
             for (let gIdx = gates.length - 1; gIdx >= 0; gIdx--) {
                 const gt = gates[gIdx];
                 if (gt.mesh.position.z > -108) break;
-                if (Math.hypot(mx - gt.mesh.position.x, my - gt.mesh.position.y) < 3.6) {
-                    mx = clamp(gt.mesh.position.x + (mx >= gt.mesh.position.x ? 4.4 : -4.4), -6.2, 6.2);
+                const gx = gt.mesh.position.x;
+                const gy = gt.mesh.position.y;
+                if (Math.hypot(mx - gx, my - gy) < 3.8) {
+                    const pushDir = mx >= gx ? (gx + 4.4 <= 6.2 ? 1 : -1) : (gx - 4.4 >= -6.2 ? -1 : 1);
+                    mx = clamp(gx + pushDir * 4.4, -6.2, 6.2);
+                    if (Math.hypot(mx - gx, my - gy) < 3.4) {
+                        my = clamp(gy + (gy >= 0 ? -3.8 : 3.8), -3.8, 3.8);
+                    }
                 }
             }
-            if (avoidX !== undefined && Math.hypot(mx - avoidX, my - avoidY) < 3.4) {
-                mx = clamp(mx + (mx >= 0 ? -4.2 : 4.2), -6.2, 6.2);
+            if (avoidX !== undefined && Math.hypot(mx - avoidX, my - avoidY) < 3.6) {
+                const pushDir = mx >= avoidX ? (avoidX + 4.2 <= 6.2 ? 1 : -1) : (avoidX - 4.2 >= -6.2 ? -1 : 1);
+                mx = clamp(avoidX + pushDir * 4.2, -6.2, 6.2);
             }
             m.position.set(mx, my, -142);
             scene.add(m);
@@ -1325,6 +1337,19 @@
                 rx: (Math.random() - 0.5) * 3.2,
                 ry: (Math.random() - 0.5) * 3.2
             });
+        }
+
+        function checkStoryWin() {
+            if (isStory && score >= storyTarget && !ended) {
+                ended = true;
+                h.playAudio('levelup');
+                syncHud(true);
+                try {
+                    ctx.onWin?.({ score: Math.floor(score), level, stars: lives >= 3 ? 3 : 2 });
+                } catch (e) { /* safe ignore */ }
+                return true;
+            }
+            return false;
         }
 
         function triggerGameOver() {
@@ -1456,6 +1481,7 @@
 
             const forwardSpeed = 28 + Math.min(34, level * 3.2) + (warpBoost > 0 ? 15 : 0);
             score += forwardSpeed * 0.45 * dt;
+            if (checkStoryWin()) return;
 
             // Dynamic warp FOV
             const targetFov = warpBoost > 0 ? 75 : 62 + Math.min(6, level * 0.6);
@@ -1529,12 +1555,7 @@
                         particles.spawn(pState.x, pState.y, 2.5, g.isGold ? 0xfbbf24 : 0x38bdf8, 16, 9);
                         const scr = h.projectToScreen(playerMesh.position, camera, tmpVec);
                         overlay.spawnPopup(scr.x, scr.y - 30, `+${pts} WARP x${combo}!`, g.isGold ? '#fbbf24' : '#38bdf8', 1.12);
-                        if (isStory && score >= storyTarget && !ended) {
-                            ended = true;
-                            h.playAudio('levelup');
-                            ctx.onWin?.({ score: Math.floor(score), level, stars: lives >= 3 ? 3 : 2 });
-                            return;
-                        }
+                        if (checkStoryWin()) return;
                     } else {
                         g.missed = true;
                         if (combo > 1) combo = 1;
@@ -1568,6 +1589,7 @@
                         score += 35;
                         const scr = h.projectToScreen(playerMesh.position, camera, tmpVec);
                         overlay.spawnPopup(scr.x, scr.y - 20, h.tr('SIYIRMA +35', 'GRAZE +35'), '#a78bfa');
+                        if (checkStoryWin()) return;
                     }
                 }
 
@@ -1598,6 +1620,7 @@
             if (!paused && !ended) {
                 step(dt);
             } else {
+                input.pointer.down = false;
                 overlay.update(0);
             }
             renderer.render(scene, camera);
@@ -1773,6 +1796,7 @@
         let podY = 2.2;
         let podVy = 0;
         let lowestCamY = 2.2;
+        let camBaseY = 6.2;
         let rotVel = 0;
         let invulnTimer = 0;
         let shakeMag = 0;
@@ -1807,8 +1831,16 @@
 
             // Wedge types: 0 = gap, 1 = safe, 2 = hazard, 3 = boost
             const slices = new Array(SLICES).fill(1);
+            const prevRing = rings.length > 0 ? rings[rings.length - 1] : null;
             const gapCount = index < 4 ? 3 : (index < 12 ? 3 : 2);
-            const gapStart = index === 0 ? 5 : Math.floor(Math.random() * SLICES);
+            let gapStart = 5;
+            if (index > 0) {
+                const prevGap = prevRing && typeof prevRing.gapStart === 'number' ? prevRing.gapStart : 5;
+                const stepChoices = index % 4 === 0 ? [1, 2] : [2, 3, 4];
+                const stepAmt = stepChoices[Math.floor(Math.random() * stepChoices.length)];
+                const stepDir = Math.random() < 0.5 ? 1 : -1;
+                gapStart = (prevGap + stepDir * stepAmt + SLICES * 2) % SLICES;
+            }
             for (let k = 0; k < gapCount; k++) {
                 slices[(gapStart + k) % SLICES] = 0;
             }
@@ -1819,15 +1851,24 @@
                 slices[3] = 1;
                 slices[4] = 1;
             } else {
-                const prevRing = rings.length > 0 ? rings[rings.length - 1] : null;
                 const hazardChance = Math.min(4, 1 + Math.floor(index / 6));
+                const gapPrevAdj = (gapStart + SLICES - 1) % SLICES;
+                const gapNextAdj = (gapStart + gapCount) % SLICES;
                 let placedHazards = 0;
-                for (let tries = 0; tries < 14 && placedHazards < hazardChance; tries++) {
+                for (let tries = 0; tries < 24 && placedHazards < hazardChance; tries++) {
                     const s = Math.floor(Math.random() * SLICES);
                     if (slices[s] !== 1) continue;
-                    // On first drop (index === 1) never place a hazard straight below index 0's gap or spawn
-                    if (index === 1 && prevRing && (prevRing.slices[s] === 0 || s === 3)) continue;
-                    // Ensure ring retains plenty of safe wedges around each gap
+                    // Never place a hazard straight below the previous ring's open gap or initial spawn column
+                    if (prevRing && prevRing.slices[s] === 0) continue;
+                    if (index === 1 && s === 3) continue;
+                    // Keep at least one safe landing wedge adjacent to the gap
+                    if ((s === gapPrevAdj && slices[gapNextAdj] === 2) || (s === gapNextAdj && slices[gapPrevAdj] === 2)) continue;
+                    // Retain at least 4 safe landing wedges on every ring
+                    let safeAfter = 0;
+                    for (let q = 0; q < SLICES; q++) {
+                        if (q !== s && (slices[q] === 1 || slices[q] === 3)) safeAfter++;
+                    }
+                    if (safeAfter < 4) continue;
                     slices[s] = 2;
                     placedHazards++;
                 }
@@ -1849,7 +1890,7 @@
             }
 
             towerGroup.add(ringGroup);
-            rings.push({ index, y, group: ringGroup, slices, meshes, passed: false, shattered: false });
+            rings.push({ index, y, gapStart, group: ringGroup, slices, meshes, passed: false, shattered: false });
         }
 
         function shatterRing(ring) {
@@ -1908,11 +1949,14 @@
             podY = 2.4;
             podVy = 0;
             lowestCamY = 2.4;
+            camBaseY = 6.2;
             rotVel = 0;
             invulnTimer = 0;
             shakeMag = 0;
             nextRingIdx = 0;
             ended = false;
+            input.consumeDragX();
+            input.pointer.down = false;
             towerGroup.rotation.y = 0;
             coreMesh.position.y = -25;
             podMesh.position.set(0, podY, POD_ORBIT_Z);
@@ -1944,7 +1988,7 @@
             if (input.hasKey('KeyD', 'ArrowRight', 'd')) dir += 1;
             const dragX = input.consumeDragX();
             if (Math.abs(dragX) > 0.01) {
-                towerGroup.rotation.y += dragX * 0.012;
+                towerGroup.rotation.y += clamp(dragX * 0.012, -0.35, 0.35);
             }
             const targetRotVel = dir * 3.8;
             rotVel = lerp(rotVel, targetRotVel, clamp(dt * 14, 0, 1));
@@ -1993,7 +2037,9 @@
 
             // Local angle at world pod (0, podY, +POD_ORBIT_Z) verified against Three.js
             const localAng = wrapAngle(Math.PI / 2 + towerGroup.rotation.y);
-            const sliceIdx = Math.floor(localAng / SLICE_ANG) % SLICES;
+            const exactSlice = localAng / SLICE_ANG;
+            const sliceIdx = Math.floor(exactSlice) % SLICES;
+            const angInSlice = (exactSlice - Math.floor(exactSlice)) * SLICE_ANG;
 
             // Track closest active ring directly underneath pod for aiming reticle
             let targetRingBelow = null;
@@ -2025,7 +2071,17 @@
                 const podBottom = podY - POD_R;
                 const prevBottom = prevPodY - POD_R;
                 if (podVy < 0 && prevBottom >= r.y - 0.14 && podBottom <= r.y + 0.06) {
-                    const wedgeType = r.slices[sliceIdx];
+                    let wedgeType = r.slices[sliceIdx];
+                    if (wedgeType === 2) {
+                        const EDGE_TOL = 0.105;
+                        if (angInSlice < EDGE_TOL) {
+                            const adjType = r.slices[(sliceIdx + SLICES - 1) % SLICES];
+                            if (adjType !== 2) wedgeType = adjType;
+                        } else if (angInSlice > SLICE_ANG - EDGE_TOL) {
+                            const adjType = r.slices[(sliceIdx + 1) % SLICES];
+                            if (adjType !== 2) wedgeType = adjType;
+                        }
+                    }
                     if (wedgeType === 0) {
                         // Open gap! Fall through
                         continue;
@@ -2126,12 +2182,14 @@
 
             lowestCamY = Math.min(lowestCamY, podY);
             const bounceLift = Math.max(0, (podY - lowestCamY) * 0.45);
-            const camTargetY = lowestCamY + 4.8 + bounceLift;
+            const rawCamTargetY = lowestCamY + 4.8 + bounceLift;
+            const camTargetY = clamp(rawCamTargetY, podY + 2.2, lowestCamY + 7.4);
+            camBaseY = lerp(camBaseY, camTargetY, clamp(dt * 8, 0, 1));
             const sx = (Math.random() - 0.5) * shakeMag;
             const sy = (Math.random() - 0.5) * shakeMag;
             camera.position.x = sx;
-            camera.position.y = lerp(camera.position.y, camTargetY, clamp(dt * 8, 0, 1)) + sy;
-            camera.lookAt(0, camera.position.y - 5.2, 0);
+            camera.position.y = camBaseY + sy;
+            camera.lookAt(0, camBaseY - 5.2, 0);
 
             particles.update(dt);
             overlay.update(dt);
@@ -2148,6 +2206,8 @@
             if (!paused && !ended) {
                 step(dt);
             } else {
+                input.consumeDragX();
+                input.pointer.down = false;
                 overlay.update(0);
             }
             renderer.render(scene, camera);

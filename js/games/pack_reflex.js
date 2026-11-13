@@ -301,6 +301,8 @@
             const justPressed = new Set();
             const pointer = { x: W * 0.5, y: H * 0.5, active: false, down: false, justDown: false };
             const isForm = (el) => el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+            const isGamePaused = () => typeof ctx.getPaused === 'function' && ctx.getPaused();
+            if (targetEl && targetEl.style) targetEl.style.touchAction = 'none';
 
             const toStageCoords = (e) => {
                 const rect = targetEl.getBoundingClientRect();
@@ -315,6 +317,8 @@
                 unlockAudio();
                 const code = e.code || '';
                 const k = (e.key || '').toLowerCase();
+                if (code === 'Space' || code.startsWith('Arrow')) e.preventDefault();
+                if (isGamePaused()) return;
                 if (!keys.has(code)) {
                     justPressed.add(code);
                     if (k) justPressed.add(k);
@@ -322,7 +326,6 @@
                 }
                 keys.add(code);
                 if (k) keys.add(k);
-                if (code === 'Space' || code.startsWith('Arrow')) e.preventDefault();
             };
 
             const onKeyUp = (e) => {
@@ -333,8 +336,10 @@
             };
 
             const onPointerDown = (e) => {
+                if (e.button !== undefined && e.button !== 0) return;
                 unlockAudio();
                 toStageCoords(e);
+                if (isGamePaused()) return;
                 pointer.down = true;
                 pointer.justDown = true;
                 handlers?.onPointerTap?.(pointer.x, pointer.y);
@@ -412,11 +417,12 @@
 
         function createLoop(stepFn, renderFn) {
             let rafId = 0;
-            let lastTime = performance.now();
+            let lastTime = 0;
             let dead = false;
 
             function frame(now) {
                 if (dead) return;
+                if (!lastTime) lastTime = now;
                 const dt = Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000));
                 lastTime = now;
                 const paused = typeof ctx.getPaused === 'function' ? ctx.getPaused() : false;
@@ -590,7 +596,7 @@
             syncHud(true);
         }
 
-        function resetGame() {
+        function resetGame(startLvl) {
             fx.clear();
             score = 0;
             lives = 4;
@@ -608,7 +614,8 @@
             player.fireCd = 0;
             pBullets = [];
             eBullets = [];
-            spawnBoss(0);
+            const startBossIdx = (Math.max(1, Math.floor(Number(startLvl) || 1)) - 1) % BOSS_DEFS.length;
+            spawnBoss(startBossIdx);
             syncHud(true);
         }
 
@@ -741,6 +748,7 @@
                 const ly2 = boss.y + Math.sin(boss.laserAngle) * 1100;
                 if (pointToSegDist(player.x, player.y, boss.x, boss.y, lx2, ly2) < 16) {
                     hurtPlayer();
+                    if (ended) return;
                 }
                 if (boss.laserTimer <= 0) {
                     boss.laserPhase = 'idle';
@@ -860,7 +868,7 @@
                 g.save();
                 if (boss.laserPhase === 'telegraph') {
                     const tp = clamp(1 - boss.laserTimer / 0.95, 0, 1);
-                    const sweepDir = boss.laserAngle + (0.95 * (0.95 + boss.idx * 0.25) * 0.55);
+                    const sweepDir = boss.laserAngle + ((0.95 + boss.idx * 0.25) * 0.55);
                     g.fillStyle = `rgba(251, 113, 133, ${0.10 + tp * 0.14})`;
                     g.beginPath();
                     g.moveTo(boss.x, boss.y);
@@ -1093,7 +1101,7 @@
         }
 
         async function initEngine() {
-            resetGame();
+            resetGame(ctx && ctx.initialLevel);
             if (global.PIXI && typeof global.PIXI.Application === 'function') {
                 try {
                     const app = new global.PIXI.Application();
@@ -1130,8 +1138,8 @@
         initEngine();
 
         return {
-            restart() {
-                resetGame();
+            restart(lvl) {
+                resetGame(lvl);
             },
             destroy() {
                 destroyed = true;
@@ -2193,6 +2201,8 @@
             if (player.y - HIT_R < 10 || player.y + HIT_R > H - 10) {
                 handleHit();
                 if (ended) return;
+                player.y = clamp(player.y, 12 + HIT_R, H - 12 - HIT_R);
+                player.vy = player.y < H * 0.5 ? 120 : -220;
             }
 
             const speed = 215 + Math.min(95, gatesCleared * 4.5);
@@ -2357,20 +2367,19 @@
 
         function spawnPattern(runSpeed) {
             const side = Math.random() < 0.5 ? 1 : -1; // 1 = floor, -1 = ceiling
-            // Guarantee enough horizontal distance for mid-air flip when switching tracks
+            // Guarantee enough horizontal distance both between same-side hazards and mid-air track flips
             let rightmostX = W + 60;
             const minFlipGap = Math.max(255, (runSpeed || 350) * 0.58);
+            const minSameGap = 210;
             for (let i = 0; i < obstacles.length; i++) {
                 const edge = obstacles[i].x + obstacles[i].w;
-                if (edge > rightmostX - minFlipGap && obstacles[i].side !== side) {
-                    rightmostX = Math.max(rightmostX, edge + minFlipGap);
-                }
+                const reqGap = obstacles[i].side !== side ? minFlipGap : minSameGap;
+                rightmostX = Math.max(rightmostX, edge + reqGap);
             }
             for (let i = 0; i < gaps.length; i++) {
                 const edge = gaps[i].x + gaps[i].w;
-                if (edge > rightmostX - minFlipGap && gaps[i].side !== side) {
-                    rightmostX = Math.max(rightmostX, edge + minFlipGap);
-                }
+                const reqGap = gaps[i].side !== side ? minFlipGap : minSameGap;
+                rightmostX = Math.max(rightmostX, edge + reqGap);
             }
             lastHazardSide = side;
 
@@ -2454,7 +2463,7 @@
             hud.tick(dt);
             if (player.invuln > 0) player.invuln -= dt;
 
-            if (input.consumePress('Space', ' ', 'KeyW', 'ArrowUp', 'ArrowDown', 'w') || input.consumePointerTap()) {
+            if (input.consumePress('Space', ' ', 'KeyW', 'KeyS', 'ArrowUp', 'ArrowDown', 'w', 's') || input.consumePointerTap()) {
                 flipGravity();
             }
 
@@ -2490,7 +2499,9 @@
             }
 
             if (player.y > H + 30 || player.y < -30) {
-                player.gravDir *= -1;
+                if (!overFloorGap && overCeilGap) player.gravDir = 1;
+                else if (!overCeilGap && overFloorGap) player.gravDir = -1;
+                else player.gravDir *= -1;
                 player.y = player.gravDir === 1 ? FLOOR_Y - PR : CEIL_Y + PR;
                 player.vy = 0;
                 damage(core.tr('Koridor boşluğundan uzaya düştün.', 'Fell into a corridor void gap.'));
@@ -3274,7 +3285,7 @@
             }, force);
         }
 
-        function resetGame() {
+        function resetGame(startLvl) {
             fx.clear();
             score = 0;
             lives = 4;
@@ -3284,7 +3295,8 @@
             player.lane = 1;
             player.parryFlash = 0;
             player.parryCd = 0;
-            startRound(0);
+            const startRoundIdx = (Math.max(1, Math.floor(Number(startLvl) || 1)) - 1) % SENTINELS.length;
+            startRound(startRoundIdx);
             syncHud(true);
         }
 
@@ -3464,11 +3476,11 @@
             core.drawHintBanner(g, core.tr('W/A/D (1/2/3) Şerit + [Space] Parry (veya Yaylara Tıkla)', 'W/A/D (1/2/3) Lane + [Space] Parry (or Click Lane Arc)'), elapsed);
         }
 
-        resetGame();
+        resetGame(ctx && ctx.initialLevel);
         const loopHandle = core.createLoop(step, render);
 
         return {
-            restart() { resetGame(); },
+            restart(lvl) { resetGame(lvl); },
             destroy() {
                 loopHandle.stop();
                 input.destroy();
@@ -3810,7 +3822,14 @@
         let ended = false;
 
         function spawnBeacon() {
-            beacons.push({ x: 80 + Math.random() * (W - 160), y: 75 + Math.random() * (H - 150), pulse: 0 });
+            let bx = 80 + Math.random() * (W - 160);
+            let by = 75 + Math.random() * (H - 150);
+            for (let attempt = 0; attempt < 10; attempt++) {
+                if (dist2(bx, by, player.x, player.y) >= 110 * 110) break;
+                bx = 80 + Math.random() * (W - 160);
+                by = 75 + Math.random() * (H - 150);
+            }
+            beacons.push({ x: bx, y: by, pulse: 0 });
         }
 
         function spawnLaserPattern() {
@@ -3825,10 +3844,15 @@
                 const chosen = [];
                 for (let i = 0; i < count; i++) {
                     let pos = baseOff + Math.random() * spanMax;
-                    for (let attempt = 0; attempt < 8; attempt++) {
-                        if (chosen.every((p) => Math.abs(p - pos) >= 95)) break;
+                    let valid = false;
+                    for (let attempt = 0; attempt < 14; attempt++) {
+                        if (chosen.every((p) => Math.abs(p - pos) >= 90)) {
+                            valid = true;
+                            break;
+                        }
                         pos = baseOff + Math.random() * spanMax;
                     }
+                    if (!valid && chosen.length > 0) continue;
                     chosen.push(pos);
                     lasers.push({
                         x1: horiz ? 0 : pos,
@@ -4269,11 +4293,11 @@
                 spawnBeatNote();
             }
 
-            const noteSpeed = 270 + (level - 1) * 26;
+            const noteSpeed = Math.min(450, 270 + (level - 1) * 22);
             for (let i = notes.length - 1; i >= 0; i--) {
                 const n = notes[i];
                 n.y += noteSpeed * dt;
-                if (n.y > RECEPTOR_Y + 62) {
+                if (n.y > RECEPTOR_Y + 75) {
                     notes.splice(i, 1);
                     combo = 0;
                     lives -= 1;
@@ -4437,7 +4461,7 @@
 
         function nextDockArc() {
             if (level >= 3 && Math.random() < 0.42) shuttleDir *= -1;
-            arcWidth = Math.max(0.36, 0.78 - (level - 1) * 0.05);
+            arcWidth = Math.max(0.42, 0.78 - (level - 1) * 0.045);
             // Place next dock comfortably ahead along active rotation direction
             const lead = Math.PI * 0.7 + Math.random() * Math.PI * 0.9;
             targetAng = (shuttleAng + shuttleDir * lead + TAU) % TAU;

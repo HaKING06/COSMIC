@@ -1257,6 +1257,21 @@
                         ctx.stroke();
                     }
                 }
+                if (b.telegraphRadius > 0 && this._arc2D(ctx, b.x, b.y, b.telegraphRadius, 0, Math.PI * 2)) {
+                    ctx.fillStyle = 'rgba(251, 113, 133, 0.12)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(251, 113, 133, 0.85)';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+                if (b.telegraphLine && this._isValidLine(b.x, b.y, b.telegraphLine.x, b.telegraphLine.y)) {
+                    ctx.beginPath();
+                    ctx.moveTo(b.x, b.y);
+                    ctx.lineTo(b.telegraphLine.x, b.telegraphLine.y);
+                    ctx.strokeStyle = 'rgba(251, 113, 133, 0.72)';
+                    ctx.lineWidth = 6;
+                    ctx.stroke();
+                }
             }
 
             for (const z of state.floorZones || []) {

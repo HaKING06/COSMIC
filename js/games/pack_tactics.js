@@ -500,6 +500,7 @@
             const out = Object.assign({}, payload);
             if (out.objective && !out.status) out.status = out.objective;
             if (!out.statusText) out.statusText = out.status || out.objective || '';
+            if (out.lives === undefined && out.hp !== undefined) out.lives = out.hp;
             const json = JSON.stringify(out);
             if (!force && json === lastHudJson) return;
             lastHudJson = json;
@@ -688,6 +689,8 @@
             }
         });
 
+        let lastTouchTs = 0;
+
         function handleClick(x, y, buttonIdx) {
             if (ctx.getPaused && ctx.getPaused()) return;
             for (let i = buttons.length - 1; i >= 0; i--) {
@@ -700,6 +703,7 @@
                 }
             }
             if (endedState) return;
+            if (buttonIdx !== 0 && buttonIdx !== 2) return;
             if (typeof gameApi.onPointerDown === 'function') {
                 gameApi.onPointerDown(x, y, buttonIdx);
             }
@@ -716,6 +720,10 @@
         }
 
         function onMouseDown(e) {
+            if (performance.now() - lastTouchTs < 650) return;
+            if (typeof canvas.focus === 'function') {
+                try { canvas.focus({ preventScroll: true }); } catch (_) {}
+            }
             const p = mapPos(e.clientX, e.clientY);
             pointer.x = p.x;
             pointer.y = p.y;
@@ -747,6 +755,11 @@
 
         function onTouchStart(e) {
             if (!e.touches || !e.touches[0]) return;
+            if (e.cancelable) e.preventDefault();
+            lastTouchTs = performance.now();
+            if (typeof canvas.focus === 'function') {
+                try { canvas.focus({ preventScroll: true }); } catch (_) {}
+            }
             const t = e.touches[0];
             const p = mapPos(t.clientX, t.clientY);
             pointer.x = p.x;
@@ -765,7 +778,7 @@
         }
 
         function onKeyDown(e) {
-            if (destroyed) return;
+            if (destroyed || endedState) return;
             if (ctx.getPaused && ctx.getPaused()) return;
             const tag = e.target && e.target.tagName;
             if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target && e.target.isContentEditable)) return;
@@ -784,11 +797,13 @@
         keyDownHandler = onKeyDown;
         keyUpHandler = onKeyUp;
 
+        canvas.tabIndex = 0;
+        if (canvas.style) canvas.style.outline = 'none';
         canvas.addEventListener('mousemove', onMouseMove);
         canvas.addEventListener('mousedown', onMouseDown);
         canvas.addEventListener('mouseup', onMouseUp);
         canvas.addEventListener('mouseleave', onMouseLeave);
-        canvas.addEventListener('touchstart', onTouchStart, { passive: true });
+        canvas.addEventListener('touchstart', onTouchStart, { passive: false });
         canvas.addEventListener('contextmenu', onContextMenu);
         if (typeof global.addEventListener === 'function') {
             global.addEventListener('keydown', keyDownHandler);
@@ -853,7 +868,9 @@
             floatTexts.length = 0;
             shakeTimer = 0;
             shakeMag = 0;
+            hudCooldown = 0;
             lastHudJson = '';
+            lastTs = performance.now();
             if (typeof gameApi.restart === 'function') {
                 gameApi.restart(level);
             }
@@ -878,6 +895,7 @@
             if (typeof gameApi.destroy === 'function') {
                 gameApi.destroy();
             }
+            if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
         }
 
         rafId = requestAnimationFrame(frame);
@@ -1004,8 +1022,8 @@
                 ],
                 pads: [
                     { x: 145, y: 222 }, { x: 265, y: 325 }, { x: 365, y: 222 }, { x: 455, y: 150 },
-                    { x: 455, y: 315 }, { x: 560, y: 255 }, { x: 675, y: 155 }, { x: 695, y: 250 },
-                    { x: 795, y: 145 }, { x: 795, y: 315 }
+                    { x: 492, y: 338 }, { x: 560, y: 255 }, { x: 675, y: 155 }, { x: 695, y: 250 },
+                    { x: 795, y: 145 }, { x: 830, y: 335 }
                 ]
             }
         ];
@@ -1061,6 +1079,7 @@
                 waveActive = false;
                 prepTimer = 5.0;
                 selectedPadIdx = -1;
+                brushArmed = false;
                 enemies = [];
                 spawnQueue = [];
                 projectiles = [];
@@ -1072,6 +1091,18 @@
                     y: p.y,
                     turret: null
                 }));
+                syncHud({
+                    score,
+                    level: sector,
+                    wave,
+                    maxWaves,
+                    hp: lives,
+                    maxHp: maxLives,
+                    lives,
+                    credits: gold,
+                    kills,
+                    objective: L(`Sektör ${sector}/6 · Dalga ${Math.max(1, wave)}/${maxWaves}`, `Sector ${sector}/6 · Wave ${Math.max(1, wave)}/${maxWaves}`)
+                }, true);
             }
 
             function buildWaveQueue(wNum) {
@@ -1180,8 +1211,13 @@
 
             function placeTurret(pad, typeId) {
                 const cfg = TURRET_TYPES[typeId];
-                if (!cfg || pad.turret || gold < cfg.cost) {
+                if (!cfg || pad.turret) {
                     sfx('uiBack');
+                    return false;
+                }
+                if (gold < cfg.cost) {
+                    sfx('uiBack');
+                    spawnFloat(pad.x, pad.y - 20, L('YETERSİZ CRD', 'LOW CRD'), PAL.coral, 0.95);
                     return false;
                 }
                 gold -= cfg.cost;
@@ -1323,13 +1359,16 @@
                 onKeyDown(e) {
                     if (e.key === '1') {
                         buildBrush = 'pulse';
-                        if (selectedPadIdx >= 0 && !pads[selectedPadIdx].turret) placeTurret(pads[selectedPadIdx], 'pulse');
+                        if (selectedPadIdx >= 0 && !pads[selectedPadIdx].turret) { placeTurret(pads[selectedPadIdx], 'pulse'); brushArmed = false; }
+                        else { brushArmed = true; sfx('uiClick'); }
                     } else if (e.key === '2') {
                         buildBrush = 'cryo';
-                        if (selectedPadIdx >= 0 && !pads[selectedPadIdx].turret) placeTurret(pads[selectedPadIdx], 'cryo');
+                        if (selectedPadIdx >= 0 && !pads[selectedPadIdx].turret) { placeTurret(pads[selectedPadIdx], 'cryo'); brushArmed = false; }
+                        else { brushArmed = true; sfx('uiClick'); }
                     } else if (e.key === '3') {
                         buildBrush = 'rail';
-                        if (selectedPadIdx >= 0 && !pads[selectedPadIdx].turret) placeTurret(pads[selectedPadIdx], 'rail');
+                        if (selectedPadIdx >= 0 && !pads[selectedPadIdx].turret) { placeTurret(pads[selectedPadIdx], 'rail'); brushArmed = false; }
+                        else { brushArmed = true; sfx('uiClick'); }
                     } else if (e.key === 'u' || e.key === 'U') {
                         if (selectedPadIdx >= 0) upgradeTurret(pads[selectedPadIdx]);
                     } else if (e.key === 's' || e.key === 'S') {
@@ -1339,6 +1378,7 @@
                         if (!waveActive && wave < maxWaves) startNextWave(true);
                     } else if (e.key === 'Escape') {
                         selectedPadIdx = -1;
+                        brushArmed = false;
                     }
                 },
                 update(dtRaw) {
@@ -2150,14 +2190,17 @@
                 }
             }
 
-            function initEncounter(lvl) {
+            function initEncounter(lvl, startHp) {
                 level = clamp(Number(lvl || 1), 1, 6);
                 const enc = ENCOUNTERS[level - 1];
+                const nextHp = clamp(Number(startHp !== undefined ? startHp : (level === 1 ? 38 : player.hp)), 1, 38);
                 player = {
                     c: 0, r: 1,
-                    hp: level === 1 ? 38 : Math.min(38, player.hp + 14),
+                    hp: nextHp,
+                    dispHp: nextHp,
                     maxHp: 38,
                     block: 0,
+                    dispBlock: 0,
                     energy: 3,
                     maxEnergy: 3,
                     animX: tileCenter(0, 1).x,
@@ -2189,6 +2232,15 @@
                 logLines = [L(`Bölüm ${level}/6 başladı!`, `Breach ${level}/6 engaged!`)];
                 drawCards(4);
                 computeIntents();
+                syncHud({
+                    score,
+                    level,
+                    hp: player.hp,
+                    maxHp: player.maxHp,
+                    energy: player.energy,
+                    kills,
+                    objective: L(`Bölüm ${level}/6 · Tur ${turn}`, `Breach ${level}/6 · Turn ${turn}`)
+                }, true);
             }
 
             function validTargetsForCard(cardId) {
@@ -2449,22 +2501,22 @@
             return {
                 restart(lvl) {
                     const nextLvl = clamp(Number(lvl || 1), 1, 6);
+                    let carryHp = 38;
                     if (nextLvl <= 1) {
-                        score = 0; kills = 0; player.hp = 38;
+                        score = 0; kills = 0; carryHp = 38;
                         sectorStartScore = 0; sectorStartKills = 0; sectorStartHp = 38;
                     } else if (wonEncounter && nextLvl > level) {
+                        carryHp = Math.min(38, Math.max(1, player.hp) + 14);
                         sectorStartScore = score;
                         sectorStartKills = kills;
-                        sectorStartHp = player.hp;
+                        sectorStartHp = carryHp;
                     } else {
                         score = sectorStartScore;
                         kills = sectorStartKills;
-                        player.hp = sectorStartHp;
+                        carryHp = clamp(sectorStartHp || 38, 1, 38);
                     }
                     wonEncounter = false;
-                    player.dispHp = player.hp;
-                    player.dispBlock = 0;
-                    initEncounter(nextLvl);
+                    initEncounter(nextLvl, carryHp);
                 },
                 onPointerDown(x, y, btn) {
                     if (btn === 2) { selectedCardIdx = -1; return; }
@@ -2999,11 +3051,13 @@
                     initFront(nextLvl);
                 },
                 onPointerDown(x, y) {
+                    if (api.isEnded()) return;
                     if (y < 58 || y > 416) return;
                     const laneIdx = y < 181 ? 0 : (y < 299 ? 1 : 2);
                     spawnAlly(selectedUnit, laneIdx);
                 },
                 onKeyDown(e) {
+                    if (api.isEnded()) return;
                     if (e.key === '1') { selectedUnit = 'interceptor'; sfx('uiClick'); }
                     else if (e.key === '2') { selectedUnit = 'corvette'; sfx('uiClick'); }
                     else if (e.key === '3') { selectedUnit = 'bomber'; sfx('uiClick'); }
@@ -3509,6 +3563,14 @@
                 enemyAttackPending = false;
                 pendingNextNode = false;
                 enterNode(0);
+                syncHud({
+                    score,
+                    level: nodeIdx + 1,
+                    hp: player.hp,
+                    maxHp: player.maxHp,
+                    credits: player.shards,
+                    objective: L(`Düğüm ${nodeIdx + 1}/8 · Kalıntı ${player.relics.length}`, `Node ${nodeIdx + 1}/8 · Relics ${player.relics.length}`)
+                }, true);
             }
 
             function hitEnemy(dmg, pierce, col) {
@@ -3574,25 +3636,29 @@
                     shake(6, 0.2);
                 }
 
-                if (enemy.hp <= 0) {
-                    sfx(enemy.isBoss ? 'explodeBoss' : 'explodeSmall');
-                    player.shards += enemy.reward;
-                    score += enemy.reward * 10;
-                    spawnRing(690, 210, PAL.gold, 72, 0.4);
-                    if (nodeIdx >= NODES.length - 1) {
-                        triggerWin({ score, level: tier, node: 8, relics: player.relics.length }, {
-                            title: L('GEÇİT BEKÇİSİ YENİLDİ!', 'GATEKEEPER SLAIN!'),
-                            sub: L('8 Sektorlü Solucan Deliği tamamlandı!', 'Wormhole Roulette 8-Node Run Cleared!'),
-                            statLine: `SCORE ${score} · RELICS ${player.relics.length}`,
-                            nextLevel: tier + 1,
-                            nextLabel: L('SONRAKİ ZORLUK', 'NEXT TIER'),
-                            replayLevel: 1
-                        });
-                        return;
-                    }
-                    player.hp = Math.min(player.maxHp, player.hp + 5);
-                    busyTimer = 0.42;
-                    pendingNextNode = true;
+            function handleEnemyDefeated(reasonSub) {
+                sfx(enemy.isBoss ? 'explodeBoss' : 'explodeSmall');
+                player.shards += enemy.reward;
+                score += enemy.reward * 10;
+                spawnRing(690, 210, PAL.gold, 72, 0.4);
+                if (nodeIdx >= NODES.length - 1) {
+                    triggerWin({ score, level: tier, node: 8, relics: player.relics.length }, {
+                        title: L('GEÇİT BEKÇİSİ YENİLDİ!', 'GATEKEEPER SLAIN!'),
+                        sub: reasonSub || L('8 Sektorlü Solucan Deliği tamamlandı!', 'Wormhole Roulette 8-Node Run Cleared!'),
+                        statLine: `SCORE ${score} · RELICS ${player.relics.length}`,
+                        nextLevel: tier + 1,
+                        nextLabel: L('SONRAKİ ZORLUK', 'NEXT TIER'),
+                        replayLevel: 1
+                    });
+                    return;
+                }
+                player.hp = Math.min(player.maxHp, player.hp + 5);
+                busyTimer = 0.42;
+                pendingNextNode = true;
+            }
+
+            if (enemy.hp <= 0) {
+                    handleEnemyDefeated();
                     return;
                 }
 
@@ -3639,18 +3705,7 @@
                 }
 
                 if (enemy && enemy.hp <= 0) {
-                    player.shards += enemy.reward;
-                    if (nodeIdx >= NODES.length - 1) {
-                        triggerWin({ score, level: tier, node: 8 }, {
-                            title: L('GEÇİT BEKÇİSİ YENİLDİ!', 'GATEKEEPER SLAIN!'),
-                            sub: L('Plazma dikenleri son darbeyi vurdu!', 'Thorns finished the Gatekeeper!'),
-                            statLine: `SCORE ${score}`,
-                            nextLevel: tier + 1,
-                            replayLevel: 1
-                        });
-                        return;
-                    }
-                    enterNode(nodeIdx + 1);
+                    handleEnemyDefeated(L('Plazma dikenleri son darbeyi vurdu!', 'Thorns finished the Gatekeeper!'));
                     return;
                 }
                 startTurn();
@@ -4058,8 +4113,22 @@
                 heat = 12;
                 overdriveTimer = 0;
                 throttleTimer = 0;
+                needlePos = 0.5;
+                needleDir = 1;
+                corePulse = 0;
+                coreAngle = 0;
                 prestigeWonThisTier = false;
                 milestoneMask = 0;
+                const st = calcStats();
+                syncHud({
+                    score,
+                    level: prestigeTier,
+                    lives: 1,
+                    shards: 0,
+                    heat: Math.round(heat),
+                    sps: Math.round(st.sps),
+                    objective: L(`Prestij ${prestigeTier} · Hedef ${fmtNum(prestigeGoal)}`, `Prestige ${prestigeTier} · Goal ${fmtNum(prestigeGoal)}`)
+                }, true);
             }
 
             function mineClick(x, y) {
@@ -4398,7 +4467,7 @@
             let empCharge = 0;
             let totalKeys = 0;
             let correctKeys = 0;
-            let startTime = performance.now();
+            let activeSec = 0;
 
             let enemies = [];
             let lockedId = null;
@@ -4492,8 +4561,17 @@
                     empCharge = 0;
                     totalKeys = 0;
                     correctKeys = 0;
-                    startTime = performance.now();
+                    activeSec = 0;
                 }
+                const st = calcStats();
+                syncHud({
+                    score,
+                    level,
+                    hp,
+                    maxHp,
+                    combo,
+                    objective: L(`Sektör ${level}/6 · WPM ${st.wpm} · Kombo x${combo}`, `Sector ${level}/6 · WPM ${st.wpm} · Combo x${combo}`)
+                }, true);
             }
 
             function triggerSectorWin() {
@@ -4542,7 +4620,7 @@
             }
 
             function calcStats() {
-                const elapsedMin = Math.max(0.08, (performance.now() - startTime) / 60000);
+                const elapsedMin = Math.max(0.08, activeSec / 60);
                 const wpm = Math.round((correctKeys / 5) / elapsedMin);
                 const acc = totalKeys > 0 ? Math.round((correctKeys / totalKeys) * 100) : 100;
                 return { wpm, acc };
@@ -4690,6 +4768,7 @@
                 },
                 update(dt) {
                     if (api.isEnded()) return;
+                    activeSec += dt;
                     if (wrongFlash > 0) wrongFlash = Math.max(0, wrongFlash - dt);
 
                     if (toSpawn > 0) {
@@ -4736,15 +4815,7 @@
 
                     // Check win if boss destroyed by EMP or already cleared
                     if (bossSpawned && !enemies.some((e) => e.isBoss)) {
-                        wonSector = true;
-                        const st = calcStats();
-                        triggerWin({ score, level, wpm: st.wpm, accuracy: st.acc, combo: bestCombo }, {
-                            title: L(`SEKTÖR ${level} ŞİFRESİ KIRILDI!`, `SECTOR ${level} CIPHER CLEARED!`),
-                            sub: `WPM: ${st.wpm} · ACC: ${st.acc}%`,
-                            statLine: `SCORE ${score}`,
-                            nextLevel: level < 6 ? level + 1 : null,
-                            replayLevel: level
-                        });
+                        triggerSectorWin();
                     }
 
                     for (let i = beams.length - 1; i >= 0; i--) {
