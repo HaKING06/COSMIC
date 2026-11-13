@@ -1,208 +1,212 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC SURVIVORS // Stüdyo Vizyonu, Mimari &amp; İletişim (v8.0)</title>
+    <title>COSMIC SURVIVORS v9.0 — Hakkında &amp; Teknik Mimari</title>
+    <meta name="description" content="COSMIC SURVIVORS v9.0 teknik mimarisi, PixiJS v8 WebGL motoru, CC0 Kenney varlık kredileri ve geliştirici iletişim kanalları.">
+    <meta name="theme-color" content="#070b12">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="css/core.css">
     <link rel="stylesheet" href="css/wiki.css">
-    <meta name="description"
-        content="COSMIC SURVIVORS — Sektör 9 Arşivi, Stüdyo Vizyonu, v8.0 Modüler Motor Mimarisi ve Halit Güneş (HaKING) Resmi İletişim." />
-    <meta name="author" content="Halit Güneş (HaKING)" />
-    <meta name="theme-color" content="#00f0ff" />
-    <link rel="canonical" href="https://cosmic.haking.tr/about.html" />
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
-    <link rel="shortcut icon" href="assets/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
-    <link rel="manifest" href="manifest.webmanifest" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Cosmic Survivors" />
-    <meta property="og:title" content="COSMIC SURVIVORS — Stüdyo Vizyonu, Mimari &amp; İletişim (v8.0)" />
-    <meta property="og:description"
-        content="Kozmik Parazit İstilası arkaplan hikayesi, v8.0 HTML5 Canvas motor mimarisi ve resmi geliştirici kanalları." />
-    <meta property="og:url" content="https://cosmic.haking.tr/about.html" />
-    <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
 </head>
-
-<body class="page-scroll">
-
-    <!-- UNIFIED TOP NAVIGATION BAR -->
+<body>
     <header class="cosmic-topbar">
-        <div class="topbar-left">
-            <a href="index.html" class="brand-logo">
-                <img src="assets/icon-192.png" alt="Cosmic Survivors" class="brand-logo" />
-                <div class="brand-text">
-                    <span class="brand-title">COSMIC SURVIVORS</span>
-                    <span class="brand-sub">STÜDYO VİZYONU &amp; MÜHENDİSLİK MİMARİSİ // v8.0</span>
-                </div>
-            </a>
-            <div class="topbar-status">
-                <span class="status-dot"></span>
-                <span>MODÜLER WEB &amp; KANVAS MOTORU v8.0</span>
+        <a href="index.html" class="topbar-brand">
+            <img src="assets/favicon-64.png" alt="Cosmic Survivors Logo" class="topbar-logo-img">
+            <div class="topbar-title-wrap">
+                <span class="topbar-title">COSMIC SURVIVORS</span>
+                <span class="topbar-version">V9.0 STUDIO &amp; ARCHITECTURE</span>
             </div>
-        </div>
+        </a>
 
-        <nav class="topbar-nav">
-            <a href="index.html" class="nav-link"><span class="nav-icon">🛸</span> ANA HANGAR</a>
-            <a href="game.html" class="nav-link"><span class="nav-icon">⚔️</span> SAVAŞA GİR</a>
-            <a href="tree.html" class="nav-link"><span class="nav-icon">🧬</span> EVRİM AĞACI</a>
-            <a href="wiki.html" class="nav-link"><span class="nav-icon">📖</span> KOZMİK WİKİ</a>
-            <a href="about.html" class="nav-link active"><span class="nav-icon">🏢</span> HAKKINDA</a>
+        <nav class="topbar-nav" aria-label="Ana Sayfalar">
+            <a href="index.html" class="topbar-link">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Hangar</span>
+            </a>
+            <a href="tree.html" class="topbar-link">
+                <i data-lucide="git-branch"></i>
+                <span>Evrim Ağacı</span>
+            </a>
+            <a href="wiki.html" class="topbar-link">
+                <i data-lucide="book-open"></i>
+                <span>Ansiklopedi</span>
+            </a>
+            <a href="about.html" class="topbar-link active">
+                <i data-lucide="info"></i>
+                <span>Hakkında</span>
+            </a>
         </nav>
 
-        <div class="topbar-right">
-            <div class="credit-pill" title="Mevcut Kozmik Kredi Bakiyesi">
-                <span class="credit-gem">💎</span>
-                <div>
-                    <span class="credit-label">KREDİ</span>
-                    <span class="credit-amount" id="topCreditAmount">0</span>
-                </div>
+        <div class="topbar-actions">
+            <div class="credits-pill" title="Araştırma Kredisi">
+                <i data-lucide="coins"></i>
+                <span id="creditsDisplay">0</span>
+                <span class="hide-mobile">CRD</span>
             </div>
+            <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
+                <i data-lucide="volume-2" id="audioToggleIcon"></i>
+                <span class="hide-mobile" id="audioToggleLabel">Ses Açık</span>
+            </button>
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main class="about-main">
-
-        <!-- LEFT: CORPORATE & ARCHITECTURAL SHOWCASE -->
-        <section class="corp-card">
-            <div class="corp-header">
-                <div class="studio-badge">🛸</div>
-                <div class="studio-titles">
-                    <h1>COSMIC INTERACTIVE</h1>
-                    <span>BAĞIMSIZ OYUN MÜHENDİSLİĞİ &amp; SİMÜLASYON STÜDYOSU</span>
-                </div>
-            </div>
-
-            <p class="vision-text">
-                <strong>COSMIC SURVIVORS v8.0</strong>, hiçbir harici oyun motoru, ağır kütüphane veya sunucu
-                bağımlılığı kullanmadan; saf <strong>HTML5 Canvas, Web Audio API, 3B Perspektif Projeksiyonu ve Modüler
-                    Tasarım Sistemi (Design System)</strong> ile sıfırdan inşa edilmiş ticari kalitede bir derin uzay
-                mermi-cenneti (Bullet-Heaven) ve taktiksel hayatta kalma simülasyonudur.
-            </p>
-            <p class="vision-text">
-                v8.0 mimarisi ile tüm stil katmanları <code>css/core.css</code>, <code>css/lobby.css</code>,
-                <code>css/game.css</code>, <code>css/tree.css</code> ve <code>css/wiki.css</code> modüllerine
-                ayrıştırılmış; 8 özgün gemi sınıfı, 4 anomalili sektör haritası, 5 çok-aşamalı Boss zayıf nokta mekaniği
-                ve 4 aşamalı silah sentez ağacı tek bir akıcı web ekosisteminde birleştirilmiştir.
-            </p>
-
-            <!-- 4 ARCHITECTURAL PILLARS -->
-            <div class="pillars-grid">
-                <div class="pillar-box">
-                    <h3>⚡ SIFIR BAĞIMLILIK &amp; 60 FPS MOTOR</h3>
-                    <p>Harici framework olmadan saf JavaScript ile çalışan parçacık fiziği, uzamsal çarpışma algılama,
-                        dinamik kamera sarsıntısı ve gerçek zamanlı DPS telemetrisi.</p>
-                </div>
-                <div class="pillar-box">
-                    <h3>🧬 8 GEMİ &amp; 4 AŞAMALI SENTEZ AĞI</h3>
-                    <p>Her geminin kendine özgü kök yeteneği, 12 aktif silah, 12 pasif alet, 12 Aşama 3 Evrim ve 4
-                        devasa Aşama 4 Mega Sentez birleşimi.</p>
-                </div>
-                <div class="pillar-box">
-                    <h3>🎨 MODÜLER CSS TASARIM SİSTEMİ</h3>
-                    <p>Tüm sayfalarda paylaşılan siberpunk tasarım belirteçleri (Design Tokens),
-                        aranabilir/sıralanabilir veri tabloları ve interaktif simülatörler.</p>
-                </div>
-                <div class="pillar-box">
-                    <h3>🔊 PROSEDÜREL WEB AUDIO SENTEZİ</h3>
-                    <p>Harici ses dosyalarına ihtiyaç duymayan; osilatör, filtre ve zarf (envelope) matematikleriyle
-                        anlık üretilen silah, patlama ve Boss ses efektleri.</p>
-                </div>
-            </div>
-
-            <!-- DEVELOPER SHOWCASE -->
-            <div class="dev-showcase">
-                <div class="dev-info">
-                    <div class="dev-avatar">👑</div>
-                    <div class="dev-meta">
-                        <span class="role">BAŞ MİMAR &amp; GELİŞTİRİCİ (LEAD ARCHITECT)</span>
-                        <div class="name">Halit Güneş <span class="alias">// HaKING</span></div>
-                    </div>
-                </div>
-                    <a href="mailto:cosmic@haking.tr" class="dev-gh-btn">
-                        ✉️ COSMIC@HAKING.TR
+    <main class="wiki-container">
+        <section class="about-hero-card">
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <span class="cs-badge cs-badge-sky font-mono" style="align-self:flex-start;">AÇIK KAYNAK · MIT LİSANSI</span>
+                <h1 class="wiki-hero-title">COSMIC SURVIVORS v9.0</h1>
+                <p style="font-size:15px;margin:0;">
+                    Yüksek kare hızında sıfır-bağımlılık hedefli tarayıcı aksiyon deneyimi için <strong>Halit Güneş (HaKING)</strong> tarafından geliştirilen bağımsız bilim kurgu hayatta kalma oyunu.
+                </p>
+                <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:0.25rem;">
+                    <a href="index.html" class="cs-btn cs-btn-primary">
+                        <i data-lucide="play"></i>
+                        <span>Hangara Dön</span>
                     </a>
+                    <a href="https://github.com/HaKING06/COSMIC" target="_blank" rel="noopener noreferrer" class="cs-btn cs-btn-ghost">
+                        <i data-lucide="git-branch"></i>
+                        <span>GitHub Deposu</span>
+                    </a>
+                </div>
             </div>
+            <img src="assets/og-banner.png" alt="Cosmic Survivors Showcase Banner" class="about-banner-img">
         </section>
 
-        <!-- RIGHT: SUPPORT, CONTACT & LICENSE STACK -->
-        <aside class="right-stack">
-
-            <!-- SUPPORT / DONATION CARD -->
-            <div class="support-card">
-                <span class="card-tag">// BAĞIMSIZ GELİŞTİRİCİ DESTEK FONU</span>
-                <h2 class="support-title">PROJEYİ DESTEKLEYİN ☕</h2>
-                <p class="support-desc">
-                    <strong>Cosmic Survivors</strong> tamamen açık kaynaklı ve reklamsız olarak geliştirilmektedir. Yeni
-                    sektör haritaları, gemi sınıfları ve ses motoru güncellemeleri için bir kahve ısmarlayarak
-                    projeye katkıda bulunabilirsiniz.
+        <section class="about-grid">
+            <article class="about-card">
+                <div style="display:flex;align-items:center;gap:0.65rem;">
+                    <div class="workshop-icon-box" style="color:var(--accent-sky);">
+                        <i data-lucide="cpu"></i>
+                    </div>
+                    <h2 style="font-size:18px;">Render &amp; Oyun Motoru</h2>
+                </div>
+                <p style="font-size:13.5px;margin:0;">
+                    Arena çekirdeği donanım hızlandırmalı <strong>PixiJS v8 WebGL</strong> katmanı ile 2D taktiksel HUD’u birleştirerek binlerce mermi, parçacık ve sürü birimini yüksek akıcılıkta işler.
                 </p>
+                <div class="module-formula-line">
+                    Sabit Zaman Adımı · 8 Gemi · 14 Silah · 19 Evrim · 6 Mega Evrim
+                </div>
+            </article>
 
-                <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener" class="bmc-cta-btn">
-                    <span class="bmc-ico">☕</span>
-                    <span class="bmc-txt">
-                        <strong>BUY ME A COFFEE İLE DESTEK OL</strong>
-                        <small>buymeacoffee.com/haking</small>
+            <article class="about-card">
+                <div style="display:flex;align-items:center;gap:0.65rem;">
+                    <div class="workshop-icon-box" style="color:var(--accent-mint);">
+                        <i data-lucide="compass"></i>
+                    </div>
+                    <h2 style="font-size:18px;">Dinamik Sektör Mekanikleri</h2>
+                </div>
+                <p style="font-size:13.5px;margin:0;">
+                    Her arena <strong>CosmicMapDirector</strong> olay motoruyla çalışır: Sektör 9 Enkaz Koridorları ve Overdrive Röleleri, Nebula Plazma Akıntıları ve EMP Hücreleri, Kara Delik Lav Meteorları ve Dyson Süpürme Lazerleri.
+                </p>
+                <div class="module-formula-line">
+                    Dalga 25+ Kozmik Çürüme · Her 5. Dalgada Öfke Fazı II Bossları
+                </div>
+            </article>
+
+            <article class="about-card">
+                <div style="display:flex;align-items:center;gap:0.65rem;">
+                    <div class="workshop-icon-box" style="color:var(--accent-violet);">
+                        <i data-lucide="headphones"></i>
+                    </div>
+                    <h2 style="font-size:18px;">Ses &amp; Görsel Varlık Kredileri</h2>
+                </div>
+                <p style="font-size:13.5px;margin:0;">
+                    Portal ve arena geri bildirimleri <strong>Howler.js</strong> tabanlı ses havuzuyla yönetilir. Ses efektleri ve uzay gemisi/parazit sprite temel varlıkları <strong>Kenney (CC0)</strong> lisanslı kaynaklardan derlenmiş, özel boyamalı sektör arka planlarıyla zenginleştirilmiştir.
+                </p>
+                <div class="module-formula-line">
+                    Portal Araçları: Lucide · Chart.js · GSAP · Panzoom · Howler
+                </div>
+            </article>
+        </section>
+
+        <section class="about-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+                <div>
+                    <h2 style="font-size:19px;">Geliştirici &amp; Resmi Kanallar</h2>
+                    <p style="font-size:13.5px;margin:0.2rem 0 0;">
+                        Geri bildirim, hata raporları, katkı ve destek için yalnızca aşağıdaki resmi kanalları kullanabilirsiniz.
+                    </p>
+                </div>
+                <span class="cs-badge cs-badge-mint font-mono">HALİT GÜNEŞ (HaKING)</span>
+            </div>
+
+            <div class="about-link-list">
+                <a href="mailto:cosmic@haking.tr" class="about-link-item">
+                    <span style="display:flex;align-items:center;gap:0.65rem;">
+                        <i data-lucide="mail" style="color:var(--accent-sky);"></i>
+                        <span>E-posta İletişimi — cosmic@haking.tr</span>
                     </span>
-                    <span class="bmc-arrow">→</span>
+                    <span class="font-mono" style="font-size:12px;color:var(--text-secondary);">MAILTO</span>
+                </a>
+
+                <a href="https://github.com/HaKING06/COSMIC" target="_blank" rel="noopener noreferrer" class="about-link-item">
+                    <span style="display:flex;align-items:center;gap:0.65rem;">
+                        <i data-lucide="git-branch" style="color:var(--text-primary);"></i>
+                        <span>Açık Kaynak Deposu — github.com/HaKING06/COSMIC</span>
+                    </span>
+                    <span class="font-mono" style="font-size:12px;color:var(--text-secondary);">MIT</span>
+                </a>
+
+                <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener noreferrer" class="about-link-item">
+                    <span style="display:flex;align-items:center;gap:0.65rem;">
+                        <i data-lucide="coffee" style="color:var(--accent-amber);"></i>
+                        <span>Geliştiriciye Destek Ol — buymeacoffee.com/haking</span>
+                    </span>
+                    <span class="font-mono" style="font-size:12px;color:var(--accent-amber);">DESTEK</span>
                 </a>
             </div>
-
-            <!-- CONTACT CHANNELS -->
-            <div class="contact-card">
-                <h3>📡 İLETİŞİM &amp; GERİ BİLDİRİM KANALLARI</h3>
-                <div class="contact-links">
-                        <a href="mailto:cosmic@haking.tr" class="contact-item">
-                            <div class="c-left">
-                                <span class="c-icon">✉️</span>
-                                <div>
-                                    <span class="c-label">RESMİ E-POSTA ADRESİ</span>
-                                    <span class="c-val">cosmic@haking.tr</span>
-                                </div>
-                            </div>
-                            <span class="c-arrow">→</span>
-                        </a>
-
-                            <a href="https://cosmic.haking.tr/" target="_blank" rel="noopener" class="contact-item">
-                                <div class="c-left">
-                                    <span class="c-icon">🌐</span>
-                                    <div>
-                                        <span class="c-label">RESMİ OYUN PORTALI</span>
-                                        <span class="c-val">cosmic.haking.tr</span>
-                                    </div>
-                                </div>
-                                <span class="c-arrow">→</span>
-                            </a>
-                </div>
-            </div>
-
-            <!-- MIT LICENSE -->
-            <div class="license-card">
-                <h3>⚖️ AÇIK KAYNAK LİSANS BİLDİRİMİ (MIT)</h3>
-                <div class="license-box">
-                    <strong>MIT License — Copyright (c) 2026 Halit Güneş (HaKING)</strong><br>
-                    Bu yazılımın ve ilgili dokümantasyon dosyalarının ("Yazılım") bir kopyasını edinen herkese; Yazılımı
-                    kısıtlama olmaksızın kullanma, kopyalama, değiştirme, birleştirme, yayımlama ve dağıtma hakkı
-                    ücretsiz olarak verilir. Telif hakkı bildirimi ve bu izin bildirimi tüm kopyalarda yer almalıdır.
-                </div>
-            </div>
-
-        </aside>
-
+        </section>
     </main>
 
+    <script src="vendor/lucide.min.js"></script>
+    <script src="vendor/howler.min.js"></script>
+    <script src="js/audio.js"></script>
     <script src="js/data.js"></script>
-    <script src="js/wiki.js"></script>
-</body>
+    <script>
+        (function () {
+            'use strict';
+            function refreshIcons() {
+                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                    window.lucide.createIcons();
+                }
+            }
+            const profile = window.CosmicPersistence ? window.CosmicPersistence.load() : { credits: 0 };
+            const creditsEl = document.getElementById('creditsDisplay');
+            if (creditsEl) creditsEl.textContent = Number(profile.credits || 0).toLocaleString('tr-TR');
 
+            const btn = document.getElementById('audioToggleBtn');
+            const label = document.getElementById('audioToggleLabel');
+            if (btn && window.CosmicAudio) {
+                const syncUi = () => {
+                    const muted = Boolean(window.CosmicAudio.prefs && window.CosmicAudio.prefs.muted);
+                    btn.classList.toggle('is-muted', muted);
+                    const iconEl = document.getElementById('audioToggleIcon');
+                    if (iconEl) iconEl.setAttribute('data-lucide', muted ? 'volume-x' : 'volume-2');
+                    if (label) label.textContent = muted ? 'Sessiz' : 'Ses Açık';
+                    refreshIcons();
+                };
+                syncUi();
+                btn.addEventListener('click', () => {
+                    window.CosmicAudio.unlock();
+                    const cur = Boolean(window.CosmicAudio.prefs && window.CosmicAudio.prefs.muted);
+                    window.CosmicAudio.setMuted(!cur);
+                    syncUi();
+                    if (cur) window.CosmicAudio.play('uiClick');
+                });
+            }
+            refreshIcons();
+        })();
+    </script>
+</body>
 </html>

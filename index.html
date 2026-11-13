@@ -1,382 +1,353 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>COSMIC SURVIVORS — Kozmik Arena &amp; Hiper-Evrim Roguelike | Komuta Hangarı</title>
-  <meta name="description"
-    content="COSMIC SURVIVORS — Kozmik Arena & Hiper-Evrim Roguelike: 8 özgün yıldız gemisi, 4 dinamik sektör haritası, çok katmanlı evrim ağacı, kalıcı reaktör atölyesi ve profesyonel filo kataloğu." />
-  <meta name="keywords"
-    content="Cosmic Survivors, kozmik arena roguelike, hiper-evrim uzay oyunu, html5 uzay oyunu, space roguelike" />
-  <meta name="author" content="Halit Güneş (HaKING)" />
-  <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#00f0ff" />
-  <link rel="canonical" href="https://cosmic.haking.tr/" />
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
-  <link rel="shortcut icon" href="assets/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
-  <link rel="manifest" href="manifest.webmanifest" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSMIC SURVIVORS v9.0 — Komuta Hangarı</title>
+    <meta name="description" content="COSMIC SURVIVORS v9.0 Komuta Hangarı. Geminizi seçin, sektör tehlikelerini analiz edin, atölyeden güçlendirmeler alın ve kozmik sürüye karşı savaşa çıkın.">
+    <meta name="theme-color" content="#070b12">
 
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="tr_TR" />
-  <meta property="og:site_name" content="Cosmic Survivors" />
-  <meta property="og:title" content="COSMIC SURVIVORS — Kozmik Arena &amp; Hiper-Evrim Roguelike" />
-  <meta property="og:description"
-    content="8 yıldız gemisi, 4 sektör haritası, çapraz silah evrimleri (X+Y=Z), Kozmik Mega Evrimler ve kalıcı reaktör atölyesiyle karanlık uzayda hayatta kal!" />
-  <meta property="og:url" content="https://cosmic.haking.tr/" />
-  <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="COSMIC SURVIVORS — Kozmik Arena &amp; Hiper-Evrim Roguelike" />
-  <meta name="twitter:description"
-    content="8 gemi, 4 harita, 15 çapraz evrim ve 8 Kozmik Mega Evrim. Tarayıcıda ücretsiz oyna!" />
-  <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Fonts & Modular External Stylesheets -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="css/core.css" />
-  <link rel="stylesheet" href="css/lobby.css" />
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/lobby.css">
 </head>
+<body>
+    <!-- Unified Calm Obsidian Topbar -->
+    <header class="cosmic-topbar">
+        <a href="index.html" class="topbar-brand">
+            <img src="assets/favicon-64.png" alt="Cosmic Survivors Logo" class="topbar-logo-img">
+            <div class="topbar-title-wrap">
+                <span class="topbar-title">COSMIC SURVIVORS</span>
+                <span class="topbar-version">V9.0 COMMAND PORTAL</span>
+            </div>
+        </a>
 
+        <nav class="topbar-nav" aria-label="Ana Sayfalar">
+            <a href="index.html" class="topbar-link active">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Hangar</span>
+            </a>
+            <a href="tree.html" class="topbar-link" id="navTreeLink">
+                <i data-lucide="git-branch"></i>
+                <span>Evrim Ağacı</span>
+            </a>
+            <a href="wiki.html" class="topbar-link">
+                <i data-lucide="book-open"></i>
+                <span>Ansiklopedi</span>
+            </a>
+            <a href="about.html" class="topbar-link">
+                <i data-lucide="info"></i>
+                <span>Hakkında</span>
+            </a>
+        </nav>
 
-  <body class="lobby-body">
-    <!-- ARKA PLAN YILDIZ ALANI CANVAS -->
-    <canvas id="bgStarCanvas" class="bg-star-canvas" aria-hidden="true"></canvas>
-
-        <!-- ÜST KOMUTA NAVİGASYON BARI -->
-        <header class="cosmic-topbar">
-          <a href="index.html" class="brand-identity">
-            <img src="assets/icon-192.png" alt="Cosmic Survivors Logo" class="brand-logo" />
-              <div class="brand-text">
-                <span class="brand-main">COSMIC SURVIVORS</span>
-                <span class="brand-sub">KOZMİK ARENA &amp; HİPER-EVRİM ROGUELIKE • v8.0</span>
-              </div>
-          </a>
-
-              <div class="topbar-telemetry">
-                <div class="credit-pill" title="Savaşlardan ve Başarımlardan kazanılan Kalıcı Kozmik Kredi">
-                  <span class="credit-icon">💎</span>
-                  <span class="credit-label">KOZMİK KREDİ:</span>
-                  <strong id="topCreditAmount">750</strong>
-                </div>
-                  <div class="profile-stat-pill">
-                    <span>🏆 REKOR DALGA: <strong id="topMaxWave">1</strong></span>
-                    <span class="sep">•</span>
-                    <span>💀 İMHA: <strong id="topTotalKills">0</strong></span>
-                  </div>
-                </div>
-
-                  <nav class="topbar-nav" aria-label="Sayfa Navigasyonu">
-                    <a href="index.html" class="nav-link active">🏠 KOMUTA HANGARI</a>
-                    <a href="game.html" class="nav-link nav-cta">⚔️ SAVAŞ ARENASI</a>
-                    <a href="tree.html" class="nav-link">⚡ EVRİM AĞACI</a>
-                    <a href="wiki.html" class="nav-link">📚 KOZMİK WİKİ</a>
-                    <a href="about.html" class="nav-link">📖 ARŞİV &amp; KÜNYE</a>
-                  </nav>
+        <div class="topbar-actions">
+            <div class="credits-pill" title="Araştırma Atölyesi Kredisi">
+                <i data-lucide="coins"></i>
+                <span id="creditsDisplay">0</span>
+                <span class="hide-mobile">CRD</span>
+            </div>
+            <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
+                <i data-lucide="volume-2" id="audioToggleIcon"></i>
+                <span class="hide-mobile" id="audioToggleLabel">Ses Açık</span>
+            </button>
+        </div>
     </header>
 
-    <!-- ANA PORTAL ÇALIŞMA ALANI: SOL MODÜL MENÜSÜ + SAĞ DİNAMİK GÖRÜNÜM -->
-    <div class="portal-shell">
-      <!-- SOL DİKEY MODÜL SEÇİCİ (SIDEBAR) -->
-      <aside class="hangar-sidebar" aria-label="Hangar Modülleri">
-        <div class="sidebar-group-label">KOMUTA MERKEZİ</div>
-        <button type="button" class="sidebar-tab active" data-view="view-cockpit">
-          <span class="stab-ico">🛸</span>
-          <span class="stab-txt">
-            <strong>3D Gemi Hangarı</strong>
-            <small>8 Gemi • 4 Harita • Savaş Hazırlığı</small>
-          </span>
-        </button>
+    <div class="lobby-shell">
+        <!-- Left Rail: 5 Clean Views -->
+        <aside class="lobby-rail" aria-label="Hangar Bölümleri">
+            <div>
+                <div class="rail-section-label">KOMUTA MERKEZİ</div>
+                <div class="rail-nav-list">
+                    <button type="button" class="rail-btn active" data-view="view-cockpit">
+                        <i data-lucide="radar"></i>
+                        <span>Kokpit / Konuşlanma</span>
+                    </button>
+                    <button type="button" class="rail-btn" data-view="view-workshop">
+                        <i data-lucide="wrench"></i>
+                        <span>Araştırma Atölyesi</span>
+                    </button>
+                    <button type="button" class="rail-btn" data-view="view-maps">
+                        <i data-lucide="compass"></i>
+                        <span>Sektör Atlası</span>
+                    </button>
+                    <button type="button" class="rail-btn" data-view="view-records">
+                        <i data-lucide="bar-chart-3"></i>
+                        <span>Kayıt &amp; Rekorlar</span>
+                    </button>
+                    <button type="button" class="rail-btn" data-view="view-achievements">
+                        <i data-lucide="award"></i>
+                        <span>Başarımlar</span>
+                    </button>
+                </div>
+            </div>
 
-            <button type="button" class="sidebar-tab" data-view="view-catalog">
-              <span class="stab-ico">📋</span>
-              <span class="stab-txt">
-                <strong>Profesyonel Katalog</strong>
-                <small>Filtrelenebilir Silah, Gemi &amp; Evrim Listesi</small>
-              </span>
-            </button>
+            <div class="rail-telemetry-box">
+                <div class="rail-section-label" style="padding:0;margin-bottom:0.15rem;">PİLOT DURUMU</div>
+                <div class="rail-telemetry-row">
+                    <span>Toplam Çıkış</span>
+                    <strong id="railRunsVal">0</strong>
+                </div>
+                <div class="rail-telemetry-row">
+                    <span>En Yüksek Dalga</span>
+                    <strong id="railBestWaveVal">0</strong>
+                </div>
+                <div class="rail-telemetry-row">
+                    <span>Açılan Başarım</span>
+                    <strong id="railAchVal">0 / 8</strong>
+                </div>
+            </div>
+        </aside>
 
-            <button type="button" class="sidebar-tab" data-view="view-workshop">
-              <span class="stab-ico">🔧</span>
-              <span class="stab-txt">
-                <strong>Reaktör Atölyesi</strong>
-                <small>Kalıcı Kredi Geliştirmeleri (Meta)</small>
-              </span>
-              <span class="stab-badge" id="workshopBadge">8</span>
-            </button>
-
-            <button type="button" class="sidebar-tab" data-view="view-maps">
-              <span class="stab-ico">🗺️</span>
-              <span class="stab-txt">
-                <strong>Sektörler &amp; Bosslar</strong>
-                <small>4 Harita Anomalisi &amp; 5 Boss Analizi</small>
-              </span>
-            </button>
-
-            <button type="button" class="sidebar-tab" data-view="view-achievements">
-              <span class="stab-ico">🏆</span>
-              <span class="stab-txt">
-                <strong>Başarımlar &amp; Rekorlar</strong>
-                <small>Kredi Ödülleri &amp; Liderlik Tablosu</small>
-              </span>
-            </button>
-
-          <div class="sidebar-footer">
-            <a href="tree.html" class="sidebar-quick-link">🌿 İnteraktif Evrim Laboratuvarı ➔</a>
-            <a href="wiki.html" class="sidebar-quick-link">📚 Meta Build &amp; Taktik Rehberi ➔</a>
-            <a href="https://buymeacoffee.com/haking" target="_blank" rel="noopener" class="sidebar-support-btn">☕ Geliştiriciyi Destekle</a>
-          </div>
-    </aside >
-
-          <!-- ANA İÇERİK SAHNESİ -->
-          <main class="portal-stage">
-
-            <!-- ═══════════════════════════════════════════════════════════════════
-            GÖRÜNÜM 1: 3D GEMİ HANGARI & SAVAŞ HAZIRLIK KOKPİTİ
-      ═══════════════════════════════════════════════════════════════════ -->
-            <section id="view-cockpit" class="portal-view active">
-              <div class="cockpit-grid">
-
-                <!-- SOL SÜTUN: PROFESYONEL FİLTRELENEBİLİR 8 GEMİ ROSTER LİSTESİ -->
-                <div class="panel-box roster-panel">
-                  <div class="panel-header">
+        <!-- Main Workspace -->
+        <main class="lobby-main">
+            <!-- VIEW 1: COCKPIT / DEPLOYMENT -->
+            <section id="view-cockpit" class="lobby-view active" aria-labelledby="cockpitTitle">
+                <div class="view-header">
                     <div>
-                      <h2 class="panel-title">🛸 YILDIZ FİLOSU ENVANTERİ (8 SINIF)</h2>
-                      <p class="panel-sub">Savaşa gireceğiniz gemiyi listeden seçin veya filtreleyin</p>
+                        <h1 id="cockpitTitle" class="view-header-title">Kokpit &amp; Taktik Konuşlanma</h1>
+                        <p class="view-header-sub">8 özgün yıldız gemisinden birini seçin, hedef sektör olaylarını inceleyin ve göreve çıkın.</p>
                     </div>
-                    <span class="badge tier-s" id="rosterCountBadge">8 GEMİ AKTİF</span>
-                  </div>
-
-                  <!-- Hızlı Arama & Rol Filtresi -->
-                  <div class="roster-filter-bar">
-                    <input type="search" id="shipSearchInput" class="pro-search-input" placeholder="Gemi, silah veya rol ara..." />
-                    <div class="role-pills" id="shipRolePills">
-                      <button type="button" class="filter-pill active" data-role="all">TÜMÜ (8)</button>
-                      <button type="button" class="filter-pill" data-role="Taarruz">TAARRUZ</button>
-                      <button type="button" class="filter-pill" data-role="Zırh">TANK/SAVUNMA</button>
-                      <button type="button" class="filter-pill" data-role="Kontrol">KONTROL/DRONE</button>
+                    <div style="display:flex;align-items:center;gap:0.65rem;flex-wrap:wrap;">
+                        <label for="pilotCallsignInput" style="font-size:12.5px;color:var(--text-secondary);">Pilot Çağrı Kodu</label>
+                        <input id="pilotCallsignInput" type="text" class="cs-input" maxlength="16" placeholder="PİLOT-01" style="width:155px;">
                     </div>
-                  </div>
+                </div>
 
-                    <!-- 8 Gemi Profesyonel Liste Görünümü -->
-                    <div class="ship-roster-list" id="shipRosterList" role="listbox" aria-label="Yıldız Gemileri"></div>
-                  </div>
-
-                  <!-- ORTA SÜTUN: 3D/2.5D CANLI HOLOGRAM TURNTABLE VİTRİNİ & 4 HARİTA SEÇİMİ -->
-                  <div class="panel-box showcase-panel">
-                    <div class="showcase-stage-wrap">
-                      <div class="showcase-hud-top">
-                        <div>
-                          <span class="ship-code-tag" id="scShipCode">NX-01 INTERCEPTOR</span>
-                          <h1 class="showcase-ship-name" id="scShipName">AVCI (INTERCEPTOR)</h1>
+                <div class="cockpit-grid">
+                    <!-- Column 1: 8 Starships Deck -->
+                    <div class="cockpit-panel">
+                        <div class="panel-heading">
+                            <span>FİLO HANGARI (8 GEMİ)</span>
+                            <span class="cs-badge cs-badge-sky font-mono">HAZIR</span>
                         </div>
-                        <div class="showcase-badges">
-                          <span class="badge tier-s" id="scShipTier">TIER S</span>
-                          <span class="badge weapon" id="scShipRole">Hızlı Taarruz &amp; Kritik</span>
+                        <div id="shipDeckList" class="ship-deck-list"></div>
+                    </div>
+
+                    <!-- Column 2: Turntable + Sector + Difficulty + Launch -->
+                    <div class="cockpit-panel">
+                        <div class="turntable-stage">
+                            <canvas id="turntableCanvas" width="520" height="255"></canvas>
+                            <div class="turntable-caption">
+                                <div>
+                                    <div id="stageShipName" class="turntable-ship-name">Avcı (Interceptor)</div>
+                                    <div id="stageShipRole" class="turntable-ship-sub">Yüksek Hız · Kritik Delici</div>
+                                </div>
+                                <a id="stageTreeLink" href="tree.html?ship=interceptor" class="cs-btn cs-btn-ghost">
+                                    <i data-lucide="git-branch"></i>
+                                    <span>Ağacı İncele</span>
+                                </a>
+                            </div>
                         </div>
-                      </div>
 
-                      <!-- 3D / HD Model Turntable Canvas -->
-                      <div class="turntable-container">
-                        <canvas id="lobbyShipCanvas" width="640" height="320"></canvas>
-                        <div class="turntable-controls">
-                          <button type="button" class="tt-btn active" id="btnToggleWeapons">🔫 Silah Simülasyonu: AÇIK</button>
-                          <button type="button" class="tt-btn" id="btnCompareCurrent">⚖️ Başka Gemiyle Karşılaştır</button>
-                          <a href="tree.html" id="btnInspectShipTree" class="tt-btn gold">🌿 Geminin Kök Ağacını Aç</a>
+                        <div class="panel-heading">
+                            <span>SEKTÖR SEÇİMİ (4 ARENA)</span>
+                            <span class="font-mono" id="selectedSectorCode" style="font-size:12px;color:var(--accent-sky);">SEC-09</span>
                         </div>
-                      </div>
+                        <div id="sectorPickerGrid" class="sector-picker-grid"></div>
 
-                      <p class="showcase-lore" id="scShipLore"></p>
-                    </div>
+                        <div id="activeSectorBrief" class="active-sector-brief"></div>
 
-                    <!-- 4 Sektör Haritası Seçim Barı -->
-                    <div class="map-selector-section">
-                      <div class="section-mini-hdr">
-                        <span>🗺️ OPERASYON SEKTÖRÜ SEÇİMİ (4 HARİTA)</span>
-                        <span id="selectedMapHazard" class="map-hazard-hint"></span>
-                      </div>
-                      <div class="map-cards-row" id="lobbyMapCards"></div>
-                    </div>
-                  </div>
-
-                  <!-- SAĞ SÜTUN: PİLOT KONFİGÜRASYONU, TELEMETRİ ÇUBUKLARI, KÖK YETENEKLER & BAŞLAT -->
-                  <div class="panel-box telemetry-panel">
-                    <div class="panel-header">
-                      <div>
-                        <h2 class="panel-title">📊 TELEMETRİ &amp; SAVAŞ KONFİGÜRASYONU</h2>
-                        <p class="panel-sub">Gemi istatistikleri, özel kök ağacı ve zorluk protokolü</p>
-                      </div>
-                    </div>
-
-                    <!-- Pilot Çağrı Kodu & Zorluk -->
-                    <div class="pilot-config-box">
-                      <div class="cfg-field">
-                        <label for="pilotNameInput">PİLOT ÇAĞRI KODU</label>
-                        <input type="text" id="pilotNameInput" class="pro-input" maxlength="18" value="KOMUTAN" />
-                      </div>
-                      <div class="cfg-field">
-                        <label>ZORLUK PROTOKOLÜ</label>
-                        <div class="diff-btn-group" id="diffBtnGroup">
-                          <button type="button" class="diff-btn" data-diff="easy">KOLAY</button>
-                          <button type="button" class="diff-btn active" data-diff="normal">NORMAL</button>
-                          <button type="button" class="diff-btn" data-diff="hard">ZOR</button>
-                          <button type="button" class="diff-btn nightmare" data-diff="nightmare">KABUS</button>
+                        <div class="panel-heading">
+                            <span>TEHDİT SEVİYESİ (ZORLUK)</span>
+                            <span class="font-mono" id="selectedDiffMult" style="font-size:12px;color:var(--accent-mint);">1.4x SKOR</span>
                         </div>
-                      </div>
+                        <div id="difficultyGrid" class="difficulty-grid"></div>
+
+                        <div class="launch-bar">
+                            <button type="button" id="launchSortieBtn" class="cs-btn cs-btn-primary launch-btn">
+                                <i data-lucide="play"></i>
+                                <span id="launchBtnText">GÖREVE BAŞLA</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- 5 Eksenli Profesyonel Telemetri Barları -->
-                    <div class="stat-bars-box" id="shipStatBars"></div>
+                    <!-- Column 3: Chart.js Telemetry + Passives + Signature Tree -->
+                    <div class="cockpit-panel cockpit-telemetry-col">
+                        <div class="panel-heading">
+                            <span>GEMİ TELEMETRİ MATRİSİ</span>
+                            <span id="telemetryTagBadge" class="cs-badge cs-badge-sky">SALDIRI</span>
+                        </div>
 
-                    <!-- Geminin Özel İmza Kök Ağacı & Aktif Yeteneği -->
-                    <div class="signature-loadout-box" id="shipSignatureBox"></div>
+                        <div class="radar-wrap">
+                            <canvas id="shipRadarCanvas"></canvas>
+                        </div>
 
-            <!-- Kalıcı Atölye Bonus Özeti -->
-            <div class="meta-active-strip" id="activeMetaStrip"></div>
+                        <div class="telemetry-kpi-grid">
+                            <div class="telemetry-kpi">
+                                <div class="telemetry-kpi-label">Gövde (HP)</div>
+                                <div id="kpiHp" class="telemetry-kpi-val">105</div>
+                            </div>
+                            <div class="telemetry-kpi">
+                                <div class="telemetry-kpi-label">Kalkan (SH)</div>
+                                <div id="kpiSh" class="telemetry-kpi-val">55</div>
+                            </div>
+                            <div class="telemetry-kpi">
+                                <div class="telemetry-kpi-label">Hız / Zırh</div>
+                                <div id="kpiSpdArmor" class="telemetry-kpi-val">354 / %5</div>
+                            </div>
+                            <div class="telemetry-kpi">
+                                <div class="telemetry-kpi-label">Kritik Şans</div>
+                                <div id="kpiCrit" class="telemetry-kpi-val">%20</div>
+                            </div>
+                        </div>
 
-            <!-- DEV SAVAŞA BAŞLA BUTONU -->
-            <button type="button" id="btnLaunchBattle" class="launch-mega-btn">
-              <span class="launch-main">🚀 HİPER SIÇRAMAYI BAŞLAT (OYNA)</span>
-              <span class="launch-sub" id="launchSubSummary">AVCI • SEKTÖR 9 ENKAZI • NORMAL</span>
-            </button>
-          </div>
+                        <div class="info-block">
+                            <div class="info-block-title">
+                                <span id="passiveTitle">Pasif Sistem</span>
+                                <span class="cs-badge cs-badge-mint">PASİF</span>
+                            </div>
+                            <div id="passiveDesc" class="info-block-desc"></div>
+                        </div>
 
-        </div>
-      </section>
+                        <div class="info-block">
+                            <div class="info-block-title">
+                                <span id="abilityTitle">Aktif Yetenek</span>
+                                <span id="abilityCdBadge" class="cs-badge cs-badge-amber font-mono">7.0s CD</span>
+                            </div>
+                            <div id="abilityDesc" class="info-block-desc"></div>
+                        </div>
 
-      <!-- ═══════════════════════════════════════════════════════════════════
-           GÖRÜNÜM 2: PROFESYONEL FİLO, SİLAH & EVRİM KATALOĞU (FİLTRELİ LİSTE & KARŞILAŞTIRMA)
-      ═══════════════════════════════════════════════════════════════════ -->
-      <section id="view-catalog" class="portal-view">
-        <div class="view-inner-scroll">
-          <div class="pro-toolbar">
-            <div class="toolbar-left">
-              <h2 class="view-heading">📋 KOZMİK ENVANTER &amp; EVRİM VERİTABANI</h2>
-              <div class="category-pills" id="catalogCategoryPills">
-                <button type="button" class="filter-pill active" data-cat="all">TÜMÜ</button>
-                <button type="button" class="filter-pill" data-cat="weapon">⚔️ SİLAHLAR</button>
-                <button type="button" class="filter-pill" data-cat="sig-weapon">🌟 ÖZEL KÖK SİLAHLAR</button>
-                <button type="button" class="filter-pill" data-cat="trinket">🧲 ALETLER</button>
-                <button type="button" class="filter-pill" data-cat="evolution">⚡ ÇAPRAZ EVRİMLER</button>
-                <button type="button" class="filter-pill" data-cat="mega">👑 MEGA EVRİMLER</button>
-              </div>
-            </div>
-            <div class="toolbar-right">
-              <input type="search" id="catalogSearchInput" class="pro-search-input" placeholder="Silah, formül veya açıklama ara..." />
-              <select id="catalogShipFilter" class="pro-select" aria-label="Gemiye Göre Filtrele">
-                <option value="all">Tüm Gemiler (Evrensel + Özel)</option>
-                <option value="interceptor">Avcı (Interceptor)</option>
-                <option value="dreadnought">Kruvazör (Dreadnought)</option>
-                <option value="aegis">Aegis (Muhafız)</option>
-                <option value="phantom">Gölge (Void Phantom)</option>
-                <option value="solarflare">Solar Flare</option>
-                <option value="tempest">Tempest (Kriyo-Fırtına)</option>
-                <option value="valkyrie">Valkyrie (Drone Taşıyıcı)</option>
-                <option value="chronos">Chronos (Zaman Dokuyucu)</option>
-              </select>
-              <select id="catalogSortSelect" class="pro-select" aria-label="Sıralama Ölçütü">
-                <option value="tier">Sırala: Kademe (Tier)</option>
-                <option value="dmg-desc">Sırala: En Yüksek Hasar</option>
-                <option value="name">Sırala: Alfabetik (A-Z)</option>
-              </select>
-              <div class="view-mode-toggle">
-                <button type="button" class="vmode-btn active" data-mode="table" title="Profesyonel Tablo Görünümü">☰ TABLO</button>
-                <button type="button" class="vmode-btn" data-mode="grid" title="Kart Izgara Görünümü">⊞ KARTLAR</button>
-              </div>
-            </div>
-          </div>
+                        <div class="signature-combo-card">
+                            <div class="info-block-title">
+                                <span>İmza Sentez Zinciri</span>
+                                <span class="cs-badge cs-badge-violet font-mono">MEGA YOL</span>
+                            </div>
+                            <div id="signatureComboChain" class="combo-chain"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-          <!-- Profesyonel Tablo veya Kart Listesi Konteyneri -->
-          <div id="catalogContainer" class="catalog-results-wrap"></div>
+            <!-- VIEW 2: RESEARCH WORKSHOP -->
+            <section id="view-workshop" class="lobby-view" aria-labelledby="workshopTitle">
+                <div class="view-header">
+                    <div>
+                        <h1 id="workshopTitle" class="view-header-title">Araştırma Atölyesi</h1>
+                        <p class="view-header-sub">Görevlerden kazanılan kredilerle tüm gemiler için kalıcı sistem kalibrasyonları yapın.</p>
+                    </div>
+                    <button type="button" id="resetWorkshopBtn" class="cs-btn cs-btn-danger">
+                        <i data-lucide="rotate-ccw"></i>
+                        <span>Tümünü İade Et</span>
+                    </button>
+                </div>
 
-          <!-- YAN YANA GEMİ KARŞILAŞTIRMA ARACI (SHIP COMPARATOR) -->
-          <div class="comparator-panel">
-            <div class="panel-header">
-              <div>
-                <h3 class="panel-title">⚖️ YAN YANA YILDIZ GEMİSİ KARŞILAŞTIRMA LABORATUVARI</h3>
-                <p class="panel-sub">İki gemiyi seçerek hız, zırh, kritik, dolum süresi ve özel evrim dallarını kıyaslayın</p>
-              </div>
-              <div class="comp-selectors">
-                <select id="compShipA" class="pro-select"></select>
-                <span class="vs-badge">VS</span>
-                <select id="compShipB" class="pro-select"></select>
-              </div>
-            </div>
-            <div id="shipComparisonTableWrap"></div>
-          </div>
-        </div>
-      </section>
+                <div class="workshop-summary-bar">
+                    <span style="font-size:13.5px;color:var(--text-secondary);font-weight:500;">Aktif Hangar Çarpanları:</span>
+                    <div id="workshopBonusPills" class="workshop-bonuses-pills"></div>
+                </div>
 
-      <!-- ═══════════════════════════════════════════════════════════════════
-           GÖRÜNÜM 3: REAKTÖR ATÖLYESİ (KALICI KREDİ GELİŞTİRMELERİ)
-      ═══════════════════════════════════════════════════════════════════ -->
-      <section id="view-workshop" class="portal-view">
-        <div class="view-inner-scroll">
-          <div class="pro-toolbar">
-            <div>
-              <h2 class="view-heading">🔧 REAKTÖR ATÖLYESİ — KALICI FİLO GELİŞTİRMELERİ</h2>
-              <p class="panel-sub">Savaşlarda ve başarımlarda kazandığınız <strong>💎 Kozmik Kredileri</strong> harcayarak tüm gemilerinizi kalıcı olarak güçlendirin.</p>
-            </div>
-            <div class="workshop-actions">
-              <div class="credit-pill large">
-                <span>💎 MEVCUT BÜTÇE:</span>
-                <strong id="workshopCreditBalance">750</strong>
-              </div>
-              <button type="button" id="btnResetWorkshop" class="btn-outline-danger">🔄 Tüm Kredileri İade Al (Sıfırla)</button>
-            </div>
-          </div>
+                <div id="workshopGrid" class="workshop-grid"></div>
+            </section>
 
-          <div class="workshop-grid" id="workshopGrid"></div>
-        </div>
-      </section>
+            <!-- VIEW 3: SECTOR ATLAS & BOSS BRIEFING -->
+            <section id="view-maps" class="lobby-view" aria-labelledby="atlasTitle">
+                <div class="view-header">
+                    <div>
+                        <h1 id="atlasTitle" class="view-header-title">Sektör Atlası &amp; Boss İstihbaratı</h1>
+                        <p class="view-header-sub">Dinamik arena olayları (CosmicMapDirector) ve her 5 dalgada sahneye çıkan Boss protokolleri.</p>
+                    </div>
+                </div>
 
-      <!-- ═══════════════════════════════════════════════════════════════════
-           GÖRÜNÜM 4: SEKTÖR HARİTALARI & 5 BOSS İSTİHBARAT DOSYASI
-      ═══════════════════════════════════════════════════════════════════ -->
-      <section id="view-maps" class="portal-view">
-        <div class="view-inner-scroll">
-          <h2 class="view-heading">🗺️ SEKTÖR HARİTALARI &amp; ÇEVRESEL ANOMALİLER</h2>
-          <div class="sector-detail-grid" id="sectorDetailGrid"></div>
+                <div id="atlasSectorGrid" class="atlas-sector-grid"></div>
 
-          <h2 class="view-heading" style="margin-top:1.6rem;">👾 TEHDİT İSTİHBARATI: 5 KOZMİK BOSS &amp; ZAYIF NOKTA ANALİZİ</h2>
-          <div class="boss-intel-grid" id="bossIntelGrid"></div>
-        </div>
-      </section>
+                <div class="view-header" style="margin-top:0.75rem;">
+                    <div>
+                        <h2 style="font-size:19px;">Kozmik Boss Dosyaları (5 Ana Tehdit)</h2>
+                        <p class="view-header-sub">Bossların %50 HP altında açtığı Öfke Fazı II ve zayıf nokta mekaniklerini inceleyin.</p>
+                    </div>
+                </div>
 
-      <!-- ═══════════════════════════════════════════════════════════════════
-           GÖRÜNÜM 5: BAŞARIMLAR & YEREL LİDERLİK TABLOSU
-      ═══════════════════════════════════════════════════════════════════ -->
-      <section id="view-achievements" class="portal-view">
-        <div class="view-inner-scroll">
-          <div class="ach-leaderboard-split">
-            <div>
-              <h2 class="view-heading">🏆 KOZMİK BAŞARIMLAR &amp; KREDİ ÖDÜLLERİ</h2>
-              <div class="achievements-list" id="achievementsList"></div>
-            </div>
-            <div>
-              <h2 class="view-heading">📊 SEKTÖR 9 KOMUTA SKOR TABLOSU</h2>
-              <div class="leaderboard-box" id="lobbyLeaderboardBox"></div>
-            </div>
-          </div>
-        </div>
-      </section>
+                <div id="atlasBossGrid" class="atlas-boss-grid"></div>
+            </section>
 
-    </main>
-  </div>
+            <!-- VIEW 4: RECORDS & LEADERBOARD -->
+            <section id="view-records" class="lobby-view" aria-labelledby="recordsTitle">
+                <div class="view-header">
+                    <div>
+                        <h1 id="recordsTitle" class="view-header-title">Kayıt &amp; Liderlik Rekorları</h1>
+                        <p class="view-header-sub">Kariyer uçuş telemetrisi, yerel en yüksek skorlar ve küresel sıralama panosu.</p>
+                    </div>
+                </div>
 
-        <!-- Harici Modüler Scriptler -->
-        <script src="leaderboard.js"></script>
-        <script src="js/data.js"></script>
-        <script src="js/models3d.js"></script>
-        <script src="js/lobby.js"></script>
-  </body>
+                <div id="recordsStatsGrid" class="records-stats-grid"></div>
 
+                <div class="records-columns">
+                    <div class="records-table-wrap">
+                        <div class="records-table-head">
+                            <h2 style="font-size:16px;">Yerel Uçuş Rekorları</h2>
+                            <span class="cs-badge cs-badge-sky font-mono">LOCAL</span>
+                        </div>
+                        <table class="cs-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Pilot</th>
+                                    <th>Zorluk</th>
+                                    <th>Dalga</th>
+                                    <th>Skor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="localLeaderboardBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="records-table-wrap">
+                        <div class="records-table-head">
+                            <h2 style="font-size:16px;">Küresel Sıralama</h2>
+                            <span class="cs-badge cs-badge-mint font-mono" id="globalBoardStatus">SENKRON</span>
+                        </div>
+                        <table class="cs-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Pilot</th>
+                                    <th>Zorluk</th>
+                                    <th>Dalga</th>
+                                    <th>Skor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="globalLeaderboardBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 5: ACHIEVEMENTS -->
+            <section id="view-achievements" class="lobby-view" aria-labelledby="achievementsTitle">
+                <div class="view-header">
+                    <div>
+                        <h1 id="achievementsTitle" class="view-header-title">Kozmik Başarımlar</h1>
+                        <p class="view-header-sub">Ulaştığınız kilometre taşlarının ödül kredilerini buradan tahsil edin.</p>
+                    </div>
+                    <span id="achievementCounterBadge" class="cs-badge cs-badge-amber font-mono">0 / 8</span>
+                </div>
+
+                <div id="achievementsGrid" class="achievements-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="csToast" class="cs-toast" role="status" aria-live="polite"></div>
+
+    <!-- Vendored Libraries & Canonical Runtime Modules -->
+    <script src="vendor/lucide.min.js"></script>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/chart.umd.min.js"></script>
+    <script src="vendor/howler.min.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="leaderboard.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/models3d.js"></script>
+    <script src="js/lobby.js"></script>
+</body>
 </html>

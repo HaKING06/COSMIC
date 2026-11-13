@@ -1,231 +1,154 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC SURVIVORS // Sentez &amp; Evrim Ağacı Laboratuvarı (v8.0)</title>
+    <title>COSMIC SURVIVORS v9.0 — Evrim Ağacı &amp; Sentez Laboratuvarı</title>
+    <meta name="description" content="8 yıldız gemisi, 14 silah, 14 destek modülü, 19 evrim ve 6 mega evrim arasındaki tüm matematiksel sentez bağlarını keşfedin.">
+    <meta name="theme-color" content="#070b12">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="css/core.css">
     <link rel="stylesheet" href="css/tree.css">
-    <meta name="description"
-        content="COSMIC SURVIVORS — 8 Özgün Yıldız Gemisi için İnteraktif 4 Katmanlı Evrim &amp; Mega Füzyon Sentez Ağacı Laboratuvarı." />
-    <meta name="author" content="Halit Güneş (HaKING)" />
-    <meta name="theme-color" content="#00f0ff" />
-    <link rel="canonical" href="https://cosmic.haking.tr/tree.html" />
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
-    <link rel="shortcut icon" href="assets/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
-    <link rel="manifest" href="manifest.webmanifest" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Cosmic Survivors" />
-    <meta property="og:title" content="COSMIC SURVIVORS — Sentez &amp; Evrim Ağacı Laboratuvarı (v8.0)" />
-    <meta property="og:description"
-        content="8 Yıldız Gemisinin kök silahları, 15 çapraz evrimi ve 8 Kozmik Mega Evrim tarifini interaktif olarak keşfet." />
-    <meta property="og:url" content="https://cosmic.haking.tr/tree.html" />
-    <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
 </head>
-
-<body class="page-scroll">
-
-    <!-- UNIFIED TOP NAVIGATION BAR -->
+<body class="tree-app">
     <header class="cosmic-topbar">
-        <div class="topbar-left">
-            <a href="index.html" class="brand-logo">
-                <img src="assets/icon-192.png" alt="Cosmic Survivors" class="brand-logo" />
-                <div class="brand-text">
-                    <span class="brand-title">COSMIC SURVIVORS</span>
-                    <span class="brand-sub">SENTEZ &amp; EVRİM LABORATUVARI // v8.0</span>
-                </div>
-            </a>
-            <div class="topbar-status">
-                <span class="status-dot"></span>
-                <span>8 GEMİ // 4 AŞAMALI SENTEZ AĞI AKTİF</span>
+        <a href="index.html" class="topbar-brand">
+            <img src="assets/favicon-64.png" alt="Cosmic Survivors Logo" class="topbar-logo-img">
+            <div class="topbar-title-wrap">
+                <span class="topbar-title">COSMIC SURVIVORS</span>
+                <span class="topbar-version">V9.0 EVOLUTION BLUEPRINT LAB</span>
             </div>
-        </div>
+        </a>
 
-        <nav class="topbar-nav">
-            <a href="index.html" class="nav-link"><span class="nav-icon">🛸</span> ANA HANGAR</a>
-            <a href="game.html" class="nav-link"><span class="nav-icon">⚔️</span> SAVAŞA GİR</a>
-            <a href="tree.html" class="nav-link active"><span class="nav-icon">🧬</span> EVRİM AĞACI</a>
-            <a href="wiki.html" class="nav-link"><span class="nav-icon">📖</span> KOZMİK WİKİ</a>
-            <a href="about.html" class="nav-link"><span class="nav-icon">🏢</span> HAKKINDA</a>
+        <nav class="topbar-nav" aria-label="Ana Sayfalar">
+            <a href="index.html" class="topbar-link">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Hangar</span>
+            </a>
+            <a href="tree.html" class="topbar-link active">
+                <i data-lucide="git-branch"></i>
+                <span>Evrim Ağacı</span>
+            </a>
+            <a href="wiki.html" class="topbar-link">
+                <i data-lucide="book-open"></i>
+                <span>Ansiklopedi</span>
+            </a>
+            <a href="about.html" class="topbar-link">
+                <i data-lucide="info"></i>
+                <span>Hakkında</span>
+            </a>
         </nav>
 
-        <div class="topbar-right">
-            <div class="credit-pill" title="Mevcut Kozmik Kredi Bakiyesi">
-                <span class="credit-gem">💎</span>
-                <div>
-                    <span class="credit-label">KREDİ</span>
-                    <span class="credit-amount" id="topCreditAmount">0</span>
-                </div>
+        <div class="topbar-actions">
+            <div class="credits-pill" title="Araştırma Kredisi">
+                <i data-lucide="coins"></i>
+                <span id="creditsDisplay">0</span>
+                <span class="hide-mobile">CRD</span>
             </div>
+            <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
+                <i data-lucide="volume-2" id="audioToggleIcon"></i>
+                <span class="hide-mobile" id="audioToggleLabel">Ses Açık</span>
+            </button>
         </div>
     </header>
 
-    <!-- MAIN LAB CONTAINER -->
-    <main class="tree-page-shell">
+    <!-- 8-Ship Selector & Legend -->
+    <div class="tree-ship-bar">
+        <div id="shipSelectorBar" class="ship-tabs-scroll" role="tablist" aria-label="Gemi Ağaçları"></div>
 
-        <!-- 8-SHIP SELECTOR BAR -->
-        <section class="ship-selector-bar" aria-label="Gemi Sınıfı Seçimi">
-            <div class="ship-selector-header">
-                <div class="ship-selector-title">
-                    <span>🛸</span> 8 SINIF GEMİ SENTEZ MATRİSİ SEÇİMİ
-                </div>
-                <div class="tree-legend">
-                    <span class="legend-item"><span class="legend-line"
-                            style="background:#00f3ff; color:#00f3ff;"></span> Gemi İmza Silahı / Kök Dalı</span>
-                    <span class="legend-item"><span class="legend-line"
-                            style="background:#2ecc71; color:#2ecc71;"></span> Pasif Alet (Trinket) Bağlantısı</span>
-                    <span class="legend-item"><span class="legend-line"
-                            style="background:#f1c40f; color:#f1c40f;"></span> Aşama 3 Evrim Sentezi</span>
-                    <span class="legend-item"><span class="legend-line"
-                            style="background:#ff00ea; color:#ff00ea;"></span> Aşama 4 Mega Sentez (Birleşim)</span>
-                </div>
-            </div>
-            <div class="ship-tabs" id="shipTabsContainer">
-                <!-- Populated dynamically by js/tree.js for all 8 ships -->
-            </div>
-        </section>
-
-        <!-- PRO SEARCH, FILTER & ZOOM TOOLBAR -->
-        <section class="pro-toolbar tree-toolbar" aria-label="Ağaç Filtreleme ve Arama Araçları">
-            <div class="pro-toolbar-left">
-                <div class="pro-search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="treeSearchInput" class="pro-search-input"
-                        placeholder="Düğüm, silah, pasif alet veya evrim ara (örn: Plazma, Tırpan, Omega)...">
-                </div>
-
-                <div class="filter-pill-group" id="treeFilterPills">
-                    <button type="button" class="filter-pill active" data-filter="ship-branch">🛸 Seçili Gemi
-                        Dalı</button>
-                    <button type="button" class="filter-pill" data-filter="all">🌐 Tüm Evren Ağı</button>
-                    <button type="button" class="filter-pill" data-filter="weapon">🔫 Silahlar</button>
-                    <button type="button" class="filter-pill" data-filter="trinket">💍 Pasif Aletler</button>
-                    <button type="button" class="filter-pill" data-filter="evolution">★ Evrimler</button>
-                    <button type="button" class="filter-pill" data-filter="mega">✦ Mega Sentezler</button>
-                </div>
-            </div>
-
-            <div class="pro-toolbar-right">
-                <div class="tree-zoom-controls">
-                    <button type="button" class="zoom-btn" id="btnZoomOut" title="Uzaklaştır">−</button>
-                    <span class="zoom-level-label" id="zoomLevelLabel">100%</span>
-                    <button type="button" class="zoom-btn" id="btnZoomIn" title="Yakınlaştır">+</button>
-                    <button type="button" class="zoom-btn" id="btnZoomReset" title="Görünümü Sıfırla">⟲</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- WORKSPACE: LEFT 4-STAGE SVG TREE + RIGHT HOLOGRAM INSPECTOR & BUILD CALCULATOR -->
-        <div class="lab-workspace">
-
-            <!-- LEFT: 4-STAGE INTERACTIVE SVG SKILL TREE -->
-            <div class="tree-viewport" id="treeViewport">
-                <div class="tree-zoom-stage" id="treeZoomStage">
-                    <svg class="svg-connections" id="svgConnections" xmlns="http://www.w3.org/2000/svg"></svg>
-                    <div class="tree-columns" id="treeColumns">
-                        <div class="tree-col" id="colRootAndTrinkets"></div>
-                        <div class="tree-col" id="colWeapons"></div>
-                        <div class="tree-col" id="colEvolutions"></div>
-                        <div class="tree-col" id="colMegaEvolutions"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT: BUILD CALCULATOR & HOLOGRAM INSPECTOR -->
-            <aside class="inspector-panel">
-
-                <!-- INTERACTIVE SYNTHESIS SIMULATOR (BUILD CALCULATOR) -->
-                <div class="synth-calc-card">
-                    <div class="synth-calc-header">
-                        <span class="synth-calc-title">⚗️ SENTEZ SİMÜLATÖRÜ (BUILD CALCULATOR)</span>
-                        <button type="button" class="synth-auto-btn" id="btnAutoPairSynergy"
-                            title="Seçili silahın uyumlu pasif aletini otomatik eşleştir">⚡ Otomatik Eşle</button>
-                    </div>
-
-                    <div class="synth-selectors">
-                        <div class="synth-select-group">
-                            <span class="synth-select-label">1. AKTİF SİLAH (SEVİYE 5)</span>
-                            <select id="calcWeaponSelect" class="synth-select" aria-label="Aktif Silah Seçin"></select>
-                        </div>
-                        <div class="synth-select-group">
-                            <span class="synth-select-label">2. PASİF ALET / TRINKET</span>
-                            <select id="calcTrinketSelect" class="synth-select" aria-label="Pasif Alet Seçin"></select>
-                        </div>
-                    </div>
-
-                    <div class="synth-result-box matched" id="synthResultBox">
-                        <div class="synth-result-top">
-                            <span class="synth-result-name" id="synthResName">★ EVRİM SONUCU</span>
-                            <span class="badge tier-s" id="synthResBadge">SENTEZ HAZIR</span>
-                        </div>
-                        <div class="synth-result-desc" id="synthResDesc">
-                            Silah ve pasif alet kombinasyonunu seçerek evrim sonucunu test edin.
-                        </div>
-                        <div class="synth-mega-hint" id="synthMegaHint" style="display:none;"></div>
-                        <div>
-                            <button type="button" class="synth-jump-btn" id="btnHighlightCalcEvo">🎯 Ağaçta Göster ve
-                                İncele</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- NODE HOLOGRAM INSPECTOR -->
-                <div class="insp-header">
-                    <div class="insp-badge-row">
-                        <span class="insp-type-badge" id="inspTypeBadge">GEMİ KÖK SINIFI</span>
-                        <span class="insp-slot-badge" id="inspSlotBadge">AŞAMA 1</span>
-                    </div>
-                    <h2 class="insp-title" id="inspTitle">VORTEX INTERCEPTOR</h2>
-                </div>
-
-                <div class="holo-sim-box">
-                    <canvas id="holoEffectCanvas"></canvas>
-                    <span class="holo-sim-label" id="holoSimLabel">CANLI ATIŞ SİMÜLASYONU</span>
-                </div>
-
-                <div class="insp-body">
-                    <div class="insp-formula" id="inspFormula">BAŞLANGIÇ GEMİ SINIFI + İMZA SİLAHI</div>
-                    <p class="insp-desc" id="inspDesc">
-                        Bir düğüme tıklayarak detaylı seviye tablolarını, birleşim tariflerini ve canlı simülasyonunu
-                        inceleyin.
-                    </p>
-
-                    <table class="insp-stats-table" id="inspStatsTable">
-                        <thead>
-                            <tr>
-                                <th>Seviye / Parametre</th>
-                                <th>Değer</th>
-                                <th>Bonus &amp; Mekanik Etkisi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inspStatsBody">
-                            <!-- Populated dynamically by js/tree.js -->
-                        </tbody>
-                    </table>
-
-                    <div class="insp-branches-box" id="inspBranchesBox">
-                        <!-- Populated dynamically by js/tree.js -->
-                    </div>
-                </div>
-
-            </aside>
-
+        <div class="tree-legend-strip">
+            <span><span class="legend-dot" style="background:var(--accent-sky);"></span>İmza Kök</span>
+            <span><span class="legend-dot" style="background:var(--accent-mint);"></span>Evrensel</span>
+            <span><span class="legend-dot" style="background:var(--accent-amber);"></span>Mega Evrim</span>
+            <button type="button" id="toggleAllSigsBtn" class="cs-btn cs-btn-ghost" style="padding:0.35rem 0.7rem;font-size:12px;">
+                <i data-lucide="layers"></i>
+                <span id="toggleAllSigsLabel">Seçili Gemi Görünümü</span>
+            </button>
         </div>
+    </div>
 
+    <main class="tree-workspace">
+        <!-- Panzoom Viewport -->
+        <section id="treeViewport" class="tree-viewport" aria-label="İnteraktif Evrim Şeması">
+            <div class="tree-toolbar">
+                <button type="button" id="zoomOutBtn" class="tree-tool-btn" title="Uzaklaş">
+                    <i data-lucide="zoom-out"></i>
+                </button>
+                <span id="zoomReadout" class="tree-zoom-readout">100%</span>
+                <button type="button" id="zoomInBtn" class="tree-tool-btn" title="Yakınlaş">
+                    <i data-lucide="zoom-in"></i>
+                </button>
+                <button type="button" id="zoomResetBtn" class="tree-tool-btn" title="Sıfırla">
+                    <i data-lucide="maximize-2"></i>
+                    <span>Sıfırla</span>
+                </button>
+            </div>
+
+            <div class="tree-hint-pill">
+                <i data-lucide="move" style="width:13px;height:13px;margin-right:4px;"></i>
+                Sürükleyerek kaydırın · Fare tekerleğiyle yakınlaştırın · Sentez zinciri için düğüme tıklayın
+            </div>
+
+            <div id="treeCanvas" class="tree-canvas-stage">
+                <svg id="svgConnections" class="tree-svg-layer" aria-hidden="true"></svg>
+                <div id="treeColumns" class="tree-columns">
+                    <div id="colWeapons" class="tree-col"></div>
+                    <div id="colTrinkets" class="tree-col"></div>
+                    <div id="colEvolutions" class="tree-col"></div>
+                    <div id="colMegaEvolutions" class="tree-col"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Telemetry Inspector -->
+        <aside class="tree-inspector" aria-label="Modül Telemetri Denetçisi">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+                <span id="inspectorScopeBadge" class="cs-badge cs-badge-sky font-mono">İMZA SİSTEM</span>
+                <span id="inspectorTierBadge" class="cs-badge cs-badge-amber font-mono">S+</span>
+            </div>
+
+            <div>
+                <h1 id="inspectorTitle" style="font-size:20px;font-weight:700;">Takyon Mızrağı</h1>
+                <p id="inspectorDesc" style="margin-top:0.35rem;font-size:13.5px;"></p>
+            </div>
+
+            <div class="holo-preview-box">
+                <canvas id="holoEffectCanvas" width="320" height="175"></canvas>
+            </div>
+
+            <div id="inspectorStatsGrid" class="inspector-stat-grid"></div>
+
+            <div id="inspectorFormulaBox" class="chain-formula-box"></div>
+
+            <!-- Interactive Quick Synthesis Tester -->
+            <div class="quick-synth-box">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <strong style="font-family:var(--font-display);font-size:13.5px;">Hızlı Sentez Doğrulayıcı</strong>
+                    <span class="cs-badge cs-badge-mint font-mono">X + Y = Z</span>
+                </div>
+
+                <select id="calcWeaponSelect" class="cs-select" aria-label="Silah Seçimi"></select>
+                <select id="calcTrinketSelect" class="cs-select" aria-label="Destek Modülü Seçimi"></select>
+
+                <div id="calcSynthResult" class="quick-synth-result"></div>
+            </div>
+        </aside>
     </main>
 
+    <script src="vendor/lucide.min.js"></script>
+    <script src="vendor/panzoom.min.js"></script>
+    <script src="vendor/howler.min.js"></script>
+    <script src="js/audio.js"></script>
     <script src="js/data.js"></script>
     <script src="js/tree.js"></script>
 </body>
-
 </html>

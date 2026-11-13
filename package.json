@@ -1,0 +1,21 @@
+{
+  "name": "cosmic",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">",
+  "main": "game.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@panzoom/panzoom": "^4.6.2",
+    "chart.js": "^4.6.1",
+    "gsap": "^3.15.1",
+    "howler": "^2.2.4",
+    "lucide": "^1.72.0",
+    "pixi.js": "^8.23.0"
+  }
+}

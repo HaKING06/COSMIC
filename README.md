@@ -1,98 +1,126 @@
 <div align="center">
 
-<img src="assets/og-banner.png" alt="COSMIC SURVIVORS — Kozmik Arena & Hiper-Evrim Roguelike Banner" width="100%" />
+<img src="assets/og-banner.png" alt="COSMIC SURVIVORS — Kozmik Arena & Hiper-Evrim Roguelike" width="100%" />
 
 <br />
 
-# 🌌 COSMIC SURVIVORS
-### **KOZMİK ARENA & HİPER-EVRİM ROGUELIKE (v8.0 — MODULAR HYPER-EDITION)**
+# COSMIC SURVIVORS
+### **Kozmik Arena, Dinamik Hareketli Sektörler & Hiper-Evrim Roguelike (v9.0)**
 
-[![Canlı Oyna](https://img.shields.io/badge/🎮_HEMEN_OYNA-cosmic.haking.tr-00f0ff?style=for-the-badge&logo=rocket&logoColor=03030a)](https://cosmic.haking.tr/)
-[![Evrim Ağacı](https://img.shields.io/badge/⚡_EVRİM_AĞACI-tree.html-ffcc00?style=for-the-badge)](https://cosmic.haking.tr/tree.html)
-[![Kozmik Wiki](https://img.shields.io/badge/📚_KOZMİK_WİKİ-wiki.html-00ff88?style=for-the-badge)](https://cosmic.haking.tr/wiki.html)
-[![Sektör 9 Arşivi](https://img.shields.io/badge/📖_SEKTÖR_9_ARŞİVİ-about.html-b537f2?style=for-the-badge)](https://cosmic.haking.tr/about.html)
-[![Buy Me A Coffee](https://img.shields.io/badge/☕_DESTEK_OL-buymeacoffee.com%2Fhaking-ffcc00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=000000)](https://buymeacoffee.com/haking)
-[![Lisans: MIT](https://img.shields.io/badge/Lisans-MIT-00ff88?style=for-the-badge)](LICENSE)
+[![Hemen Oyna](https://img.shields.io/badge/HEMEN_OYNA-cosmic.haking.tr-38bdf8?style=for-the-badge)](https://cosmic.haking.tr/)
+[![Evrim Ağacı](https://img.shields.io/badge/EVRIM_AGACI-tree.html-f59e0b?style=for-the-badge)](https://cosmic.haking.tr/tree.html)
+[![Kozmik Wiki](https://img.shields.io/badge/KOZMIK_WIKI-wiki.html-34d399?style=for-the-badge)](https://cosmic.haking.tr/wiki.html)
+[![Buy Me A Coffee](https://img.shields.io/badge/DESTEK_OL-buymeacoffee.com%2Fhaking-f59e0b?style=for-the-badge)](https://buymeacoffee.com/haking)
+[![Lisans: MIT](https://img.shields.io/badge/Lisans-MIT-34d399?style=for-the-badge)](LICENSE)
 
 <p align="center">
-  <strong>Modüler Web Mimarisi (Harici CSS/JS/Asset Paketi) • 8 Özgün Yıldız Gemisi & 3D/HD Modeller • 4 Dinamik Sektör Haritası • Kalıcı Reaktör Atölyesi (💎 Kozmik Kredi) • Profesyonel Filtrelenebilir Katalog & Gemi Kıyaslama • 15 Çapraz Evrim ($X+Y=Z$) & 8 Mega Evrim ($Z+N=\text{MEGA}$)</strong>
+  <strong>PixiJS v8 WebGL Motoru • Göz Dostu Obsidian-Slate Arayüz • 8 Yıldız Gemisi • 4 Dinamik Hareketli Sektör • 19 Çapraz Evrim &amp; 6 Mega Evrim • Kalıcı Reaktör Atölyesi</strong>
 </p>
-
----
-
-### 🚀 **[⚡ CANLI SİMÜLASYONU BAŞLAT — https://cosmic.haking.tr/](https://cosmic.haking.tr/)**
-### 📚 **[🧠 KOZMİK WİKİ & VERİTABANI — https://cosmic.haking.tr/wiki.html](https://cosmic.haking.tr/wiki.html)**
-### ☕ **[💛 PROJEYİ DESTEKLE — https://buymeacoffee.com/haking](https://buymeacoffee.com/haking)**
-### 📩 **Resmi İletişim: [cosmic@haking.tr](mailto:cosmic@haking.tr)**
 
 </div>
 
 ---
 
-## 📖 Genel Bakış
+## Genel Bakış
 
-**COSMIC SURVIVORS — Kozmik Arena & Hiper-Evrim Roguelike (v8.0)**, harici `css/`, `js/` ve yüksek detaylı `assets/` (`ships/`, `bosses/`, `enemies/`, `maps/`) paket yapısıyla sıfırdan inşa edilmiş, çok sayfalı ve tam donanımlı bir web oyun portalıdır.
+**COSMIC SURVIVORS (v9.0)**; web üzerinde sıfır kurulumla çalışan, WebGL2 hızlandırmalı (**PixiJS v8** + otomatik Canvas2D yedek modlu), tek oyunculu (1P) bir uzay roguelike hayatta kalma ve evrim sentez oyunudur. Göz yormayan **Obsidian-Slate** arayüz mimarisi, net telegraphed boss saldırıları ve hareketli uzay sektörleriyle uzun soluklu taktiksel oynanış sunar.
 
-- **🛸 8 Özgün Yıldız Gemisi & 3D/2.5D Canlı Vitrin (`models3d.js`):** Her biri çok katmanlı SVG/PNG yüksek çözünürlüklü gövde modellerine, 2.5D yatış (banking) fiziğine, döner taretlere, kendine özel **İmza Kök Silahı + Kök Aletine** ve **Aktif Yeteneğe (`SPACE`)** sahip 8 gemi sınıfı.
-- **📋 Profesyonel Filtrelenebilir Katalog & Yan Yana Gemi Kıyaslama:** Hangar içinde ve Wiki sayfasında arama, kategori/gemi filtreleme, hasar/tier sıralama, Tablo/Kart görünüm değiştirici ve iki gemiyi yan yana kıyaslayan **Gemi Karşılaştırma Laboratuvarı**.
-- **🔧 Kalıcı Reaktör Atölyesi (Meta-Progression & 💎 Kozmik Kredi):** Savaşlarda ve başarımlarda kazanılan **Kozmik Krediler** ile tüm gemilerin hasar, gövde, hız, kritik, dolum süresi ve Reroll/Skip haklarını kalıcı olarak yükseltme imkanı.
-- **🗺️ 4 Dinamik Sektör Haritası & Taktiksel Radar Mini-Harita:** *Sektör 9 Enkazı*, *Kuantum Nebulası*, *Kara Delik Çevresi* ve yeni *Dyson Mega-Küre Reaktörü* ile oyun içi canlı **Radar Mini-Harita**.
-
----
-
-## 🛸 8 Özgün Yıldız Gemisi & İmza Kök Ağaçları
-
-| Gemi Sınıfı | Rol & Kademe | Başlangıç Silahı | Özel Kök Silahı + Aleti | Özel Evrim ➔ Mega Evrim | Aktif Yetenek (`SPACE`) |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **⚡ Avcı (`Interceptor`)** | Hızlı Taarruz (`S`) | Çift Lazer | Foton Raylı Top + Hiper-İvme | Takyon Mızrağı ➔ **Hyperion Işık Hükümdarı** | **Warp Dash** |
-| **🛡️ Kruvazör (`Dreadnought`)** | Ağır Kuşatma (`S`) | Ağır Plazma Topu | Balistik Flak + Reaktif Zırh | Kıyamet Bataryası ➔ **Zırhlı Kıyamet Kalesi** | **360° Füze Salvosu** |
-| **💠 Aegis (`Guardian`)** | Yörünge & EMP (`A+`) | Dönen Enerji Diski | Tesla Prizması + Kondansatör | Kutsal İyon Fırtınası ➔ **Olay Ufku** | **EMP Şok Dalgası** |
-| **👻 Gölge (`Void Phantom`)** | Kuantum Suikast (`S`) | Kuantum Hançeri | Hiper-Uzay Tırpanı + Gölge Pelerini | Hiçlik Biçicisi ➔ **Tutulma Tanrısı** | **Gölge Sıçraması** |
-| **☀️ Solar Flare (`Sunstorm`)** | Termal AoE (`S`) | Alev Hattı | Plazma Havanı + Termonükleer Kalp | Helios Kıyameti ➔ **Omega Hükmü** | **Güneş Patlaması** |
-| **❄️ Tempest (`Cryo-Storm`)** | Kriyo-Kontrol (`S`) | Çift Lazer / Ark | Kriyo-Buzul Küresi + İletken Bobin | **Mutlak Sıfır Fırtınası** | **Kriyo-Tesla Fırtınası** |
-| **🛸 Valkyrie (`Carrier`)** | Drone Taşıyıcı (`S+`) | Füze Sürüsü | Otonom Dronelar + Nöral Ağ | **Seraphim Drone Filosu** | **Railgun Overdrive** |
-| **⏳ Chronos (`Singularity`)** | Zaman Bükücü (`S+`) | Enerji Diski | Zaman Yarığı + Akı Çekirdeği | **Sonsuzluk Döngüsü** | **Zaman Durdurma (Stasis)** |
+- **Donanım Hızlandırmalı Görsel Motor (`js/renderer.js`):** PixiJS v8 sprite havuzu, kesintisiz paralaks uzay arka planları (`assets/backdrops/*.jpg`), yüksek kontrastlı düşman mermileri, keskin 11px iç vuruş çekirdeği ve ayarlar menüsünden açılabilen **Göz Dostu Sakin VFX Modu**.
+- **Çift Kontrol Nişan Sistemi (`[Q]` Geçişi):** Varsayılan olarak fare imlecine göre anlık yönlenen **Twin-Stick Nişan** veya tek tuşla aktifleşen **Otomatik Hedef Kilidi** (mobil cihazlarda sanal kumanda destekli).
+- **Dinamik Hareketli Sektör Olayları (`js/mapEvents.js`):** Sabit arenalar yerine sürekli akan enkaz şeritleri, hız/EMP plazma akıntıları, önceden uyarı halkalı meteor yağmurları, 2 saniye lazer işaretli Dyson süpürme ışınları ve ele geçirilebilir **Overdrive Röleleri &amp; Kargo Kapsülleri**.
+- **Çok Katmanlı Evrim Sentezi ($X + Y = Z \rightarrow \text{MEGA}$):** 6 evrensel + 8 gemiye özel silah (**14 Silah**), **14 Pasif Alet**, **19 Çapraz/İmza Evrimi** ve iki evrimi birleştirip fazladan silah yuvası açan **6 Kozmik Mega Evrim**.
+- **Atomik Seviye Seçim Kilidi:** Seviye atlama ekranında aynı karede birden fazla tuşa basarak birden çok kart alma açığını tamamen engelleyen senkron seçim kilidi.
 
 ---
 
-## 🗂️ Modüler Proje Mimarisi
+## 8 Özgün Yıldız Gemisi
+
+| Gemi Sınıfı | Rol | Başlangıç Silahı | Özel İmza Evrimi (`X + Y = Z`) | Aktif Yetenek (`SPACE`) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Avcı (`Interceptor`)** | Hızlı Taarruz | Çift Lazer | **Takyon Mızrağı** *(Foton Raylı Top + Hiper-İvme)* | **Warp Dash** |
+| **Kruvazör (`Dreadnought`)** | Ağır Kuşatma | Ağır Plazma Topu | **Kıyamet Bataryası** *(Balistik Flak + Reaktif Zırh)* | **360° Füze Salvosu** |
+| **Aegis (`Guardian`)** | Kalkan &amp; EMP | Dönen Enerji Diski | **Kutsal İyon Fırtınası** *(Tesla Prizması + Kondansatör)* | **EMP Şok Dalgası** |
+| **Gölge (`Void Phantom`)** | Suikast &amp; Kritik | Kuantum Hançeri | **Hiçlik Biçicisi** *(Hiper-Uzay Tırpanı + Gölge Pelerini)* | **Gölge Sıçraması** |
+| **Solar Flare (`Sunstorm`)** | Termal AoE | Alev Hattı | **Helios Güneş Kıyameti** *(Plazma Havanı + Termonükleer Kalp)* | **Güneş Patlaması** |
+| **Tempest (`Cryo-Storm`)** | Kriyo-Kontrol | Çift Lazer | **Mutlak Sıfır Fırtınası** *(Kriyo-Buzul Küresi + Bobin)* | **Kriyo-Tesla Fırtınası** |
+| **Valkyrie (`Carrier`)** | Drone Filosu | Füze Sürüsü | **Seraphim Drone Filosu** *(Otonom Dronelar + Nöral Ağ)* | **Railgun Overdrive** |
+| **Chronos (`Weaver`)** | Zaman Bükücü | Enerji Diski | **Sonsuzluk Döngüsü** *(Zaman Yarığı + Akı Çekirdeği)* | **Zaman Durdurma** |
+
+---
+
+## 4 Dinamik Sektör Haritası
+
+1. **Sektör 9 Enkazı (`sector9`):** Diyagonal sürüklenen istasyon enkaz şeritleri, parçalanabilir asteroidler ve yüksek puanlı Overdrive Röleleri.
+2. **Kuantum Nebulası (`nebula`):** Gemileri hızlandıran mavi iyon akıntıları ve alan daraltan göçebe EMP fırtına hücreleri.
+3. **Kara Delik Çevresi (`blackhole`):** Yörüngede dolaşan olay ufku çekim merkezi ve küçülen kırmızı halkalarla uyarı veren lav meteor yağmurları.
+4. **Dyson Mega-Küre Reaktörü (`dyson`):** 2.1 saniye önceden kırmızı lazer hattıyla uyarı veren süpürme ışınları ve yoğun elit dalgaları.
+
+---
+
+## Modüler Proje Yapısı
 
 ```text
 COSMIC/
-├── index.html                  # [KOMUTA HANGARI] 5 Modüllü Portal (3D Vitrin, Profesyonel Katalog, Atölye, Sektörler, Başarımlar)
-├── game.html                   # [SAVAŞ ARENASI] Radar Mini-Harita, Minimalist HUD, ESC Terminali, Evrim & Sandık Modalları
-├── tree.html                   # [EVRİM LABORATUVARI] 8 Gemi Sekmeli İnteraktif SVG Perk Ağacı & Sentez Hesaplayıcı
-├── wiki.html                   # [KOZMİK WİKİ] Canlı Arama/Sıralama Veritabanı, 4x8 Harita Sinerji Matrisi, Hasar Hesaplayıcı
-├── about.html                  # [SEKTÖR 9 ARŞİVİ] Lore, Kurumsal İletişim, Destek Kartı & MIT Lisansı
+├── index.html                  # Komuta Hangarı (Gemi Seçimi, Chart.js Telemetri, Atölye, Liderlik)
+├── game.html                   # Savaş Arenası (PixiJS v8 Tuval, Çevreleyici HUD, Ayarlar, Maç Raporu)
+├── tree.html                   # Evrim Laboratuvarı (Panzoom Yakınlaştırma & İnteraktif SVG Ağaç)
+├── wiki.html                   # Kozmik Wiki (Filtrelenebilir Veritabanı, DPS Grafiği, Sentez Simülatörü)
+├── about.html                  # Mimari, İletişim, Destek & Lisans Bilgileri
 ├── css/
-│   ├── core.css                # Global Tasarım Sistemi, Tablo/Filtre/Kart Bileşenleri, %75 Responsive Ölçek
-│   ├── lobby.css               # Hangar Portalı, 3D Turntable, Katalog & Reaktör Atölyesi Stilleri
-│   ├── game.css                # Savaş Arenası HUD, Radar Mini-Harita & Hologram Kart Stilleri
-│   ├── tree.css                # İnteraktif Yetenek Ağacı & Sentez Simülatörü Stilleri
-│   └── wiki.css                # Wiki Veritabanı, Sekmeler & Kurumsal Arşiv Stilleri
+│   ├── core.css                # Obsidian-Slate Tasarım Sistemi, Inter/Space Grotesk/JetBrains Mono
+│   ├── lobby.css               # Hangar & Atölye Düzeni
+│   ├── game.css                # Savaş HUD, Kart Modalları, Ayar Çekmecesi & Chart.js Raporu
+│   ├── tree.css                # Evrim Laboratuvarı Stilleri
+│   └── wiki.css                # Ansiklopedi & Sentez Hesaplayıcı Stilleri
 ├── js/
-│   ├── data.js                 # Merkezi Veritabanı (8 Gemi, 4 Harita, Katalog, Atölye) & CosmicPersistence
-│   ├── models3d.js             # 2.5D/3D Gemi, Boss, Düşman & Hangar Turntable Model Çizim Motoru
-│   ├── lobby.js                # Hangar, Profesyonel Katalog, Gemi Kıyaslama & Atölye Kontrolcüsü
-│   ├── tree.js                 # İnteraktif Evrim Ağacı & Sentez Simülatörü Motoru
-│   └── wiki.js                 # Wiki Canlı Arama, Sıralama & Matematiksel Hasar Hesaplayıcı
-├── game.js                     # Ana Savaş Motoru (v8.0)
-├── leaderboard.js              # Yerel Liderlik Tablosu Yöneticisi
-└── assets/
-    ├── ships/                  # 8 Gemi İçin Çok Katmanlı HD SVG & PNG Modelleri
-    ├── bosses/                 # 5 Kozmik Boss HD SVG Modelleri
-    ├── enemies/                # 8 Parazit Sınıfı HD SVG Modelleri
-    ├── maps/                   # 4 Sektör Haritası Vektörel Önizlemeleri
-    ├── hangar-bg.png           # Yüksek Çözünürlüklü Hangar Arka Plan Sanatı
-    ├── boss-banner.png         # Yüksek Çözünürlüklü Boss Savaş Sanatı
-    └── og-banner.png           # 1200x630 Sosyal Medya Paylaşım Afişi
+│   ├── data.js                 # Merkezi Veri & CosmicPersistence (localStorage)
+│   ├── models3d.js             # PNG Tabanlı Hangar Turntable & Önizleme Motoru
+│   ├── lobby.js                # Hangar, Atölye & Chart.js Gemi Radarı
+│   ├── tree.js                 # Evrim Ağacı Bağlantı & Panzoom Kontrolcüsü
+│   ├── wiki.js                 # Arama/Sıralama Veritabanı, DPS Grafiği & Sentez Simülatörü
+│   ├── audio.js                # Howler.js Çok Kanallı SFX + Web Audio Uzay Ambiyansı
+│   ├── mapEvents.js            # Dinamik Hareketli Sektör & Görev Yöneticisi
+│   └── renderer.js             # PixiJS v8 WebGL + Otomatik Canvas2D Çizim Motoru
+├── game.js                     # Ana Roguelike Savaş Döngüsü & Çok Fazlı Boss Yapay Zekâsı
+├── leaderboard.js              # Yerel & Uzak Skor Tablosu Yöneticisi
+├── vendor/                     # Çevrimdışı Çalışan Kütüphaneler (PixiJS, GSAP, Howler, Chart.js, Lucide, Panzoom)
+└── assets/                     # Derlenmiş CC0 PNG Gemi/Düşman/Boss/Efekt Sprite'ları, Backdrops & OGG Sesler
 ```
 
 ---
 
-## 📄 Lisans & İletişim
+## Yerelde Çalıştırma & Dağıtım
 
-- ☕ **Destek:** [**https://buymeacoffee.com/haking**](https://buymeacoffee.com/haking)
-- 🌐 **Web:** [**https://cosmic.haking.tr/**](https://cosmic.haking.tr/)
-- 📩 **E-Posta:** [**cosmic@haking.tr**](mailto:cosmic@haking.tr)
-- **Telif Hakkı © 2026 Halit Güneş (HaKING) — MIT Lisansı.**
+Statik dosyalar herhangi bir modern HTTP sunucusuyla doğrudan servis edilebilir (örn. `npx http-server`, `python -m http.server` veya Node statik sunucu):
+
+```bash
+git clone https://github.com/HaKING06/COSMIC.git
+cd COSMIC
+npx http-server -p 8080
+```
+
+Tarayıcıda `http://127.0.0.1:8080` adresini açarak doğrudan Hangar'a girebilirsiniz. Paketlenmiş tüm ön yüz kütüphaneleri `vendor/` dizininde yer aldığı için harici CDN kesintilerinden etkilenmez.
+
+---
+
+## Kontroller
+
+| Giriş | Aksiyon |
+| :--- | :--- |
+| `W A S D` / Yön Tuşları | Gemi Yönlendirme |
+| **Fare İmleci** / `[Q]` | Twin-Stick Manuel Nişan ⇄ Otomatik Hedef Kilidi |
+| `SPACE` | Gemiye Özel Aktif Yetenek |
+| `1` / `2` / `3` | Seviye Atlama Kartını Seçme (Atomik Tek Seçim) |
+| `ESC` | Duraklatma, VFX Göz Dostu Modu & Ses Ayarları |
+
+---
+
+## İletişim, Destek & Lisans
+
+- **Canlı Portal:** [cosmic.haking.tr](https://cosmic.haking.tr/)
+- **Geliştirici:** Halit Güneş (`HaKING`)
+- **Resmi E-Posta:** [cosmic@haking.tr](mailto:cosmic@haking.tr)
+- **GitHub Deposu:** [github.com/HaKING06/COSMIC](https://github.com/HaKING06/COSMIC)
+- **Projeyi Destekle:** [buymeacoffee.com/haking](https://buymeacoffee.com/haking)
+- **Varlık Teşekkürü:** Uzay gemisi/efekt sprite'ları ve ses efektleri **Kenney.nl (CC0 1.0)** paketlerinden derlenmiştir.
+- **Lisans:** [MIT License](LICENSE)

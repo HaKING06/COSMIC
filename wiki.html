@@ -1,690 +1,256 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COSMIC SURVIVORS // Kozmik Veri Tabanı &amp; Strateji Rehberi (v8.0)</title>
+    <title>COSMIC SURVIVORS v9.0 — Taktik Ansiklopedi &amp; Sentez Simülatörü</title>
+    <meta name="description" content="53 modül veritabanı, gemi ve sektör sinerji matrisi, Chart.js DPS sıralaması, Boss istihbaratı ve Sentez Simülatörü.">
+    <meta name="theme-color" content="#070b12">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="css/core.css">
     <link rel="stylesheet" href="css/wiki.css">
-    <meta name="description"
-        content="COSMIC SURVIVORS — 40+ Silah, Alet, Evrim ve Mega Evrim Veritabanı, Harita Sinerji Matrisi, Boss İstihbaratı ve Hasar Hesaplayıcı." />
-    <meta name="author" content="Halit Güneş (HaKING)" />
-    <meta name="theme-color" content="#00f0ff" />
-    <link rel="canonical" href="https://cosmic.haking.tr/wiki.html" />
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
-    <link rel="shortcut icon" href="assets/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
-    <link rel="manifest" href="manifest.webmanifest" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Cosmic Survivors" />
-    <meta property="og:title" content="COSMIC SURVIVORS — Kozmik Veri Tabanı &amp; Strateji Rehberi (v8.0)" />
-    <meta property="og:description"
-        content="8 Gemi, 4 Sektör Haritası, S+ Meta Dizilimler, Boss Zayıf Noktaları ve Gerçek Zamanlı DPS Hesaplayıcı." />
-    <meta property="og:url" content="https://cosmic.haking.tr/wiki.html" />
-    <meta property="og:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://cosmic.haking.tr/assets/og-banner.png" />
 </head>
-
-<body class="page-scroll">
-
-    <!-- UNIFIED TOP NAVIGATION BAR -->
+<body>
     <header class="cosmic-topbar">
-        <div class="topbar-left">
-            <a href="index.html" class="brand-logo">
-                <img src="assets/icon-192.png" alt="Cosmic Survivors" class="brand-logo" />
-                <div class="brand-text">
-                    <span class="brand-title">COSMIC SURVIVORS</span>
-                    <span class="brand-sub">KOZMİK VERİ TABANI &amp; STRATEJİ REHBERİ // v8.0</span>
-                </div>
-            </a>
-            <div class="topbar-status">
-                <span class="status-dot"></span>
-                <span>ANSİKLOPEDİ &amp; TELEMETRİ SİSTEMİ AKTİF</span>
+        <a href="index.html" class="topbar-brand">
+            <img src="assets/favicon-64.png" alt="Cosmic Survivors Logo" class="topbar-logo-img">
+            <div class="topbar-title-wrap">
+                <span class="topbar-title">COSMIC SURVIVORS</span>
+                <span class="topbar-version">V9.0 TACTICAL ENCYCLOPEDIA</span>
             </div>
-        </div>
+        </a>
 
-        <nav class="topbar-nav">
-            <a href="index.html" class="nav-link"><span class="nav-icon">🛸</span> ANA HANGAR</a>
-            <a href="game.html" class="nav-link"><span class="nav-icon">⚔️</span> SAVAŞA GİR</a>
-            <a href="tree.html" class="nav-link"><span class="nav-icon">🧬</span> EVRİM AĞACI</a>
-            <a href="wiki.html" class="nav-link active"><span class="nav-icon">📖</span> KOZMİK WİKİ</a>
-            <a href="about.html" class="nav-link"><span class="nav-icon">🏢</span> HAKKINDA</a>
+        <nav class="topbar-nav" aria-label="Ana Sayfalar">
+            <a href="index.html" class="topbar-link">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Hangar</span>
+            </a>
+            <a href="tree.html" class="topbar-link">
+                <i data-lucide="git-branch"></i>
+                <span>Evrim Ağacı</span>
+            </a>
+            <a href="wiki.html" class="topbar-link active">
+                <i data-lucide="book-open"></i>
+                <span>Ansiklopedi</span>
+            </a>
+            <a href="about.html" class="topbar-link">
+                <i data-lucide="info"></i>
+                <span>Hakkında</span>
+            </a>
         </nav>
 
-        <div class="topbar-right">
-            <div class="credit-pill" title="Mevcut Kozmik Kredi Bakiyesi">
-                <span class="credit-gem">💎</span>
-                <div>
-                    <span class="credit-label">KREDİ</span>
-                    <span class="credit-amount" id="topCreditAmount">0</span>
-                </div>
+        <div class="topbar-actions">
+            <div class="credits-pill" title="Araştırma Kredisi">
+                <i data-lucide="coins"></i>
+                <span id="creditsDisplay">0</span>
+                <span class="hide-mobile">CRD</span>
             </div>
+            <button type="button" id="audioToggleBtn" class="audio-toggle-btn" aria-label="Ses Aç/Kapat">
+                <i data-lucide="volume-2" id="audioToggleIcon"></i>
+                <span class="hide-mobile" id="audioToggleLabel">Ses Açık</span>
+            </button>
         </div>
     </header>
 
-    <!-- MAIN WIKI CONTAINER -->
-    <main class="wiki-shell">
-
-        <!-- HERO BANNER -->
+    <main class="wiki-container">
         <section class="wiki-hero">
-            <div class="wiki-hero-left">
-                <span class="wiki-kicker">// TAKTİKSEL İSTİHBARAT ARŞİVİ — SÜRÜM 8.0</span>
-                <h1 class="wiki-title">KOZMİK VERİ TABANI &amp; STRATEJİ REHBERİ</h1>
-                <p class="wiki-subtitle">
-                    Tüm silah, pasif alet, Aşama 3 evrim ve Aşama 4 mega sentez verilerini filtreleyin; 4 Harita × 8
-                    Gemi sinerji matrisini inceleyin; 5 Boss zayıf nokta dosyasını ve canlı DPS/Zırh matematik
-                    hesaplayıcısını kullanın.
+            <div>
+                <h1 class="wiki-hero-title">Taktik Ansiklopedi &amp; Sentez Simülatörü</h1>
+                <p class="wiki-hero-sub">
+                    Cosmic Survivors v9.0 için tüm 53 savaş modülü, gemi-sektör sinerjileri, Boss Öfke Fazı II taktikleri ve etkileşimli DPS analizi.
                 </p>
             </div>
-            <div class="wiki-hero-stats">
-                <div class="wiki-stat-chip">
-                    <span class="wiki-stat-val">8</span>
-                    <span class="wiki-stat-lbl">GEMİ SINIFI</span>
-                </div>
-                <div class="wiki-stat-chip">
-                    <span class="wiki-stat-val">40</span>
-                    <span class="wiki-stat-lbl">SİLAH &amp; SENTEZ</span>
-                </div>
-                <div class="wiki-stat-chip">
-                    <span class="wiki-stat-val">4</span>
-                    <span class="wiki-stat-lbl">SEKTÖR HARİTASI</span>
-                </div>
-                <div class="wiki-stat-chip">
-                    <span class="wiki-stat-val">5</span>
-                    <span class="wiki-stat-lbl">KIYAMET BOSS'U</span>
-                </div>
-            </div>
+            <a href="tree.html" class="cs-btn cs-btn-primary">
+                <i data-lucide="git-branch"></i>
+                <span>Evrim Laboratuvarına Git</span>
+            </a>
         </section>
 
-        <!-- 5-TAB NAVIGATION -->
-        <nav class="wiki-tabs-nav" aria-label="Kozmik Wiki Sekmeleri">
-            <button type="button" class="wiki-tab-btn active" data-tab="tab-database">
-                <span class="wiki-tab-icon">🗄️</span>
-                <div class="wiki-tab-label">
-                    <span class="wiki-tab-num">SEKME 01</span>
-                    <span>SİLAH, ALET &amp; EVRİM VERİTABANI</span>
-                </div>
+        <!-- 5 Navigation Tabs -->
+        <nav class="wiki-tabbar" role="tablist" aria-label="Ansiklopedi Bölümleri">
+            <button type="button" class="wiki-tab-btn active" data-tab="tab-database" role="tab">
+                <i data-lucide="database"></i>
+                <span>Veritabanı (53 Modül)</span>
             </button>
-            <button type="button" class="wiki-tab-btn" data-tab="tab-synergy">
-                <span class="wiki-tab-icon">🗺️</span>
-                <div class="wiki-tab-label">
-                    <span class="wiki-tab-num">SEKME 02</span>
-                    <span>HARİTA × 8 GEMİ SİNERJİ MATRİSİ</span>
-                </div>
+            <button type="button" class="wiki-tab-btn" data-tab="tab-synergy" role="tab">
+                <i data-lucide="layers"></i>
+                <span>Sektör &amp; Gemi Sinerjisi</span>
             </button>
-            <button type="button" class="wiki-tab-btn" data-tab="tab-meta">
-                <span class="wiki-tab-icon">🏆</span>
-                <div class="wiki-tab-label">
-                    <span class="wiki-tab-num">SEKME 03</span>
-                    <span>META BUILD &amp; DALGA REHBERİ</span>
-                </div>
+            <button type="button" class="wiki-tab-btn" data-tab="tab-meta" role="tab">
+                <i data-lucide="bar-chart-2"></i>
+                <span>Meta Kombolar &amp; DPS Grafiği</span>
             </button>
-            <button type="button" class="wiki-tab-btn" data-tab="tab-bestiary">
-                <span class="wiki-tab-icon">👾</span>
-                <div class="wiki-tab-label">
-                    <span class="wiki-tab-num">SEKME 04</span>
-                    <span>DÜŞMAN &amp; 5 BOSS ANSİKLOPEDİSİ</span>
-                </div>
+            <button type="button" class="wiki-tab-btn" data-tab="tab-bestiary" role="tab">
+                <i data-lucide="skull"></i>
+                <span>Düşman &amp; Boss Rehberi</span>
             </button>
-            <button type="button" class="wiki-tab-btn" data-tab="tab-calculator">
-                <span class="wiki-tab-icon">🧮</span>
-                <div class="wiki-tab-label">
-                    <span class="wiki-tab-num">SEKME 05</span>
-                    <span>HASAR &amp; EVRİM HESAPLAYICISI</span>
-                </div>
+            <button type="button" class="wiki-tab-btn" data-tab="tab-calculator" role="tab">
+                <i data-lucide="sliders"></i>
+                <span>Sentez Simülatörü</span>
             </button>
         </nav>
 
-        <!-- ===================================================================
-             TAB 1: TÜM SİLAH, ALET & EVRİM VERİTABANI
-             =================================================================== -->
-        <section class="wiki-tab-pane active" id="tab-database">
-            <div class="pro-toolbar">
-                <div class="pro-toolbar-left">
-                    <div class="pro-search-box">
-                        <span class="search-icon">🔍</span>
-                        <input type="text" id="wikiDbSearchInput" class="pro-search-input"
-                            placeholder="Silah, pasif alet, evrim tarifi veya gemi adı ara...">
-                    </div>
-                    <div class="filter-pill-group" id="wikiDbFilterPills">
-                        <button type="button" class="filter-pill active" data-cat="all">🌐 Tümü (40)</button>
-                        <button type="button" class="filter-pill" data-cat="sig-weapon">🛸 İmza Silahları (8)</button>
-                        <button type="button" class="filter-pill" data-cat="weapon">🔫 Genel Silahlar (4)</button>
-                        <button type="button" class="filter-pill" data-cat="trinket">💍 Pasif Aletler (12)</button>
-                        <button type="button" class="filter-pill" data-cat="evolution">★ Evrimler (12)</button>
-                        <button type="button" class="filter-pill" data-cat="mega">✦ Mega Sentezler (4)</button>
-                    </div>
+        <!-- TAB 1: MODULE DATABASE -->
+        <section id="tab-database" class="wiki-panel active">
+            <div class="wiki-filter-bar">
+                <div class="filter-pills" id="wikiCategoryPills">
+                    <button type="button" class="filter-pill active" data-cat="all">Tümü (53)</button>
+                    <button type="button" class="filter-pill" data-cat="weapon">Silahlar (14)</button>
+                    <button type="button" class="filter-pill" data-cat="trinket">Destek Modülleri (14)</button>
+                    <button type="button" class="filter-pill" data-cat="evolution">Evrimler (19)</button>
+                    <button type="button" class="filter-pill" data-cat="superEvolution">Mega Evrimler (6)</button>
                 </div>
 
-                <div class="pro-toolbar-right">
-                    <select id="wikiDbSortSelect" class="pro-sort-select" aria-label="Sıralama Ölçütü">
-                        <option value="tier-desc">Sırala: Tier (S+ → A)</option>
-                        <option value="dps-desc">Sırala: Güç / DPS (Yüksek → Düşük)</option>
-                        <option value="cd-asc">Sırala: Dolum Hızı (En Hızlı)</option>
-                        <option value="name-asc">Sırala: İsim (A → Z)</option>
-                    </select>
-                    <div class="view-mode-toggle">
-                        <button type="button" class="view-btn active" id="btnWikiViewTable" title="Tablo Görünümü">☰
-                            Tablo</button>
-                        <button type="button" class="view-btn" id="btnWikiViewGrid" title="Kart Izgarası Görünümü">⊞
-                            Kartlar</button>
-                    </div>
+                <div class="search-wrap">
+                    <i data-lucide="search"></i>
+                    <input type="search" id="wikiSearchInput" class="cs-input" placeholder="Modül, gemi veya mekanik ara...">
                 </div>
             </div>
 
-            <div class="wiki-panel">
-                <div class="db-results-bar">
-                    <span id="wikiDbResultCount">40 / 40 KAYIT LİSTELENİYOR</span>
-                    <span>💡 İpucu: Herhangi bir silahın sağındaki <strong>"🧮 Hesapla"</strong> butonuna tıklayarak
-                        matematik simülatörüne aktarabilirsiniz.</span>
+            <div id="wikiModuleGrid" class="wiki-module-grid"></div>
+        </section>
+
+        <!-- TAB 2: SECTOR & SHIP SYNERGY -->
+        <section id="tab-synergy" class="wiki-panel">
+            <div class="synergy-table-card">
+                <table class="synergy-table">
+                    <thead>
+                        <tr>
+                            <th>Gemi</th>
+                            <th>Başlangıç</th>
+                            <th>İmza Kök Sentezi</th>
+                            <th>Mega Hedef</th>
+                            <th>İdeal Sektörler</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="synergyTableBody"></tbody>
+                </table>
+            </div>
+
+            <div id="synergySectorCards" class="wiki-module-grid"></div>
+        </section>
+
+        <!-- TAB 3: META COMBOS & CHART.JS DPS CHART -->
+        <section id="tab-meta" class="wiki-panel">
+            <div class="meta-layout">
+                <div class="meta-chart-card">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+                        <div>
+                            <h2 style="font-size:18px;">Evrim &amp; Mega DPS Karşılaştırması</h2>
+                            <p style="font-size:13px;margin:0.15rem 0 0;">Tek hedef + alan sürdürülebilir DPS kıyaslaması.</p>
+                        </div>
+                        <div class="filter-pills" id="chartFilterPills">
+                            <button type="button" class="filter-pill active" data-chart-mode="mixed">Tümü (Üst 12)</button>
+                            <button type="button" class="filter-pill" data-chart-mode="evo">Evrimler</button>
+                            <button type="button" class="filter-pill" data-chart-mode="mega">Mega Evrimler</button>
+                        </div>
+                    </div>
+
+                    <div class="meta-chart-canvas-wrap">
+                        <canvas id="metaDpsChartCanvas"></canvas>
+                    </div>
                 </div>
 
-                <div class="pro-table-wrap" id="wikiDbTableWrap">
-                    <table class="pro-table">
-                        <thead>
-                            <tr>
-                                <th>Donanım / Sistem Adı</th>
-                                <th>Kategori</th>
-                                <th>Tier</th>
-                                <th>Güç Endeksi &amp; Hasar</th>
-                                <th>Dolum (CD)</th>
-                                <th>Sentez Tarifi &amp; Mekanik Açıklama</th>
-                                <th>İşlem</th>
-                            </tr>
-                        </thead>
-                        <tbody id="wikiDbTableBody">
-                            <!-- Populated dynamically by js/wiki.js -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="pro-card-grid" id="wikiDbGridContainer">
-                    <!-- Populated dynamically by js/wiki.js when Grid mode is active -->
-                </div>
+                <div id="metaCombosList" class="meta-combos-stack"></div>
             </div>
         </section>
 
-        <!-- ===================================================================
-             TAB 2: HARİTA × 8 GEMİ SİNERJİ MATRİSİ
-             =================================================================== -->
-        <section class="wiki-tab-pane" id="tab-synergy">
-            <div class="wiki-panel">
-                <div class="wiki-sec-header">
-                    <div>
-                        <h2 class="wiki-sec-title"><span>🌌</span> 4 SEKTÖR HARİTASI &amp; ANOMALİ ÖZETİ</h2>
-                        <p class="wiki-sec-desc">Her sektör farklı çevresel tehlikeler, kalkan/CDR modifikasyonları ve
-                            kredi çarpanları sunar.</p>
+        <!-- TAB 4: ENEMY & BOSS GUIDE -->
+        <section id="tab-bestiary" class="wiki-panel">
+            <div class="bestiary-banner">
+                <img src="assets/boss-banner.png" alt="Kozmik Boss Uyarısı">
+                <div class="bestiary-banner-content">
+                    <span class="cs-badge cs-badge-coral font-mono" style="margin-bottom:0.4rem;">TAKTİK BRİFİNG</span>
+                    <h2 style="font-size:21px;">Boss Fazları &amp; Dalga 25+ Kozmik Çürüme</h2>
+                    <p style="font-size:13.5px;max-width:740px;margin:0.25rem 0 0;">
+                        Her 5. dalgada bir Ana Boss sahneye çıkar. Boss canı %50 altına indiğinde <strong>Öfke Fazı II (+%32 hız ve çift salvo)</strong> aktif olur. Dalga 25’ten itibaren Kozmik Çürüme kalkan ve şifa verimliliğini kademeli olarak %15 tabanına kadar düşürür.
+                    </p>
+                </div>
+            </div>
+
+            <h2 style="font-size:19px;">5 Ana Kozmik Boss</h2>
+            <div id="bestiaryBossGrid" class="bestiary-grid"></div>
+
+            <h2 style="font-size:19px;margin-top:0.5rem;">8 Sürü Arketipi</h2>
+            <div id="bestiaryEnemyGrid" class="bestiary-grid"></div>
+        </section>
+
+        <!-- TAB 5: SYNTHESIS SIMULATOR & LIVE CALCULATOR -->
+        <section id="tab-calculator" class="wiki-panel">
+            <div class="simulator-grid">
+                <!-- Left: Weapon + Trinket Synthesis Builder -->
+                <div class="sim-panel">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+                        <h2 style="font-size:18px;">Sentez Eşleştirici (X + Y = Z)</h2>
+                        <button type="button" id="simAutoPairBtn" class="cs-btn cs-btn-ghost" style="padding:0.38rem 0.72rem;font-size:12.5px;">
+                            <i data-lucide="wand-2"></i>
+                            <span>Uyumlu Çift Bul</span>
+                        </button>
                     </div>
+
+                    <div class="sim-form-group">
+                        <label for="simWeaponSelect" class="sim-form-label">Silah Modülü (Lv.5)</label>
+                        <select id="simWeaponSelect" class="cs-select"></select>
+                    </div>
+
+                    <div class="sim-form-group">
+                        <label for="simTrinketSelect" class="sim-form-label">Destek Modülü / Trinket (Lv.5)</label>
+                        <select id="simTrinketSelect" class="cs-select"></select>
+                    </div>
+
+                    <div id="simSynthOutput" class="sim-result-box"></div>
                 </div>
 
-                <div class="sector-cards-grid" id="wikiSectorCardsGrid">
-                    <!-- Populated by js/wiki.js -->
-                </div>
-
-                <div class="wiki-sec-header">
-                    <div>
-                        <h2 class="wiki-sec-title"><span>🛸</span> 4 HARİTA × 8 GEMİ TAKTİKSEL SİNERJİ MATRİSİ</h2>
-                        <p class="wiki-sec-desc">Hangi gemi sınıfının hangi sektörde maksimum verimle çalıştığını
-                            inceleyin ve rol bazlı filtreleyin.</p>
+                <!-- Right: Live Stat, Armor & Cosmic Decay Simulator -->
+                <div class="sim-panel">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+                        <h2 style="font-size:18px;">Savaş Telemetrisi &amp; Kozmik Çürüme</h2>
+                        <span class="cs-badge cs-badge-sky font-mono">ATÖLYE SENKRON</span>
                     </div>
-                    <div class="filter-pill-group" id="synergyRolePills">
-                        <button type="button" class="filter-pill active" data-role="all">Tüm 8 Gemi</button>
-                        <button type="button" class="filter-pill" data-role="dengeli">Dengeli</button>
-                        <button type="button" class="filter-pill" data-role="tank">Tank / Zırh</button>
-                        <button type="button" class="filter-pill" data-role="suikast">Suikast / Boss</button>
-                        <button type="button" class="filter-pill" data-role="alan">Alan (AoE)</button>
-                        <button type="button" class="filter-pill" data-role="kontrol">Kontrol / Zaman</button>
-                        <button type="button" class="filter-pill" data-role="hiz">Hız / Ekonomi</button>
-                    </div>
-                </div>
 
-                <div class="pro-table-wrap">
-                    <table class="pro-table synergy-matrix-table">
-                        <thead>
-                            <tr>
-                                <th>Gemi Sınıfı &amp; Kök Perk</th>
-                                <th>1. Sektör 9 Enkazı (x1.0)</th>
-                                <th>2. Kuantum Nebulası (x1.25)</th>
-                                <th>3. Kara Delik Çevresi (x1.50)</th>
-                                <th>4. Dyson Mega-Küre (x1.75)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="synergyMatrixBody">
-                            <!-- Populated by js/wiki.js -->
-                        </tbody>
-                    </table>
+                    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.75rem;">
+                        <div class="sim-form-group">
+                            <label for="simShipSelect" class="sim-form-label">Yıldız Gemisi</label>
+                            <select id="simShipSelect" class="cs-select"></select>
+                        </div>
+                        <div class="sim-form-group">
+                            <label for="simDiffSelect" class="sim-form-label">Zorluk Modu</label>
+                            <select id="simDiffSelect" class="cs-select"></select>
+                        </div>
+                    </div>
+
+                    <div class="sim-form-group">
+                        <div style="display:flex;justify-content:space-between;font-size:12.5px;">
+                            <span class="sim-form-label">Simüle Edilen Dalga</span>
+                            <strong id="simWaveLabel" class="font-mono" style="color:var(--accent-sky);">Dalga 25</strong>
+                        </div>
+                        <input type="range" id="simWaveSlider" min="1" max="50" value="25">
+                    </div>
+
+                    <div class="sim-kpi-row" id="simLiveKpis"></div>
+
+                    <div id="simDecayNotes" class="sim-result-box" style="font-size:13px;color:var(--text-secondary);"></div>
                 </div>
             </div>
         </section>
-
-        <!-- ===================================================================
-             TAB 3: META BUILD & DALGA ZAMANLAMA REHBERİ
-             =================================================================== -->
-        <section class="wiki-tab-pane" id="tab-meta">
-            <div class="wiki-panel">
-                <div class="wiki-sec-header">
-                    <div>
-                        <h2 class="wiki-sec-title"><span>🏆</span> 8 GEMİ İÇİN S+ TIER META BUILD REÇETELERİ</h2>
-                        <p class="wiki-sec-desc">Dalga 25+ Kozmik Çürüme safhasını ve 5 Boss kuşatmasını aşmak için test
-                            edilmiş en güçlü kombinasyonlar.</p>
-                    </div>
-                </div>
-
-                <div class="meta-builds-grid">
-                    <!-- 1. Vortex -->
-                    <article class="meta-build-card" style="--build-color:#00f3ff;">
-                        <div class="meta-build-top">
-                            <div>
-                                <div class="meta-build-ship">VORTEX INTERCEPTOR // HİPER-ATEŞ</div>
-                                <h3 class="meta-build-title">Omega Tekillik Fırtınası</h3>
-                            </div>
-                            <span class="badge tier-s">S+ META</span>
-                        </div>
-                        <p class="wiki-sec-desc">Yüksek atış hızını CDR ile birleştirerek ekranı mavi plazma sağanağıyla
-                            kaplar; yeni başlayanlar ve Dyson hız koşuları için bir numaralı tercihtir.</p>
-                        <div class="meta-loadout-row">
-                            <span class="meta-slot-chip">🔫 Plazma Topu</span>
-                            <span class="meta-slot-chip">🔮 Kuantum Küreleri</span>
-                            <span class="meta-slot-chip">⏩ Kuantum Hızlandırıcı</span>
-                            <span class="meta-slot-chip">🧲 Manyetik Çekim</span>
-                            <span class="meta-slot-chip evo">★ Hiper Plazma Taret</span>
-                            <span class="meta-slot-chip mega">✦ Omega Tekillik Matrisi</span>
-                        </div>
-                    </article>
-
-                    <!-- 2. Dreadnought -->
-                    <article class="meta-build-card" style="--build-color:#f1c40f;">
-                        <div class="meta-build-top">
-                            <div>
-                                <div class="meta-build-ship">TITAN DREADNOUGHT // KALE YIKICI</div>
-                                <h3 class="meta-build-title">Ragnarok Zırhlı Bataryası</h3>
-                            </div>
-                            <span class="badge tier-s">S+ META</span>
-                        </div>
-                        <p class="wiki-sec-desc">Kara Delik Çevresi ve Dyson Sektörü için ölümsüz tank kurulumu. Tek
-                            çizgide dizilen düşmanları ve Boss kalkanlarını tek vuruşta deler.</p>
-                        <div class="meta-loadout-row">
-                            <span class="meta-slot-chip">⚡ Manyetik Railgun</span>
-                            <span class="meta-slot-chip">☀️ Güneş Mızrağı</span>
-                            <span class="meta-slot-chip">🗡️ Zırh Delici Çekirdek</span>
-                            <span class="meta-slot-chip">🔥 Füzyon Kalbi</span>
-                            <span class="meta-slot-chip evo">★ Gauss Kıyamet Topu</span>
-                            <span class="meta-slot-chip mega">✦ Ragnarok Yıldız Yıkıcısı</span>
-                        </div>
-                    </article>
-
-                    <!-- 3. Aegis -->
-                    <article class="meta-build-card" style="--build-color:#38bdf8;">
-                        <div class="meta-build-top">
-                            <div>
-                                <div class="meta-build-ship">AEGIS SENTINEL // KALKAN &amp; ARK</div>
-                                <h3 class="meta-build-title">Fırtına Kalkanı Rezonansı</h3>
-                            </div>
-                            <span class="badge tier-s">S TIER</span>
-                        </div>
-                        <p class="wiki-sec-desc">Verdiği yıldırım hasarıyla kendi kalkanını sürekli yeniler. Sürü
-                            İmparatoriçesi (Hive-Queen) yavrularını saniyeler içinde buharlaştırır.</p>
-                        <div class="meta-loadout-row">
-                            <span class="meta-slot-chip">🌩️ Tesla Bobini</span>
-                            <span class="meta-slot-chip">🛸 Otonom Dronlar</span>
-                            <span class="meta-slot-chip">🔋 Paratoner Çekirdeği</span>
-                            <span class="meta-slot-chip">🧠 Nöral Komuta Çipi</span>
-                            <span class="meta-slot-chip evo">★ Fırtına Hükümdarı</span>
-                            <span class="meta-slot-chip mega">✦ Semavi Astraea Donanması</span>
-                        </div>
-                    </article>
-
-                    <!-- 4. Phantom -->
-                    <article class="meta-build-card" style="--build-color:#ff00ea;">
-                        <div class="meta-build-top">
-                            <div>
-                                <div class="meta-build-ship">PHANTOM ECLIPSE // BOSS SUİKASTÇISI</div>
-                                <h3 class="meta-build-title">Kızıl Hiçlik Hasatçısı</h3>
-                            </div>
-                            <span class="badge tier-s">S+ META</span>
-                        </div>
-                        <p class="wiki-sec-desc">%100 Kritik Şans ve Arka Reaktör x1.50 çarpanıyla tüm 5 Boss'u 8
-                            saniyenin altında eriten yüksek beceri tavanlı suikast kurulumu.</p>
-                        <div class="meta-loadout-row">
-                            <span class="meta-slot-chip">🌙 Hiper Tırpan</span>
-                            <span class="meta-slot-chip">🧨 Şarapnel Flak Topu</span>
-                            <span class="meta-slot-chip">🎯 Karanlık Madde Merceği</span>
-                            <span class="meta-slot-chip">🧰 Yüksek Patlayıcı Şarjör</span>
-                            <span class="meta-slot-chip evo">★ Ölüm Hasatçısı</span>
-                            <span class="meta-slot-chip mega">✦ Hiçlik İmparatoru</span>
-                        </div>
-                    </article>
-
-                    <!-- 5. Solaris -->
-                    <article class="meta-build-card" style="--build-color:#ff7b00;">
-                        <div class="meta-build-top">
-                            <div>
-                                <div class="meta-build-ship">SOLARIS PRIME // TERMAL KIYAMET</div>
-                                <h3 class="meta-build-title">Süpernova Korona Yargıcı</h3>
-                            </div>
-                            <span class="badge tier-s">S+ META</span>
-                        </div>
-                        <p class="wiki-sec-desc">Savaş alanını kalıcı güneş plazmasıyla kaplar. Zırh eritme etkisi
-                            sayesinde Dalga 25 sonrası yüksek zırhlı elitleri eritir.</p>
-                        <div class="meta-loadout-row">
-                            <span class="meta-slot-chip">☀️ Güneş Mızrağı</span>
-                            <span class="meta-slot-chip">💥 Nova Halkası</span>
-                            <span class="meta-slot-chip">🔥 Füzyon Kalbi</span>
-                            <span class="meta-slot-chip">📢 Rezonans Amplifikatörü</span>
-                            <span class="meta-slot-chip evo">★ Süpernova Yargıcı</span>
-                            <span class="meta-slot-chip mega">✦ Ragnarok Yıldız Yıkıcısı</span>
-                        </div>
-                    </article>
-
-                    <!-- 6. Chronos -->
-                    <article class="meta-build-card" style="--build-color:#a855f7;">
-                        <div class="meta-build-top">
-                            <div>
-                                <div class="meta-build-ship">CHRONOS WEAVER // ZAMAN HÜKÜMDARI</div>
-                                <h3 class="meta-build-title">Sonsuzluk Paradoksu Kontrolü</h3>
-                            </div>
-                            <span class="badge tier-s">S+ META</span>
-                        </div>
-                        <p class="wiki-sec-desc">Düşmanları ve Boss'ları zamanda dondurup yankı hasarıyla patlatır.
-                            Dalga 30+ dünya rekoru denemeleri için en güvenli kurulumdur.</p>
-                        <div class="meta-loadout-row">
-                            <span class="meta-slot-chip">⏳ Zaman Yarığı Işını</span>
-                            <span class="meta-slot-chip">🔫 Plazma Topu</span>
-                            <span class="meta-slot-chip">💎 Takyon Kristali</span>
-                            <span class="meta-slot-chip">⏩ Kuantum Hızlandırıcı</span>
-                            <span class="meta-slot-chip evo">★ Sonsuzluk Paradoksu</span>
-                            <span class="meta-slot-chip mega">✦ Omega Tekillik Matrisi</span>
-                        </div>
-                    </article>
-                </div>
-            </div>
-
-            <!-- WAVE TIMING GUIDE -->
-            <div class="wiki-panel">
-                <div class="wiki-sec-header">
-                    <div>
-                        <h2 class="wiki-sec-title"><span>⏱️</span> DALGA ZAMANLAMA &amp; KOZMİK ÇÜRÜME STRATEJİ REHBERİ
-                        </h2>
-                        <p class="wiki-sec-desc">Dalga 1'den Dalga 30+ Sonsuzluk Safhasına kadar adım adım hayatta kalma
-                            protokolü.</p>
-                    </div>
-                </div>
-
-                <div class="wave-timeline-grid">
-                    <div class="wave-phase-card" style="--phase-color:#00f3ff;">
-                        <span class="wave-phase-range">DALGA 01 – 04 // ERKEN EKONOMİ</span>
-                        <h3 class="wave-phase-title">1. Çekirdek Silah &amp; XP Hasadı</h3>
-                        <ul class="wave-phase-list">
-                            <li>Silah slotlarınızı rastgele doldurmak yerine <strong>Gemi İmza Silahınızı</strong>
-                                Seviye 5'e yükseltmeye odaklanın.</li>
-                            <li>En az 1 uyumlu Pasif Alet (Trinket) alarak Dalga 5 Boss sandığına hazır girin.</li>
-                        </ul>
-                    </div>
-
-                    <div class="wave-phase-card" style="--phase-color:#2ecc71;">
-                        <span class="wave-phase-range">DALGA 05 – 10 // İLK EVRİM PENCERESİ</span>
-                        <h3 class="wave-phase-title">2. Oblivion Behemoth &amp; Aşama 3 Sentez</h3>
-                        <ul class="wave-phase-list">
-                            <li>Dalga 5'te <strong>Oblivion Behemoth</strong> sahaya iner. Hücumundan sonra arkasına
-                                Dash atarak x1.50 zayıf nokta hasarı vurun.</li>
-                            <li>Düşen Kozmik Sandık ile ilk <strong>★ Aşama 3 Evrim</strong> silahınızı tamamlayın.</li>
-                        </ul>
-                    </div>
-
-                    <div class="wave-phase-card" style="--phase-color:#f1c40f;">
-                        <span class="wave-phase-range">DALGA 11 – 19 // SÜRÜ YOĞUNLAŞMASI</span>
-                        <h3 class="wave-phase-title">3. Çifte Evrim &amp; Elit Kuşatma</h3>
-                        <ul class="wave-phase-list">
-                            <li>Mitotik Bölünücüler ve Golyat Tankları ekranı daraltır. İkinci bir Aşama 3 Evrim (AoE
-                                veya Kontrol odaklı) şarttır.</li>
-                            <li>Mini-Boss Kuluçka Analarını (Brood Queen) öncelikli avlayarak ekstra sandık toplayın.
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="wave-phase-card" style="--phase-color:#ff00ea;">
-                        <span class="wave-phase-range">DALGA 20 – 24 // MEGA SENTEZ HAZIRLIĞI</span>
-                        <h3 class="wave-phase-title">4. Aşama 4 Mega Birleşim</h3>
-                        <ul class="wave-phase-list">
-                            <li>Uyumlu iki ★ Aşama 3 Evrim silahınızı birleştirerek <strong>✦ Aşama 4 Mega
-                                    Sentez</strong> silahınızı açın.</li>
-                            <li>Birleşim sonrası boşalan silah slotunuza yeni bir destek silahı (Nova veya Zaman Işını)
-                                ekleyin.</li>
-                        </ul>
-                    </div>
-
-                    <div class="wave-phase-card" style="--phase-color:#ff2a5f;">
-                        <span class="wave-phase-range">DALGA 25+ // KOZMİK ÇÜRÜME (0.96^(W-24))</span>
-                        <h3 class="wave-phase-title">5. Dyson Seraph &amp; Sonsuz Safha</h3>
-                        <ul class="wave-phase-list">
-                            <li>Dalga 25'ten itibaren her dalgada oyuncu etkinliği <code>0.96^(Dalga-24)</code> oranında
-                                aşınır.</li>
-                            <li>Saf hasar yerine <strong>Yüzdelik Zırh Eritme, Zaman Dondurma ve Arka Reaktör Kritik
-                                    Vuruşları</strong> kullanarak hayatta kalın!</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===================================================================
-             TAB 4: DÜŞMAN & 5 BOSS ZAYIF NOKTA ANSİKLOPEDİSİ
-             =================================================================== -->
-        <section class="wiki-tab-pane" id="tab-bestiary">
-            <div class="pro-toolbar">
-                <div class="pro-toolbar-left">
-                    <div class="pro-search-box">
-                        <span class="search-icon">🔍</span>
-                        <input type="text" id="bestiarySearchInput" class="pro-search-input"
-                            placeholder="Boss adı, zayıf nokta, düşman sınıfı veya karşıt taktik ara...">
-                    </div>
-                    <div class="filter-pill-group" id="bestiaryFilterPills">
-                        <button type="button" class="filter-pill active" data-filter="all">🌐 Tüm Tehditler
-                            (13)</button>
-                        <button type="button" class="filter-pill" data-filter="boss">💀 5 Kıyamet Boss'u</button>
-                        <button type="button" class="filter-pill" data-filter="elite">🛡️ Elit Birimler (4)</button>
-                        <button type="button" class="filter-pill" data-filter="swarm">👾 Sürü Birimleri (4)</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="wiki-panel" id="bestiaryBossSection">
-                <div class="wiki-sec-header">
-                    <div>
-                        <h2 class="wiki-sec-title"><span>💀</span> 5 KIYAMET BOSS'U &amp; ARKA REAKTÖR ZAYIF NOKTA
-                            DOSYALARI</h2>
-                        <p class="wiki-sec-desc">Tüm Boss birimlerinin vektörel SVG modelleri, saldırı kalıpları ve
-                            x1.50 – x2.00 hasar çarpanlı zayıf noktaları.</p>
-                    </div>
-                </div>
-                <div class="bestiary-boss-grid" id="bestiaryBossGrid">
-                    <!-- Populated dynamically by js/wiki.js -->
-                </div>
-            </div>
-
-            <div class="wiki-panel" id="bestiaryEnemySection">
-                <div class="wiki-sec-header">
-                    <div>
-                        <h2 class="wiki-sec-title"><span>👾</span> SÜRÜ &amp; ELİT DÜŞMAN BİRİMLERİ ANSİKLOPEDİSİ</h2>
-                        <p class="wiki-sec-desc">Sektörlerde karşılaşacağınız 8 standart ve elit düşman biriminin
-                            davranış profilleri.</p>
-                    </div>
-                </div>
-                <div class="enemy-swarm-grid" id="bestiaryEnemyGrid">
-                    <!-- Populated dynamically by js/wiki.js -->
-                </div>
-            </div>
-        </section>
-
-        <!-- ===================================================================
-             TAB 5: HASAR & EVRİM MATEMATİK HESAPLAYICISI
-             =================================================================== -->
-        <section class="wiki-tab-pane" id="tab-calculator">
-            <div class="wiki-panel">
-                <div class="wiki-sec-header">
-                    <div>
-                        <h2 class="wiki-sec-title"><span>🧮</span> CANLI HASAR, KRİTİK, ZIRH &amp; KOZMİK ÇÜRÜME
-                            HESAPLAYICISI</h2>
-                        <p class="wiki-sec-desc">Sürgüleri (Sliders) kaydırarak veya hazır bir silah/evrim seçerek
-                            saniye başına teorik DPS ve Dalga 25+ Kozmik Çürüme etkisini gerçek zamanlı hesaplayın.</p>
-                    </div>
-                    <div>
-                        <select id="calcPresetSelect" class="pro-sort-select"
-                            aria-label="Silah veya Evrim Ön Ayarı Seç">
-                            <!-- Populated by js/wiki.js -->
-                        </select>
-                    </div>
-                </div>
-
-                <div class="math-calc-layout">
-                    <!-- LEFT: INTERACTIVE SLIDERS -->
-                    <div class="math-sliders-panel">
-                        <div class="slider-control-group">
-                            <div class="slider-label-row">
-                                <span>1. Temel Silah Hasarı (Base Damage)</span>
-                                <span class="slider-value-badge" id="valBaseDmg">115</span>
-                            </div>
-                            <input type="range" id="sliderBaseDmg" class="cosmic-range-slider" min="15" max="600"
-                                step="5" value="115">
-                        </div>
-
-                        <div class="slider-control-group">
-                            <div class="slider-label-row">
-                                <span>2. Seviye / Evrim Aşama Çarpanı (Stage Mult)</span>
-                                <span class="slider-value-badge" id="valStageMult">x2.20</span>
-                            </div>
-                            <input type="range" id="sliderStageMult" class="cosmic-range-slider" min="1.0" max="4.0"
-                                step="0.1" value="2.2">
-                        </div>
-
-                        <div class="slider-control-group">
-                            <div class="slider-label-row">
-                                <span>3. Temel Dolum Süresi (Base Cooldown)</span>
-                                <span class="slider-value-badge" id="valBaseCd">0.40 sn</span>
-                            </div>
-                            <input type="range" id="sliderBaseCd" class="cosmic-range-slider" min="0.12" max="2.50"
-                                step="0.02" value="0.40">
-                        </div>
-
-                        <div class="slider-control-group">
-                            <div class="slider-label-row">
-                                <span>4. Dolum Süresi Azaltma (CDR %)</span>
-                                <span class="slider-value-badge" id="valCdr">%30</span>
-                            </div>
-                            <input type="range" id="sliderCdr" class="cosmic-range-slider" min="0" max="65" step="1"
-                                value="30">
-                        </div>
-
-                        <div class="slider-control-group">
-                            <div class="slider-label-row">
-                                <span>5. Kritik Vuruş Şansı (Crit Chance %)</span>
-                                <span class="slider-value-badge" id="valCritChance">%35</span>
-                            </div>
-                            <input type="range" id="sliderCritChance" class="cosmic-range-slider" min="0" max="100"
-                                step="1" value="35">
-                        </div>
-
-                        <div class="slider-control-group">
-                            <div class="slider-label-row">
-                                <span>6. Kritik Hasar Çarpanı (Crit Multiplier)</span>
-                                <span class="slider-value-badge" id="valCritMult">x2.20</span>
-                            </div>
-                            <input type="range" id="sliderCritMult" class="cosmic-range-slider" min="1.5" max="4.5"
-                                step="0.1" value="2.2">
-                        </div>
-
-                        <div class="slider-control-group">
-                            <div class="slider-label-row">
-                                <span>7. Gemi Gövde Zırhı (Armor Mitigation)</span>
-                                <span class="slider-value-badge" id="valPlayerArmor">25 Zırh</span>
-                            </div>
-                            <input type="range" id="sliderPlayerArmor" class="cosmic-range-slider" min="0" max="80"
-                                step="1" value="25">
-                        </div>
-
-                        <div class="slider-control-group">
-                            <div class="slider-label-row">
-                                <span>8. Aktif Dalga Numarası (Kozmik Çürüme Testi)</span>
-                                <span class="slider-value-badge" id="valWaveNum">Dalga 28</span>
-                            </div>
-                            <input type="range" id="sliderWaveNum" class="cosmic-range-slider" min="1" max="60" step="1"
-                                value="28">
-                        </div>
-
-                        <div class="math-toggles-row">
-                            <label class="math-toggle-chip">
-                                <input type="checkbox" id="chkWeakSpot" checked>
-                                <span>🎯 Boss Arka Reaktör Vuruşu (x1.50)</span>
-                            </label>
-                            <label class="math-toggle-chip">
-                                <input type="checkbox" id="chkChronosRift">
-                                <span>⏳ Takyon Kristali / Yavaşlatma Bonusu (x1.25)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- RIGHT: LIVE TELEMETRY & FORMULA BREAKDOWN -->
-                    <div class="math-telemetry-panel">
-                        <h3 class="wiki-sec-title" style="font-size:1.05rem;"><span>📡</span> CANLI SAVAŞ TELEMETRİ
-                            ÇIKTISI</h3>
-
-                        <div class="math-kpi-grid">
-                            <div class="math-kpi-box">
-                                <span class="math-kpi-lbl">ORTALAMA VURUŞ HASARI</span>
-                                <span class="math-kpi-val" id="kpiAvgHit">0</span>
-                                <span class="math-kpi-sub" id="kpiCritHitSub">Kritik Vuruşta: 0 Hasar</span>
-                            </div>
-
-                            <div class="math-kpi-box gold">
-                                <span class="math-kpi-lbl">HAM SÜREKLİ DPS (DALGA ≤ 24)</span>
-                                <span class="math-kpi-val" id="kpiRawDps">0 /sn</span>
-                                <span class="math-kpi-sub" id="kpiFireRateSub">0.00 Atış/sn</span>
-                            </div>
-
-                            <div class="math-kpi-box magenta">
-                                <span class="math-kpi-lbl">DALGA SONRASI NET DPS (ÇÜRÜME DAHİL)</span>
-                                <span class="math-kpi-val" id="kpiDecayDps">0 /sn</span>
-                                <span class="math-kpi-sub" id="kpiDecaySub">Kozmik Çürüme Faktörü</span>
-                            </div>
-
-                            <div class="math-kpi-box green">
-                                <span class="math-kpi-lbl">ZIRH HASAR SÖNÜMLEME</span>
-                                <span class="math-kpi-val" id="kpiArmorMit">%0.0 Azaltma</span>
-                                <span class="math-kpi-sub" id="kpiEhpSub">Efektif Gövde Dayanıklılığı: x1.00 EHP</span>
-                            </div>
-                        </div>
-
-                        <div class="formula-code-box" id="liveFormulaBreakdown">
-                            <!-- Populated dynamically by js/wiki.js -->
-                        </div>
-
-                        <div class="formula-code-box" style="border-left-color:var(--cyan);">
-                            <div style="color:var(--cyan); font-weight:700; margin-bottom:4px;">📐 MOTOR MATEMATİK
-                                DENKLEMLERİ (v8.0):</div>
-                            <div>•
-                                <code>Ortalama Hasar = Baz × Aşama × ZayıfNokta × [1 + KritikŞans × (KritikÇarpan - 1)]</code>
-                            </div>
-                            <div>• <code>Efektif Dolum (CD) = max(0.08s, BazCD × (1 - CDR))</code></div>
-                            <div>• <code>Kozmik Çürüme (Dalga &gt; 24) = HamDPS × 0.96^(Dalga - 24)</code></div>
-                            <div>• <code>Zırh Azaltması = Zırh / (Zırh + 40)</code></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
     </main>
 
+    <script src="vendor/lucide.min.js"></script>
+    <script src="vendor/chart.umd.min.js"></script>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/howler.min.js"></script>
+    <script src="js/audio.js"></script>
     <script src="js/data.js"></script>
     <script src="js/wiki.js"></script>
 </body>
-
 </html>
